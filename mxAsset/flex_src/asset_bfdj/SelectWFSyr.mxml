@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" updateComplete="initPage()" creationComplete="afterInitPage()" showCloseButton="true" close="closeHandler()"
+	title="选择人员"	 width="100%" height="100%"  fontSize="12" xmlns:ns="asset_ryhc.*" layout="vertical" xmlns:systemManage="systemManage.*">
+	<mx:RemoteObject id="userSerice" destination="UserService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.ComboBox;
+			import mx.controls.DataGrid;
+			import mx.controls.TextInput;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.core.INavigatorContent;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.http.HTTPService;
+			import mx.utils.StringUtil;
+			
+			
+			//初始化页面信息
+			public function initPage():void{
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				this.width = FlexGlobals.topLevelApplication.width*0.8;
+				this.height = FlexGlobals.topLevelApplication.height*0.8;
+				if(Application.application.userVo.ruleId != "41" && Application.application.userVo.ruleId != "44"){//超级管理员 、物资管理员 可以选择所有人
+			//	userListPage.condition = "ruleyxj<="+Application.application.userVo.ruleYxj+"  and   " + userListPage.condition;
+					userListPage.condition = " iswfshr='1'  and   " + userListPage.condition;
+				}
+			//	requestFuncitonXml();
+			}
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				
+			}
+			
+
+			protected function closeHandler():void
+			{
+				resetListPage();
+				PopUpManager.removePopUp(this);
+			}
+			private function selectHandler():void
+			{
+				var currentObj:Object = userListPage;
+				if(currentObj.hasOwnProperty("dataGrid") && currentObj.dataGrid is DataGrid){
+					var dataGrid:DataGrid = currentObj.dataGrid as DataGrid;
+					var prtItem:ArrayCollection= dataGrid.dataProvider as ArrayCollection;
+					if(prtItem==null) return;
+						var ary:Array = new Array();
+						for(var i:int=0;i<prtItem.length;i++)
+						{
+							if(prtItem.getItemAt(i).selected)
+							{
+								setInputValue(prtItem.getItemAt(i));
+								break;
+							}
+							if(i == prtItem.length-1 && !prtItem.getItemAt(i).selected){
+								Alert.show("请勾选一个人员.");
+							}
+						}
+				}else{
+					Alert.show("当前页面没有dataGrid 属性!");
+				}
+			}
+			
+			public var syrInput:TextInput;
+			public var bmInput:TextInput;
+			public var isSetVo:Boolean = false;
+			public function setInputValue(selectData:Object):void{
+				var st:String=selectData.userName;
+				var usid:String=selectData.id;
+				if(bmInput != null){bmInput.text = selectData.deptName; bmInput.data = selectData.deptId;}
+				if(syrInput != null){ syrInput.text = st; syrInput.data = usid;}
+				closeHandler();
+			}
+			private function resetListPage():void{
+				userListPage.searchText.text = "";
+				userListPage.searchUserList();
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="2">
+		<mx:VBox width="100%" height="20" paddingBottom="3" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" verticalAlign="middle" fontSize="12">
+			<mx:HBox width="100%" height="18" horizontalAlign="left" backgroundColor="#99CCFF" borderStyle="none" horizontalGap="0" verticalAlign="middle">
+				<mx:Label text="操作步骤：勾选人员&gt;[确认]" textIndent="5" textAlign="left" fontWeight="bold" fontSize="12"/>
+			</mx:HBox>
+		</mx:VBox>
+		<systemManage:User id="userListPage" doubleSelectFunc="{setInputValue}" isListPage="{true}" width="100%" height="100%" />
+	</mx:VBox>
+	<mx:HBox horizontalGap="180" width="100%" horizontalAlign="center">
+		<mx:Button label="确认" click="selectHandler()" width="80" x="491"/>
+		<mx:Button label="取消" click="closeHandler()" width="80" x="245"/>
+	</mx:HBox>
+</mx:TitleWindow>

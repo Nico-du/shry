@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--我的工作流-->
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initializeHandler(event);addRefeshBtn();" 
+		   width="400" height="300" fontSize="12" xmlns:s="library://ns.adobe.com/flex/spark">
+	<mx:RemoteObject id="ChartService" destination="chartService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import asset_bfdj.ProcessMethods;
+			
+			import cn.cnsasfram.entity.DoResult;
+			import cn.cnsasfram.entity.enum.Errors;
+			import cn.cnsasfram.helper.ASJsonHelper;
+			
+			import com.adobe.serialization.json.JSON;
+			import com.adobe.utils.DateUtil;
+			import com.benstucki.utilities.IconUtility;
+			
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.controls.LinkButton;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.messaging.ChannelSet;
+			import mx.messaging.Consumer;
+			import mx.messaging.channels.StreamingAMFChannel;
+			import mx.messaging.events.ChannelEvent;
+			import mx.messaging.events.ChannelFaultEvent;
+			import mx.messaging.events.MessageEvent;
+			import mx.messaging.events.MessageFaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			private var isInitPage:Boolean = true;
+			private var openMsgCom:LinkButton = new LinkButton();
+			private const minRyhcsl:int = 20;//提醒数量阀值 在  CommonMethods.MinRyhcsl 修改
+			private var ischarRequetsEnd:Boolean = false;//查询任务是否已请求结束
+			public function initializeHandler(event:FlexEvent):void
+			{
+				ischarRequetsEnd = false; 
+				ChartService.getMyLatestMessions(FlexGlobals.topLevelApplication.userVo);
+				ChartService.addEventListener(ResultEvent.RESULT,resultBack);
+			}
+			private function addRefeshBtn():void{
+			//	this.setChildIndex(refreshAction,this.numChildren-1); 
+			}
+			
+			private var wfArray:Array;
+			private function resultBack(event:ResultEvent):void {
+				ChartService.removeEventListener(ResultEvent.RESULT,resultBack);
+				if(event.result == null)return; 
+				wfArray = JSON.decode(event.result.toString()) as Array;
+				if(!datumFormTabNV.visible){//显示msgInfo时
+					msgMainBox.removeAllChildren();
+					for(var i:int=0;i<wfArray.length;i++){
+					var rstVo:Object = wfArray[i];
+					var msgInfo:MsgInfoPart = new MsgInfoPart();
+					msgInfo.rstVo = rstVo;
+					msgInfo.pwd = this;
+					msgMainBox.addChild(msgInfo);
+					}
+					this.setChildIndex(refreshAction,this.numChildren-1); 
+					this.setChildIndex(readAllAction,this.numChildren-1); 
+					if(Application.application.userVo.ruleId == "44" || Application.application.userVo.ruleId == "41"){
+					nvPage1.label = "任务提醒("+wfArray.length+")";
+					ChartService.getMyLatestRyhcMsgs(Application.application.userVo.id);
+					ChartService.addEventListener(ResultEvent.RESULT,ryhcResultBack);
+					}else{
+						titleLabel.text ="系统提醒:您有("+wfArray.length+")条任务更新";
+						ischarRequetsEnd = true;
+						initPageStyle(wfArray.length);
+					}
+				//	msgMainBox
+				}else{
+					//显示列表页面时
+					workflow_dg.dataProvider = wfArray;
+					//物资管理员 系统管理员 可以查看耗材数量提醒
+					if(Application.application.userVo.ruleId == "44" || Application.application.userVo.ruleId == "41"){
+						nvPage1.label = "任务提醒("+wfArray.length+")";
+						ChartService.getMyLatestRyhcMsgs(Application.application.userVo.id);
+						ChartService.addEventListener(ResultEvent.RESULT,ryhcResultBack);
+						this.setChildIndex(refreshAction,this.numChildren-1); 
+					}else{
+						datumFormTabNV.visible = false;datumFormTabNV.includeInLayout = false;
+						mainBox.addChild(workflow_dg);
+						titleLabel.text ="系统提醒:您有("+wfArray.length+")条任务更新";
+						ischarRequetsEnd = true;
+					}
+				}
+				
+			}
+			
+			private function initPageStyle(childNum:int):void{
+				if(childNum < 3 && childNum >0){
+					msgMainBox.setStyle("paddingLeft","16");
+				}else{
+					msgMainBox.setStyle("paddingLeft","8");
+				}
+				if(childNum == 0){
+					msgMainBox.addChild(noNewMsgBox);
+				}
+				if(isInitPage){
+					if(childNum >0){
+						switchMsgWd();
+					}
+					isInitPage = false;
+					openMsgCom.width = 90;
+					openMsgCom.height = 23;
+					openMsgCom.setStyle("color","#0A88C3"); 
+					openMsgCom.setStyle("cornerRadius","2");
+					var tempClass:Class=IconUtility.getClass(openMsgCom,"images/sysMsgUp.png",16,16);
+					openMsgCom.setStyle("icon",tempClass);
+					openMsgCom.label = "系统提醒";
+					openMsgCom.buttonMode = true;
+					openMsgCom.x = Application.application.width - openMsgCom.width - 4;
+					openMsgCom.y = Application.application.height - openMsgCom.height - 4;
+					openMsgCom.addEventListener(MouseEvent.CLICK,openMsgComClick);
+					PopUpManager.addPopUp(openMsgCom,Application.application.mainPage,false);
+				}
+			}
+			 
+			
+			private function ryhcResultBack(event:ResultEvent):void {
+				if(event.result == null)return;
+				ChartService.removeEventListener(ResultEvent.RESULT,ryhcResultBack);
+				if(event.result==null || event.result.toString().length < 1)return;
+				var arrRst:Array = JSON.decode(event.result.toString()) as Array;
+				titleLabel.text = "任务提醒("+(wfArray.length+arrRst.length)+")";
+				if(!datumFormTabNV.visible){
+					for(var i:int=0;i<arrRst.length;i++){
+						var rstVo:Object = arrRst[i];
+						var msgInfo:MsgInfoPart = new MsgInfoPart();
+						msgInfo.txlx = "HCSLNOTICE";
+						msgInfo.rstVo = rstVo;
+						msgInfo.pwd = this;
+						msgMainBox.addChild(msgInfo);
+					}
+				}else{
+					ryhc_dg.dataProvider = arrRst;
+					nvPage2.label = "耗材数量提醒("+arrRst.length+")";
+				}
+				ischarRequetsEnd = true;
+				initPageStyle(wfArray.length+arrRst.length);
+				
+			//		Alert.show("msgMainBox.Height = "+msgMainBox.height+" msgMainBox.width="+msgMainBox.width);
+			//		Alert.show("mainBox.Height = "+mainBox.height+" mainBox.width="+mainBox.width);
+			}
+			 
+			
+			//打开Msg窗口的按钮事件
+			private function openMsgComClick(event:Event):void{
+				if(!isMsgWdShow){
+					switchMsgWd();
+				}
+			}
+
+			private function gotoMession(event:Event):void{
+				var tempSelectedItem:Object=event.currentTarget.selectedItem;
+				ProcessMethods.gotoMyMession(tempSelectedItem.rwlx,tempSelectedItem.rwid,tempSelectedItem.rwmc,tempSelectedItem.sqzt);
+				switchMsgWd();
+			}
+			//得到表格行号
+			protected function mylabelFunc(item:Object,column:DataGridColumn):String{
+				if(item== null || CommonMethod.isNullOrWhitespace(item.sqzt))return"";
+				return (item.sqzt.indexOf("初稿") > -1 || item.sqzt.indexOf("结束") > -1 || item.sqzt.indexOf("审核")  > -1) ? item.sqzt : (item.sqzt+"审核");
+			}
+			
+			//订阅推送
+			public function subscribeRss(evt:Event):void{
+				var consumer:Consumer = new Consumer();  
+				consumer.destination = "tick-data-feed";  
+				consumer.subtopic = "tick";  
+				consumer.selector="userid="+Application.application.userVo.id;  
+				var url:String = CommonMethod.ApplicationURL;//
+				var myStreamingAMF:StreamingAMFChannel =  new StreamingAMFChannel(url+"my-streaming-amf", url+"messagebroker/streamingamf");    
+				var channelSet:ChannelSet = new ChannelSet();  
+				channelSet.addChannel(myStreamingAMF);  
+				consumer.channelSet = channelSet;   
+				consumer.addEventListener(MessageEvent.MESSAGE, messageHandler);  
+				consumer.addEventListener(MessageFaultEvent.FAULT,fault2);
+				consumer.addEventListener(ChannelFaultEvent.FAULT,fault);
+				consumer.addEventListener(ChannelEvent.CONNECT,connectHandler);
+				consumer.addEventListener(ChannelEvent.DISCONNECT,disconnectHandler);
+				consumer.subscribe();   
+			}
+			
+			
+			//处理推送消息
+			public function messageHandler(event:MessageEvent):void   
+			{  
+				var msgbody:Object = event.message.body as Object;   
+					if(!isMsgWdShow){
+						switchMsgWd();
+					}else{
+						switchMsgWd();
+						switchMsgWd();
+					}
+					if(datumFormTabNV.visible){
+						if(!CommonMethod.isNullOrWhitespace(msgbody.toString()) && msgbody.wftype == "RYHC"){
+							datumFormTabNV.selectedIndex = 1;
+						}else{
+							datumFormTabNV.selectedIndex = 0;
+						}
+					}
+			} 
+			
+			
+			
+			
+			
+			
+			
+			
+		private	var conDate:Date;
+		  private function fault(e:ChannelFaultEvent):void  
+            {  
+					 trace("----ChannelFault-");     
+	                trace(e.faultDetail, e.faultString);  
+					if(CommonXMLData.IsTestEnvironment){
+					     Alert.show("----ChannelFault--获取连接时间:"+conDate +" 断开时间:"+ new Date());  
+					}else{
+						Alert.show(CommonXMLData.Alert_SysMsgService_OutOfDate);
+					}
+            }  
+			              
+            private function fault2(e:MessageFaultEvent):void  
+            {  
+					 trace("----MessageFault-");     
+	                trace(e.faultDetail, e.faultString);  
+				if(CommonXMLData.IsTestEnvironment){
+				     Alert.show("----MessageFault--获取连接时间:"+conDate +" 断开时间:"+ new Date());  
+				}else{
+					Alert.show(CommonXMLData.Alert_SysMsgService_OutOfDate);
+				}
+            }  
+			private function connectHandler(event:ChannelEvent):void  
+            {  
+				conDate = new Date();
+	                trace("----connectHandler-");               
+	           //     Alert.show("----connectHandler-" + new Date());  
+            }  
+              
+            private function disconnectHandler(event:ChannelEvent):void  
+            {  
+	                trace("----disconnectHandler-");                  
+	if(CommonXMLData.IsTestEnvironment){
+		Alert.show("----disconnectHandler-获取连接时间:"+conDate +" 断开时间:"+ new Date());  
+	}else{
+		Alert.show(CommonXMLData.Alert_SysMsgService_OutOfDate);
+	}
+            }  
+			
+			//消息弹窗是否已显示
+			public var isMsgWdShow:Boolean = false;
+			public function switchMsgWd():void{
+				Application.application.smove.end();
+				if((this.y < Application.application.height && Application.application.smove.yTo == (Application.application.height - this.height)) 
+					|| (this.y > (Application.application.height - this.height) && Application.application.smove.yTo == Application.application.height )){
+					var yTemp:Number;
+					yTemp = Application.application.smove.yFrom;
+					Application.application.smove.yFrom = Application.application.smove.yTo;
+					Application.application.smove.yTo = yTemp;
+				}
+				isMsgWdShow = !isMsgWdShow;
+				Application.application.smove.play();
+				openMsgCom.visible =!isMsgWdShow;
+				if(isMsgWdShow &&　ischarRequetsEnd){initializeHandler(null);}//重新显示MsgBox时刷新列表
+			}
+			//改变Application的大小时，改变弹出控件的位置
+			public function resetMsgWdLoc(evt:Event):void{
+				if(isMsgWdShow){
+					this.y = Application.application.height - this.height;
+				}else{
+					this.y = Application.application.height;
+				}
+				this.x = Application.application.width - this.width; 
+				
+				openMsgCom.y = Application.application.height - openMsgCom.height;
+				openMsgCom.x = Application.application.width - openMsgCom.width;
+			}
+			private function refeshMsgBox():void{
+				if(isMsgWdShow &&　ischarRequetsEnd){
+					initializeHandler(null);
+				}
+			}
+			
+			private function readAllActionClick():void{
+				Alert.show("您确认已阅所有提醒吗？","系统提示",Alert.OK|Alert.CANCEL,this,readAllDataAction);
+			}
+			
+			protected function readAllDataAction(doEvent:CloseEvent):void{
+				if(doEvent.detail==Alert.CANCEL){
+					return;
+				}
+				AllAssetServiceRmt.RemoveUserNotice(Application.application.userVo.id.toString());
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+			}
+			
+			//删除当前数据回调方法
+			protected function dataRemoveActionBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					//	Alert.show("操作失败!");
+				}else{
+					//	Alert.show("删除成功!");
+				}
+				initializeHandler(null);
+			}
+
+			protected function label1_mouseOverHandler(lbl:Object):void
+			{
+				lbl.setStyle("color","#0A88C3");
+				Mouse.cursor = MouseCursor.BUTTON;
+			}
+			protected function label1_mouseOutHandler(lbl:Object):void
+			{
+				lbl.setStyle("color","black");
+				Mouse.cursor = MouseCursor.ARROW;
+			}
+
+		]]>
+	</mx:Script>
+	<mx:LinkButton id="readAllAction" x="310" y="27"  click="readAllActionClick()" height="20" width="30" label="" toolTip="全部已阅" icon="@Embed(source='images/empty.gif')"/>
+	<mx:LinkButton id="refreshAction" x="350" y="27"  click="refeshMsgBox()" height="20" width="30"  label="" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
+	<mx:VBox id="mainBox" width="100%" height="100%" borderStyle="solid" backgroundColor="white" borderColor="#B14C6B"  horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+		<mx:HBox width="100%" height="25" borderStyle="none" backgroundColor="#B14C6B" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+			<mx:Label id="titleLabel" text="系统提醒:您的相关任务有更新" textIndent="10" width="100%"  paddingTop="3" fontWeight="bold" fontSize="14"/>
+	        <mx:Label  text="关闭" fontSize="14" id="closeLbl" click="switchMsgWd();" buttonMode="true" mouseOver="label1_mouseOverHandler(closeLbl)" mouseOut="label1_mouseOutHandler(closeLbl)" />
+		</mx:HBox>
+		<mx:VBox id="msgMainBox" width="398" height="273" borderStyle="none" horizontalAlign="left" verticalGap="5" paddingTop="3" paddingLeft="8">
+			<mx:Label text="您当前没有任务提醒。" fontSize="13" id="noNewMsgBox" paddingTop="120" paddingLeft="120"/>
+			</mx:VBox>
+		<mx:TabNavigator visible="false" includeInLayout="false" id="datumFormTabNV" creationPolicy="all" width="100%" height="100%" borderStyle="solid" verticalGap="0" 
+						 paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2">
+			<mx:Panel id="nvPage1" label="任务提醒(I)" width="100%"  borderStyle="none" headerHeight="0" borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
+			<mx:DataGrid id="workflow_dg" width="100%" height="100%" rowHeight="20"  borderStyle="none" verticalAlign="middle" doubleClickEnabled="true" doubleClick="gotoMession(event)">
+				<mx:columns>
+					<mx:DataGridColumn headerText="任务编号" width="100" dataField="rwbh" sortable="true"/>
+					<mx:DataGridColumn headerText="任务类型" width="100" dataField="rwmc" sortable="true"/>
+					<mx:DataGridColumn headerText="申请人" width="85" dataField="sqr" sortable="true"/>
+					<mx:DataGridColumn headerText="申请时间" width="85" dataField="sqsj" sortable="true"/>
+					<mx:DataGridColumn headerText="当前状态" width="85" dataField="sqzt" sortable="true" labelFunction="mylabelFunc"/>
+				</mx:columns>
+			</mx:DataGrid>
+			</mx:Panel>	
+			<mx:Panel id="nvPage2" label="耗材数量提醒(I)" width="100%"  borderStyle="none" headerHeight="0" borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
+			<mx:DataGrid id="ryhc_dg"  width="100%" height="100%" rowHeight="20"  borderStyle="none" verticalAlign="middle" doubleClickEnabled="true" doubleClick="gotoMession(event)">
+				<mx:columns>
+					<mx:DataGridColumn headerText="耗材名称" width="100" dataField="ryhcname" sortable="true"/>
+					<mx:DataGridColumn headerText="剩余数量" width="75" dataField="sysl" sortable="true"/>
+					<mx:DataGridColumn headerText="单位" width="55" dataField="dw" sortable="true"/>
+					<mx:DataGridColumn headerText="更新时间" width="95" dataField="utime" sortable="true"/>
+				</mx:columns>
+			</mx:DataGrid>
+			</mx:Panel>	
+		</mx:TabNavigator>
+	</mx:VBox>
+</mx:Canvas>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--我的工作流-->
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark"  creationComplete="vbox1_creationCompleteHandler(event)"
+		   width="365" height="95" fontSize="12" horizontalGap="0" verticalGap="0" borderStyle="solid" borderThickness="1" >
+	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import asset_bfdj.ProcessMethods;
+			
+			import cn.cnsasfram.entity.DoResult;
+			import cn.cnsasfram.entity.enum.Errors;
+			import cn.cnsasfram.helper.ASJsonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import flex.util.CommonMethod;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			public var rstVo:Object = new Object();
+			public var txlx:String = "WFNOTICE";//提醒类型
+			public var pwd:Object = new Object();//父窗口
+			protected function vbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				if(txlx == "HCSLNOTICE"){
+				titleLabel.text = "耗材剩余数量不足提醒";
+				shrLbl.text = rstVo.ryhcname + " 剩余数量不足  "+rstVo.utime;
+				txnrLbl.text = "目前剩余 "+rstVo.sysl+""+(CommonMethod.isNullOrWhitespace(rstVo.dw) ? "个" : rstVo.dw)+" ,请您及时补充库存!";
+				wfhistory.visible=false;
+				}else if(txlx == "WFNOTICE"){
+					if(rstVo.rwmc.indexOf("审核") > -1){
+						titleLabel.text = "待办任务提醒:"+rstVo.rwmc ;
+						
+					}else{
+					    titleLabel.text = rstVo.rwmc +"进度更新提醒";
+					}
+					if(rstVo.rwmc.indexOf("退库") > -1){wfhistory.visible = false;}
+					var sqzt:String = (rstVo.sqzt.indexOf("初稿") > -1 || rstVo.sqzt.indexOf("结束") > -1 || rstVo.sqzt.indexOf("审核") > -1) ? rstVo.sqzt : (rstVo.sqzt+"审核");
+					endInfo.visible = ((rstVo.sqzt.indexOf("物资管理员") > -1 && rstVo.rwmc.indexOf("领用申请") > -1));
+					if(rstVo.rwmc.indexOf("报废") > -1 || rstVo.sqzt.indexOf("审核通过") > -1){endInfo.text = "审核已通过!";} 
+					shrLbl.text = rstVo.shr + "  "+rstVo.utime;
+					txnrLbl.text = rstVo.rwlx+"单编号:"+rstVo.rwbh+"  当前状态:"+sqzt;
+				}
+			}
+			protected function wfhistory_clickHandler(event:MouseEvent):void
+			{
+				ProcessMethods.historyActionActionClick(rstVo.rwid)
+			}
+
+
+			protected function showWFDetail_clickHandler(event:MouseEvent):void
+			{
+				if(txlx == "HCSLNOTICE"){
+					ProcessMethods.gotoMyRyhc(rstVo.ryhcid);
+				}else if(txlx == "WFNOTICE"){
+				ProcessMethods.gotoMyMession(rstVo.rwlx,rstVo.rwid,rstVo.rwmc,rstVo.sqzt,rstVo.bmldid);
+				}
+				yyLbl_clickHandler(null);
+				pwd.switchMsgWd();
+			}
+
+			protected function yyLbl_clickHandler(event:MouseEvent):void
+			{
+				if(txlx == "HCSLNOTICE"){
+					if(ASStringHelper.isNullOrEmpty(rstVo.ryhcid)){
+						return;
+					}
+					//领用结束时加耗材数量提醒
+					AllAssetServiceRmt.RemoveNotice(rstVo.ntid);
+					AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+				}else if(txlx == "WFNOTICE"){
+				if(ASStringHelper.isNullOrEmpty(rstVo.ntid)){
+					return;
+				}
+				AllAssetServiceRmt.RemoveNotice(rstVo.ntid);
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+				}
+			}
+			//删除当前数据回调方法
+			protected function dataRemoveActionBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+				//	Alert.show("操作失败!");
+				}else{
+					//	Alert.show("删除成功!");
+				}
+					pwd.initializeHandler(null);
+			}
+			
+			private function changeTextColorOver(lbl:Label):void{
+				lbl.setStyle("color","red");
+				Mouse.cursor = MouseCursor.BUTTON;
+			}
+			private function changeTextColorOut(lbl:Label):void{
+				lbl.setStyle("color","black");
+				Mouse.cursor = MouseCursor.ARROW;
+			}
+
+
+		]]>
+	</mx:Script>
+	
+		<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#DFDCDC" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+			<mx:Label id="titleLabel" text="进度更新提醒" textIndent="10" width="100%"   fontWeight="bold" fontSize="12"/>
+		</mx:HBox>
+		<mx:Canvas borderStyle="none" width="100%" height="100%">
+			<mx:TextInput borderStyle="none" editable="false" id="shrLbl" text="系统管理员 2015-01-12" x="5" y="2"/>
+			<mx:TextInput borderStyle="none" editable="false" id="txnrLbl" text="审核提醒: BFD-20150101-001 (当前状态)部门领导审核" x="5" y="24"/>
+			<mx:TextInput borderStyle="none" editable="false"  id="endInfo" text="审核已通过,请您速去领取!" color="red"  x="5" y="47" visible="false"/>
+			<mx:HBox x="194" y="47" >
+				<mx:Label htmlText="已阅" id="yyLbl" click="yyLbl_clickHandler(event)"  mouseOver="changeTextColorOver(yyLbl)" mouseOut="changeTextColorOut(yyLbl)"   textDecoration="underline"/>
+				<mx:Label htmlText="查看详情" id="showWFDetail" click="showWFDetail_clickHandler(event)" mouseOver="changeTextColorOver(showWFDetail)" mouseOut="changeTextColorOut(showWFDetail)"  textDecoration="underline"/>
+				<mx:Label htmlText="审核记录" id="wfhistory" click="wfhistory_clickHandler(event)" mouseOver="changeTextColorOver(wfhistory)" mouseOut="changeTextColorOut(wfhistory)" textDecoration="underline"/>
+			</mx:HBox>
+		</mx:Canvas>
+</mx:VBox>
+			
+

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt name="issueTitle" column="问题标题"></paremt>
+	<paremt name="issueType" column="问题类型"></paremt>
+	<paremt name="issueDescribe" column="问题描述"></paremt>
+	<paremt name="issueKeyword" column="问题关键字 "></paremt>
+	<paremt name="issueComment" column="问题备注"></paremt>
+	<paremt name="handleMethod" column="处理方法"></paremt>
+	<paremt name="addDate" column="添加时间"></paremt>
+</root>
+<!-- 	<paremt name="handleComment" column="处理方式备注"></paremt> -->
+<!-- 	<paremt name="issueLevel" column="问题级别/分类"></paremt> -->
+<!-- private String issueTitle; -->
+<!-- 	private String issueType; -->
+<!-- 	private String issueDescribe; -->
+<!-- 	private String issueKeyword; -->
+<!-- 	private String issueComment; -->
+<!-- 	private String handleMethod; -->
+<!-- 	private String handleComment; -->
+<!-- 	private Date addDate; -->
+<!-- 	private String issueLevel; -->
+<!-- 知识库表 -->
+<!-- 问题标题 -->
+<!-- 问题类型 -->
+<!-- 问题描述 -->
+<!-- 问题关键字 -->
+<!-- 问题备注 -->
+<!-- 处理方法 -->
+<!-- 处理方式备注 -->
+<!-- 添加时间 -->
+<!-- 问题级别/分类 -->

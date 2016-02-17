@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:ns1="*" initialize="initPage()" updateComplete="afterInitPage()"
+		   width="100%" height="100%" paddingTop="5" paddingLeft="5" paddingBottom="5" paddingRight="5" 
+		   fontSize="12" backgroundColor="white">
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.benstucki.utilities.IconUtility;
+			
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.containers.VBox;
+			import mx.controls.Tree;
+			import mx.core.INavigatorContent;
+			import mx.events.EffectEvent;
+			import mx.events.ResizeEvent;
+			import mx.managers.PopUpManager;
+			
+			//菜单数据
+			public var menuTreeDate:XML=null;
+			//保存实例化的对象
+			private var modelMap:Dictionary=null;
+			//会议登记
+			private var MEETLIST:String="MEETLIST";
+			
+			//初始化页面调用
+			public function initPage():void{
+				modelMap=new Dictionary();
+				if(true){
+					beforeInitPage();
+				}
+				addFoldBtn();
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				/* if(!CommonXMLData.IsTestEnvironment && meetingMainXml.children().length()==6){
+					delete meetingMainXml.node[5];
+					delete meetingMainXml.node[2];
+				}
+				this.menuTreeDate=this.meetingMainXml; */
+				this.menutree.dataProvider=menuTreeDate;
+				this.menutree.callLater(expandTree);
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+			//	treeSelectClick();
+				initAddFoldBtn();
+			}
+			
+			//展开树节点
+			protected function expandTree():void{
+				this.menutree.expandChildrenOf(this.menuTreeDate,true);
+				this.menutree.selectedIndex=0;
+				if(this.menutree.selectedItem == null)return;
+				var selectItem:XML=this.menutree.selectedItem as XML;
+				var selectChildList:XMLList=selectItem.children();
+				if(selectChildList==null){
+					return;
+				}
+				var tempItem:XML=selectChildList[0];
+				this.menutree.selectedItem=tempItem;
+			}
+			
+			//点击树节点事件
+			public function treeSelectClick():void{
+				if(!directoryTreeIsSelectItem()){
+					return;
+				}
+				var selectItem:XML=this.menutree.selectedItem as XML;
+				if(selectItem==null){
+					return;
+				}
+				//如果点击父节点，返回
+				if(selectItem.hasComplexContent()){
+					return;
+				}
+				var tempContent:INavigatorContent=getModelBySelect(selectItem);
+				if(tempContent==null){
+					return;
+				}
+				this.managerStack.selectedChild=tempContent;
+			}
+			
+			//判断树节点是否选择项
+			public function directoryTreeIsSelectItem():Boolean{
+				var treeSelectedIndex:int=this.menutree.selectedIndex;
+				if(treeSelectedIndex!=-1){
+					return true;
+				}else{
+					return false;
+				}
+			}
+			
+			//根据选中得到对象
+			public function getModelBySelect(selectItem:XML):INavigatorContent{
+				if(selectItem==null){
+					return null;
+				}
+				var strid:String=selectItem.@id;
+				var strname:String=selectItem.@label;
+				var strpageurl:String=selectItem.@pageUrl;
+				var targetModel:*=this.modelMap[strid];
+				if(targetModel!=null){
+					return targetModel;
+				}
+				var tempMoudel:*=null;
+				if(ASStringHelper.stringCompare(this.MEETLIST,strpageurl,true)==0){
+				//	tempMoudel=new User();
+				}/*else if (ASStringHelper.stringCompare("MeeReseveList",strpageurl,true)==0){
+					tempMoudel=new MeeReseveList();
+				}else if (ASStringHelper.stringCompare("MeetingList",strpageurl,true)==0){
+					tempMoudel=new MeetingList();
+				}else if (ASStringHelper.stringCompare("CarList",strpageurl,true)==0){
+					tempMoudel=new carList();
+				}else if (ASStringHelper.stringCompare("DictionaryList",strpageurl,true)==0){
+					tempMoudel=new dictionaryList();
+				}else if (ASStringHelper.stringCompare("tbTypeList",strpageurl,true)==0){
+					tempMoudel=new tbTypeList();
+				}else if (ASStringHelper.stringCompare("HTDJGridMoudel",strpageurl,true)==0){
+					tempMoudel=new HTDJGridMoudel();
+				}else if (ASStringHelper.stringCompare("FKDJGridMoudel",strpageurl,true)==0){
+					tempMoudel=new FKDJGridMoudel();
+				}else if (ASStringHelper.stringCompare("WHDJGridMoudel",strpageurl,true)==0){
+					tempMoudel=new WHDJGridMoudel();
+				}*/
+				
+				if(tempMoudel == null){return null;}
+				
+				if(CommonMethod.executePwdAuthority(tempMoudel,selectItem) == null)return null;	//执行权限验证	1
+				this.modelMap[strid]=tempMoudel;
+				this.managerStack.addChild(tempMoudel);
+				
+				return tempMoudel;
+			}
+			
+			
+			/**
+			 *添加展开/收起树形菜单按钮 
+			 **/
+			private function addFoldBtn():void{
+				PopUpManager.addPopUp(imgFold, this,false);
+				imgFold.addEventListener(MouseEvent.CLICK,imgFoldClickHandler);
+				menuLeft.addEventListener(ResizeEvent.RESIZE,resizeHandler);
+			}
+			/**
+			 *初始化imgFold的坐标 
+			 **/
+			private var menuLeftWidth:Number;//记录menuLeft的宽度
+			private function initAddFoldBtn():void{
+				imgFold.x=menuLeft.width+5;
+				imgFold.y=(menuLeft.height-imgFold.height)/2 + 70;
+				imgFold.visible = this.visible;
+			}
+			private function resizeHandler(evt:Event):void{
+				imgFold.x = menuLeft.width + 5;
+			}
+			private function imgFoldClickHandler(evt:Event):void{
+				if(moveEffect.isPlaying){
+					moveEffect.end();
+					resizeEffect.end();
+				}
+				if(menuLeft.width != 0){
+					menuLeftWidth =  menuLeft.width;
+				}
+				
+				moveEffect.play();
+				resizeEffect.play();
+			}
+			
+			
+			protected function moveEffect_effectEndHandler(event:EffectEvent):void
+			{
+				imgFold.source = null;
+				if(imgFold.toolTip == "收起"){
+					imgFold.toolTip = "展开";
+					var tempClass:Class=IconUtility.getClass(imgFold,"images/mini-right.gif",5,35);
+					imgFold.source=tempClass;
+					
+					moveEffect.xTo = menuLeftWidth + 5;
+					resizeEffect.widthTo = menuLeftWidth;
+					menuLeft.visible = false;
+				}else{
+					imgFold.toolTip = "收起";
+					var tempClass:Class=IconUtility.getClass(imgFold,"images/mini-left.gif",5,35);
+					imgFold.source=tempClass;
+					
+					moveEffect.xTo = 5;
+					resizeEffect.widthTo = 0;
+				} 
+			}
+		]]>
+	</mx:Script>
+	<mx:XML id="meetingMainXml">
+		<Root>
+		<node id="hwgl" label="会务管理">
+			<node id="hydj" label="会议登记" pageUrl="MeeReseveList"/>
+			<node id="hyzy" label="会议资源" pageUrl="MeetingList"/>
+			<node id="hypq" label="会议排期" pageUrl=""/>
+		</node>
+			<node id="hwgl" label="合同管理">
+				<node id="htdj" label="合同登记" pageUrl="HTDJGridMoudel"/>
+				<node id="fkdj" label="付款登记" pageUrl="FKDJGridMoudel"/>
+				<node id="whdj" label="维护登记" pageUrl="WHDJGridMoudel"/>
+			</node>
+	   </Root>
+	</mx:XML>
+	
+	<!--
+			<node id="hysq" label="会议申请" pageUrl=""/>
+			<node id="hysh" label="会议审核" pageUrl=""/>
+			<node id="hybz" label="会议保障" pageUrl=""/>
+			<node id="clgl" label="车辆管理" pageUrl="CarList"/>
+			<node id="sjdmb" label="数据代码表" pageUrl="tbTypeList"/>
+			<node id="sjzd" label="图书种类" pageUrl="DictionaryList"/>
+-->
+	
+	<mx:Move id="moveEffect" target="{imgFold}"  xFrom="{menuLeft.width + 5}" xTo="{5}" effectStart="{menuLeft.visible = true;}" effectEnd="moveEffect_effectEndHandler(event)"/>
+	<mx:Resize id="resizeEffect" target="{menuLeft}"  widthFrom="{menuLeft.width}" widthTo="{0}" />
+	<mx:Image id="imgFold" includeInLayout="false" toolTip="收起" source="@Embed(source='images/mini-left.gif')" mouseOver="{Mouse.cursor = MouseCursor.BUTTON;}" mouseOut="{Mouse.cursor = MouseCursor.ARROW;}" />
+	<mx:HDividedBox width="100%" height="100%" borderStyle="none" horizontalAlign="center" horizontalGap="5" verticalAlign="middle" verticalGap="0">
+		<mx:VBox id="menuLeft" width="150" height="100%" verticalGap="2" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" verticalAlign="middle" fontSize="12" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:HBox width="100%" height="20" horizontalAlign="left" backgroundColor="#99CCFF" borderStyle="none" horizontalGap="0" verticalAlign="middle">
+				<mx:Label text="会务管理" textIndent="5" textAlign="left" fontWeight="bold" fontSize="13"/>
+			</mx:HBox>
+			<mx:Tree id="menutree" borderStyle="none" dragEnabled="false" width="100%" height="100%" click="treeSelectClick()" 
+					 labelField="@label" showRoot="false"/>
+		</mx:VBox>
+		<mx:ViewStack id="managerStack" width="100%" height="100%" creationPolicy="all">
+		</mx:ViewStack>
+	</mx:HDividedBox>
+</mx:Module>

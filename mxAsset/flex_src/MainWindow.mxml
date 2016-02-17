@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:nsone="*"  
+		   width="100%" height="100%" backgroundColor="#1CA0E3" initialize="mainWindowinit()">
+	<mx:RemoteObject id="userService" destination="UserService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Style>
+		.LinkButtonStyle01{
+			cornerRadius: 2;
+			color: #ffffff;
+			textRollOverColor: #ffffff;
+			textSelectedColor: #ffffff;
+			font-weight:bold;
+		}
+		.loginLable{
+			fontSize:12;
+			color:#ffffff;
+		}
+	</mx:Style>
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.helper.ASCommonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.benstucki.utilities.IconUtility;
+			
+			import flash.net.navigateToURL;
+			
+			import flex.pojos.RuleVo;
+			import flex.pojos.UserSessionVo;
+			import flex.util.CommonMethod;
+			import flex.util.CommonUIMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.managers.BrowserManager;
+			import mx.managers.IFocusManagerContainer;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+		//	import systemManage.EditUserPwd;
+			
+			//保存用户对象
+			public var userVo:UserSessionVo;
+			//用户权限对象
+			public var ruleVo:RuleVo;
+			//公用菜单按钮样式
+			protected var menuButtonStyleName:String="LinkButtonStyle01";
+			//保存选中的按钮对象
+			public var tempSelectMenuItem:LinkButton=null;
+			//默认组件后缀
+			protected var tempShoutId:String="Page";
+			
+			//初始化信息
+			protected function mainWindowinit():void{
+				BrowserManager.getInstance().setTitle("上海闵行行政司法管理系统");
+				if(true){
+					beforeInitPage();
+				}
+				if(true){
+					afterInitPage();
+				}
+			}
+			
+			//初始化信息之前加载
+			protected function beforeInitPage():void{
+				userVo=FlexGlobals.topLevelApplication.userVo;
+				this.userLabel.text ="欢迎您:"+userVo.userName;
+				this.userLabel.toolTip="姓名:"+userVo.userName+"\r部门:"+userVo.deptName
+					+"\r角色:"+userVo.ruleName;
+				var menuList:XMLList=this.menuXmlList;
+				for(var i:int=0;i<menuList.length();i++){
+					var menuItem:XML=menuList[i];
+					var tempComponentBtn:UIComponent=getMainMenuByName(menuItem);//权限控制
+					if(tempComponentBtn==null){
+						continue;
+					}
+					this.mainWindowMenuBar.addChild(tempComponentBtn);
+					if(i<menuList.length()-1){
+						this.mainWindowMenuBar.addChild(getImageItemMenu(tempComponentBtn.id+"Item"));
+					}
+				}
+			}
+			
+			//初始化信息之后加载
+			protected function afterInitPage():void{
+				var homeButtonId:String=this.menuXmlList[0].@pageurl;
+				var homeModelId:String=homeButtonId+tempShoutId;
+				this.mainWindowStack.selectedChild=this[homeModelId];
+				
+				this.getUserStructureMenu();
+			}
+			
+			/**
+			 * 获取用户菜单 不包含无权限菜单 ,整理结构
+			 */
+			private function getUserStructureMenu():void{
+				if(Application.application.userVo.ruleId == "41"){
+					MeetMainPage.menuTreeDate = MeetMainPage.meetingMainXml;
+					ServiceMainPage.menuTreeDate = ServiceMainPage.serviceMainXml;
+					SystemMainPage.menuTreeDate = SystemMainPage.systemMainXml;
+					MeetMainPage.beforeInitPage();
+					ServiceMainPage.beforeInitPage();
+					SystemMainPage.beforeInitPage();
+					return;
+				}
+				userService.getUserStructureMenu(FlexGlobals.topLevelApplication.userVo.id,"hwgl");
+				userService.getUserStructureMenu(FlexGlobals.topLevelApplication.userVo.id,"rcfw");
+				userService.getUserStructureMenu(FlexGlobals.topLevelApplication.userVo.id,"xtfw");
+				userService.addEventListener(ResultEvent.RESULT,getUserStructureMenuBack);
+			}
+			
+			private var getUserStructureMenuCount:int=0;
+			public function getUserStructureMenuBack(event:ResultEvent):void{
+				var rstXML:XML = new XML(event.result+"");
+				switch(getUserStructureMenuCount){
+					case 0:
+						if(rstXML.children().length() < 1){this.removeWindowMenuBar("MeetMain"); break;}
+						MeetMainPage.menuTreeDate = rstXML;
+						MeetMainPage.beforeInitPage();
+						break;
+					case 1:
+						if(rstXML.children().length() < 1){this.removeWindowMenuBar("ServiceMain"); break;}
+						ServiceMainPage.menuTreeDate = rstXML;
+						ServiceMainPage.beforeInitPage();
+						break;
+					case 2:
+						if(rstXML.children().length() < 1){this.removeWindowMenuBar("SystemMain"); break;}
+						SystemMainPage.menuTreeDate = rstXML;
+						SystemMainPage.beforeInitPage();
+						userService.removeEventListener(ResultEvent.RESULT,getUserStructureMenuBack);
+						break;
+				}
+				getUserStructureMenuCount++;
+				}
+			private function removeWindowMenuBar(menuId:String):void{
+				var childArr:Array = this.mainWindowMenuBar.getChildren();
+				for each(var eachChild:Object in childArr){
+					if(eachChild.id == menuId || eachChild.id == (menuId+"Item")){
+						ASCommonHelper.controlVisible(eachChild as UIComponent,false);
+					}
+				}
+			}
+			//根据名称获得对应的menu菜单按钮
+			protected function getMainMenuByName(menuItemXML:XML):LinkButton{
+				var menuurl:String=menuItemXML.@pageurl;
+				if(ASStringHelper.isNullOrEmpty(menuurl) /* || (Application.application.userVo.ruleId != "41" && menuItemXML.@menuid== "XTFW") */){
+					return null;
+				}
+				var menuname:String=menuItemXML.@menuname;
+				var menuicon:String=menuItemXML.@menuicon;
+				var menuLinkButton:LinkButton=new LinkButton();
+				menuLinkButton.id=menuurl;
+				menuLinkButton.label=menuname;
+				var tempClass:Class=IconUtility.getClass(menuLinkButton,menuicon,16,17);
+				menuLinkButton.setStyle("icon",tempClass);
+				menuLinkButton.styleName=menuButtonStyleName;
+				menuLinkButton.addEventListener(MouseEvent.CLICK,menuItemClick);
+				var homeButtonId:String=this.menuXmlList[0].@pageurl;
+				if(ASStringHelper.stringCompare(homeButtonId,menuurl,true)==0){
+					this.tempSelectMenuItem=menuLinkButton;
+					menuLinkButton.enabled=false;
+				}
+				return menuLinkButton;
+			}
+			
+			//选中Asset
+			public function menuItemClickAsset():void{
+				menuItemClick(null);
+			}
+			//菜单按钮添加触发事件
+			protected function menuItemClick(tempEvent:MouseEvent):void{
+				var tempLinkButton:LinkButton=null;
+				if(tempEvent == null){
+					for(var i:int =0;i<mainWindowMenuBar.getChildren().length;i++){
+						if(mainWindowMenuBar.getChildren()[i].id == "Asset"){
+							tempLinkButton = mainWindowMenuBar.getChildren()[i] as LinkButton;
+						}
+					}
+					if(tempLinkButton == null)return;
+				}else{
+					tempLinkButton=tempEvent.currentTarget as LinkButton;
+					CommonUIMethod.ui_resetImgFoldVisible(mainWindowMenuBar.getChildren()[i].id);
+						
+				}
+				
+				var menuid:String=tempLinkButton.id;
+				var shoutmenuid:String=menuid+tempShoutId;
+				if(this[shoutmenuid]!=null){
+					this.mainWindowStack.selectedChild=this[shoutmenuid];
+					if(menuid == "HomeModel"){
+						this[shoutmenuid].initPage();
+					}else if(menuid == "SystemMain"){
+						this[shoutmenuid].treeSelectClick();
+					} else if(menuid == "MeetMain"){
+						this[shoutmenuid].treeSelectClick();
+					} else if(menuid == "Asset"){
+					if(FlexGlobals.topLevelApplication.mainPage.AssetPage.defaultAssetWFTreeIndex != -2){ this[shoutmenuid].setDefaultPage();}
+					}  
+				}
+				
+				if(this.tempSelectMenuItem!=null){
+					this.tempSelectMenuItem.enabled=true;
+				}
+				tempLinkButton.enabled=false;
+				this.tempSelectMenuItem=tempLinkButton;
+			}
+			
+			//得到分割菜单的item
+			protected function getImageItemMenu(imageItemId:String):Image{
+				var imageMenuItem:Image=new Image();
+				imageMenuItem.id = imageItemId;
+				var imageUrl:String="images/main_line_bg.jpg";
+				var tempClass:Class=IconUtility.getClass(imageMenuItem,imageUrl,1,33);
+				imageMenuItem.source=tempClass;
+				return imageMenuItem;
+			}
+			//修改密码
+			protected function changepwdAction():void{
+				if(CommonMethod.isNullOrWhitespace(this.userVo.mc)){
+					Alert.show("您当前为CA登录，尚未分配用户帐号。如需分配帐号，请联系系统管理员。",CommonXMLData.Alert_Title);
+					return;
+				}
+				
+				/*var editPwd:EditUserPwd = CommonMethod.pageCacheObj.editUserPwdPage;
+				if(editPwd == null){
+					editPwd = new EditUserPwd();
+					CommonMethod.pageCacheObj.editUserPwdPage = editPwd;
+				}
+				PopUpManager.addPopUp(editPwd,this.parentApplication as DisplayObject,true);
+				PopUpManager.centerPopUp(editPwd);*/
+			}
+			//注销页面
+			protected function logoutAction():void{
+				Alert.show("您确认要注销吗？\r如有未保存的工作,请您在保存后注销。","系统提示",Alert.OK|Alert.CANCEL,Application.application as Sprite,logoutActionConform);
+			}
+			protected function logoutActionConform(doEvent:CloseEvent):void{
+				if(doEvent.detail==Alert.OK){
+				flex.util.BeforeunloadManager.deregist();
+				navigateToURL(new URLRequest("javascript:window.parent.location.reload();"),"_self");
+				}
+			} 
+		]]>
+	</mx:Script>
+	<mx:XMLList id="menuXmlList">
+		<node menuid="SY" menuname="首页" pageurl="HomeModel" menuicon="images/home_mid.png"/>
+		<node menuid="WZGL" menuname="物资管理" pageurl="Asset" menuicon="images/kvm.png"/>
+		<node menuid="HWGL" menuname="会务管理" pageurl="MeetMain" menuicon="images/icon_officpark_01.png"/>
+		<node menuid="CLGL" menuname="车辆管理" pageurl="" menuicon="images/car.png"/>
+		<node menuid="RCFW" menuname="日常服务" pageurl="ServiceMain" menuicon="images/info.png"/>
+		<node menuid="XTFW" menuname="系统服务" pageurl="SystemMain" menuicon="images/system.png"/>
+	</mx:XMLList>
+	<!--<node menuid="CYGL" menuname="餐饮管理" pageurl="" menuicon="images/reset.png"/>
+		<node menuid="BBGL" menuname="报表管理" pageurl="" menuicon="images/icon_report_01.png"/>
+		<node menuid="TJFX" menuname="统计分析" pageurl="" menuicon="images/icon_sysansy_01.png"/>
+	-->
+	<mx:VBox id="mainWindowBox" width="100%" height="100%" verticalGap="0" horizontalAlign="center" horizontalGap="0">
+		<mx:HBox id="mainWindowTop" width="100%" height="61" verticalAlign="middle" paddingLeft="20" backgroundSize="100%" 
+				 backgroundImage="@Embed(source='style/flex_skins/backgroundLayoutHeader_s.jpg')">
+			<mx:Image source="style/flex_skins/backgroundLayoutHeader_s.png" width="100%"/>
+		</mx:HBox>
+		<mx:HBox id="mainWindowMenu" width="100%" backgroundImage="@Embed(source='images/main_banner_bg.jpg')" verticalAlign="middle" backgroundSize="100%">
+			<mx:ControlBar id="mainWindowMenuBar" width="100%" paddingTop="0" paddingBottom="0" paddingLeft="10" paddingRight="10" fontWeight="bold" fontSize="13"></mx:ControlBar>
+			<mx:HBox id="mainWindowTopRight" horizontalAlign="right" horizontalGap="2" paddingRight="5" verticalAlign="middle" borderStyle="none" fontWeight="bold" fontSize="13">
+				<mx:Label id="userLabel" fontSize="12" paddingTop="2" color="white" buttonMode="true" />
+				<mx:LinkButton id="changepwd" click="changepwdAction()" label="变更密码" toolTip="变更用户密码" icon="@Embed(source='images/icon_chnagepwd.gif')" width="95" height="20" styleName="LinkButtonStyle01"/>
+				<mx:LinkButton id="logout" click="logoutAction()" label="注销" toolTip="注销" icon="@Embed(source='images/exit_mid.png')" width="70" height="20" styleName="LinkButtonStyle01"/>				
+			</mx:HBox>
+		</mx:HBox> 
+		<mx:ViewStack id="mainWindowStack" width="100%" height="100%" creationPolicy="all">
+			<nsone:HomeModel id="HomeModelPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
+			<nsone:AssetMain id="AssetPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
+			<nsone:MeetingMain id="MeetMainPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
+			<nsone:CarMain id="AssetCarPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
+			<nsone:ServiceMain id="ServiceMainPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
+			
+			<nsone:SystemMain id="SystemMainPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
+		</mx:ViewStack>
+	</mx:VBox>
+</mx:Module>

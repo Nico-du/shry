@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" title="pc详细信息" close="closeDetail()" showCloseButton="true"
+	 layout="absolute" width="880" height="514">
+	<mx:Script>
+		<![CDATA[
+			import flex.pojos.ComputerVo;
+			import mx.managers.PopUpManager;
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]private var selectIndex:int = 0;
+			[Bindable]private var vo:ComputerVo = null;
+			[Bindable]private var arrLength:int = 0;
+			public var objArr:ArrayCollection = null;
+			
+			public function initDetail():void {
+				vo = objArr[0];
+				arrLength = objArr.length - 1;
+			}
+			
+			private function backDetail():void {
+				if(selectIndex>0) selectIndex--;
+				vo = objArr[selectIndex];
+			}
+			
+			private function forwardDetail():void {
+				if(selectIndex<arrLength) selectIndex++;
+				vo = objArr[selectIndex];
+			}
+			
+			private function closeDetail():void {
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</mx:Script>
+	<mx:Canvas label="主要" width="868" height="100%" fontSize="12">
+		<mx:Label x="10" y="84" text="国有设备登记号："/>
+		<mx:Label x="14" y="159" text="操作系统:"/>
+		<mx:Label x="12" y="197" text="品牌型号："/>
+		<mx:Label x="305" y="45" text="生命周期状态:"/>
+		<mx:TextInput x="119" y="10" text="{vo.mc}" editable="false"/>
+		<mx:ComboBox x="119" y="157" text="{vo.czxtbb}" editable="false"></mx:ComboBox>
+		<mx:TextInput x="119" y="194" text="{vo.ppxh}" editable="false"/>
+		<mx:TextInput x="401" y="199" text="{vo.sydd}" editable="false"/>
+		<mx:Button x="643" y="408" label="上一条" click="backDetail()" enabled="{selectIndex==0?false:true}"/>
+		<mx:Label x="15" y="271" text="购置日期:"/>
+		<mx:Label x="305" y="292" text="网络:"/>
+		<mx:Label x="305" y="334" text="域: "/>
+		<mx:ComboBox x="401" y="289" labelField="mc" text="{vo.wl}" editable="false"/>
+		<mx:Label x="305" y="125" text="使用人:"/>
+		<mx:ComboBox x="401" y="79" width="142" labelField="mc" text="{vo.bmmc}" editable="false"></mx:ComboBox>
+		<mx:Label x="305" y="161" text="责任人:"/>
+		<mx:Label x="10" y="122" text="设备序列号: "/>
+		<mx:TextInput x="119" y="120" text="{vo.sbxlh}" editable="false"/>
+		<mx:TextInput x="401" y="158" text="{vo.zrr}" editable="false"/>
+		<mx:Label x="305" y="12" text="使用状态:"/>
+		<mx:Label x="305" y="371" text="主要用途："/>
+		<mx:TextArea x="401" y="370" text="{vo.zyyt}" height="74" editable="false"/>
+		<mx:Label x="14" y="344" text="预期使用年限："/>
+		<mx:Text x="304" y="246" text="IP地址:"/>
+		<mx:ComboBox x="401" y="10" labelField="mc" text="{vo.zt}" editable="false"/>
+		<mx:ComboBox x="401" y="43" labelField="mc" text="{vo.smzqzt}" editable="false"/>
+		<mx:Text x="16" y="384" text="保修期："/>
+		<mx:Text x="305" y="84" text="部门:"/>
+		<mx:ComboBox x="401" y="332" labelField="mc" text="{vo.yu}" editable="false"/>
+		<mx:TextInput x="120" y="49" text="{vo.sbbh}" editable="false"/>
+		<mx:TextInput x="120" y="83" text="{vo.gzh}" editable="false"/>
+		<mx:Label x="14" y="232" text="安全保密属性：" height="20"/>
+		<mx:TextInput x="401" y="122" text="{vo.syr}" editable="false"/>
+		<mx:Label x="305" y="199" text="使用地点："/>
+		<mx:TextInput x="401" y="243" text="{vo.ip}" editable="false"/>
+		<mx:ComboBox x="119" y="229"  labelField="mc" text="{vo.smsx}" editable="false"/>
+		<mx:Label x="14" y="308" text="购置金额："/>
+		<mx:TextInput x="119" y="342" text="{vo.synx}"/>
+		<mx:DateField x="119" y="269" text="{vo.gzrq}" editable="false" showToday="true"  formatString="YYYY-MM-DD"  dayNames="[日,一,二,三,四,五,六]" monthNames="[一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月]" enabled="false"/>
+		<mx:DateField x="119" y="382" text="{vo.bxq}" editable="false" showToday="true" formatString="YYYY-MM-DD"  dayNames="[日,一,二,三,四,五,六]" monthNames="[一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月]" enabled="false"/>
+		<mx:Button x="803" y="408" label="关闭" click="closeDetail()"/>
+		<mx:Label x="590" y="13" text="启用时间："/>
+		<mx:Label x="589" y="76" text="外设设备："/>
+		<mx:Label x="592" y="136" text="杀毒软件："/>
+		<mx:DateField x="694" y="11" id="qysj"   showToday="true" formatString="YYYY-MM-DD"  dayNames="[日,一,二,三,四,五,六]" monthNames="[一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月]" enabled="false"/>
+		<mx:TextArea x="688" y="62" id="wssb" height="54"/>
+		<mx:TextArea x="688" y="138" id="sdrj" height="64"/>
+		<mx:Label x="67" y="14" id="cmpId"/>
+		<mx:TextInput x="119" y="306" text="{vo.gzje}" editable="false"/>
+		<mx:Label x="592" y="254" text="主要配置"/>
+		<mx:TextArea x="688" y="256" height="105" text="{vo.jbpz}" editable="false"/>
+		<mx:TextInput x="688" y="217" text="{vo.ypxlh}" enabled="true" editable="false"/>
+		<mx:Button x="715" y="408" label="下一条" enabled="{selectIndex==arrLength?false:true}" click="forwardDetail()"/>
+		<mx:FormItem width="47" x="10" y="14" label="名称" >
+		</mx:FormItem>
+		<mx:FormItem width="74" x="10" y="49" label="设备编号" >
+		</mx:FormItem>
+		<mx:FormItem width="88" x="592" y="219" label="硬盘序列号：" >
+		</mx:FormItem>
+	</mx:Canvas>
+</mx:TitleWindow>

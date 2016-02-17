@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="net.chinanets.entity.CnstWfstepData" table="CNST_WFSTEP_DATA" schema="ZCGL">
+        <id name="wfstepid" type="java.lang.String">
+            <column name="WFSTEPID" length="100" />
+        </id>
+        <property name="wfstepname" type="java.lang.String">
+            <column name="WFSTEPNAME" length="200" not-null="true" />
+        </property>
+        <property name="wfsteptype" type="java.lang.String">
+            <column name="WFSTEPTYPE" length="100" not-null="true" />
+        </property>
+        <property name="stepbtnname" type="java.lang.String">
+            <column name="STEPBTNNAME" length="100" not-null="true" />
+        </property>
+        <property name="steporder" type="java.lang.Integer">
+            <column name="STEPORDER" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="nextstep" type="java.lang.String">
+            <column name="NEXTSTEP" length="4000" />
+        </property>
+        <property name="defaultuser" type="java.lang.String">
+            <column name="DEFAULTUSER" length="100" />
+        </property>
+        <property name="usable" type="java.lang.Integer">
+            <column name="USABLE" precision="10" scale="0" not-null="true" />
+        </property>
+        <property name="ctime" type="java.util.Date">
+            <column name="CTIME" length="7" not-null="true" />
+        </property>
+        <property name="cuser" type="java.lang.String">
+            <column name="CUSER" length="100" not-null="true" />
+        </property>
+        <property name="utime" type="java.util.Date">
+            <column name="UTIME" length="7" not-null="true" />
+        </property>
+        <property name="uuser" type="java.lang.String">
+            <column name="UUSER" length="100" not-null="true" />
+        </property>
+        <property name="memo" type="java.lang.String">
+            <column name="MEMO" length="1000" />
+        </property>
+    </class>
+</hibernate-mapping>

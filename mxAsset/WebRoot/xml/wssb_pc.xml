@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt name="pcr" column="检查人"></paremt>
+<paremt name="sj" column="检查时间"></paremt>
+<paremt name="jccs" column="检查批次"></paremt>
+<paremt name="sbbh" column="设备编号"></paremt>
+<paremt name="typename" column="资产名称"></paremt>
+<paremt name="bmsxxd" column="与相邻终端保密属性是否相等"></paremt>
+<paremt name="sjgl" column="数据管理是否与终端绑定"></paremt>
+<paremt name="zzjzgl" column="纸张等介质管理是否与终端绑定"></paremt>
+<paremt name="wljk" column="是否有外联接口"></paremt>
+<paremt name="wl" column="是否外联"></paremt>
+<paremt name="bz" column="备注"></paremt>
+</root>

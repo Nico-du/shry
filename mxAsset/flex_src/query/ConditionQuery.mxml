@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" fontSize="12" height="100%" creationComplete="reportService.send();reportService.showBusyCursor =true;">
+		<mx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			import mx.utils.ObjectProxy;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.remoting.RemoteObject;
+			import mx.events.DragEvent;
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			
+			private var arrColl:ArrayCollection;
+			private var arrNew:ArrayCollection;
+			private function initOldList(evt:ResultEvent):void {
+				arrColl = reportService.lastResult.FirstMenu.SecondMenu as ArrayCollection;
+				parType.dataProvider = arrColl;
+				subType.dataProvider = arrColl[0].ThirdMenu;
+				oldList.dataProvider = arrColl[0].ThirdMenu[0].attribute;
+				newService.send();
+				newService.showBusyCursor = true;
+			}
+			
+			private function initNewList(evt:ResultEvent):void {
+				arrNew = evt.result.FirstMenu.SecondMenu as ArrayCollection;
+				setNewList();
+			}
+			
+			private function parTypeChange(index:int):void {
+				subType.dataProvider = arrColl[index].ThirdMenu;
+			
+				if(arrColl[index].ThirdMenu is ObjectProxy)
+					oldList.dataProvider = arrColl[index].ThirdMenu.attribute;
+				else 
+					oldList.dataProvider = arrColl[index].ThirdMenu[0].attribute;
+				setNewList();
+			}
+			
+			private function subTypeChange(index:int):void {
+				var parIndex:int = parType.selectedIndex;
+				if(arrColl[parIndex].ThirdMenu is ObjectProxy)
+					oldList.dataProvider = arrColl[parIndex].ThirdMenu.attribute;
+				else 
+					oldList.dataProvider = arrColl[parIndex].ThirdMenu[index].attribute;
+				setNewList();
+			}
+			
+			private function setNewList():void {
+				var name:String = "";
+				name = subType.selectedItem.name;
+				for(var i:int=0;i<arrNew.length;i++) {
+					if(arrNew[i].name == name) {
+						newList.dataProvider = arrNew[i].attribute;
+						break;
+					}
+				}
+			}
+			
+			private function submitNext():void {
+				var next:ConditionNext = new ConditionNext();
+				next.assetType = subType.selectedItem;
+				next.newArr = newList.dataProvider as ArrayCollection;
+				next.oldArr = oldList.dataProvider as ArrayCollection;
+				next.initialize();
+				next.initQuery();
+				this.parentDocument.m.addChild(next);
+				this.visible = false;
+				this.parentDocument.m.removeChildAt(0);
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:HTTPService id="newService" resultFormat="object" url="xml/DBFrameMini.xml" result="initNewList(event)" fault="mx.controls.Alert.show(event.fault.faultString);"/>
+	<mx:HTTPService id="reportService" resultFormat="object" url="xml/DBFrameMinus.xml" result="initOldList(event)" fault="mx.controls.Alert.show(event.fault.faultString);" />
+	<mx:Panel title="条件查询>>筛选查询条件" width="100%" height="100%" layout="absolute">
+	<mx:Label text="可用查询关键字：" width="160" height="28" x="185" y="81"></mx:Label>
+	<mx:List id="oldList" x="185" y="117" labelField="column" width="180" height="330" allowMultipleSelection="false" 
+				dragEnabled="true" dropEnabled="true" dragMoveEnabled="true"/>
+	<mx:Label text="选取查询关键字：" width="160" height="28" x="446" y="81"></mx:Label>
+	<mx:List id="newList"  x="446" y="117" height="330" width="180" labelField="column" allowMultipleSelection="false" 
+				dragEnabled="true" dropEnabled="true" dragMoveEnabled="true"/>
+	<mx:Button x="374" y="459" label="下一步" click="submitNext()"/>
+	<mx:ComboBox id="parType" labelField="label" x="185" y="45" change="parTypeChange(parType.selectedIndex)" width="160"></mx:ComboBox>
+	<mx:ComboBox id="subType" labelField="label" x="446" y="45" change="subTypeChange(subType.selectedIndex)" width="160"></mx:ComboBox>
+	<mx:Label x="185" y="10" text="设备类型：" width="160"/>
+	<mx:Label x="446" y="10" text="设备子类型：" width="160"/>
+	</mx:Panel>
+</mx:Canvas>
+

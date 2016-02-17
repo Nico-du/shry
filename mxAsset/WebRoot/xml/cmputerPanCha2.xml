@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt name="pcr" column="检查人"/>
+<paremt name="pcsj" column="检查时间"/>
+<paremt name="czwordmj" column="查找word密件"/>
+<paremt name="jczcwj" column="检查正常文件"/>
+<paremt name="jcyscwj" column="检查已删除文件"/>
+<!-- 
+<paremt name="" column="正常文件*.doc时间段_开始"/>
+<paremt name="" column="正常文件*.doc时间段_结束"/>
+ -->
+<paremt name="zcwjdocsl" column="正常文件*.doc数量"/>
+<paremt name="zcwjdocrl" column="正常文件*.doc容量"/>
+<!-- 
+<paremt name="" column="正常文件*.ppt时间段_开始"/>
+<paremt name="" column="正常文件*.ppt时间段_结束"/>
+ -->
+<paremt name="zcwjpptsl" column="正常文件*.ppt数量"/>
+<paremt name="zcwjpptrl" column="正常文件*.ppt容量"/>
+<!-- 
+<paremt name="" column="正常文件*.xls时间段_开始"/>
+<paremt name="" column="正常文件*.xls时间段_结束"/>
+ -->
+<paremt name="zcwjxlssl" column="正常文件*.xls数量"/>
+<paremt name="zcwjxlsrl" column="正常文件*.xls容量"/>
+<!-- 
+<paremt name="" column="正常文件*.rtf时间段_开始"/>
+<paremt name="" column="正常文件*.rtf时间段_结束"/>
+ -->
+<paremt name="zcwjrtfsl" column="正常文件*.rtf数量"/>
+<paremt name="zcwjrtfrl" column="正常文件*.rtf容量"/>
+<!-- 
+<paremt name="" column="正常文件*.txt时间段_开始"/>
+<paremt name="" column="正常文件*.txt时间段_结束"/>
+ -->
+<paremt name="zcwjtxtsl" column="正常文件*.txt数量"/>
+<paremt name="zcwjtxtrl" column="正常文件*.txt容量"/>
+<!-- 
+<paremt name="" column="已删除文件*.doc时间段_开始"/>
+<paremt name="" column="已删除文件*.doc时间段_结束"/>
+ -->
+<paremt name="yscwjdocsl" column="已删除文件*.doc数量"/>
+<paremt name="yscwjdocrl" column="已删除文件*.doc容量"/>
+<!-- 
+<paremt name="" column="已删除文件*.ppt时间段_开始"/>
+<paremt name="" column="已删除文件*.ppt时间段_结束"/>
+ -->
+<paremt name="yscwjpptsl" column="已删除文件*.ppt数量"/>
+<paremt name="yscwjpptrl" column="已删除文件*.ppt容量"/>
+<!-- 
+<paremt name="" column="已删除文件*.xls时间段_开始"/>
+<paremt name="" column="已删除文件*.xls时间段_结束"/>
+ -->
+<paremt name="yscwjxlssl" column="已删除文件*.xls数量"/>
+<paremt name="yscwjxlsrl" column="已删除文件*.xls容量"/>
+<!-- 
+<paremt name="" column="已删除文件*.rtf时间段_开始"/>
+<paremt name="" column="已删除文件*.rtf时间段_结束"/>
+ -->
+<paremt name="yscwjrtfsl" column="已删除文件*.rtf数量"/>
+<paremt name="yscwjrtfrl" column="已删除文件*.rtf容量"/>
+<!-- 
+<paremt name="" column="已删除文件*.txt时间段_开始"/>
+<paremt name="" column="已删除文件*.txt时间段_结束"/>
+ -->
+<paremt name="yscwjtxtsl" column="已删除文件*.txt数量"/>
+<paremt name="yscwjtxtrl" column="已删除文件*.txt容量"/>
+</root>

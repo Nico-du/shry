@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt type="1" name="mc" column="名称" />
+<paremt type="1"  name="gzh" column="国资编号" />
+<paremt type="1"  name="sbbh" column="设备编号" />
+<paremt type="1"  name="sbxlh" column="设备序列号" />
+<paremt type="1"  name="czxtbb" column="操作系统" />
+<paremt type="1"  name="ppxh" column="品牌名称" />
+<paremt type="1"  name="smsx" column="涉密属性" />
+<paremt type="1"  name="gzrq" column="购置日期" />
+<paremt type="1"  name="gzje" column="购置金额" />
+<paremt type="1"  name="synx" column="预期使用年限" />
+<paremt type="1"  name="bxq" column="保修期" />
+<paremt type="1"  name="zt" column="使用状态" />
+<paremt type="1"  name="smzqzt" column="生命周期状态" />
+<paremt type="1"  name="bmmc" column="部门" />
+<paremt type="1"  name="syr" column="使用人" />
+<paremt type="1"  name="zrr" column="责任人" />
+<paremt type="1"  name="sydd" column="使用地点" />
+<paremt type="1"  name="ip" column="ip地址" />
+<paremt type="1"  name="wl" column="网络" />
+<paremt type="1"  name="yu" column="域" />
+<paremt type="1"  name="qysj" column="启用时间"/>
+<paremt type="1"  name="zyyt" column="主要用途"/>
+<paremt type="1"  name="ypxlh" column="硬盘序列号" />
+<paremt type="1"  name="wssb" column="外设设备"/>
+<paremt type="1"  name="sdrj" column="杀毒软件"/>
+<paremt type="1" name="jbpz" column="主要配置" />
+<!--                           -->
+<paremt type="2" name="pcr" column="检查人"/>
+<paremt type="2" name="pcsj" column="检查时间"/>
+<paremt type="2" name="kjmm" column="开机密码及强度" />
+<paremt type="2" name="epcj" column="是否有恶评插件" />
+<paremt type="2" name="muma" column="是否有木马" />
+<paremt type="2" name="sdrjzk" column="杀毒软件启动与运行"/>
+<paremt type="2" name="swhj" column="连接网络痕迹" />
+<paremt type="2" name="qtjzhj" column="存储介质痕迹" />
+<paremt type="2" name="sfygrrj" column="是否有个人文件" />
+<paremt type="2" name="ccsj" column="存储和处理数据"/>
+<paremt type="2" name="fbdrj" column="是否安装防病毒软件"/>
+<paremt type="2" name="grbu" column="是否感染病毒"/>
+<paremt type="2" name="gzrj" column="是否未经允许安装非工作软件"/>
+<paremt type="2" name="mumazt" column="木马查杀程序启动与运行状态"/>
+<paremt type="2" name="azmm" column="是否安装木马查杀程序"/>
+<paremt type="2" name="bz" column="备注"/>
+</root>

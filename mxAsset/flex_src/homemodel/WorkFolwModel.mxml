@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--我的工作流-->
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:cnsdg="cn.cnsasfram.datagrid.*" creationComplete="initializeHandler(event)"
+		   width="100%" height="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="12">
+	<mx:RemoteObject id="ChartService" destination="chartService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import asset_bfdj.ProcessMethods;
+			
+			import com.adobe.serialization.json.JSON;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+
+			public function initializeHandler(event:FlexEvent):void
+			{
+				ChartService.getMyMessions(FlexGlobals.topLevelApplication.userVo);
+				ChartService.addEventListener(ResultEvent.RESULT,resultBack);
+			}
+			private function resultBack(event:ResultEvent):void {
+				ChartService.removeEventListener(ResultEvent.RESULT,resultBack);
+				if(event.result == null)return;
+				var ar0:Array = JSON.decode(event.result.toString()) as Array;
+				workflow_dg.dataProvider = JSON.decode(event.result.toString()) as Array;
+			}
+
+			private function gotoMession(event:MouseEvent):void{
+				var tempSelectedItem:Object=event.currentTarget.selectedItem;
+				ProcessMethods.gotoMyMession(tempSelectedItem.rwlx,tempSelectedItem.rwid,tempSelectedItem.rwmc,tempSelectedItem.sqzt);
+			}
+			//得到表格行号
+			protected function mylabelFunc(item:Object,column:DataGridColumn):String{
+				return (item.sqzt.indexOf("初稿") > -1 || item.sqzt.indexOf("结束") > -1 || item.sqzt.indexOf("审核")  > -1) ? item.sqzt : (item.sqzt+"审核");
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" borderStyle="solid" borderColor="#99CCFF" paddingBottom="2" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+		<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#99CCFF" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+			<mx:Label text="我的任务" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13"/>
+		</mx:HBox>
+		<cnsdg:CNSASBaseDataGrid id="workflow_dg"  width="100%" height="100%" borderStyle="none" dgcustomed="false" verticalAlign="middle" doubleClickEnabled="true" doubleClick="gotoMession(event)">
+			<cnsdg:columns>
+				<mx:DataGridColumn headerText="任务编号" width="200" dataField="rwbh" sortable="true"/>
+				<mx:DataGridColumn headerText="任务类型" width="100" dataField="rwmc" sortable="true"/>
+				<mx:DataGridColumn headerText="申请人" width="120" dataField="sqr" sortable="true"/>
+				<mx:DataGridColumn headerText="申请时间" width="85" dataField="sqsj" sortable="true"/>
+				<mx:DataGridColumn headerText="当前状态" width="120" dataField="sqzt" sortable="true" labelFunction="mylabelFunc"/>
+			</cnsdg:columns>
+		</cnsdg:CNSASBaseDataGrid>
+	</mx:VBox>
+</mx:Module>

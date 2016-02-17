@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt  name="sbbh" column="设备编号" />
+	<paremt  name="gzh" column="国资编号" />
+	<paremt  name="sbxlh" column="设备序列号" />
+	<paremt  name="ppxh" column="品牌型号" />
+	<paremt  name="gzrq" column="购置日期" />
+	<paremt  name="bxq" column="保修期" />
+	<paremt  name="zt" column="使用状态" />
+	<paremt  name="smzqzt" column="生命周期状态" />
+	<paremt  name="zrr" column="责任人" />
+	<paremt  name="lxdh" column="联系电话" />
+	<paremt  name="sydd" column="使用地点" />
+	<paremt  name="qysj" column="启用时间"/>
+	<paremt  name="bz" column="备注"/>
+</root>

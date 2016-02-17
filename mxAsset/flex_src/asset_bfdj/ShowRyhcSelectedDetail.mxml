@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()" 
+				fontSize="12" paddingLeft="0" paddingRight="0"   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoudel.common.*"
+				xmlns:cnscombox="cn.cnspagemoudel.combox.*" xmlns:textinput="cn.cnspagemoudel.textinput.*">
+	<mx:RemoteObject id="CodeListServiceRmt" destination="codeListService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import asset_lysq.LYSQMXFormMoudel;
+			
+			import asset_tkdj.TKDJMXFormMoudel;
+			
+			import cn.cnsasfram.codelist.ASCodeListHelper;
+			import cn.cnsasfram.entity.DoResult;
+			import cn.cnsasfram.entity.enum.Errors;
+			import cn.cnsasfram.helper.ASCommonHelper;
+			import cn.cnsasfram.helper.ASJsonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.adobe.serialization.json.JSON;
+			import com.benstucki.utilities.IconUtility;
+			
+			import flex.util.CommonMethod;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.CheckBox;
+			import mx.controls.ComboBox;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectProxy;
+			import mx.utils.ObjectUtil;
+			//页面标题icon路径
+			[Bindable]
+			protected var pagetitleIcon:String="";
+			//页面默认标题名称
+			[Bindable]
+			protected var pagetitle:String="选择物品批次/数量";
+			//分页中备注信息
+			[Bindable]
+			protected var dg_pg_othermsg:String="";
+			//分页中数据总数
+			[Bindable]
+			protected var dg_pg_datacount:int=0;
+			//表格数据源
+			[Bindable]
+			protected var dataArray:ArrayCollection=null;
+			//所有按钮及工具栏高度
+			[Bindable]
+			protected var aboutheight:Number=22;
+			//页面数据是否选中
+			[Bindable]
+			protected var dataIsSelected:Boolean=false;
+			
+			//指定linkbutton选中后的颜色,仅供选择
+			public var tempPublicDefaultColor:uint=0xCCFFFF;
+			//默认操作实体名称
+			public var tempObjBeanName:String="CNST_RYHCMX_DATA";
+			//默认实体视图名称
+			public var tempObjViewName:String="CNSV_LYDMX_LYSL";
+			//页面初始化是否加载权限
+			public var pageIsLoadPoer:Boolean=true;
+			//页面初始化是否加载数据
+			public var pageIsLoadData:Boolean=true;
+			//搜索表单初始化是否展开
+			public var searchFormIsOpen:Boolean=false;
+			//页面类型  领用/退库
+			public var pageTypeStr:String = "领用";
+			//选择类型
+			public var selectType:Object = "reselect";
+			public var parentPage:Object = null;//LYSQMXFormMoudel  TKDJMXFormMoudel
+			public var selectPage_dataids:String = ""; 
+			public var sblxDicobj:Object = null;
+			public var callBackFunc:Function = null;
+			
+			[Bindable]
+			public var isSelectedDataEditable:Boolean = true;
+			//初始调用方法
+			public function initPage():void{
+				this.highSearchChange();
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				this.setSelectRyhcStyle();
+			}
+			
+			public function setSelectRyhcStyle(){
+				if(parentPage.hasOwnProperty("LYDMXNAME")){
+					this.pagetitle = parentPage.LYDMXNAME.text;
+				}else if(parentPage.hasOwnProperty("TKDMXNAME")){
+					this.pagetitle = parentPage.TKDMXNAME.text;
+				}
+			//	pagePanel.setStyle("headerHeight",0);
+			}
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				//加载权限
+				if(pageIsLoadPoer){
+					loadUserPower();
+				}
+				//加载数据
+				if(pageIsLoadData){
+					loadData();
+					toolBar.visible = this.isSelectedDataEditable;
+				}
+				
+			}
+			
+			//分析权限
+			public function loadUserPower():void{
+				//判断读取权限
+				
+				//判断写入权限
+			}
+			
+			//加载数据
+			public function loadData():void{
+				dataSearchAction(this.cns_dg_pg.pagesize,this.cns_dg_pg.pagecurrent);
+			}
+			
+			//点击搜索按钮事件
+			public function searchClickAction():void{
+				this.cns_dg_pg.pagecurrent=1;
+				dataSearchAction(this.cns_dg_pg.pagesize,this.cns_dg_pg.pagecurrent);
+			} 
+			
+			private function selectCheckBox(event:ListEvent):void {
+				var tempSelctedItem:Object=event.currentTarget.selectedItem;
+				if(tempSelctedItem==null){
+					return;
+				}
+				tempSelctedItem.selected=!tempSelctedItem.selected;				
+				this.cns_dg.invalidateList();
+				checkDataIsSelected();
+			}
+			
+			//表格单击事件
+			protected function gridItemDataClick(tempEvent:ListEvent):void{
+				var tempSelctedItem:Object=tempEvent.currentTarget.selectedItem;
+				if(tempSelctedItem==null){
+					return;
+				}
+				tempSelctedItem.selected=!tempSelctedItem.selected;				
+				this.cns_dg.invalidateList();
+				checkDataIsSelected();
+			}
+			
+			//表格双击事件
+			protected function gridItemDataDoubleClick(tempEvent:ListEvent):void{
+				//	var selectData:Object=tempEvent.currentTarget.selectedItem; 
+				//	setInputValue(selectData);
+			}
+			
+			//数据选中事件
+			protected function dataChooseActionClick(tempEvent:ListEvent):void{
+				var tempObj:Object=tempEvent.currentTarget.selectedItem;
+				if(tempObj==null || this.dataArray==null || this.dataArray.length<1){
+					return;
+				}
+				var tempStr:String=tempObj.value;
+				if(ASStringHelper.stringCompare(tempStr,"-1",true)==0){
+					return;
+				}else if(ASStringHelper.stringCompare(tempStr,"1",true)==0){
+					for each(var dataobjAll:Object in this.dataArray){
+						dataobjAll.selected=true;
+					}
+				}else if(ASStringHelper.stringCompare(tempStr,"0",true)==0){
+					for each(var dataobjAbsout:Object in this.dataArray){
+						dataobjAbsout.selected=!dataobjAbsout.selected;
+					}
+				}
+				this.cns_dg.invalidateList();
+				checkDataIsSelected();
+			}
+			
+			
+			
+			//检测表格是否存在选中数据
+			protected function checkDataIsSelected():void{
+				for each(var dataobj:Object in this.dataArray){
+					if(dataobj.selected){
+						this.dataIsSelected=true;
+						return;
+					}
+				}
+				this.dataIsSelected=false;
+			}
+			
+			//加载相关信息
+			//Load出当前领用 单明细的相关 耗材数据 
+			//savvy:查询 CNST_LYDMX_LYSL_DATA表中数据,联合CNST_RYHCMX_DATA表中ryhcmxid作为 查询条件
+			protected function dataSearchAction(tempPageSize:int,tempPageCurrent:int):void{
+				var strcondition:String=getDataSeacrchCondition();
+				CodeListServiceRmt.GetCodeList(tempObjViewName,tempPageSize,tempPageCurrent,strcondition);
+				CodeListServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
+			}
+			//加载相关信息回调方法
+			protected function dataSearchActionBack(rmtResult:ResultEvent):void{
+				this.CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
+				var objResult:Object=rmtResult.result;
+				var strresult:String=objResult.toString();
+				var jsonObj:Object=JSON.decode(strresult,true);
+				var itemtotal:Object=jsonObj.itemtotal;
+				var othermsg:Object=jsonObj.othermsg;
+				var items:Object=jsonObj.items;
+				if(items==null){
+					return;
+				}
+				this.dg_pg_datacount=parseInt(itemtotal as String);
+				this.dg_pg_othermsg=othermsg==null?"":othermsg.toString();
+				this.dataArray=ASCommonHelper.addArraySelectedPro(new ArrayCollection(items as Array));
+				parentPage.selectedRyhcData = this.dataArray;
+				parentPage.setYxsl();
+				this.checkDataIsSelected();
+				this.cns_dg_pg.setPagingCount();
+			}
+			//得到搜索条件
+			protected function getDataSeacrchCondition():String{
+				var condition:Object=new Object();
+				{
+					if(!searchFormIsOpen){
+						var wppp:String=this.WPPP.text;
+						var wpxh:String=this.WPXH.text;
+						if(!ASStringHelper.isNullOrEmpty(wppp)){
+							condition.s_wppp_string_like=wppp;
+						}
+						if(!ASStringHelper.isNullOrEmpty(wpxh)){
+							condition.s_wpxh_string_like=wpxh;
+						}
+					}else{
+						var quklytext:String=this.qukilySearchTxt.text;
+						if(!ASStringHelper.isNullOrEmpty(quklytext)){
+							condition.s_ryhcmxbh_string_like=quklytext;
+						}
+					}
+				condition.s_sqdmxid_string_eq= parentPage.dataId;
+				var conditionJson:String=JSON.encode(condition);
+				return conditionJson;
+			}
+			
+		}
+			
+			
+			//格式化datagrid的日期
+			public static function dateItemFormat(item:Object,dgColumn:DataGridColumn):String{  
+				var dataFormat:DateFormatter = new DateFormatter();  
+				dataFormat.formatString = "YYYY-MM-DD";  
+				var value:Object = item[dgColumn.dataField];  
+				return dataFormat.format(value);  
+			}
+			
+			//选择高级搜索切换
+			protected function highSearchChange():void{
+				if(searchFormIsOpen){
+					this.qukilySearchBar.enabled=false;
+					ASCommonHelper.controlVisible(this.highSearchBox,true);
+					this.highSearch.label="隐藏";
+				}else{
+					this.qukilySearchBar.enabled=true;
+					ASCommonHelper.controlVisible(this.highSearchBox,false);
+					this.highSearch.label="高级";
+				}
+				searchFormIsOpen=!searchFormIsOpen;
+			}
+			
+			//搜索重置
+			protected function dataSearchResetAction():void{
+				this.WPPP.text="";
+				this.WPXH.text="";
+			}
+			
+			//得到title的ICON
+			protected function getTitleIcon(iconPath:String):Class{
+				if(ASStringHelper.isNullOrEmpty(iconPath)){
+					return null;
+				}
+				return IconUtility.getClass(this.pagePanel,iconPath,20,20);
+			}
+			
+			//得到表格行号
+			protected function getColumnIndex(item:Object,column:DataGridColumn):String{
+				return String(this.cns_dg.dataProvider.getItemIndex(item)+1);
+			}
+			
+			protected function closeHandler():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			//保存已选择的数据到历史记录 1.删除已存在的数据  2.保存新数据
+			//保存已选择数据  step 1
+			public function saveYXZAssetList():void{
+				if(!this.beforeSaveActionValidate()){ return;}
+				var lydbhStr:String = parentPage.dataId;
+				AllAssetServiceRmt.RemoveObject(lydbhStr,"CNST_LYDMX_LYSL_DATA","SQDMXID","已选择数据记录");
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+			}
+			//删除当前数据回调方法
+			protected function dataRemoveActionBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+				this.saveYXZAsset();
+			}
+			
+			//保存已选择数据  step 2
+			public function saveYXZAsset():void{
+					
+					for each(var curObj:Object in parentPage.selectedRyhcData){
+						var newObj:Object = new Object();
+						newObj.bglx = this.pageTypeStr;
+						newObj.sqdmxid = parentPage.dataId;
+						if(parentPage.hasOwnProperty("LYDMXBH")){
+						newObj.sqdmxbh = parentPage.LYDMXBH.text;
+						newObj.sqdid = parentPage.parentPage.parentPage.LYDBH.text;
+						newObj.sqr = parentPage.parentPage.parentPage.SLRNAME.text;
+						newObj.sqbm = parentPage.parentPage.parentPage.SLBMNAME.text;
+						newObj.sqrq = parentPage.parentPage.parentPage.SLSJ.getText();
+						newObj.gbdm = parentPage.GBDM.text;
+						
+						}else if(parentPage.hasOwnProperty("TKDMXBH")){
+						newObj.sqdmxbh = parentPage.TKDMXBH.text;
+						newObj.sqdid = parentPage.parentPage.parentPage.tkdbh.text;
+						newObj.sqr = parentPage.parentPage.parentPage.tkrname.text;
+						newObj.sqbm = parentPage.parentPage.parentPage.tkbmname.text;
+						newObj.sqrq = parentPage.parentPage.parentPage.tkrq.getText();
+						newObj.gbdm = parentPage.TKDMXNAME.data;
+						}
+						
+						newObj.bgrq = CommonMethod.commonLongDateFormatter.format(new Date());
+						newObj.wpmc = curObj.ryhcmxname;
+						newObj.memo = curObj.wpmc;
+						
+						newObj.pcbh = curObj.ryhcmxbh;
+						newObj.ryhcmxid = curObj.ryhcmxid;
+						newObj.sqsl = curObj.lysl;
+						
+						newObj.zt = "0";//未完成
+						
+						var submitjson:String = JSON.encode(newObj);
+						AllAssetServiceRmt.SaveOrUpdateObject(submitjson,"net.chinanets.pojos.CnstLydmxLyslData","lydmxlyslid","历史记录");
+					} 
+					
+			}
+			
+			
+			/**
+			 * 获取已选择的DataId,作为查询条件
+			 **/
+			public function getDataIdCondition():String{
+				var dataIds:String = "";
+				if( parentPage.selectedRyhcData==null || parentPage.selectedRyhcData.length < 1){
+					return "1=2";//没有已选择的dic数据
+				}
+				for each(var curObj:Object in parentPage.selectedRyhcData){
+					dataIds += curObj["ryhcmxid"]+",";
+				}
+				return dataIds.substr(0,dataIds.length-1);
+			}
+			//赋值dataArray
+			public function setRyhcContentListData():void{
+				if(parentPage != null){
+						this.dataArray = ObjectUtil.copy(parentPage.selectedRyhcData) as ArrayCollection;
+						this.selectPage_dataids = this.getDataIdCondition();
+				}
+			}
+			
+			//重新选择物品信息  执行方法  SelectAssetDetail 中  setInputValue
+			private function doSelectAssetAction():void{
+				if(parentPage != null){
+					parentPage.saveActionClick(parentPage.XZRYHCXX_clickHandler);
+				}
+			}
+			//添加选择	 parentPage.selectedRyhcData;
+			private function addSelectAsset():void{
+				if(parentPage != null){
+					parentPage.saveActionClick(parentPage.XZRYHCXX_clickHandler("add"));
+				}
+			}
+			
+			//删除选择
+			private function delSelectAsset():void{
+				var tempContentArray:ArrayCollection  = this.dataArray;
+				if(parentPage.selectedRyhcData == null){ return;}
+				for(var j:int=0;j<tempContentArray.length;j++){
+					var tempCurObj:Object = tempContentArray.getItemAt(j);
+					if(tempCurObj.selected){
+						for(var i:int=0;i<parentPage.selectedRyhcData.length;i++){
+							var dataobjAbsout:Object = parentPage.selectedRyhcData.getItemAt(i);
+							if(dataobjAbsout["ryhcmxid"] == tempCurObj["ryhcmxid"]){
+								tempContentArray.removeItemAt(j);
+								parentPage.selectedRyhcData.removeItemAt(i);
+								j--; 
+								i--;
+							}
+						}
+					}
+				}
+				parentPage.setYxsl();
+				this.selectPage_dataids = this.getDataIdCondition();
+			}
+			
+			private function beforeSaveActionValidate():Boolean{
+				for each(var curObj:Object in this.dataArray){
+						if(!curObj.hasOwnProperty("lysl") || CommonMethod.isNullOrWhitespace(curObj.lysl)){
+							this.showErrorMsg("请输入"+this.pageTypeStr+"数量!");
+							return false;
+						}
+				}
+				return true;
+			}
+			
+			
+			
+			//设值领用 数量
+			public function setDataGridLysl(dataObj:Object,lyslText:String):void{
+				if(!CommonMethod.isNullOrWhitespace(dataObj.sysl)){
+					if(pageTypeStr == "领用" &&  int(dataObj.sysl) <　int(lyslText)){
+						this.showErrorMsg(pageTypeStr+"数量["+lyslText+"]不能大于剩余数量["+dataObj.sysl+"]!");
+						dataObj.selected = false;
+						cns_dg.dataProvider = this.dataArray;
+						return;
+					}else if(pageTypeStr == "退库" && (int(dataObj.yysl)) <　int(lyslText)){
+						this.showErrorMsg(pageTypeStr+"数量["+lyslText+"]不能大于已领用数量["+dataObj.yysl+"]!");
+						dataObj.selected = false;
+						cns_dg.dataProvider = this.dataArray;
+						return;
+					}
+				}
+				if(CommonMethod.isNullOrWhitespace(dataObj.sysl) || CommonMethod.isNullOrWhitespace(dataObj.jksl)){
+					this.showErrorMsg("该批次数据不能选择!");
+					dataObj.selected = false;
+					cns_dg.dataProvider = this.dataArray;
+					return;
+				}else{
+					dataObj.lysl = lyslText;
+				}
+			}
+			
+			//显示错误信息
+			private function showErrorMsg(errorMsg:String):void{
+				parentPage.resultmsg.text=errorMsg;
+				parentPage.resultmsg.alpha=1;
+				parentPage.fadeEffect.stop();
+				parentPage.fadeEffect.play(null,false);
+			}
+		]]>
+	</mx:Script>
+<mx:Canvas borderStyle="none" width="100%" height="100%" >
+	<mx:Panel id="pagePanel" title="{pagetitle}" titleIcon="{getTitleIcon(pagetitleIcon)}" width="100%" height="100%" verticalGap="0" horizontalGap="0">
+		<!--快捷搜索-->
+		<mx:HBox id="qukilySearchBox" width="100%" height="{aboutheight}" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
+			<mx:HBox id="qukilySearchBar" width="80%" height="{aboutheight}" horizontalGap="1" horizontalAlign="left" borderStyle="none">
+				<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="批次编号" textAlign="right"/>
+				<mx:TextInput id="qukilySearchTxt" enter="searchClickAction()" width="150" height="{aboutheight}"/>
+				<mx:Button id="qukilySearchBtn" click="searchClickAction()" height="{aboutheight}" label="搜索" icon="@Embed(source='images/find.gif')"/>
+			</mx:HBox>
+			<mx:HBox width="20%" horizontalGap="1" horizontalAlign="right" borderStyle="none">
+				<mx:Button id="highSearch" click="highSearchChange()" width="55" height="{aboutheight}" label="高级"/>
+			</mx:HBox>
+		</mx:HBox>
+		<!--搜索表单-->
+		<mx:HBox id="highSearchBox" width="100%" borderStyle="solid" verticalGap="0" horizontalGap="0">
+			<mx:Form id="highSearchForm" width="100%" horizontalGap="0" verticalGap="0" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" indicatorGap="0" borderStyle="none">
+				<mx:Grid width="100%" horizontalGap="0" verticalGap="4" borderStyle="none">
+					<mx:GridRow width="100%" height="{aboutheight}">
+						<mx:GridItem horizontalAlign="right" width="10%">
+							<mx:Label text="品牌:" height="{aboutheight}"/>
+						</mx:GridItem>
+						<mx:GridItem horizontalAlign="left" width="15%">
+							<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+								<mx:TextInput id="WPPP" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+							</mx:FormItem>
+						</mx:GridItem>
+						<mx:GridItem horizontalAlign="right" width="10%">
+							<mx:Label text="型号:" height="{aboutheight}"/>
+						</mx:GridItem>
+						<mx:GridItem horizontalAlign="left" width="15%">
+							<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+								<mx:TextInput id="WPXH" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+							</mx:FormItem>
+						</mx:GridItem>
+					</mx:GridRow>
+					<mx:GridRow width="100%" height="{aboutheight}">
+						
+					</mx:GridRow>
+				</mx:Grid>
+			</mx:Form>
+			<mx:VBox width="60" height="100%" borderStyle="none" verticalGap="2" paddingTop="2" paddingBottom="2" horizontalAlign="center" verticalAlign="middle">
+				<mx:Button id="btnsearchdata" click="searchClickAction()" width="55" height="{aboutheight}" label="搜索"/>
+				<mx:Button id="btnresetdata" click="dataSearchResetAction()" width="55" height="{aboutheight}" label="重置"/>
+			</mx:VBox>
+		</mx:HBox>
+		<!--工具栏-->
+		<!--表格数据-->
+		<mx:VBox width="100%" height="100%" verticalGap="2" borderStyle="none">
+			<mx:DataGrid id="cns_dg" dataProvider="{dataArray}" itemClick="gridItemDataClick(event)" 
+						 itemDoubleClick="gridItemDataDoubleClick(event)" doubleClickEnabled="true" width="100%" height="100%">
+				<mx:columns>
+					<mx:DataGridColumn headerText="" width="43" draggable="false" sortable="false" labelFunction="getColumnIndex" textAlign="center">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:CheckBox selected="{data.selected}"/>
+							</mx:Component>
+						</mx:itemRenderer> 
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="批次编号" width="180" dataField="ryhcmxbh" sortable="true"/>
+					<mx:DataGridColumn headerText="耗材名称" width="120" dataField="ryhcmxname" sortable="true"/>
+					<mx:DataGridColumn headerText="品名" width="120" dataField="wpmc" sortable="true"/>
+					<!--<mx:DataGridColumn headerText="物品类型" width="100" dataField="ryhcmxtype" sortable="false"/>-->
+					<mx:DataGridColumn headerText="品牌" width="80" dataField="wppp" sortable="false"/>
+					<mx:DataGridColumn headerText="型号" width="80" dataField="wpxh" sortable="true"/>
+					<!--<mx:DataGridColumn headerText="厂商" width="100" dataField="wpcs" sortable="true"/>-->
+					<mx:DataGridColumn headerText="交库数量" width="80" dataField="jksl" sortable="true"/>
+					<mx:DataGridColumn headerText="实收数量" width="80" dataField="sssl" sortable="true"/>
+					<mx:DataGridColumn headerText="剩余数量" width="80" dataField="sysl" sortable="true"/>
+					<mx:DataGridColumn headerText="单位" width="50" dataField="wpdw" labelFunction="ASCodeListHelper.getCodeListLabel" sortable="true"/>
+					<mx:DataGridColumn headerText="单价" width="50" dataField="wpdj" sortable="true"/>	
+					<!--<mx:DataGridColumn headerText="金额" width="50" dataField="wpje" sortable="true"/>
+					<mx:DataGridColumn headerText="规格数量" width="80" dataField="ggsl" sortable="true"/>	
+					<mx:DataGridColumn headerText="规格名称" width="80" dataField="ggmc" sortable="true"/>	
+					<mx:DataGridColumn headerText="更新人" width="80" dataField="uusername" sortable="false"/>
+					<mx:DataGridColumn headerText="更新时间" width="160" dataField="utime" sortable="true"/>-->
+					<mx:DataGridColumn headerText="{this.pageTypeStr}数量" id="lyslColumn" dataField="lysl" width="90" draggable="false" sortable="false" textAlign="center">
+						<mx:itemRenderer>
+							<mx:Component>
+								<textinput:NumberTextInput isIntInput="true" color="red" width="100%" textAlign="center" text="{data.lysl}" focusOut="this.parentDocument.setDataGridLysl(data,this.text)"/>
+							</mx:Component>
+						</mx:itemRenderer> 
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<cnspg:PagingMoudel id="cns_dg_pg" width="100%" height="{aboutheight}" datacount="{dg_pg_datacount}" othermsg="{dg_pg_othermsg}" funReqData="dataSearchAction"/>
+		</mx:VBox>
+	</mx:Panel>
+	<mx:HBox id="toolBar" x="350" y="21" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" borderStyle="none" >
+		<mx:LinkButton id="removeAction" click="delSelectAsset()"  height="{aboutheight}" label="删除" toolTip="删除" icon="@Embed(source='images/delete.gif')"/>
+		<mx:LinkButton id="newAction" click="addSelectAsset()" height="{aboutheight}" label="添加" toolTip="添加{this.pageTypeStr}物品" icon="@Embed(source='images/add.gif')"/>
+		<mx:LinkButton id="selectWPXX" label="重新选择{this.pageTypeStr}物品" toolTip="重新选择{this.pageTypeStr}物品" click="doSelectAssetAction()" x="300" y="0" fontWeight="bold" color="red" />
+	</mx:HBox>
+</mx:Canvas>
+</mx:Module>

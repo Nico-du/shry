@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt name="xjdxlx" column="巡检对象类型"></paremt>
+	<paremt name="mc" column="巡检对象名称"></paremt>
+	<paremt name="sbbh" column="资产编号"></paremt>
+	<paremt name="xjlx" column="巡检类型"></paremt>
+	<paremt name="xjsj" column="巡检时间"></paremt>
+	<paremt name="xjjglx" column="巡检结果"></paremt>
+	<paremt name="xjjg" column="巡检结果备注"></paremt>
+	<paremt name="xjjgFj" column="巡检结果附件"></paremt>
+    <paremt name="xjr" column="巡检人"></paremt> 
+	<paremt name="clyj" column="处理意见"></paremt>
+</root>

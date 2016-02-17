@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt  name="name" column="图书名称" />
+<paremt  name="bookno" column="图书编号" />
+<paremt  name="author" column="图书作者" />
+<paremt  name="type" column="图书分类"/>
+<paremt  name="publisher" column="出版社" />
+<paremt  name="publishdate" column="出版日期" />
+<paremt  name="stockcount" column="库存数量" />
+<paremt  name="brokencount" column="损坏数量" />
+<paremt  name="totalcount" column="总数量" />
+<paremt  name="remarks" column="其他说明" />
+</root>

@@ -1,0 +1,49 @@
+/* CSS file */
+@namespace mx "library://ns.adobe.com/flex/mx";
+Application 
+{
+    fontSize: 12;
+    fontFamily: "宋体";
+    color: #000000;
+    themeColor: #0a246a;  
+    modalTransparencyBlur:0;
+	modalTransparencyColor: #3B3333;
+	modalTransparency: 0.3; 
+}
+Alert
+{
+	fontSize:12;
+	color:#000000;
+	backgroundColor:#ffffff;
+	borderColor:#09AA10;
+}
+.LinkButtonStyle01{
+	cornerRadius: 2;
+	color: #ffffff;
+	textRollOverColor: #ffffff;
+	textSelectedColor: #ffffff;
+}
+.loginLable
+{
+	 fontSize:12;
+	 color:#ffffff;
+}
+Button
+{
+	 cornerRadius:12;
+}
+AccordionHeader
+{
+	fontSize:13;
+	
+}
+ToolTip{
+     font-size: 12;
+     font-style: normal;
+     font-weight: normal;
+}
+.errorTip{
+     font-size: 12;
+     font-style: normal;
+     font-weight: normal;
+}

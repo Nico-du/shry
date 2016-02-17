@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:ns1="query.*" horizontalScrollPolicy="off" initialize="columnService.send();" xmlns:code="http://code.google.com/p/flexlib/" width="100%" fontSize="12" height="100%">
+<mx:Script>
+	<![CDATA[
+		import asset_Wssb.AssetWssbVo;
+		import asset_Wssb.Wssb;
+			import asset_Video.AssetVideoVo;
+    		import asset_Video.VideoM;
+    		import flex.pojos.NetVo;
+    		import asset_storage.NetDetail;
+    		import flex.pojos.StorageVo;
+    		import asset_storage.StorageDetail;
+    		import asset_server.DetailServer;
+    		import flex.pojos.ServerVo;
+
+
+    		import asset_Jz.JzVo;
+    		import asset_Jz.JzDetail;
+    		import asset_Computer.Computer;
+		import mx.containers.TitleWindow;
+		import mx.events.ListEvent;
+		import mx.containers.HBox;
+		import mx.controls.dataGridClasses.DataGridColumn;
+		import flash.utils.getDefinitionByName;
+		import mx.controls.Button;
+		import mx.controls.Label;
+		import flex.pojos.ComputerVo;
+		import flex.util.ExportExcel2;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.collections.ArrayCollection;
+		import mx.rpc.remoting.mxml.RemoteObject;
+		import mx.controls.Alert;
+		import mx.controls.TextInput;
+		import mx.utils.StringUtil;
+		import mx.managers.PopUpManager;
+		
+		private var inputArray:ArrayCollection = new ArrayCollection();
+		private var arrColl:ArrayCollection = null;
+		[Bindable] private var titleName:String = "PC机";
+		private var obj:Object;
+		private var conStr:String="";
+		private var str:String="";
+		private var astTitle:String="";
+		
+		public function initBlurQuery(evt:ResultEvent):void {
+			arrColl = evt.result.FirstMenu.SecondMenu as ArrayCollection;
+			assetType.dataProvider = arrColl;
+			initTypeChange({name:'pcj',label:'PC机',icon:'',pojo:'flex.pojos.ComputerVo',table:'Asset_Computer'});
+		}
+		
+		public function initTypeChange(item:Object):void {
+			var cls:Class = getDefinitionByName(item.pojo) as Class;
+			obj = new cls();
+			blurVbox.removeAllChildren();
+			inputArray.removeAll();
+			titleName = item.label;
+			str = item.name;
+			astTitle=item.label;
+			switch(str) {
+				case "pcj" : doColumn("pcj");obj.typeID=361;break;
+				case "bjb" : doColumn("bjb");obj.typeID=362;break;
+				case "dyj" : doColumn("dyj");obj.assetTypeID=364;break;
+				case "czj" : doColumn("czj");obj.assetTypeID=366;break;
+				case "smy" : doColumn("smy");obj.assetTypeID=365;break;
+				case "jz" : doColumn("jz");break;
+				case "zj" : doColumn("zj");break;
+				case "ccsb" : doColumn("ccsb");break;
+				case "wlsb" : doColumn("wlsb");break;
+				case "dlsb" : doColumn("dlsb");break;
+				case "jfjs" : doColumn("jfjs");break;
+				case "zhbx" : doColumn("zhbx");break;
+				case "sphy" : doColumn("sphy");break;
+			}
+			dPage.initDividePage(dg,obj);
+		}					
+		
+		private function doColumn(type:String):void {
+			var columns:ArrayCollection = new ArrayCollection();
+			for(var i:int=0;i<arrColl.length;i++) {
+				if(arrColl[i].name == type) {
+					var att:ArrayCollection = arrColl[i].attribute;
+					var dgc:DataGridColumn;
+					var label:Label;
+					var input:TextInput;
+					var hbox:HBox = new HBox();
+					hbox.width = 800;
+					for(var j:int=0;j<att.length;j++) {
+						dgc = new DataGridColumn();
+						dgc.headerText = att[j].column;
+						dgc.dataField = att[j].name;
+						columns.addItem(dgc);
+						label = new Label();
+						label.text = att[j].column+":";
+						label.width = 75;
+						input = new TextInput();
+						input.name = att[j].name;
+						input.width = 110;
+						hbox.addChild(label);
+						hbox.addChild(input);
+						blurVbox.addChild(hbox);
+						inputArray.addItem(input);
+						if((j+1)%4==0){hbox=new HBox();hbox.width=800;}
+					}
+					break;
+				}
+			}
+			dg.columns = columns.source;
+			
+		}
+		
+		private function submitQuery(evt:MouseEvent):void {
+			conStr=" where 1=1 ";
+			var item:Object = assetType.selectedItem;
+			var cls:Class = getDefinitionByName(item.pojo) as Class;
+			obj = new cls();
+			var input:TextInput = null;
+			for(var i:int=0;i<inputArray.length;i++) {
+				input = inputArray[i] as TextInput;
+				var temp:String = StringUtil.trim(input.text);
+				if(temp!=null&&temp!="") {
+					obj[input.name] = "%"+temp+"%";
+					conStr +=" and "+input.name+" like "+"'%"+temp+"%'"; 
+				}
+			}
+			dPage.initDividePage(dg,obj);
+			
+		}
+					
+			private function showAsset(evt:ListEvent):void{
+    			switch(str){
+				  case "pcj":
+					    var c:ComputerVo=evt.itemRenderer.data as ComputerVo;
+					    var pc:Computer = new Computer();pc.computerId=String(c.id);
+					    pc.flag=false;pc.title=astTitle;
+					    thisPopUpManager(pc);
+				        break;
+				 case "bjb":
+					    var b:ComputerVo=evt.itemRenderer.data as ComputerVo;
+					    var bjb:Computer = new Computer();bjb.computerId=String(b.id);
+					    bjb.flag=false;bjb.title=astTitle;
+					    thisPopUpManager(bjb);
+				        break;
+				  case "jz":
+				       var jz:JzDetail=new JzDetail();
+				       jz.jz=evt.itemRenderer.data as JzVo;jz.title=astTitle;
+				       thisPopUpManager(jz);
+				        break;
+				  case "dyj":/*
+				        var p:AssetWssbVo = evt.itemRenderer.data as AssetWssbVo;
+				        var dyj:Wssb = new Wssb();dyj.flag=false;
+				        dyj.printId=p.id;dyj.title=astTitle;
+				        thisPopUpManager(dyj);
+				        break; */
+				  case "smy":
+				  /*
+				        var smy:AssetWssbVo = evt.itemRenderer.data as AssetWssbVo;
+				        var scanner:Wssb = new Wssb();scanner.flag=false;
+				        scanner.printId=smy.id;scanner.title=astTitle;
+				        thisPopUpManager(scanner);
+				        break;
+				        */
+				  case "czj":
+				       var czj:AssetWssbVo = evt.itemRenderer.data as AssetWssbVo;
+				       var fax:Wssb = new Wssb();fax.flag=false;
+				       fax.printId=czj.id;fax.title=astTitle;
+				       thisPopUpManager(fax);
+				       break;
+				  case "zj": 
+				        var server:DetailServer = new DetailServer();
+				        server.serverVo=evt.itemRenderer.data as ServerVo;
+				        server.title=astTitle;
+				        thisPopUpManager(server);
+				       break;
+				  case "ccsb":
+				        var stora:StorageDetail = new StorageDetail();
+				         stora.vo=evt.itemRenderer.data as StorageVo;
+				         stora.title=astTitle;
+				         thisPopUpManager(stora);
+				       break;
+				  case "wlsb":
+				       var net:NetDetail = new NetDetail();
+				         net.vo=evt.itemRenderer.data as NetVo;
+				         net.title=astTitle;
+				         thisPopUpManager(net);
+                       break;
+				  case "sphy":
+				      var vide:VideoM = new VideoM();
+				      var vo:AssetVideoVo=evt.itemRenderer.data as AssetVideoVo;
+				      vide.vid=vo.id;vide.title=astTitle;
+				      thisPopUpManager(vide);
+                      break;
+				}
+    		}
+    		
+    		private function thisPopUpManager(ast:TitleWindow):void{
+    				PopUpManager.addPopUp(ast,this.parentApplication as DisplayObject,true);
+	            	PopUpManager.centerPopUp(ast); 
+    		}
+		//导出结果：未考虑查询条件
+		private function exportDG():void {
+			var exportExcel:ExportExcel2 = new ExportExcel2();
+			//exportExcel.ExportDGToExcel(dg.columns,assetType.selectedItem.table,assetType.selectedItem.table+".xls","hello");
+			exportExcel.ExportDGToExcel2(dg.columns,assetType.selectedItem.table,assetType.selectedItem.table+".xls","导出数据",conStr);
+		}
+	]]>
+	
+</mx:Script>
+<mx:HTTPService id="columnService" url="xml/DBFrameMini.xml" resultFormat="object" result="initBlurQuery(event)" fault="mx.controls.Alert.show(event.fault.faultString);" ></mx:HTTPService>
+<mx:Panel title="模糊查询>>{titleName}查询" layout="absolute" width="100%" height="100%" horizontalAlign="center">
+<mx:VBox width="100%">
+	<mx:HBox>
+		<mx:Label x="10" text="设备类型：" height="23" width="84"/>
+		<mx:ComboBox id="assetType" x="102" labelField="label" width="130" height="23" change="initTypeChange(assetType.selectedItem)" visible="true"></mx:ComboBox>
+	</mx:HBox>
+	<mx:VBox width="100%" y="120" horizontalAlign="center">
+		<mx:VBox id="blurVbox" width="100%" horizontalAlign="center"></mx:VBox>
+		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Button label="查询" width="70" height="23" click="submitQuery(event)" icon="@Embed(source='images/find.gif')" x="225"/>
+			<mx:Button label="导出结果" click="exportDG()" width="105" x="349" icon="@Embed(source='images/import.gif')"/>
+		</mx:HBox>
+		<mx:DataGrid id="dg" width="100%" x="10" doubleClickEnabled="true" itemDoubleClick="showAsset(event)"></mx:DataGrid>
+		<ns1:DividedPage id="dPage" x="36" width="100%" height="30"></ns1:DividedPage>
+	</mx:VBox>
+</mx:VBox>	
+</mx:Panel>
+</mx:Canvas>

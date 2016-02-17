@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:nsone="asset_Computer.*"
+		   initialize="initPage()" creationComplete="afterInitPage()" updateComplete="updateComplete()" width="100%" height="100%" backgroundColor="white" 
+		   paddingTop="5" paddingLeft="5" paddingBottom="5" paddingRight="5" fontSize="12">
+	<mx:RemoteObject id="userService" destination="UserService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="dictionaryService" destination="dictionaryService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="CodeListServiceRmt" destination="codeListService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script source="flex/util/DICCommonMethod.as"/> 
+	<mx:Script>
+		<![CDATA[
+		/*	import asset_Book.BookList;
+			
+			import asset_Computer.SelectAsset;
+			
+			import asset_Consume.ConsumeList;
+			
+			import asset_Furniture.FurnitureList;
+			
+			import asset_all.AllAsset;
+			
+			import asset_bfdj.BFDJGridMoudel;
+			
+			import asset_dirtyEvidence.DirtyList;
+			
+			import asset_heritage.HerList;
+			
+			import asset_kcxx.KCXXGridMoudel;
+			
+			import asset_lysq.LYSQGridMoudel;
+			import asset_lysq.SetMenuTreeDefaultData;
+			
+			import asset_rkdj.RKDJGridMoudel;
+			
+			import asset_ryhc.RYHCGridMoudel;
+			
+			import asset_tkdj.TKDJGridMoudel;
+			
+			import asset_wxdj.WXDJGridMoudel;*/
+			
+			import cn.cnsasfram.helper.ASCommonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.adobe.serialization.json.JSON;
+			import com.benstucki.utilities.IconUtility;
+			
+			import flex.util.CommonMethod;
+			import flex.util.CommonUIMethod;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.XMLListCollection;
+			import mx.containers.VBox;
+			import mx.controls.Image;
+			import mx.controls.Tree;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.core.INavigatorContent;
+			import mx.core.UIComponent;
+			import mx.events.EffectEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			import mx.events.TreeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			import spark.components.NavigatorContent;
+			[Bindable]
+			private var treeDate:XML=null;//菜单数据
+			public var modelMap:Dictionary=null;//保存实例化的对象
+			private var selectAssetXML:XML = null;//菜单
+			
+			private var ZCGZGRIDMOUDEL:String="ZCGZGRIDMOUDEL";//资产购置
+			private var RKDJGRIDMOUDEL:String="RKDJGRIDMOUDEL";//入库登记
+			private var KCXXGRIDMOUDEL:String="KCXXGRIDMOUDEL";//库存信息
+			private var LYSQGRIDMOUDEL:String="LYSQGRIDMOUDEL";//领用申请
+			private var TKDJGRIDMOUDEL:String="TKDJGRIDMOUDEL";//退库登记
+			private var WXDJGRIDMOUDEL:String="WXDJGRIDMOUDEL";//维修登记
+			private var BFSQGRIDMOUDEL:String="BFSQGRIDMOUDEL";//报废登记
+			
+			private var ALLASSET:String="ALLASSET";//所有资产
+			private var RYHCGRIDMOUDEL:String="RYHCGRIDMOUDEL";//日用耗材
+			private var SELECTASSET:String="SELECTASSET";//信息设备
+			private var FURNITURELIST:String="FURNITURELIST";//家具用具
+			private var BOOKLIST:String="BOOKLIST";//图书档案
+			private var DIRTYLIST:String="DIRTYLIST";//脏证物
+			private var HERLIST:String="HERLIST";//文物陈列品 
+			
+			public var defaultTreeIndex:int = 1;//跳转到的菜单
+			public var defaultMenuID:String = "";//跳转到的菜单
+			public var defaultAssetWFTreeIndex:int = -1;
+			public var shouldSetTreeIndex:Boolean = false;
+			
+			//所有按钮及工具栏高度
+			[Bindable]
+			protected var aboutheight:Number=22;
+			//初始化页面
+			public function initPage():void{
+				modelMap=new Dictionary();
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用，加载菜单
+			public function beforeInitPage():void{
+				/* userService.getUserStructureMenu(FlexGlobals.topLevelApplication.userVo.id,"wzgl");
+				userService.addEventListener(ResultEvent.RESULT,setTreeData); */
+				setTreeData(null);
+				initAllAssetTree();
+			}
+			public function setTreeData(event:ResultEvent):void{
+				treeDate = menulefttreelist;
+				/* userService.removeEventListener(ResultEvent.RESULT,setTreeData);
+				treeDate=new XML(event.result+"");//this.gammanagertreelist;
+				if(treeDate.children().length() > 0 && treeDate.node.(@label=="物资信息").toXMLString() != "" 
+					&& treeDate.node.(@label=="物资信息").node.(@label=="信息设备").toXMLString() != "" ){
+					selectAssetXML = new XML(treeDate.node.(@label=="物资信息").node.(@label=="信息设备").toXMLString());
+				}
+				delete treeDate.node.(@label=="物资信息").node.(@label=="信息设备").node; */
+				CommonUIMethod.setTreeDefaultData(menutree);
+				if(menutree.dataProvider == null){
+					this.menutree.dataProvider=treeDate;
+				}
+				this.menutree.callLater(expandTree);
+				
+			}
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				this.loadUserPower();
+				this.menutree.callLater(expandTree);
+			}
+			
+			//update时调用
+			public function updateComplete():void{
+				this.menutree.callLater(expandTree);
+				this.initAddFoldBtn();
+			}
+			
+			//权限验证
+			private function loadUserPower():void{
+			//	this.validateRulePower();
+				this.validateUserPower();
+			}
+			
+			//执行权限验证	2 控制AssetMain页面的权限
+			/**
+			 *执行角色权限验证  非物资管理员的 隐藏menuLeft 库存信息菜单 
+			 **/
+			private function validateRulePower():void{
+				var ruleId:String = Application.application.userVo.ruleId;
+				switch(ruleId){
+					case "42"://院领导
+					case "43"://部门领导
+					case "45"://普通用户
+						menuLeft.width = 0;
+						if(menuLeft.parent != null){mainHDividedBox.removeChild(menuLeft);}
+						break;
+					case "44"://物资管理员
+					case "41": //超级管理员
+						this.addFoldBtn();
+						break;
+				}
+				
+			}
+			
+			/**
+			 *执行用户权限验证 
+			 * 隐藏没有权限的 按钮
+			 **/
+			private function validateUserPower():void{
+				var btnArray:Array =  toolBar.getChildren();
+				btnArray.push(smzq_kcxx);
+				btnArray.push(smzq_rkdj);
+				for each(var eachBtn:Object in btnArray){
+					if(CommonMethod.getMenuAuthority(getSelectItem(eachBtn.id).@id) == null){
+						ASCommonHelper.controlVisible(eachBtn as UIComponent,false);
+					}
+				}
+				//没有查看库存的权限
+				if(!smzq_kcxx.includeInLayout && !smzq_rkdj.includeInLayout){
+					menuLeft.width = 0;
+					if(menuLeft.parent != null){mainHDividedBox.removeChild(menuLeft);}
+				}else{
+					this.addFoldBtn();
+				}
+			}
+			
+			//设置默认显示页面
+			public function setDefaultPage():void{
+			    if(menuLeft.includeInLayout && menuLeft.visible  && menuLeft.parent != null){
+					if(this.getSelectedBtn() == null){this.menutree.selectedIndex=1;}
+				}else{
+					var btnArray:Array =  toolBar.getChildren();
+					if(btnArray != null && btnArray.length > 0){
+						var curBtn:Object = btnArray[0];
+						setBtnState(curBtn.id);
+						resetCurrentGridPage(curBtn.id);
+					}
+				}
+				
+			}
+			//获取当前已选中的按钮
+			private function getSelectedBtn():Object{
+				var btnArray:Array =  toolBar.getChildren();
+				btnArray.push(smzq_kcxx);
+				btnArray.push(smzq_rkdj);
+				for each(var eachBtn:Object in btnArray){
+					if(eachBtn.visible && !eachBtn.enabled ){
+						return eachBtn;
+					}
+				}
+				return null;
+			}
+			//展开树节点
+			protected function expandTree():void{
+				this.menutree.expandChildrenOf(menutree.dataProvider,true);
+				menutree.validateNow();
+				for each(var item:XML in menutree.dataProvider) {
+					menutree.expandChildrenOf(item,true); 
+				}
+				
+				if(defaultMenuID==""){
+				//	this.setDefaultPage();
+				}
+				if(shouldSetTreeIndex){
+			//	this.menutree.selectedIndex=0;
+				shouldSetTreeIndex = false;
+				
+				resetCurrentGridPage(null,false,defaultMenuID);//首页快捷键
+				return; 
+				}
+				var selectItem:XML=this.menutree.selectedItem as XML;
+				if(selectItem == null ){
+					return;
+				}
+				var selectChildList:XMLList=selectItem.children();
+				if(selectChildList.hasComplexContent()){
+					return;
+				}
+				
+				treeSelectClick();
+			}
+			
+			//设置按钮状态
+			private function setBtnState(btnid:String):void{
+				var comArray:Array = toolBar.getChildren();
+				comArray.push(smzq_rkdj);
+				comArray.push(smzq_kcxx);
+				
+				for each(var obj:Object in comArray){
+					if(obj.id == btnid){
+						obj.enabled = false;
+					}else{
+						obj.enabled = true;
+					}
+				}
+				
+				if(menuLeft.includeInLayout && menuLeft.visible && menuLeft.parent != null){
+				if(btnid != "menuTree"){ menutree.selectedIndex = 0; }
+				if(btnid != "dicAssetTree"){ dicAssetTree.selectedIndex = 0; }
+				if(btnid != "dicSearchAssetTree" &&　(dicSearchAssetTree.dataProvider as ArrayCollection) != null
+					&& (dicSearchAssetTree.dataProvider as ArrayCollection).length > 0){ dicSearchAssetTree.selectedIndex = 0; }
+				}
+				
+			}
+			
+			//自动切换Grid页面
+			private function buttonSelectClick(event:Event):void{
+				setBtnState(event.currentTarget.id);
+				resetCurrentGridPage(event.currentTarget.id);
+			}
+			
+			//自动切换Grid页面
+			public function resetCurrentGridPage(curBtnId:String,isShowNewPage:Boolean = false,menuId:String=null):void{
+				var btnId:String="";
+				if(menuId != null){
+					btnId = menuId;
+				}else{
+					btnId = curBtnId;	
+				}
+				
+				setBtnState(btnId);
+				
+				var selectItem:XML=getSelectItem(btnId);
+				if(defaultAssetWFTreeIndex == -2){//快捷按钮事件判断
+					isShowNewPage = true;
+					defaultAssetWFTreeIndex = 1;
+				}
+				if("smzq_kcxx" == btnId){isShowNewPage=false;}
+				var strid:String = selectItem.@id;
+				var tmpWd:Object = this.modelMap[strid];
+				var isNewPage:Boolean = (tmpWd == null);
+				if(selectItem==null){
+					return;
+				}
+				var tempContent:Object=getModelBySelect(selectItem);
+				if(tempContent==null){
+					return;
+				}
+				this.managerStack.selectedChild=tempContent as INavigatorContent;
+				if(isShowNewPage){
+					if(!isNewPage){
+						tempContent.newActionClick();
+					}else{
+					tempContent.isShowNewPage = isShowNewPage;
+					}
+				}
+			}
+			//获取指定的selectItem
+			private function getSelectItem(menuid:String):XML{
+				var selectItem:XML=null;
+				switch(menuid){
+					case "smzq_kcxx": selectItem= <node id="201" url="smzq_kcxx" label="库存信息" pageUrl="KCXXGRIDMOUDEL"/>; break;
+					case "smzq_rkdj": selectItem= <node id="202" url="smzq_rkdj" label="入库登记" pageUrl="RKDJGRIDMOUDEL"/>; break;
+					case "smzq_lysq": selectItem= <node id="203" url="smzq_lysq" label="领用申请" pageUrl="LYSQGRIDMOUDEL"/>; break;
+					case "smzq_tksq": selectItem= <node id="204" url="smzq_tksq" label="退库申请" pageUrl="TKDJGRIDMOUDEL"/>; break;
+					case "smzq_wxdj": selectItem= <node id="205" url="smzq_wxdj" label="维修登记" pageUrl="WXDJGRIDMOUDEL"/>; break;
+					case "smzq_bfsq": selectItem= <node id="206" url="smzq_bfsq" label="报废申请" pageUrl="BFSQGRIDMOUDEL"/>; break;
+				}
+				return selectItem;
+			}
+			
+			//获取要显示详情的selectedItem
+			private function getTreeSelectItem():XML{
+				if(!CommonMethod.isNullOrWhitespace(defaultMenuID)){
+					defaultMenuID = null;
+				 return	getSelectItem(defaultMenuID);
+				}else{
+				return this.menutree.selectedItem as XML;
+				}
+				
+			}
+			
+			
+			//点击DIC树节点事件
+			public function dictreeSelectClick():void{
+				this.setBtnState("dicAssetTree");
+				if(dicAssetTree.selectedIndex == -1 ){
+					return;
+				}
+			//	selectItem = new XML("<node id=\""+curobj.dicid+"\" label=\""+curobj.dicname+"\" url=\""+curobj.dicid+"\" />");
+				var selectItem:XML=dicAssetTree.selectedItem as XML;
+				if(selectItem==null){
+					return;
+				}
+				
+				var tempContent:INavigatorContent=getDICModelBySelect(selectItem,modelMap,managerStack);
+				if(tempContent==null){
+					return;
+				}
+				this.managerStack.selectedChild=tempContent;
+			}
+			
+			
+			//点击树节点事件
+			public function treeSelectClick():void{
+				this.setBtnState("menuTree");
+				if(!directoryTreeIsSelectItem()){
+					return;
+				}
+				var selectItem:XML=getTreeSelectItem();
+				if(selectItem==null){
+					return;
+				}
+				
+				var tempContent:INavigatorContent =getModelBySelect(selectItem);	
+				if(tempContent == null){tempContent = getDICModelBySelect(selectItem,modelMap,managerStack);}	
+
+				if(tempContent==null){
+					return;
+				}
+				this.managerStack.selectedChild=tempContent;
+			}
+			
+			//判断树节点是否选择项
+			private function directoryTreeIsSelectItem():Boolean{
+				var treeSelectedIndex:int=this.menutree.selectedIndex;
+				if(treeSelectedIndex!=-1){
+					return true;
+				}else{
+					return false;
+				}
+			}
+			
+			//得到相应的组件
+			public function getModelBySelect(selectItem:XML):INavigatorContent{
+				if(selectItem==null){
+					return null;
+				}
+				var strid:String=selectItem.@id;
+				var strpageurl:String=selectItem.@pageUrl;
+				if(ASStringHelper.isNullOrEmpty(strpageurl)){
+					return null;
+				}
+				var targetModel:*=this.modelMap[strid];
+				if(targetModel!=null){
+					return targetModel;
+				}
+				var tempModel:*=null;
+				if(ASStringHelper.stringCompare(strpageurl,ZCGZGRIDMOUDEL,true)==0){
+					
+				}/*else if(ASStringHelper.stringCompare(strpageurl,RKDJGRIDMOUDEL,true)==0){
+					tempModel=new RKDJGridMoudel();
+				}else if(ASStringHelper.stringCompare(strpageurl,TKDJGRIDMOUDEL,true)==0){
+					tempModel=new TKDJGridMoudel();
+				}else if(ASStringHelper.stringCompare(strpageurl,KCXXGRIDMOUDEL,true)==0){
+					tempModel=new KCXXGridMoudel();
+				}else if(ASStringHelper.stringCompare(strpageurl,LYSQGRIDMOUDEL,true)==0){
+					tempModel=new LYSQGridMoudel();
+					if(defaultAssetWFTreeIndex != -1)tempModel.defaultTreeIndex = defaultAssetWFTreeIndex;
+					defaultAssetWFTreeIndex = -1;
+				}else if(ASStringHelper.stringCompare(strpageurl,WXDJGRIDMOUDEL,true)==0){
+					tempModel=new WXDJGridMoudel();
+				}else if(ASStringHelper.stringCompare(strpageurl,BFSQGRIDMOUDEL,true)==0){
+					tempModel=new BFDJGridMoudel();
+					if(defaultAssetWFTreeIndex != -1)tempModel.defaultTreeIndex = defaultAssetWFTreeIndex;
+					defaultAssetWFTreeIndex = -1;
+				}else if(ASStringHelper.stringCompare(strpageurl,ALLASSET,true)==0){
+					tempModel=new AllAsset();
+				}else if(ASStringHelper.stringCompare(strpageurl,RYHCGRIDMOUDEL,true)==0){
+					tempModel=new RYHCGridMoudel();
+				}else if(ASStringHelper.stringCompare(strpageurl,SELECTASSET,true)==0){
+					tempModel=getDICModelBySelect(new XML("<node id='201000000' label='201000000 计算机设备及软件' isSearchXml='true' dicids='201|202|230|231|232|800'/>"),modelMap,null);
+					/* tempModel.datatreeXML =  selectAssetXML;
+					this.managerStack.addChild(tempModel);
+					modelMap[strid]=tempModel;
+					return tempModel; 
+				}else if(ASStringHelper.stringCompare(strpageurl,FURNITURELIST,true)==0){
+					tempModel=getDICModelBySelect(new XML("<node id='601000000' label='601000000 家具用具' isSearchXml='true' dicids='601|120'/>"),modelMap,null);
+				}else if(ASStringHelper.stringCompare(strpageurl,BOOKLIST,true)==0){
+					tempModel=getDICModelBySelect(new XML("<node id='501000000' label='501000000 图书、档案' isSearchXml='true' dicids='501|110'/>"),modelMap,null);
+				}else if(ASStringHelper.stringCompare(strpageurl,DIRTYLIST,true)==0){
+					tempModel=new DirtyList();
+				}else if(ASStringHelper.stringCompare(strpageurl,HERLIST,true)==0){
+					tempModel=getDICModelBySelect(new XML("<node id='401000000' label='401000000 文物' isSearchXml='true' dicids='401|402|110'/>"),modelMap,null);
+				}*/
+				if(tempModel == null){return null;}
+				if(CommonMethod.executePwdAuthority(tempModel,selectItem) == null)return null;	//执行权限验证	1
+				
+				tempModel.addEventListener(EffectEvent.EFFECT_START,managerStack_effectStartHandler);
+				this.managerStack.addChild(tempModel);
+				modelMap[strid]=tempModel;
+				return tempModel;
+			}
+			
+			/**
+			 *显示国标资产树 
+			 **/
+			private var mtreeDate:XML = null;
+			private function initAllAssetTree():void{
+				dictionaryService.getDictionaryTree("(parentid='000000000' or parentid is null)");
+				dictionaryService.addEventListener(ResultEvent.RESULT,getTreeDataBack);
+			}
+			public function getTreeDataBack(event:ResultEvent):void{
+				dictionaryService.removeEventListener(ResultEvent.RESULT,getTreeDataBack);
+				mtreeDate=new XML(event.result+"");
+				dicAssetTree.dataProvider = mtreeDate;
+				dicAssetTree.callLater(expand);
+			}	
+			private function expand():void{
+				dicAssetTree.selectedIndex = 0;
+				dicAssetTree.expandItem(dicAssetTree.selectedItem,true,true);
+			}
+			
+			//展开时加载子项
+			private var childXML:XML = new XML();
+			protected function testTree_itemOpeningHandler(event:TreeEvent):void
+			{
+				if(event.opening){
+					var xmlItem:XML = (event.item as XML);
+					if(xmlItem.children().length() == 1){
+						var xmlStr:String = xmlItem.node[0].@label;
+						if(xmlStr.indexOf("正在加载")>-1){
+							var nodeid:String;
+							var evtItemXML:XML = (event.item as XML);
+							childXML = evtItemXML;
+							
+							nodeid = evtItemXML.@id;
+							dictionaryService.getDictionaryTree("(parentid='"+nodeid+"')");
+							dictionaryService.addEventListener(ResultEvent.RESULT,getTreeDataBack2);
+						}
+					}
+				}
+			}
+			public function getTreeDataBack2(event:ResultEvent):void{
+				dictionaryService.removeEventListener(ResultEvent.RESULT,getTreeDataBack2);
+				var rstXMLList:XML=new XML(event.result.toString());
+				
+				if(childXML.hasComplexContent()){
+					delete childXML.node;
+					childXML.appendChild(rstXMLList.children());
+				}
+			}
+			
+			
+			private var menuLeftWidth:Number;//记录menuLeft的宽度
+			/**
+			 *初始化子页面imgFold的坐标 
+			 **/
+			private function initAddFoldBtn():void{
+				if(menuLeft.parent == null){
+					imgFold.visible = false;
+				}else{
+					imgFold.visible = this.visible;
+					imgFold.x=menuLeft.width + 5;
+					imgFold.y=(menuLeft.height-imgFold.height)/2 + 70;
+				}
+				
+				if(modelMap["203"] != null && modelMap["203"].visible){
+					modelMap["203"].imgFold.visible = this.visible;
+				}
+				if(modelMap["206"] != null && modelMap["206"].visible){
+					modelMap["206"].imgFold.visible = this.visible;
+				}
+			}
+			
+			/**
+			 *添加展开/收起树形菜单按钮 
+			 **/
+			private function addFoldBtn():void{
+				PopUpManager.addPopUp(imgFold, this,false);
+				imgFold.addEventListener(MouseEvent.CLICK,imgFoldClickHandler);
+				menuLeft.addEventListener(ResizeEvent.RESIZE,resizeHandler);
+			}
+			
+			private function resizeHandler(evt:Event):void{
+				imgFold.x = menuLeft.width + 5;
+				tabNavgiatorAsset.getTabAt(0).width = menuLeft.width * 0.5 -1;
+				tabNavgiatorAsset.getTabAt(1).width = menuLeft.width * 0.5 -1;
+				searchAssetTypeInput.width = menuLeft.width - 32;
+			}
+			private function imgFoldClickHandler(evt:Event):void{
+				if(moveEffect.isPlaying){
+				moveEffect.end();
+				resizeEffect.end();
+				}
+				if(menuLeft.width != 0){
+					menuLeftWidth =  menuLeft.width;
+				}
+				
+				moveEffect.play();
+				resizeEffect.play();
+			}
+
+
+			protected function moveEffect_effectEndHandler(event:EffectEvent):void
+			{
+				imgFold.source = null;
+				if(imgFold.toolTip == "收起"){
+				imgFold.toolTip = "展开";
+				var tempClass:Class=IconUtility.getClass(imgFold,"images/mini-right.gif",5,35);
+				imgFold.source=tempClass;
+				
+				moveEffect.xTo = menuLeftWidth + 5;
+				resizeEffect.widthTo = menuLeftWidth;
+				menuLeft.visible = false;
+				}else{
+				imgFold.toolTip = "收起";
+				var tempClass:Class=IconUtility.getClass(imgFold,"images/mini-left.gif",5,35);
+				imgFold.source=tempClass;
+				
+				moveEffect.xTo = 5;
+				resizeEffect.widthTo = 0;
+				} 
+			}
+
+			//隐藏折叠按钮
+			protected function managerStack_effectStartHandler(event:EffectEvent):void
+			{
+				if(this.visible){
+					if(modelMap["203"] != null && modelMap["203"].visible){
+						modelMap["203"].imgFold.visible = false;
+					}
+					if(modelMap["206"] != null && modelMap["206"].visible){
+						modelMap["206"].imgFold.visible = false;
+					}
+				}
+			}
+			
+
+			protected function searchAssetTypeInput_focusInHandler(event:Event):void
+			{
+				if(searchAssetTypeInput.text == "输入国标分类名称/编码关键字"){
+					searchAssetTypeInput.text = "";
+					searchAssetTypeInput.setStyle("color","black");
+					ASCommonHelper.controlVisible(dicAssetTree,false);
+					ASCommonHelper.controlVisible(dicSearchAssetTree,true);
+				}
+			}
+			protected function searchAssetTypeInput_focusOutHandler(event:Event):void
+			{
+				if(CommonMethod.isNullOrWhitespace(searchAssetTypeInput.text)){
+					searchAssetTypeInput.text = "输入国标分类名称/编码关键字";
+					searchAssetTypeInput.setStyle("color","gray");
+					ASCommonHelper.controlVisible(dicAssetTree,true);
+					ASCommonHelper.controlVisible(dicSearchAssetTree,false);
+					dicSearchAssetTree.dataProvider = null;
+				}
+			//	Alert.show(searchAssetTypeInput.text);
+			}
+			protected function searchAssetTypeInput_changeHandler(event:Event):void
+			{
+				if(CommonMethod.isNullOrWhitespace(searchAssetTypeInput.text)){
+					ASCommonHelper.controlVisible(dicAssetTree,true);
+					ASCommonHelper.controlVisible(dicSearchAssetTree,false);
+				}else{
+					ASCommonHelper.controlVisible(dicAssetTree,false);
+					ASCommonHelper.controlVisible(dicSearchAssetTree,true);
+					searchDicList();
+				}
+			}
+			
+			private function searchDicList():void{
+				if(CommonMethod.isNullOrWhitespace(searchAssetTypeInput.text) || searchAssetTypeInput.text == "输入国标分类名称/编码关键字"){
+					return;
+				}
+				var strcondition:String = "(dicid like '%"+searchAssetTypeInput.text+"%' or dicname like '%"+searchAssetTypeInput.text+"%') ";
+				
+				CodeListServiceRmt.GetCodeList("CNSV_ALLDICTIONARY",50,1,strcondition);
+				CodeListServiceRmt.addEventListener(ResultEvent.RESULT,dicDataSearchActionBack);
+			}
+			
+			protected function dicDataSearchActionBack(rmtResult:ResultEvent):void{
+				this.CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,dicDataSearchActionBack);
+				var objResult:Object=rmtResult.result;
+				var strresult:String=objResult.toString();
+				var jsonObj:Object=JSON.decode(strresult,true);
+				var itemtotal:Object=jsonObj.itemtotal;
+				var othermsg:Object=jsonObj.othermsg;
+				var items:Object=jsonObj.items;
+				dicSearchAssetTree.dataProvider =  new ArrayCollection(items as Array);
+			}
+			//点击DIC树节点事件
+			public function dicSearchAssetTreeClick():void{
+				this.setBtnState("dicSearchAssetTree");
+				if(dicAssetTree.selectedIndex == -1 ){
+					return;
+				}
+				//	selectItem = new XML("<node id=\""+curobj.dicid+"\" label=\""+curobj.dicname+"\" url=\""+curobj.dicid+"\" />");
+				var selectItem:Object=dicSearchAssetTree.selectedItem;
+				if(selectItem==null){
+					return;
+				}
+				var selectItemXML:XML = new XML("<node id='"+selectItem.dicid+"' label='"+selectItem.dicname+"' isSearchXml='true' />");
+				var tempContent:INavigatorContent=getDICModelBySelect(selectItemXML,modelMap,managerStack);
+				if(tempContent==null){
+					return;
+				}
+				this.managerStack.selectedChild=tempContent;
+			}
+
+
+			protected function zdyLkb_clickHandler(event:MouseEvent):void
+			{
+				/*var setTreeData:SetMenuTreeDefaultData = new SetMenuTreeDefaultData();
+				setTreeData.callBackFunc = beforeInitPage;
+				PopUpManager.addPopUp(setTreeData,this.parentApplication as DisplayObject,true);
+				PopUpManager.centerPopUp(setTreeData);*/
+			}
+			public function zdyCallBack():void{
+				CommonUIMethod.setTreeDefaultData(menutree);
+			}
+			
+			public function getCurrentDicids(selectItem:XML):String{
+				var tempObj:Object = getDICModelBySelect(selectItem);
+				if(tempObj == null){ return "";}
+				return  tempObj.data.@dicids;
+			}
+
+		]]>
+	</mx:Script>
+<!--			<node id="smzq" label="生命周期" pageUrl="">
+				<node id="smzq_rkdj" label="入库登记" pageUrl="RKDJGRIDMOUDEL"/>
+				<node id="smzq_lysq" label="领用申请" pageUrl="LYSQGRIDMOUDEL"/>
+				<node id="smzq_tksq" label="退库申请" pageUrl="TKDJGRIDMOUDEL"/>
+				<node id="smzq_wxdj" label="维修登记" pageUrl="WXDJGRIDMOUDEL"/>
+				<node id="smzq_bfsq" label="报废申请" pageUrl="BFSQGRIDMOUDEL"/>
+			</node>-->
+	<mx:XML id="menulefttreelist">
+		<node id="2014" label="物资管理">
+			<node id="wzxx" label="物资信息" pageUrl="">
+				<node id="wzxx201" label="日用耗材" url="wzxx_ryhc" pageUrl="RYHCGRIDMOUDEL"/>
+				<node id="wzxx202" label="计算机设备及软件" url="wzxx_xxsb" pageUrl="SELECTASSET"/>
+				<node id="wzxx203" label="家具用具" url="wzxx_jjyj" pageUrl="FURNITURELIST"/>
+				<node id="wzxx204" label="图书档案" url="wzxx_tsda" pageUrl="BOOKLIST"/>
+				<node id="wzxx206" label="文物陈列品" url="wzxx_wwclp" pageUrl="HERLIST"/>
+			</node>
+		</node>
+	</mx:XML>
+	
+	<mx:XML id="gammanagertreelist">
+		<node id="2014" label="物资管理">
+			<node id="wzxx" label="物资信息" pageUrl="">
+				<node id="wzxx_ryhc" label="日用耗材" pageUrl="RYHCGRIDMOUDEL"/>
+				<node id="wzxx_xxsb" label="计算机设备及软件" pageUrl="SELECTASSET"/>
+				<node id="wzxx_jjyj" label="家具用具" pageUrl="FURNITURELIST"/>
+				<node id="wzxx_tsda" label="图书档案" pageUrl="BOOKLIST"/>
+				<node id="wzxx_zzwxx" label="赃证物信息" pageUrl="DIRTYLIST"/>
+				<node id="wzxx_wwclp" label="文物陈列品" pageUrl="HERLIST"/>
+			</node>
+		</node>
+	</mx:XML>
+	
+	<!--
+			<node id="wzxx_xxsb" label="信息设备" pageUrl="SELECTASSET"/>
+			<node id="pdgl" label="盘点管理" pageUrl="">
+				<node id="pdgl_pdfp" label="盘点分配" pageUrl=""/>
+				<node id="pdgl_zcpd" label="资产盘点" pageUrl=""/>
+				<node id="pdgl_ykcl" label="益亏处理" pageUrl=""/>
+				<node id="pdgl_pdhz" label="盘点汇总" pageUrl=""/>
+			</node>-->
+	<!--<mx:LinkButton id="zdyLkb" label="自定义常用分类" click="zdyLkb_clickHandler(event)"/>-->
+	<mx:Move id="moveEffect" target="{imgFold}"  xFrom="{menuLeft.width + 5}" xTo="{5}" effectStart="{menuLeft.visible = true;}" effectEnd="moveEffect_effectEndHandler(event)"/>
+	<mx:Resize id="resizeEffect" target="{menuLeft}"  widthFrom="{menuLeft.width}" widthTo="{0}" />
+	<mx:Image id="imgFold" includeInLayout="false" toolTip="收起" source="@Embed(source='images/mini-left.gif')" mouseOver="{Mouse.cursor = MouseCursor.BUTTON;}" mouseOut="{Mouse.cursor = MouseCursor.ARROW;}" />
+	<mx:HDividedBox id="mainHDividedBox" width="100%" height="100%" borderStyle="none" horizontalAlign="center" horizontalGap="5" verticalAlign="middle" verticalGap="0">
+		<mx:VBox id="menuLeft" width="162" height="100%" verticalGap="2" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" verticalAlign="middle" fontSize="12" >
+			<mx:HBox width="100%" height="{aboutheight}" horizontalAlign="left" backgroundColor="#99CCFF" borderStyle="none" horizontalGap="0" verticalAlign="middle">
+				<mx:Label text="物资管理" textIndent="5" textAlign="left" fontWeight="bold" fontSize="13"/>
+			</mx:HBox>
+			<mx:LinkButton id="smzq_rkdj" width="100%"  label="入库登记" toolTip="入库登记" click="buttonSelectClick(event)" fontWeight="bold" height="{aboutheight}" icon="@Embed(source='images/bgdj_rk_icon.png')" color="red"  />
+			<mx:LinkButton id="smzq_kcxx" width="100%"  label="库存信息" toolTip="库存信息" click="buttonSelectClick(event)" fontWeight="bold" height="{aboutheight}" icon="@Embed(source='images/icon_dgex.png')"/>
+			<mx:TabNavigator id="tabNavgiatorAsset" width="100%" height="100%" verticalGap="0" horizontalGap="0" paddingTop="2" borderStyle="none">
+				<mx:Canvas id="cyflPanel" width="100%" height="100%" borderStyle="none" label="常用分类" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+					<mx:Tree id="menutree" borderStyle="none" dragEnabled="false" paddingTop="0" width="100%" height="100%" click="treeSelectClick()" labelField="@label" showRoot="false" horizontalScrollPolicy="off" verticalScrollPolicy="off"/>
+	<mx:LinkButton id="zdyAction"  x="{menutree.width-28}" y="0"  click="zdyLkb_clickHandler(event)" height="20" width="30"  label="" toolTip="自定义常用分类" icon="@Embed(source='images/icon_gear.png')"/>
+				</mx:Canvas>
+				<mx:VBox label="所有分类" verticalGap="2"  >
+					<mx:HBox width="100%" height="{aboutheight}" paddingBottom="0">
+						<mx:TextInput id="searchAssetTypeInput" text="输入国标分类名称/编码关键字" color="gray" height="{aboutheight}" width="130"
+							click="{searchAssetTypeInput.setFocus();searchAssetTypeInput_focusInHandler(event);}" change="searchAssetTypeInput_changeHandler(event)" 
+							focusIn="searchAssetTypeInput_focusInHandler(event)" focusOut="searchAssetTypeInput_focusOutHandler(event)" enter="searchDicList()" />
+						<mx:Image  toolTip="搜索" click="searchDicList()" buttonMode="true" mouseOver="{Mouse.cursor = MouseCursor.BUTTON;}" mouseOut="{Mouse.cursor = MouseCursor.AUTO;}" source="@Embed(source='images/search_min.png')" />
+					</mx:HBox>
+					
+					<mx:Tree id="dicAssetTree" itemOpening="testTree_itemOpeningHandler(event)" click="dictreeSelectClick()" width="100%" height="100%" labelField="@label"  showRoot="true"/>
+					<mx:Tree id="dicSearchAssetTree" labelField="dicname" click="dicSearchAssetTreeClick()" visible="{!dicAssetTree.visible}" includeInLayout="{!dicAssetTree.includeInLayout}" width="100%" height="100%"  showRoot="true"/>
+				</mx:VBox>
+			</mx:TabNavigator>
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%" verticalGap="2">
+			<mx:HBox id="toolBar" width="100%" height="{aboutheight}" horizontalGap="0"  horizontalAlign="left" paddingLeft="0" verticalAlign="middle" borderStyle="none" backgroundColor="#99CCFF">
+				<mx:LinkButton id="smzq_lysq"  label="领用申请" toolTip="领用申请" click="buttonSelectClick(event)" fontWeight="bold" height="{aboutheight}" icon="@Embed(source='images/bgdj_ly_icon.png')"/>
+				<mx:LinkButton id="smzq_tksq"  label="退库申请" toolTip="退库申请" click="buttonSelectClick(event)" fontWeight="bold" height="{aboutheight}" icon="@Embed(source='images/bgdj_tk_icon.png')"/>
+				<mx:LinkButton id="smzq_wxdj"  label="维修登记" toolTip="维修登记" click="buttonSelectClick(event)" fontWeight="bold" height="{aboutheight}" icon="@Embed(source='images/bgdj_wx_icon.png')"/>
+				<mx:LinkButton id="smzq_bfsq"  label="报废申请" toolTip="报废申请" click="buttonSelectClick(event)" fontWeight="bold" height="{aboutheight}" icon="@Embed(source='images/bgdj_bf_icon.png')"/>
+			</mx:HBox>
+		<mx:ViewStack id="managerStack" width="100%" height="100%" creationPolicy="all"/>
+		</mx:VBox>
+	</mx:HDividedBox>
+</mx:Module>
+
+

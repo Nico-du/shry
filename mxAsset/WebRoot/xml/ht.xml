@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt name="mc" column="名称"/>
+<paremt name="sj" column="时间"/>
+<paremt name="qyr" column="责任人"/>
+<paremt name="bz" column="备注"/>
+</root>

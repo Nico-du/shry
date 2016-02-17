@@ -1,0 +1,46 @@
+///程序设计说明 
+
+1.耗材数量验证  --加入批次概念后 已修改为单个批次剩余/已领数量验证,后台无验证。
+ 由于耗材时先申领在购买的情况，所以：
+  在领用结束时AllAssetServiceImp> SaveOrUpdateLYD()中加数量验证  验证该领用单内的 领用[实发数量] 不大于剩余数量
+ 在AllAssetServiceImp>PassToNextStep 领用结束时加验证。
+ 
+2.系统提醒(java核心功能方法CommonMethod.pushSysMsg,核心业务方法AllAssetServiceImp中:领用在选择下一步处理人页面,报废、退库在AllAssetServiceImp中passToNextStep方法中)
+ 申领/退库/报废/功能 加入系统提醒功能
+ 提醒的地方：①申领/报废/退库转交下一步时,提醒下一步处理人、系统管理员admin
+                         ②申领/报废/退库 "下一步处理人"处理完成时,提醒申请人、系统管理员admin
+                         ③申领结束时,如果耗材剩余数量少于"阀值"数量(默认为20),则提醒所有物质管理员"耗材数量不足".
+
+3.单点登录  --已弃用
+①其他系统使用POST方法提交用户信息到  servlet/LoginServlet执行验证,验证成功则将userid存入CommonMethods.LoginedUserArray,并跳转到/mxAsset/Login.html?logid=userid,
+ 前台Login页面在CreationComplete时获取userid，调用userServiceRmt.validateSingleLogin(userid)验证CommonMethods.LoginedUserArray中是否有userid,如果有则remove掉userid返回userVo,登录成功;
+②其他任何情况都跳转到登录页面。
+ 
+4.CA登录:登录页面可以选择CA登录/用户名登录
+ 使用CA登录:SingleLogin.html页面加入了CA相关的JS,输入CA密码点击登录,Flex调用JS方法传参CA密码,在校验CA密码正确后JS调用Flex方法传参CA用户编码进行登录
+ 用户名登录:比对user_info表进行登录
+ 
+5.数据同步
+直接同步高院视图ryxx/bmxx表数据到本地users/dept/user_dept/user_rule表,不存在的用户添加用户,存在的用户进行覆盖更新
+
+
+6.历史记录/批次 问题
+CnstAssetbgjlData表 存储 领用/维修/报废 时选择的固定资产的相关信息, 在领用[已选择物品]和[历史记录]中显示
+
+CnstLydmxLyslData表 存储 领用/退库 时选择的 耗材 批次和数量等相关信息,在领用[已选择物品]和[历史记录]中显示
+
+历史记录保存时机:新建 领用/维修/报废 明细单选择固定资产编号后，保存明细同时保存历史记录,设置zt=0 未审核通过,
+审核结束时更新zt=1,更新物品zt=使用/报废
+
+
+
+
+
+
+
+
+
+
+
+
+

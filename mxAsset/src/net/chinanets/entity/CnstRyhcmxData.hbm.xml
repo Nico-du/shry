@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="net.chinanets.entity.CnstRyhcmxData" table="CNST_RYHCMX_DATA" schema="ZCGL">
+        <id name="ryhcmxid" type="java.lang.String">
+            <column name="RYHCMXID" length="100" />
+        </id>
+        <property name="ryhcmxname" type="java.lang.String">
+            <column name="RYHCMXNAME" length="200" not-null="true" />
+        </property>
+        <property name="ryhcmxbh" type="java.lang.String">
+            <column name="RYHCMXBH" length="200"/>
+        </property>
+        <property name="ryhcmxtype" type="java.lang.String">
+            <column name="RYHCMXTYPE" length="200" not-null="true" />
+        </property>
+        <property name="rkdid" type="java.lang.String">
+        	<column name="RKDID" length="100" not-null="true"/>
+        </property>
+        <property name="wppp" type="java.lang.String">
+            <column name="WPPP" length="200" />
+        </property>
+        <property name="wpxh" type="java.lang.String">
+            <column name="WPXH" length="200" />
+        </property>
+        <property name="jksl" type="java.lang.Float">
+            <column name="JKSL" precision="126" scale="0" not-null="true" />
+        </property>
+        <property name="sssl" type="java.lang.Float">
+            <column name="SSSL" precision="126" scale="0" not-null="true" />
+        </property>
+        <property name="wpdw" type="java.lang.String">
+            <column name="WPDW" length="100" />
+        </property>
+        <property name="wpdj" type="java.lang.Float">
+            <column name="WPDJ" precision="126" scale="0" />
+        </property>
+        <property name="wpje" type="java.lang.Float">
+            <column name="WPJE" precision="126" scale="0" />
+        </property>
+        <property name="ggsl" type="java.lang.Float">
+            <column name="GGSL" precision="126" scale="0" />
+        </property>
+        <property name="ggmc" type="java.lang.String">
+            <column name="GGMC" length="100" />
+        </property>
+        <property name="usable" type="java.lang.Integer">
+            <column name="USABLE" precision="10" scale="0" not-null="true" />
+        </property>
+        <property name="ctime" type="java.util.Date">
+            <column name="CTIME" length="7" not-null="true" />
+        </property>
+        <property name="cuser" type="java.lang.String">
+            <column name="CUSER" length="100" not-null="true" />
+        </property>
+        <property name="utime" type="java.util.Date">
+            <column name="UTIME" length="7" not-null="true" />
+        </property>
+        <property name="uuser" type="java.lang.String">
+            <column name="UUSER" length="100" not-null="true" />
+        </property>
+        <property name="memo" type="java.lang.String">
+            <column name="MEMO" length="1000" />
+        </property>
+        <property name="wpyc" type="java.lang.String">
+            <column name="WPYC" length="200" />
+        </property>
+        <property name="wpcs" type="java.lang.String">
+            <column name="WPCS" length="200" />
+        </property>
+        <property name="gbdm" type="java.lang.String">
+            <column name="GBDM" length="100" />
+        </property>
+        <property name="syzt" type="java.lang.String">
+            <column name="SYZT" length="20" />
+        </property>
+        
+        <property name="fphm" type="java.lang.String">
+            <column name="FPHM" length="1000" />
+        </property>
+        <property name="fkfs" type="java.lang.String">
+            <column name="FKFS" length="100" />
+        </property>
+        <property name="qtfkje" type="java.lang.String">
+            <column name="QTFKJE" length="100" />
+        </property>
+        <property name="xjfpje" type="java.lang.String">
+            <column name="XJFPJE" length="100" />
+        </property>
+        <property name="zphm" type="java.lang.String">
+            <column name="ZPHM" length="1000" />
+        </property>
+        <property name="wpmc" type="java.lang.String">
+            <column name="WPMC" length="200" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,423 @@
+Application 
+{
+	fontSize: 12;
+	fontFamily: "宋体";
+	color: #000000;
+	themeColor: #0a246a;  
+	modalTransparencyBlur:0;
+	modalTransparencyColor: #3B3333;
+	modalTransparency: 0.3; 
+}
+AccordionHeader
+{
+	skin: Embed(skinClass="AccordionHeader_skin");
+}
+
+Button
+{
+	skin: Embed(skinClass="Button_skin");
+}
+DateField{
+	font-size:12px;
+}
+ButtonBar
+{
+	buttonStyleName: "buttonBarButton";
+	firstButtonStyleName: "buttonBarFirstButton";
+	lastButtonStyleName: "buttonBarLastButton";
+}
+ApplicationControlBar
+{
+	borderColor: #ABC8E7;
+	backgroundColor: #3a6ea5;
+}
+.buttonBarButton
+{
+	skin: Embed(skinClass="ButtonBar$button_skin");
+}
+.buttonBarFirstButton
+{
+	skin: Embed(skinClass="ButtonBar$firstButton_skin");
+}
+.buttonBarLastButton
+{
+	skin: Embed(skinClass="ButtonBar$lastButton_skin");
+}
+CheckBox
+{
+	/* icon: Embed(skinClass="CheckBox_icon"); */
+	textIndent: 0;
+	fillAlphas: 1, 1, 1, 1;
+	fillColors: #ffffff, #ffffff, #ffffff, #ffffff;
+	borderColor: #009dff;
+	iconColor: #009dff;
+	disabledIconColor: #009dff;
+	color: #000000;
+	themeColor: #009dff;
+}
+ComboBox
+{
+	editableSkin: Embed(skinClass="ComboBox_editableSkin");
+	skin: Embed(skinClass="ComboBox_skin");
+}
+CursorManager
+{
+	busyCursor: Embed(skinClass="CursorManager_busyCursor");
+}
+DateChooser
+{
+	nextMonthSkin: Embed(skinClass="DateChooser_nextMonthSkin");
+	nextYearSkin: Embed(skinClass="DateChooser_nextYearSkin");
+	prevMonthSkin: Embed(skinClass="DateChooser_prevMonthSkin");
+	prevYearSkin: Embed(skinClass="DateChooser_prevYearSkin");
+	rollOverIndicatorSkin: Embed(skinClass="DateChooser_rollOverIndicatorSkin");
+	selectionIndicatorSkin: Embed(skinClass="DateChooser_selectionIndicatorSkin");
+	todayIndicatorSkin: Embed(skinClass="DateChooser_todayIndicatorSkin");
+	borderColor: #9EB6CE;
+	headerColors: #D6DEEA, #F7FAFC;
+}
+DataGrid
+{
+	headerColors: #F7FAFC, #D6DEEA;
+	borderColor: #9EB6CE;
+	alternatingItemColors: #FFFFFF, #EAF2FB;
+	selectionColor: #FBA33C;
+	rollOverColor: #FFD75A;
+	leading: 2;
+	textRollOverColor: #000000;
+	textSelectedColor: #FFFFFF;
+	verticalGridLines: true;
+	horizontalGridLines: false;
+}
+AdvancedDataGrid
+{
+	headerColors: #F7FAFC, #D6DEEA;
+	borderColor: #9EB6CE;
+	alternatingItemColors: #FFFFFF, #EAF2FB;
+	selectionColor: #FBA33C;
+	rollOverColor: #FFD75A;
+	leading: 2;
+	textRollOverColor: #000000;
+	textSelectedColor: #FFFFFF;
+	verticalGridLines: true;
+	horizontalGridLines: false;
+}
+DragManager
+{
+	copyCursor: Embed(skinClass="DragManager_copyCursor");
+	defaultDragImageSkin: Embed(skinClass="DragManager_defaultDragImageSkin");
+	linkCursor: Embed(skinClass="DragManager_linkCursor");
+	moveCursor: Embed(skinClass="DragManager_moveCursor");
+	rejectCursor: Embed(skinClass="DragManager_rejectCursor");
+}
+HScrollBar
+{
+	downArrowSkin: Embed(skinClass="HScrollBar_downArrowSkin");
+	thumbIcon: Embed(skinClass="HScrollBar_thumbIcon");
+	thumbSkin: Embed(skinClass="HScrollBar_thumbSkin");
+	trackSkin: Embed(skinClass="HScrollBar_trackSkin");
+	upArrowSkin: Embed(skinClass="HScrollBar_upArrowSkin");
+}
+LinkButton
+{
+	skin: Embed(skinClass="LinkButton_skin");
+}
+List
+{
+	rollOverColor: #FFD75A;
+	selectionColor: #FBA33C;
+	borderColor: #9EB6CE;
+	textRollOverColor: #000000;
+	textSelectedColor: #FFFFFF;
+}
+Menu
+{
+	separatorSkin: Embed(skinClass="Menu_separatorSkin");
+}
+MenuBar
+{
+	backgroundSkin: Embed(skinClass="MenuBar_backgroundSkin");
+	itemSkin: Embed(skinClass="MenuBar_itemSkin");
+}
+NumericStepper
+{
+	downArrowSkin: Embed(skinClass="NumericStepper_downArrowSkin");
+	upArrowSkin: Embed(skinClass="NumericStepper_upArrowSkin");
+}
+Panel { 
+	backgroundAlpha: 1;
+	highlightAlphas: 0.4, 0.25;
+	headerColors: #E6EBF7, #ABC8E7;
+	footerColors: #E6EBF7, #ABC8E7;
+	borderColor: #ABC8E7;
+	borderAlpha: 1;
+	borderThicknessRight: 3;
+	borderThicknessLeft: 3;
+	borderThicknessTop: 1;
+	borderThicknessBottom: 3;
+	shadowDistance: 1;
+	cornerRadius: 4;
+	backgroundColor: #FFFFFF;
+}
+PopUpButton
+{
+	popUpIcon: Embed(skinClass="PopUpButton_popUpIcon");
+	skin: Embed(skinClass="PopUpButton_skin");
+}
+ProgressBar
+{
+	barSkin: Embed(skinClass="ProgressBar_barSkin");
+	indeterminateSkin: Embed(skinClass="ProgressBar_indeterminateSkin");
+	trackSkin: Embed(skinClass="ProgressBar_trackSkin");
+}
+RadioButton
+{
+	icon: Embed(skinClass="RadioButton_icon");
+}
+HSlider, VSlider
+{
+	thumbSkin: Embed(skinClass="Slider_thumbSkin");
+	trackHighlightSkin: Embed(skinClass="Slider_trackHighlightSkin");
+	trackSkin: Embed(skinClass="Slider_trackSkin");
+}
+SWFLoader
+{
+	brokenImageSkin: Embed(skinClass="SWFLoader_brokenImageSkin");
+}
+TabBar
+{
+	tabStyleName: "tabBarTab";
+	firstTabStyleName: "tabBarTab";
+	lastTabStyleName: "tabBarTab";
+}
+.tabBarTab
+{
+	skin: Embed(skinClass="TabBar$tab_skin");
+}
+TextArea
+{
+	borderSkin: Embed(skinClass="TextArea_borderSkin");
+	focusSkin: Embed(skinClass="TextArea_focusSkin");
+}
+TextInput
+{
+	borderSkin: Embed(skinClass="TextInput_borderSkin");
+	focusSkin: Embed(skinClass="TextInput_focusSkin");
+}
+TitleWindow
+{
+	closeButtonDisabledSkin: Embed(skinClass="TitleWindow_closeButtonDisabledSkin");
+	closeButtonDownSkin: Embed(skinClass="TitleWindow_closeButtonDownSkin");
+	closeButtonOverSkin: Embed(skinClass="TitleWindow_closeButtonOverSkin");
+	closeButtonSkin: Embed(skinClass="TitleWindow_closeButtonSkin");
+	closeButtonUpSkin: Embed(skinClass="TitleWindow_closeButtonUpSkin");
+}
+ToolTip
+{
+	backgroundnotexported: Embed(skinClass="ToolTip_backgroundnotexported");
+	borderSkin: Embed(skinClass="ToolTip_borderSkin"); 
+	fontSize: 12;
+	color: #000000;
+	fontFamily: "宋体";
+}
+Tree
+{
+	borderSkin: Embed(skinClass="Tree_borderSkin");
+	defaultLeafIcon: Embed(skinClass="Tree_defaultLeafIcon");
+	disclosureClosedIcon: Embed(skinClass="Tree_disclosureClosedIcon");
+	disclosureOpenIcon: Embed(skinClass="Tree_disclosureOpenIcon");
+	folderClosedIcon: Embed(skinClass="Tree_folderClosedIcon");
+	folderOpenIcon: Embed(skinClass="Tree_folderOpenIcon");
+}
+VScrollBar
+{
+	downArrowSkin: Embed(skinClass="VScrollBar_downArrowSkin");
+	thumbIcon: Embed(skinClass="VScrollBar_thumbIcon");
+	thumbSkin: Embed(skinClass="VScrollBar_thumbSkin");
+	trackSkin: Embed(skinClass="VScrollBar_trackSkin");
+	upArrowSkin: Embed(skinClass="VScrollBar_upArrowSkin");
+}
+.closeBtn {
+	upSkin:        Embed('flex_skins/closeUp.png');
+	overSkin:      Embed('flex_skins/closeUp.png');
+	downSkin:      Embed('flex_skins/closeDown.png');
+	disabledSkin:  Embed('flex_skins/closeUp.png');
+}
+.increaseBtn {
+	upSkin:        Embed('flex_skins/maximizeUp.png');
+	overSkin:      Embed('flex_skins/maximize.png');
+	downSkin:      Embed('flex_skins/maximizeDown.png');
+	disabledSkin:  Embed('flex_skins/maximize.png');
+}
+.decreaseBtn {
+	upSkin:        Embed('flex_skins/restoreUp.png');
+	overSkin:      Embed('flex_skins/restoreUp.png');
+	downSkin:      Embed('flex_skins/restoreDown.png');
+	disabledSkin:  Embed('flex_skins/restoreUp.png');
+}
+.minimizeBtn {
+	upSkin:        Embed('flex_skins/minimizeUp.png');
+	overSkin:      Embed('flex_skins/minimizeUp.png');
+	downSkin:      Embed('flex_skins/minimizeDown.png');
+	disabledSkin:  Embed('flex_skins/minimizeUp.png');
+}
+.resizeHndlr {
+	upSkin:        Embed('flex_skins/resizeHandler.png');
+	overSkin:      Embed('flex_skins/resizeHandler.png');
+	downSkin:      Embed('flex_skins/resizeHandler.png');
+	disabledSkin:  Embed('flex_skins/resizeHandler.png');
+}
+.errorTip
+{
+	color:#FFFFFF;
+	fontSize:12;
+	backgroundColor:#FF0000;
+	backgroundAlpha: 0.75;
+	cornerRadius: 4;
+}
+AccordionHeader
+{
+	fontSize:13;
+}
+
+/*
+Changed by 08/28/2009
+Author 张相玲
+*/
+
+.layoutSkinLogin {
+	fontFamily: "宋体";
+	fontSize: 12;
+	backgroundColor: #869CA7;
+	backgroundImage: Embed(source="flex_skins/backgroundLogin.jpg");
+	backgroundSize: "100%";
+	backgroundGradientAlphas: 1, 1;
+	/* backgroundGradientColors: #9CB0BA, #68808C; */
+	horizontalAlign: "center";
+	paddingBottom: 0;
+	paddingLeft: 0;
+	paddingRight: 0;
+	paddingTop: 0;
+}
+
+.layoutSkinLogin2 {
+	fontFamily: "宋体";
+	fontSize: 12;
+	backgroundColor: #95B7E9;
+	backgroundSize: "100%";
+	backgroundGradientAlphas: 1, 1;
+	/* backgroundGradientColors: #9CB0BA, #68808C; */
+	horizontalAlign: "center";
+	paddingBottom: 0;
+	paddingLeft: 0;
+	paddingRight: 0;
+	paddingTop: 0;
+}
+
+/* CSS file */
+
+
+.myHVAlign {
+	horizontalAlign: "center"; 
+	/*verticalAlign: "middle"; */
+}
+
+.loginPanelStyle01 {
+	/*borderStyle: none;
+	backgroundAlpha: 0;*/
+	width: 450;
+	height: 300;
+	headerHeight: 40;
+	horizontalAlign: "center";
+	backgroundColor: #AECAED;
+	backgroundAlpha: 0.1;
+	/* borderStyle: solid; */
+	borderAlpha: 0.3;
+	
+	borderThickness: 0;
+	borderThicknessLeft: 20;
+	borderThicknessTop: 20;
+	borderThicknessBottom: 40;
+	borderThicknessRight: 20;
+	
+	highlightAlphas: 0.3, 0;
+	headerColors: #00BFFF, #0099ff;
+	
+	titleStyleName: "myPaneltitleStyle01";
+}
+
+.myPaneltitleStyle01 {
+	/*height: 40;*/
+	color: #003D5B;
+	fontWeight: bold;
+	textIndent: 30;
+}
+
+.inputStyle01 {
+	fontFamily: "verdana";
+	fontSize: 20;
+	fontWeight: bold;
+	borderStyle: solid;
+	cornerRadius: 4;
+	borderColor: #99ceff;
+	backgroundColor: #63adf3;
+	backgroundAlpha: 0.16;
+	color: #0068AD;
+	paddingLeft: 40;
+	paddingTop: 10;
+	paddingRight: 5;
+	paddingBottom: 0;
+	
+}
+.loginButtonStyle01{
+	cornerRadius: 3;
+	fontFamily: verdana;
+	fontSize: 20;
+	fontWeight: bold;
+	fillColors: #059be2, #059be2, #0388c7, #0388c7;
+	color: #ffffff;
+	textRollOverColor: #ffffff;
+	textSelectedColor: #ffffff;
+}
+.simtBtnStyle01 {
+	
+}
+
+.mainWindowHeaderStyle {
+	
+}
+/*
+2009年11月19 14:20
+*/
+.newFormItemStyle01 {
+	labelStyleName: customTextAlignLabel01;
+}
+.customTextAlignLabel01 {
+	textAlign: left;
+}
+
+.newFormItemStyle02 {
+	backgroundColor: #ccc;
+	labelStyleName: customTextAlignLabel02;
+}
+.customTextAlignLabel02 {
+	width: 100;
+	textAlign: right;
+	color: red;
+}
+.myLinkButton{
+	textDecoration:underline;
+}
+.myLegendItem{
+	fontSize: 12;
+	fontFamily: "宋体";
+	font-weight:normal;
+}
+.comboxtextinput{
+	paddingTop:0;
+	paddingLeft:0;
+}
+.titleStyle{
+	fontSize:14;
+	font-weight:bold;
+}

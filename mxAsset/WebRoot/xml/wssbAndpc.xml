@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt type="1" name="w.mc" column="名称"/>
+	<paremt type="1" name="w.gzh" column="国资编号" />
+	<paremt type="1" name="w.sbbh" column="设备编号" />
+	<paremt type="1" name="w.sbxlh" column="设备序列号" />
+	<paremt type="1" name="w.ppxh" column="品牌型号" />
+	<paremt type="1" name="w.gzrq" column="购置日期" />
+	<paremt type="1" name="w.synx" column="使用年限" />
+	<paremt type="1" name="w.gzje" column="购置金额" />
+	<paremt type="1" name="w.bxrq" column="保修日期"/>
+	<paremt type="1" name="w.zt" column="使用状态" />
+	<paremt type="1" name="w.smzqzt" column="生命周期状态" />
+	<paremt type="1" name="w.bmmc" column="使用部门" />
+	<paremt type="1" name="w.syr" column="使用人" />
+	<paremt type="1" name="w.zrr" column="责任人" />
+	<paremt type="1" name="w.sydd" column="使用地点" />
+	<paremt type="1" name="w.lx" column="类型" />
+	<paremt type="1" name="w.wl" column="网络" />
+	<paremt type="1" name="w.yu" column="域" />
+			
+	<paremt type="2" name="p.pcr" column="盘查人"></paremt>
+	<paremt type="2" name="p.sj" column="检查时间"></paremt>
+	<paremt type="2" name="p.typename" column="资产名称"></paremt>
+	<paremt type="2" name="p.bmsxxd" column="与相邻终端保密属性是否相等"></paremt>
+	<paremt type="2" name="p.sjgl" column="数据管理是否与终端绑定"></paremt>
+	<paremt type="2" name="p.zzjzgl" column="纸张等介质管理是否与终端绑定"></paremt>
+	<paremt type="2" name="p.wljk" column="是否有外联接口"></paremt>
+	<paremt type="2" name="p.wl" column="是否外联"></paremt>
+	<paremt type="2" name="p.bz" column="备注"></paremt>
+</root>

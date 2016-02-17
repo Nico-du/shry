@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt  name="roomName" column="会议室名称" />
+<paremt  name="reserveBack" column="预订状态 "/>
+<paremt  name="userId" column="预订人 "/>
+<paremt  name="reserveStime" column="预定时间 "/>
+
+
+</root>

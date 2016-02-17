@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:dataPick="cn.cnspagemoudel.date.*" xmlns:assetRYHCMX="asset_ryhc.*" creationPolicy="all" width="400" height="300"
+				title="编辑信息" layout="absolute" showCloseButton="true" fontSize="12" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()">
+	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="WFHandleServiceRmt" destination="wfhandleService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.entity.DoResult;
+			import cn.cnsasfram.entity.enum.Errors;
+			import cn.cnsasfram.helper.ASJsonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.adobe.serialization.json.JSON;
+			
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			//所有按钮高度，工具栏
+			[Bindable]
+			protected var aboutheight:Number=20;
+			
+			//数据ID
+			public var dataId:String="";
+			//流程步骤ID
+			public var stepId:String="";
+			//保存数据
+			public var dataArray:ArrayCollection=null;
+			//默认操作实体名称
+			public var tempObjBeanName:String="CNST_WFSTEP_DATA";
+			//默认操作视图名称
+			public var tempObjViewName:String="CNSV_WFSTEP";
+			//页面是否加载权限控制
+			public var pageIsLoadPoer:Boolean=true;
+			//页面初始化是否加载数据
+			public var pageIsLoadData:Boolean=true;
+			//存储父窗口
+			public var parentPage:Object=null;
+			//临时存储方法
+			public var tempFunction:Function=null;
+			
+			//页面初始化调用
+			public function initPage():void{
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				if(pageIsLoadPoer){
+					loadUserPower();
+				}
+				this.validBFDData();
+			}
+			
+			//分析权限
+			public function loadUserPower():void{
+				//判断读取权限
+				
+				//判断写入权限
+			}
+			//验证是否存在明细数据
+			private function validBFDData():void{
+				AllAssetServiceRmt.GetDataCount("select count(0) from cnst_bfdmx_data where bfdid='"+parentPage.dataId+"'");
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,validBFDDataBack);
+			}
+			private  function validBFDDataBack(event:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,validBFDDataBack);
+				if(event.result == null || int(event.result) < 1){
+					Alert.show("报废单明细数据不能为空！",CommonXMLData.Alert_SYSTitle);
+					closeWd();
+				}
+				
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				if(pageIsLoadData){
+					loadData();
+				}
+			}
+			//页面关闭时调用
+			public function closePage():void{
+				if(true){
+					beforeClosePage();
+				}
+				PopUpManager.removePopUp(this);
+				if(true){
+					afterClosePage();
+				}
+			}
+			
+			//关闭页面之前调用
+			protected function beforeClosePage():void{
+			}
+			//关闭页面之后调用
+			protected function afterClosePage():void{
+			}
+			
+			//确认事件
+			protected function configActionClick():void{
+				this.tempFunction=closePage;
+				if(!beforeSaveData())return;
+				nextStepBtn_clickHandler(null);
+			}
+			
+			//关闭事件
+			protected function closeActionClick():void{
+				this.closePage();
+			}
+			
+			//加载数据
+			public function loadData():void{
+				initializeWd();
+			}
+			
+			
+			//保存数据之前验证数据
+			protected function beforeSaveData():Boolean{
+				this.errormsgbox.removeAllChildren();
+				var errorMsg:String="";
+				var isCheckSuccess:Boolean=true;
+				if(ASStringHelper.isNullOrEmpty(this.NEXTSTEPUSER.text)){
+					errorMsg="[下一步操作人]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				return isCheckSuccess;
+			}
+			//显示错误信息
+			protected function showCheckErrors(errorMsg:String):void{
+				if(ASStringHelper.isNullOrEmpty(errorMsg)){
+					return;
+				}
+				var tempTextInput:TextInput=new TextInput();
+				tempTextInput.percentWidth=100;
+				tempTextInput.height=aboutheight;
+				tempTextInput.editable=false;
+				tempTextInput.setStyle("borderColor","red");
+				tempTextInput.setStyle("color","red");
+				tempTextInput.text=errorMsg;
+				this.errormsgbox.addChild(tempTextInput);
+			}
+			
+			
+			
+			//所有Action操作之后
+			protected function afterDoAction():void{
+				this.tempFunction.call(this);
+			}
+			
+			public var nextStepVo:Object;
+			public var fwLsjlVo:Object;
+			public var isShWd:Boolean = true;
+			public function initializeWd():void{
+				initWdData();
+				resetShWd();
+			}
+			private function initWdData():void{
+				//流程结束不用填下一步处理人
+				if(nextStepVo.xybclr.indexOf("结束") > -1){
+					nextStepLbl.text="下一步操作:";
+					CHNEXTSTEPUSER.visible=false;
+				}
+				NEXTSTEPUSER.text = nextStepVo.xybclr;
+				NEXTSTEPUSER.data = nextStepVo.xybclrdata;
+			}
+			//提交初稿窗口隐藏批复意见
+			private function resetShWd():void{
+				if(!this.isShWd){
+					this.clyjlbl.text = "申请理由:";
+					/* this.clyjGr.visible = false;
+					this.clyjGr.includeInLayout = false; */
+				}
+			}
+			private function closeWd():void{
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function nextStepBtn_clickHandler(event:MouseEvent):void
+			{
+				nextStepVo.xybclrdata = NEXTSTEPUSER.data ;
+				nextStepVo.xybclr = NEXTSTEPUSER.text;
+				 
+				if(nextStepVo.dqbz.indexOf("开始") > -1){
+					fwLsjlVo.wfdocontent = "提交报废申请";	
+				}else{
+					fwLsjlVo.wfdocontent = "同意";	
+				}
+				
+				fwLsjlVo.memo = CLYJ.text;
+				// ProcessMethods.PassToNextStep(fwLsjlVo,nextStepVo);
+				if(parentPage != null){
+					PopUpManager.removePopUp(this);
+					parentPage.nextStepVo = nextStepVo;
+					parentPage.fwLsjlVo = fwLsjlVo;
+					parentPage.submitToNextStep();
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox id="editForm" borderStyle="none" width="100%" height="100%" horizontalAlign="center" 
+			 horizontalGap="0" verticalGap="2" paddingTop="2" paddingLeft="2" paddingBottom="2" paddingRight="2">
+		<mx:HBox id="formToolBar" borderStyle="none" width="100%" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" backgroundColor="#99CCFF">
+			<mx:LinkButton id="configAction" click="configActionClick()" height="{aboutheight}" label="确认" toolTip="确认" icon="@Embed(source='images/icon_ok.png')"/>
+			<mx:LinkButton id="closeAction" click="closeActionClick()" height="{aboutheight}" label="关闭" toolTip="关闭" icon="@Embed(source='images/formtoolbar/close.gif')"/>
+		</mx:HBox>
+		<mx:VBox id="dataFormBox" borderStyle="none" width="100%" horizontalGap="0" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:Form id="dataForm1" width="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" 
+					 horizontalGap="0" verticalGap="0" indicatorGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+				<mx:VBox id="nvPage1Group1" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="solid" borderColor="#99CCFF">
+					<mx:HBox width="100%" height="20" horizontalGap="0" verticalGap="0" backgroundColor="#99CCFF" borderStyle="none">
+						<mx:Label text="流程信息" width="100%" height="20" textAlign="left"/>
+						<mx:LinkButton label="" width="20" height="20" icon="@Embed(source='images/pg_next1.gif')"/>
+					</mx:HBox>
+					<mx:Grid id="nvPage1Grid1" width="100%" horizontalGap="0" verticalGap="5" paddingTop="5" paddingBottom="5" paddingLeft="3" paddingRight="3">
+						<mx:GridRow width="100%" height="{aboutheight}">
+							<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+								<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+									<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+									<mx:Label id="nextStepLbl" text="下一步操作人:" fontWeight="bold" height="{aboutheight}"/>
+								</mx:HBox>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
+									<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="left" verticalAlign="middle">
+										<mx:TextInput id="NEXTSTEPUSER" editable="false" height="{aboutheight}"/>
+										<mx:LinkButton id="CHNEXTSTEPUSER" click="CommonMethod.getWFSyr(this,this.NEXTSTEPUSER,null,false)" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
+									</mx:HBox>
+								</mx:FormItem>
+							</mx:GridItem>
+						</mx:GridRow>
+						<mx:GridRow width="100%" height="{aboutheight*5}" id="clyjGr">
+							<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+								<mx:Label text="处理意见:" height="{aboutheight}" id="clyjlbl"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" verticalAlign="middle" height="100%" width="90%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="100%">
+									<mx:TextArea id="CLYJ" maxChars="500" width="100%" height="100%"/>
+								</mx:FormItem>
+							</mx:GridItem>
+						</mx:GridRow>	
+					</mx:Grid>
+				</mx:VBox>
+			</mx:Form>
+			<mx:VBox id="errormsgbox" width="100%" borderStyle="none" paddingTop="2" paddingBottom="2" verticalGap="2"></mx:VBox>
+		</mx:VBox>
+	</mx:VBox>
+</mx:TitleWindow>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" title="介质详细信息" close="closeDetail()" showCloseButton="true"
+	 layout="absolute" width="600" height="514">
+	<mx:Script>
+		<![CDATA[
+			import asset_Jz.JzVo;
+
+			import mx.managers.PopUpManager;
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]private var selectIndex:int = 0;
+			[Bindable]private var vo:JzVo = null;
+			[Bindable]private var arrLength:int = 0;
+			public var objArr:ArrayCollection = null;
+			
+			public function initDetail():void {
+				vo = objArr[0];
+				arrLength = objArr.length - 1;
+			}
+			
+			private function backDetail():void {
+				if(selectIndex>0) selectIndex--;
+				vo = objArr[selectIndex];
+			}
+			
+			private function forwardDetail():void {
+				if(selectIndex<arrLength) selectIndex++;
+				vo = objArr[selectIndex];
+			}
+			
+			private function closeDetail():void {
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</mx:Script>
+		<mx:FormItem x="32" y="11" label="部    门:"  width="249" horizontalAlign="center">
+			<mx:TextInput text="{vo.bmmc}" editable="false"/>
+		</mx:FormItem>
+			
+		<mx:FormItem x="32" y="41" label="介质编号:" width="249" horizontalAlign="center">
+			<mx:TextInput text="{vo.sbbh}" editable="false"/>
+		</mx:FormItem>
+		<mx:FormItem x="307" y="40" label="启用日期:" width="240" horizontalAlign="center" >
+			<mx:TextInput text="{vo.qysj}" editable="false"/>
+		</mx:FormItem>
+		<mx:FormItem x="32" y="74" label="使 用 人:" width="249" horizontalAlign="center">
+			<mx:TextInput text="{vo.syr}" editable="false"/>
+		</mx:FormItem>
+		
+		<mx:FormItem x="307" y="74" label="使用地点:" width="240" horizontalAlign="center">
+			<mx:TextInput text="{vo.sydd}" editable="false"/>
+		</mx:FormItem>
+		<mx:FormItem x="32" y="107" label="责 任 人:" width="249" horizontalAlign="center">
+			<mx:TextInput text="{vo.zrr}" editable="false"/>
+		</mx:FormItem>
+		<mx:Label x="31" y="139" text="安全保密属性:"/>
+		<mx:TextInput text="{vo.smsx}" editable="false" x="113" y="137"/>
+		<mx:FormItem x="307" y="107" label="联系电话:" width="240" horizontalAlign="center">
+			<mx:TextInput text="{vo.lxdh}" editable="false"/>
+		</mx:FormItem>
+		<mx:FormItem x="307" y="170" label="类    型:" width="240" horizontalAlign="center">
+			<mx:TextInput text="{vo.lx}" editable="false"/>
+		</mx:FormItem>
+		<mx:FormItem x="307" y="137" label="品    牌:" width="240" horizontalAlign="center">
+			<mx:TextInput text="{vo.pp}" editable="false"/>
+		</mx:FormItem>
+		<mx:FormItem x="32" y="170" label="型    号:" width="249" horizontalAlign="center">
+			<mx:TextInput text="{vo.xh}" editable="false"/>
+		</mx:FormItem>
+		<mx:FormItem x="32" y="203" label="序 列 号:" width="249" horizontalAlign="center">
+			<mx:TextInput text="{vo.xlh}" editable="false"/>
+		</mx:FormItem>
+		<mx:FormItem x="307" y="10" label="生命周期:" width="240" horizontalAlign="center">
+			<mx:TextInput text="{vo.smzqzt}" editable="false"/>
+		</mx:FormItem>
+		<mx:FormItem x="32" y="239" label="主要用途:" width="515" horizontalAlign="center">
+			<mx:TextArea text="{vo.zyyt}" editable="false" width="434" height="80"/>
+		</mx:FormItem>
+		<mx:FormItem x="32" y="329" label="备    注:" width="515" horizontalAlign="center">
+			<mx:TextArea text="{vo.bz}" editable="false" width="434" height="80"/>
+		</mx:FormItem>
+		<mx:HBox width="515" x="32" y="432" horizontalAlign="center">
+			<mx:Button label="上一条" enabled="{selectIndex==0?false:true}" click="backDetail()"/>
+			<mx:Button label="下一条" enabled="{selectIndex==arrLength?false:true}" click="forwardDetail()"/>
+			<mx:Button label="关闭" click="closeDetail()"/>
+		</mx:HBox>
+</mx:TitleWindow>

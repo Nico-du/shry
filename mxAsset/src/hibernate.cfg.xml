@@ -1,0 +1,313 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<!DOCTYPE hibernate-configuration PUBLIC
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+	<session-factory>
+		<!-- hibernate dialect -->
+		<!-- <property name="hibernate.dialect">
+			org.hibernate.dialect.OracleDialect
+		</property> -->
+		<property name="hibernate.dialect">
+			org.hibernate.dialect.MySQLDialect
+		</property>
+
+		<!-- JDBC connection properties (begin) -->
+		<!-- <property name="hibernate.connection.driver_class">
+			oracle.jdbc.driver.OracleDriver
+		</property>
+
+		<property name="hibernate.connection.url">
+						jdbc:oracle:thin:@192.168.184.129:1521:orcl
+			jdbc:oracle:thin:@192.168.1.235:orcl
+		</property> -->
+
+<!-- <property name="hibernate.connection.driver_class">
+			com.mysql.jdbc.Driver
+		</property>
+
+		<property name="hibernate.connection.url">
+						mysql://127.0.0.1:3306/zcgl?characterEncoding=UTF-8&amp;autoReconnect=true&amp;failOverReadOnly=false
+		</property>
+		<property name="hibernate.connection.username">root</property>
+		<property name="hibernate.connection.password">root</property> -->
+		<!-- JDBC connection properties (end) -->
+
+		<property name="hibernate.cache.provider_class">
+			org.hibernate.cache.HashtableCacheProvider
+		</property>
+		<property name="hibernate.hbm2ddl.auto">update</property>
+		<property name="show_sql">true</property>
+		
+		<!-- <mapping resource="org/jbpm/graph/action/Script.hbm.xml" />
+		<mapping resource="org/jbpm/identity/User.hbm.xml" />
+		<mapping resource="org/jbpm/identity/Group.hbm.xml" />
+		<mapping resource="org/jbpm/identity/Membership.hbm.xml" />
+		<mapping resource="org/jbpm/db/hibernate.queries.hbm.xml" />
+
+		<mapping
+			resource="org/jbpm/graph/def/ProcessDefinition.hbm.xml" />
+		<mapping resource="org/jbpm/graph/def/Node.hbm.xml" />
+		<mapping resource="org/jbpm/graph/def/Transition.hbm.xml" />
+		<mapping resource="org/jbpm/graph/def/Event.hbm.xml" />
+		<mapping resource="org/jbpm/graph/def/Action.hbm.xml" />
+		<mapping resource="org/jbpm/graph/def/SuperState.hbm.xml" />
+		<mapping resource="org/jbpm/graph/def/ExceptionHandler.hbm.xml" />
+		<mapping resource="org/jbpm/instantiation/Delegation.hbm.xml" />
+
+		<mapping resource="org/jbpm/graph/node/StartState.hbm.xml" />
+		<mapping resource="org/jbpm/graph/node/EndState.hbm.xml" />
+		<mapping resource="org/jbpm/graph/node/ProcessState.hbm.xml" />
+		<mapping resource="org/jbpm/graph/node/Decision.hbm.xml" />
+		<mapping resource="org/jbpm/graph/node/Fork.hbm.xml" />
+		<mapping resource="org/jbpm/graph/node/Join.hbm.xml" />
+		<mapping resource="org/jbpm/graph/node/State.hbm.xml" />
+		<mapping resource="org/jbpm/graph/node/TaskNode.hbm.xml" />
+
+		<mapping
+			resource="org/jbpm/context/def/ContextDefinition.hbm.xml" />
+		<mapping resource="org/jbpm/context/def/VariableAccess.hbm.xml" />
+
+		<mapping
+			resource="org/jbpm/taskmgmt/def/TaskMgmtDefinition.hbm.xml" />
+		<mapping resource="org/jbpm/taskmgmt/def/Swimlane.hbm.xml" />
+		<mapping resource="org/jbpm/taskmgmt/def/Task.hbm.xml" />
+		<mapping
+			resource="org/jbpm/taskmgmt/def/TaskController.hbm.xml" />
+		<mapping
+			resource="org/jbpm/module/def/ModuleDefinition.hbm.xml" />
+		<mapping resource="org/jbpm/bytes/ByteArray.hbm.xml" />
+		<mapping resource="org/jbpm/file/def/FileDefinition.hbm.xml" />
+		<mapping
+			resource="org/jbpm/scheduler/def/CreateTimerAction.hbm.xml" />
+		<mapping
+			resource="org/jbpm/scheduler/def/CancelTimerAction.hbm.xml" />
+		<mapping resource="org/jbpm/graph/exe/Comment.hbm.xml" />
+		<mapping resource="org/jbpm/graph/exe/ProcessInstance.hbm.xml" />
+		<mapping resource="org/jbpm/graph/exe/Token.hbm.xml" />
+		<mapping resource="org/jbpm/graph/exe/RuntimeAction.hbm.xml" />
+		<mapping resource="org/jbpm/module/exe/ModuleInstance.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/exe/ContextInstance.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/exe/TokenVariableMap.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/exe/VariableInstance.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/exe/variableinstance/ByteArrayInstance.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/exe/variableinstance/DateInstance.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/exe/variableinstance/DoubleInstance.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/exe/variableinstance/HibernateLongInstance.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/exe/variableinstance/HibernateStringInstance.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/exe/variableinstance/LongInstance.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/exe/variableinstance/NullInstance.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/exe/variableinstance/StringInstance.hbm.xml" />
+
+		<mapping resource="org/jbpm/job/Job.hbm.xml" />
+		<mapping resource="org/jbpm/job/Timer.hbm.xml" />
+		<mapping resource="org/jbpm/job/ExecuteNodeJob.hbm.xml" />
+		<mapping resource="org/jbpm/job/ExecuteActionJob.hbm.xml" />
+		<mapping
+			resource="org/jbpm/taskmgmt/exe/TaskMgmtInstance.hbm.xml" />
+		<mapping resource="org/jbpm/taskmgmt/exe/TaskInstance.hbm.xml" />
+		<mapping resource="org/jbpm/taskmgmt/exe/PooledActor.hbm.xml" />
+		<mapping
+			resource="org/jbpm/taskmgmt/exe/SwimlaneInstance.hbm.xml" />
+		<mapping resource="org/jbpm/logging/log/ProcessLog.hbm.xml" />
+		<mapping resource="org/jbpm/logging/log/MessageLog.hbm.xml" />
+		<mapping resource="org/jbpm/logging/log/CompositeLog.hbm.xml" />
+		<mapping resource="org/jbpm/graph/log/ActionLog.hbm.xml" />
+		<mapping resource="org/jbpm/graph/log/NodeLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/graph/log/ProcessInstanceCreateLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/graph/log/ProcessInstanceEndLog.hbm.xml" />
+		<mapping resource="org/jbpm/graph/log/ProcessStateLog.hbm.xml" />
+		<mapping resource="org/jbpm/graph/log/SignalLog.hbm.xml" />
+		<mapping resource="org/jbpm/graph/log/TokenCreateLog.hbm.xml" />
+		<mapping resource="org/jbpm/graph/log/TokenEndLog.hbm.xml" />
+		<mapping resource="org/jbpm/graph/log/TransitionLog.hbm.xml" />
+		<mapping resource="org/jbpm/context/log/VariableLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/log/VariableCreateLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/log/VariableDeleteLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/log/VariableUpdateLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/log/variableinstance/ByteArrayUpdateLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/log/variableinstance/DateUpdateLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/log/variableinstance/DoubleUpdateLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/log/variableinstance/HibernateLongUpdateLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/log/variableinstance/HibernateStringUpdateLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/log/variableinstance/LongUpdateLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/context/log/variableinstance/StringUpdateLog.hbm.xml" />
+		<mapping resource="org/jbpm/taskmgmt/log/TaskLog.hbm.xml" />
+		<mapping resource="org/jbpm/taskmgmt/log/TaskCreateLog.hbm.xml" />
+		<mapping resource="org/jbpm/taskmgmt/log/TaskAssignLog.hbm.xml" />
+		<mapping resource="org/jbpm/taskmgmt/log/TaskEndLog.hbm.xml" />
+		<mapping resource="org/jbpm/taskmgmt/log/SwimlaneLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/taskmgmt/log/SwimlaneCreateLog.hbm.xml" />
+		<mapping
+			resource="org/jbpm/taskmgmt/log/SwimlaneAssignLog.hbm.xml" />
+			 -->
+			
+		<mapping resource="net/chinanets/pojos/Xjjl.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DSfbgm.hbm.xml" />
+		<!-- 业务配置文件 -->
+		<mapping resource="net/chinanets/pojos/WorkflowActor.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/BusinessApprove.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/BusinessReject.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/WhApply.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/Kmzc.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/WZXX.hbm.xml" />
+
+		<!-- 线缆模块 -->
+		<mapping resource="net/chinanets/pojos/AssetCable.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/AssetModule.hbm.xml" />
+		<!-- 电脑 -->
+		<mapping resource="net/chinanets/pojos/BfComputer.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/AssetComputer.hbm.xml" />
+		<!-- 介质 -->
+		<mapping resource="net/chinanets/pojos/BfJz.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/AssetJz.hbm.xml" />
+		<!-- 传真机 -->
+		<mapping resource="net/chinanets/pojos/BfWssb.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/AssetWssb.hbm.xml" />
+		<!-- 主机 -->
+		<mapping resource="net/chinanets/pojos/BfServer.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/AssetServer.hbm.xml" />
+		<!-- 存储设备 -->
+		<mapping resource="net/chinanets/pojos/BfStorage.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/AssetStorage.hbm.xml" />
+		<!-- 网络设备 -->
+		<mapping resource="net/chinanets/pojos/BfNet.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/AssetNet.hbm.xml" />
+		<!-- 动力设备 -->
+		<mapping resource="net/chinanets/pojos/BfUps.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/AssetUps.hbm.xml" />
+		<!-- 视频会议 -->
+		<mapping resource="net/chinanets/pojos/BfVideo.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/AssetVideo.hbm.xml" />
+		<!-- 流程角色 -->
+		<mapping resource="net/chinanets/pojos/Users.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/Rules.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/RulesMenus.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/Menus.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/Dept.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/UsersMenus.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/CaseComputer.hbm.xml"></mapping>
+		<!-- 图书 -->
+		<mapping resource="net/chinanets/pojos/Book.hbm.xml"></mapping>
+
+		<mapping resource="net/chinanets/pojos/BookPurchase.hbm.xml"></mapping>
+		<mapping resource="net/chinanets/pojos/BookBorrow.hbm.xml"></mapping>
+		<mapping resource="net/chinanets/pojos/BookDamage.hbm.xml"></mapping>
+		<mapping resource="net/chinanets/pojos/Dictionary.hbm.xml"></mapping>
+		<!-- 家具用具 -->
+		<mapping resource="net/chinanets/pojos/Furniture.hbm.xml"></mapping>
+		<mapping
+			resource="net/chinanets/pojos/FurniturePurchase.hbm.xml"></mapping>
+		<mapping
+			resource="net/chinanets/pojos/FurnitureDamage.hbm.xml"></mapping>
+		<mapping
+			resource="net/chinanets/pojos/FurnitureApply.hbm.xml"></mapping>
+		<!-- 日用耗材 -->
+		<mapping resource="net/chinanets/pojos/Consume.hbm.xml"></mapping>
+		<mapping
+			resource="net/chinanets/pojos/ConsumePurchase.hbm.xml"></mapping>
+		<mapping resource="net/chinanets/pojos/ConsumeDamage.hbm.xml"></mapping>
+		<mapping resource="net/chinanets/pojos/ConsumeApply.hbm.xml"></mapping>
+		<!-- 供应商 -->
+		<mapping resource="net/chinanets/pojos/SvSupplier.hbm.xml"></mapping>
+		<mapping resource="net/chinanets/pojos/SvCompact.hbm.xml"></mapping>
+		<mapping resource="net/chinanets/pojos/SvDiary.hbm.xml"></mapping>
+		<mapping resource="net/chinanets/pojos/SvPeople.hbm.xml"></mapping>
+		<mapping resource="net/chinanets/pojos/SvRepository.hbm.xml"></mapping>
+
+		<!--文档上传  -->
+		<mapping resource="net/chinanets/pojos/XmDocument.hbm.xml" />
+
+		<!--  -->
+		<mapping resource="net/chinanets/pojos/TbType.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/TbRoomReserve.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/TbDirtyEvidence.hbm.xml" />
+		<mapping
+			resource="net/chinanets/pojos/TbDirtyEvidenceLog.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/TbHeritage.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/TbHeritageLog.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/TbPurchase.hbm.xml" />
+
+		<!-- 便民服务 -->
+		<mapping
+			resource="net/chinanets/pojos/CnsDirectoryData.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/CnstDatumData.hbm.xml" />
+		<!--会议室  -->
+		<mapping resource="net/chinanets/pojos/TbRooms.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/TbPlan.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/TbAtteeden.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/TbMeeReseve.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/TbCar.hbm.xml" />
+		<!--生命周期 -->
+		<mapping resource="net/chinanets/entity/CnstBfdData.hbm.xml" />
+		<mapping resource="net/chinanets/entity/CnstBfdmxData.hbm.xml" />
+		<mapping resource="net/chinanets/entity/CnstLydData.hbm.xml" />
+		<mapping resource="net/chinanets/entity/CnstLydmxData.hbm.xml" />
+		<mapping resource="net/chinanets/entity/CnstRkdData.hbm.xml" />
+		<mapping resource="net/chinanets/entity/CnstRyhcmxData.hbm.xml" />
+		<mapping resource="net/chinanets/entity/CnstTkdData.hbm.xml" />
+		<mapping resource="net/chinanets/entity/CnstTkdmxData.hbm.xml" />
+		<mapping resource="net/chinanets/entity/CnstWxdData.hbm.xml" />
+		<mapping resource="net/chinanets/entity/CnstWxdmxData.hbm.xml" />
+		<mapping resource="net/chinanets/entity/CnstRyhcmxData.hbm.xml" />
+		<!--代码表-->
+		<mapping
+			resource="net/chinanets/entity/CnstCodelistData.hbm.xml" />
+		<!--工作流-->
+		<mapping resource="net/chinanets/entity/CnstWfstepData.hbm.xml" />
+		<mapping
+			resource="net/chinanets/entity/CnstWfhistoryData.hbm.xml" />
+		<mapping resource="net/chinanets/entity/CnstNotice.hbm.xml" />
+		<mapping
+			resource="net/chinanets/entity/CnstDictionaryData.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicGeneralequ.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicFunriture.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicHouse.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicBookheritage.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicSpecialequ.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicStructures.hbm.xml" />
+		<mapping
+			resource="net/chinanets/pojos/DicIntangibleasset.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicInstrument.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicLand.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicSportsequ.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicTransportequ.hbm.xml" />
+		<mapping
+			resource="net/chinanets/pojos/DicElectricalequ.hbm.xml" />
+		<mapping
+			resource="net/chinanets/pojos/DicCommunicationequ.hbm.xml" />
+		<mapping
+			resource="net/chinanets/pojos/CnstAssetbgjlData.hbm.xml" />
+		<mapping
+			resource="net/chinanets/pojos/CnstLydmxLyslData.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/CnstCpfkdjData.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/CnstCpwhdjData.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/CnstCompactData.hbm.xml" />
+	</session-factory>
+</hibernate-configuration>

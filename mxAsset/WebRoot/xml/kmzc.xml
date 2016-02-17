@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt  name="kmh" column="科目号" />
+	<paremt  name="kmxz" column="科目性质" />
+	<paremt  name="xmmc" column="项目名称" />
+	<paremt  name="pfs" column="实际批复数" />
+	<paremt  name="lfbs" column="拟批复数" />
+	<paremt  name="ye" column="余额" />
+	<paremt  name="htbh" column="合同编号" />
+	<paremt  name="ywcs" column="运维厂商" />
+	<paremt  name="ywfs" column="运维方式" />
+	<!--paremt  name="djjr" column="冻结金额"/ -->
+	<paremt  name="sfwj" column="是否完结" />
+	<paremt  name="sfsh" column="审核结果" />
+	<paremt  column="日期" labelFunction="formatDate2" editorDataField="formatDate2"/>
+</root>

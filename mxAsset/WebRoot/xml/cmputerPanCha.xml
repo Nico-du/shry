@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt  name="pcr" column="检查人"/>
+<paremt  name="pcsj" column="检查时间"/>
+<paremt  name="jccs" column="检查批次"/>
+<paremt  name="pcnumber" column="设备编号"/>
+<paremt  name="kjmm" column="开机密码及强度" />
+<paremt  name="epcj" column="是否有恶评插件" />
+<paremt  name="muma" column="是否有木马" />
+<paremt  name="sdrjzk" column="杀毒软件启动与运行"/>
+<paremt  name="swhj" column="连接网络痕迹" />
+<paremt  name="qtjzhj" column="存储介质痕迹" />
+<paremt  name="sfygrrj" column="是否有个人文件" />
+<paremt  name="ccsj" column="存储和处理数据"/>
+<paremt  name="fbdrj" column="是否安装防病毒软件"/>
+<paremt  name="grbu" column="是否感染病毒"/>
+<paremt  name="gzrj" column="是否未经允许安装非工作软件"/>
+<paremt  name="mumazt" column="木马查杀程序启动与运行状态"/>
+<paremt  name="azmm" column="是否安装木马查杀程序"/>
+<paremt  name="bz" column="备注"/>
+</root>

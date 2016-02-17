@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt name="zsxm" column="姓名"></paremt>
+	<paremt name="bmmc" column="部门"></paremt>
+	<paremt name="mc" column="用户帐号"></paremt>
+	<paremt name="js" column="角色"></paremt>
+</root>

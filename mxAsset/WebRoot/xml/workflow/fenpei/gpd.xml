@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="fenpei" width="1051" height="615">
+  <node name="开始" x="73" y="16" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="提交申请" x="74" y="96" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="初审" x="73" y="175" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+      <bendpoint w1="-125" h1="1" w2="-126" h2="-184"/>
+      <bendpoint w1="-125" h1="297" w2="-126" h2="2"/>
+    </edge>
+  </node>
+  <node name="受理" x="73" y="251" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="审核" x="72" y="327" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+      <bendpoint w1="121" h1="2" w2="120" h2="154"/>
+      <bendpoint w1="122" h1="-155" w2="121" h2="-3"/>
+    </edge>
+  </node>
+  <node name="办理" x="72" y="398" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="结束" x="71" y="470" width="132" height="36"/>
+</root-container>

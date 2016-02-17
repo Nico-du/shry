@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="800" height="540" initialize="initPage()" creationComplete="afterInitPage()"
+				title="流程历史"	showCloseButton="true" close="closePage()" verticalScrollPolicy="off" horizontalScrollPolicy="off" layout="absolute">
+<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" 
+					 showBusyCursor="true"/>
+	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+	<![CDATA[
+		import com.adobe.serialization.json.JSON;
+		import com.adobe.serialization.json.JSONDecoder;
+		
+		import flex.util.CommonMethod;
+		
+		import mx.collections.ArrayCollection;
+		import mx.core.FlexGlobals;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		
+		//页面初始化是否加载数据pageIsLoadPoer
+		public var pageIsLoadPoer:Boolean=true;
+		public var pageIsLoadData:Boolean=true;
+		[Bindable]public var dataArray:ArrayCollection=null;
+		public var dataId:String;
+		//页面初始化调用
+		public function initPage():void{
+		//	this.width=FlexGlobals.topLevelApplication.width*0.7;
+		//	this.height=FlexGlobals.topLevelApplication.height*0.7;
+			if(true){
+				beforeInitPage();
+			}
+		}
+		
+		//初始化页面之前调用
+		public function beforeInitPage():void{
+			if(pageIsLoadPoer){
+				loadUserPower();
+			}
+		}
+		
+		//分析权限
+		public function loadUserPower():void{
+			//判断读取权限
+			
+			//判断写入权限				
+			//ASCommonHelper.controlVisible(this.saveAndNewAction,false);
+			//ASCommonHelper.controlVisible(this.newAction,false);
+			//ASCommonHelper.controlVisible(this.removeAndCloseAction,false);
+		}
+		
+		//初始化页面之后调用
+		public function afterInitPage():void{
+			if(pageIsLoadData){
+				loadData();
+			}
+		}
+		
+		//页面关闭时调用
+		public function closePage():void{
+			PopUpManager.removePopUp(this);
+		}
+		
+		//关闭事件
+		protected function closeActionClick():void{
+			this.closePage();
+		}
+		
+		//加载数据
+		public function loadData():void{
+			this.dataSearchAction();
+		}
+		
+		//加载相关信息
+		protected function dataSearchAction():void{
+			this.AllAssetServiceRmt.getWFHistory(dataId);
+			this.AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
+		}
+		//加载相关信息回调方法
+		protected function dataSearchActionBack(rmtResult:ResultEvent):void{
+			this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
+			if(rmtResult.result != null){
+				var result:Object = JSON.decode(rmtResult.result.toString());
+				this.dataArray = new ArrayCollection(JSON.decode(result.hsitoryArray.toString()) as Array);
+				
+				//填充历史记录信息
+				for(var i:int=0;i<this.dataArray.length;i++){
+					var chobj:Object = dataArray.getItemAt(i);
+					if(chobj == null) return;
+					this["hbx"+(i+1)].visible = true;
+					this["txa"+(i+1)].visible = true;
+					this["line"+(i+1)].visible = true;
+					this["txa"+(i+1)].text = chobj.wfdousername +"\t"+chobj.utime+"\r操作内容:"+chobj.wfdocontent+"\r处理意见:"+(CommonMethod.isNullOrWhitespace(chobj.memo)? "" : chobj.memo);
+					if(dataArray.length < 4 && i==(dataArray.length - 1)){
+						this["txa"+(i+1)].text += "\r下一步处理人:"+result.nextstepuserInfo.dept+"\t"+result.nextstepuserInfo.rulename+"\t"+result.nextstepuserInfo.username; 
+					}
+				}
+			}
+		}
+		
+		]]>
+</mx:Script>
+	<mx:HBox  width="100%" height="100%" borderStyle="none" verticalAlign="middle" horizontalAlign="center">
+		<mx:Canvas  borderStyle="none" >
+		<mx:Image source="images/wfStepPng.png"  x="31" y="0"/>
+		<mx:HBox x="82" y="262" id="hbx3" width="106" height="50" borderColor="red" borderStyle="solid" visible="false">
+		</mx:HBox>
+		<mx:HBox x="82" y="179" id="hbx2" width="106" height="50" borderColor="red" borderStyle="solid" visible="false">
+		</mx:HBox>
+		<mx:HBox x="82" y="345" id="hbx4" width="106" height="50" borderColor="red" borderStyle="solid" visible="false">
+		</mx:HBox>
+		<mx:HBox x="82" y="96" id="hbx1" width="106" height="50" borderColor="red" borderStyle="solid" visible="false">
+		</mx:HBox>
+		<mx:TextArea text="李彩华 2014-11-11&#xd;safadsf&#xd;" x="251" y="86"  id="txa1" editable="false" height="70" width="300" borderThickness="2" backgroundColor="white" borderColor="gray" borderStyle="solid"  visible="false"/>
+		<mx:TextArea text="李彩华 2014-11-11&#xd;safadsf&#xd;" x="251" y="171" id="txa2" editable="false" height="70" width="300" borderThickness="2" backgroundColor="white" borderColor="gray" borderStyle="solid"  visible="false"/>
+		<mx:TextArea text="李彩华 2014-11-11&#xd;safadsf&#xd;" x="250" y="254" id="txa3" editable="false" height="70" width="300" borderThickness="2" backgroundColor="white" borderColor="gray" borderStyle="solid"  visible="false"/>
+		<mx:TextArea text="李彩华 2014-11-11&#xd;safadsf&#xd;" x="250" y="339" id="txa4" editable="false" height="70" width="300" borderThickness="2" backgroundColor="white" borderColor="gray" borderStyle="solid"  visible="false"/>
+		<mx:VBox x="187" y="120" id="line1" width="65" height="2" borderColor="green" borderStyle="solid" visible="false"/>
+		<mx:VBox x="187" y="203" id="line2" width="65" height="2" borderColor="green" borderStyle="solid" visible="false"/>
+		<mx:VBox x="187" y="285" id="line3" width="65" height="2" borderColor="green" borderStyle="solid" visible="false"/>
+		<mx:VBox x="187" y="371" id="line4" width="65" height="2" borderColor="green" borderStyle="solid" visible="false"/>
+		</mx:Canvas>
+	</mx:HBox>
+</mx:TitleWindow>

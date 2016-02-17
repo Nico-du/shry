@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt name="syr" column="使用人"></paremt>
+	<paremt name="zrr" column="责任人"></paremt>
+	<paremt name="bmmc" column="部门"></paremt>
+	<paremt name="sbbh" column="设备编号"></paremt>
+	<paremt name="gzrq" column="购置日期"></paremt>
+	<paremt  name="rkrq" column="入库日期"/>
+	<paremt name="qysj" column="启用日期"></paremt>
+	<paremt name="bxq" column="保修日期"></paremt>
+	<paremt name="sydd" column="使用地点"></paremt>
+	<paremt name="smsx" column="安全保密属性"></paremt>
+	<paremt name="lx" column="类型"></paremt>
+	<paremt name="pp" column="品牌"></paremt>
+	<paremt name="xh" column="型号"></paremt>
+	<paremt name="zyyt" column="主要用途"></paremt>
+	<paremt name="xlh" column="序列号"></paremt>
+	<paremt name="zt" column="状态"></paremt>
+	<paremt  name="zclb" column="资产类别"/>
+	<paremt  name="jzlx" column="价值类型"/>
+	<paremt  name="jz" column="价值"/>
+	<paremt  name="gysmc" column="供应商名称"/>
+</root>
+<!-- 	<paremt name="lxdh" column="联系电话"></paremt> -->

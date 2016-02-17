@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt name="svPeople.PName" column="运维人员姓名 "></paremt>
+	<paremt name="diaryContent" column="日志内容 "></paremt>
+	<paremt name="diaryDate" column="日志日期"></paremt>
+	<paremt name="diaryCheckStatus" column="审核状态"></paremt>
+	<paremt name="diaryComment" column="审核备注"></paremt>
+	<paremt name="auditorName" column="审核人姓名"></paremt>
+	<paremt name="planContent" column="工作计划内容"></paremt>
+</root>
+<!-- 	<paremt name="planCheckStatus" column="工作计划审核状态"></paremt> -->
+<!-- 	<paremt name="planComment" column="工作计划审核备注"></paremt> -->
+<!-- private SvPeople svPeople; -->
+<!-- 	private String diaryContent; -->
+<!-- 	private Date diaryDate; -->
+<!-- 	private String planContent; -->
+<!-- 	private String diaryCheckStatus; -->
+<!-- 	private String auditorId; -->
+<!-- 	private String auditorName; -->
+<!-- 	private String planCheckStatus; -->
+<!-- 	private String diaryComment; -->
+<!-- 	private String planComment; -->
+<!-- 	private String filePath; -->
+<!-- 工作日志表 -->
+<!-- 运维人员ID，外键关联到SV_PEOPLE表 -->
+<!-- 日志内容 -->
+<!-- 日志日期 -->
+<!-- 工作计划内容 -->
+<!-- 日志核实/审核状态 -->
+<!-- 审核人ID -->
+<!-- 审核人姓名 -->
+<!-- 工作计划审核状态 -->
+<!-- 日志审核备注 -->
+<!-- 工作计划审核备注 -->
+<!-- 工作日志/计划上传文件路径 -->

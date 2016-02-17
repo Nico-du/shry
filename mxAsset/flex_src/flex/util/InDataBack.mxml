@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" showCloseButton="true" close="closeWin()" layout="absolute" width="400" height="300" fontSize="12" title="导入提示信息">
+<mx:Script>
+	<![CDATA[
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		public var msg:String;
+		
+		private function init():void
+		{
+			m.htmlText=msg;
+		}
+		
+		 private function button_click():void {
+			 System.setClipboard(m.text);
+			 Alert.okLabel = "确认";
+			 Alert.show("导入信息已成功复制至操作系统剪切板","提示");
+		 }
+		 private function closeWin():void {
+		 	PopUpManager.removePopUp(this);
+		 }
+
+	]]>
+</mx:Script>
+	<mx:Button label="关 闭" click="closeWin()" x="63" y="227"/>
+	<mx:TextArea x="21.5" y="10" height="210" width="337" initialize="init()" id="m"  editable="false"/>
+	<mx:Button x="156" y="227" label="复制导入信息至剪切板" click="button_click()"/>
+	
+</mx:TitleWindow>

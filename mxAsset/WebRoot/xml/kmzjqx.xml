@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt  name="addkm" column="添加科目" />
+	<paremt  name="upkm" column="修改科目" />
+	<paremt  name="delkm" column="删除科目" />
+	<paremt  name="shkm" column="审核科目" />
+	<paremt  name="zcsq" column="支出申请" />
+	<paremt  name="zcsp" column="支出审批" />
+	<paremt  name="cnbx" column="出纳报销" />
+</root>

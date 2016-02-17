@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service id="remoting-service" class="flex.messaging.services.RemotingService">
+	<adapters>
+		<adapter-definition id="java-object"
+			class="flex.messaging.services.remoting.adapters.JavaAdapter"
+			default="true" />
+	</adapters>
+	<default-channels>
+		<channel ref="my-amf" />
+	</default-channels>
+	<!--
+		例子 <destination id="自己取的名称,在flex中是根据这个名称获得操作java对象"> <properties>
+		<factory>spring</factory> <source>spring配置文件中的Bean的id</source>
+		<scope>application</scope> </properties> </destination>
+	-->
+	
+		<destination id="dictionaryService">
+		<properties>
+			<factory>spring</factory>
+			<source>dictionaryService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="UserService">
+		<properties>
+			<factory>spring</factory>
+			<source>UserService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="RuleService">
+		<properties>
+			<factory>spring</factory>
+			<source>RuleService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="commonService">
+		<properties>
+			<factory>spring</factory>
+			<source>commonService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="deptService">
+		<properties>
+			<factory>spring</factory>
+			<source>deptService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	  
+	<destination id="QueryService">
+		<properties>
+			<factory>spring</factory>
+			<source>QueryService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+		<destination id="statisService">
+		<properties>
+			<factory>spring</factory>
+			<source>statisService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<!-- <destination id="workFlowService">
+		<properties>
+			<factory>spring</factory>
+			<source>workFlowService</source>
+			<scope>application</scope>
+		</properties>
+	</destination> -->
+	
+	   <destination id="addDBService">
+		<properties>
+			<factory>spring</factory>
+			<source>addDBService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+		<destination id="datumService">
+		<properties>
+			<factory>spring</factory>
+			<source>datumService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="allAssetService">
+		<properties>
+			<factory>spring</factory>
+			<source>allAssetService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="codeListService">
+		<properties>
+			<factory>spring</factory>
+			<source>codeListService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="wfhandleService">
+		<properties>
+			<factory>spring</factory>
+			<source>wfhandleService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	
+	
+	
+	
+	<!--
+	 <destination id="DSmzqztService">
+		<properties>
+			<factory>spring</factory>
+			<source>DSmzqztService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="DYuService">
+		<properties>
+			<factory>spring</factory>
+			<source>DYuService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="DWlService">
+		<properties>
+			<factory>spring</factory>
+			<source>DWlService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="DSyztService">
+		<properties>
+			<factory>spring</factory>
+			<source>DSyztService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="DSmsxService">
+		<properties>
+			<factory>spring</factory>
+			<source>DSmsxService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="ComputerService">
+		<properties>
+			<factory>spring</factory>
+			<source>ComputerService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="RoomsService">
+		<properties>
+			<factory>spring</factory>
+			<source>RoomsService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="CarService">
+		<properties>
+			<factory>spring</factory>
+			<source>CarService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="DirtyEvidenceService">
+		<properties>
+			<factory>spring</factory>
+			<source>DirtyEvidenceService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="HeritageService">
+		<properties>
+			<factory>spring</factory>
+			<source>HeritageService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="DppxhService">
+		<properties>
+			<factory>spring</factory>
+			<source>DppxhService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="jzService">
+		<properties>
+			<factory>spring</factory>
+			<source>assetJzService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="zdService">
+		<properties>
+			<factory>spring</factory>
+			<source>zdService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="jzPcService">
+		<properties>
+			<factory>spring</factory>
+			<source>assetJzPcService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="serverService">
+		<properties>
+			<factory>spring</factory>
+			<source>serverService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="upsService">
+		<properties>
+			<factory>spring</factory>
+			<source>upsService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="processorService">
+		<properties>
+			<factory>spring</factory>
+			<source>processorService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+
+	<destination id="kmzcService">
+		<properties>
+			<factory>spring</factory>
+			<source>kmzcService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="kmxxzcService">
+		<properties>
+			<factory>spring</factory>
+			<source>kmxxzcService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="zcglService">
+		<properties>
+			<factory>spring</factory>
+			<source>zcglService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="skglService">
+		<properties>
+			<factory>spring</factory>
+			<source>skglService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="documentService">
+		<properties>
+			<factory>spring</factory>
+			<source>documentService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="chartService">
+		<properties>
+			<factory>spring</factory>
+			<source>chartService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="bookService">
+		<properties>
+			<factory>spring</factory>
+			<source>bookService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="bookBorrowService">
+		<properties>
+			<factory>spring</factory>
+			<source>bookBorrowService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="bookDamageService">
+		<properties>
+			<factory>spring</factory>
+			<source>bookDamageService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="bookPurchaseService">
+		<properties>
+			<factory>spring</factory>
+			<source>bookPurchaseService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+
+	<destination id="furnitureService">
+		<properties>
+			<factory>spring</factory>
+			<source>furnitureService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="furniturePurchaseService">
+		<properties>
+			<factory>spring</factory>
+			<source>furniturePurchaseService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="furnitureDamageService">
+		<properties>
+			<factory>spring</factory>
+			<source>furnitureDamageService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="furnitureApplyService">
+		<properties>
+			<factory>spring</factory>
+			<source>furnitureApplyService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	
+	<destination id="consumeService">
+		<properties>
+			<factory>spring</factory>
+			<source>consumeService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="consumePurchaseService">
+		<properties>
+			<factory>spring</factory>
+			<source>consumePurchaseService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="consumeDamageService">
+		<properties>
+			<factory>spring</factory>
+			<source>consumeDamageService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+	<destination id="consumeApplyService">
+		<properties>
+			<factory>spring</factory>
+			<source>consumeApplyService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
+
+	<destination id="svSupplierService">
+		<properties>
+			<factory>spring</factory>
+			<source>svSupplierService</source>
+			<scope>application</scope>
+		</properties>
+	</destination> -->
+	
+</service>

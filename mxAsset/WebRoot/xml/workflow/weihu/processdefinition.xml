@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns=""  name="weihu">
+
+
+	<start-state name="开始">
+		<transition to="提交申请"></transition>
+	</start-state>
+
+
+	<task-node name="提交申请">
+		<transition to="鉴定"></transition>
+	</task-node>
+
+	<task-node name="鉴定">
+		   <task>
+	       <assignment class="net.chinanets.workflow.MyAssignment">
+	        <mc>报废鉴定</mc>
+	       </assignment>
+	    </task>
+		<transition to="准备维护" name="to 准备维护"></transition>
+		<transition to="结束" name="to 结束"></transition>
+	</task-node>
+
+	<task-node name="准备维护">
+		  <task>
+	       <assignment class="net.chinanets.workflow.MyAssignment">
+	        <mc>设备维护</mc>
+	       </assignment>
+	    </task>
+		<transition to="审核"></transition>
+	</task-node>
+
+	<task-node name="审核">
+		   <task>
+	       <assignment class="net.chinanets.workflow.MyAssignment">
+	        <mc>设备主管</mc>
+	       </assignment>
+	    </task>
+		<transition to="鉴定" name="to 鉴定"></transition>
+		<transition to="维护完成" name="to 维护完成"></transition>
+	</task-node>
+
+	<task-node name="维护完成">
+		   <task>
+	       <assignment class="net.chinanets.workflow.MyAssignment">
+	        <mc>设备管理A</mc>
+	       </assignment>
+	    </task>
+		<transition to="结束"></transition>
+	</task-node>
+
+
+	<end-state name="结束"></end-state>
+
+
+</process-definition>

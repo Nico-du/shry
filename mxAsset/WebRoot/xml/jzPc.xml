@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt type="1"  name="bmmc" column="部门"></paremt>
+	<paremt type="1"  name="j.sbbh" column="设备编号"></paremt>
+	<paremt type="1"  name="qysj" column="启用时间"></paremt>
+	<paremt type="1"  name="syr" column="使用人"></paremt>
+	<paremt type="1"  name="sydd" column="使用地点"></paremt>
+	<paremt type="1"  name="zrr" column="责任人"></paremt>
+	<paremt type="1"  name="lx" column="类型"></paremt>
+	<paremt type="1"  name="pp" column="品牌"></paremt>
+	<paremt type="1"  name="xh" column="型号"></paremt>
+	<paremt type="1"  name="zyyt" column="主要用途"></paremt>
+	<paremt type="1"  name="lxdh" column="联系电话"></paremt>
+	<paremt type="1"  name="xlh" column="序列号"></paremt>
+	<paremt type="1"  name="smzqzt" column="生命周期状态"></paremt>
+	
+	<paremt type="2"  name="pcr" column="检查人"></paremt>
+	<paremt type="2"  name="jccs" column="检查批次"></paremt>
+	<paremt type="2"  name="pcrq" column="检查日期"></paremt>
+	<paremt type="2"  name="ccsjmj" column="存储数据的密级属性"></paremt>
+	<paremt type="2"  name="ljjsjmj" column="连接计算机的密级属性"></paremt>
+	<paremt type="2"  name="sbsfwh" column="设备是否完好"></paremt>
+	<paremt type="2"  name="bgsfaq" column="保管是否安全"></paremt>
+	<paremt type="2"  name="sfxdwc" column="是否携带外出"></paremt>
+	<paremt type="2"  name="wcxdjl" column="是否携带外出记录"></paremt>
+	<paremt type="2"  name="sfgrbd" column="是否感染病毒"></paremt>
+	<paremt type="2"  name="sfgrmm" column="是否感染木马"></paremt>
+	<paremt type="2"  name="qtjcxm" column="其他检查项目"></paremt>
+
+</root>

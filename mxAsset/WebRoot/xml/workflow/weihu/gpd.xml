@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="weihu" width="1051" height="615">
+  <node name="开始" x="100" y="25" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="提交申请" x="99" y="104" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="鉴定" x="100" y="186" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+      <bendpoint w1="94" h1="0" w2="87" h2="-202"/>
+      <bendpoint w1="94" h1="307" w2="97" h2="-1"/>
+    </edge>
+  </node>
+  <node name="准备维护" x="99" y="279" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="审核" x="98" y="356" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+      <bendpoint w1="-132" h1="1" w2="-134" h2="171"/>
+      <bendpoint w1="-131" h1="-170" w2="-133" h2="0"/>
+    </edge>
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="维护完成" x="97" y="426" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="结束" x="97" y="494" width="132" height="36"/>
+</root-container>

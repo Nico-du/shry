@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt  name="kmh" column="科目号" />
+	<paremt  name="mc" column="名称" />
+	<paremt  name="lb" column="类别" />
+	<paremt  name="ckbp" column="参考品牌" />
+	<paremt  name="ckxh" column="参考型号" />
+	<paremt  name="bzyq" column="配置要求" />
+	<paremt  name="zc" column="政采" />
+	<paremt  name="sbdj" column="申报单价" />
+	<paremt  name="bfdj" column="批复单价" />
+	<paremt  name="sl" column="数量" />
+	<paremt  name="zch" column="政采号" />
+	<paremt  name="ze" column="总额"/>
+	<paremt  name="ye" column="余额"/>
+</root>

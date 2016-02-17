@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="helloWorld" default="deploy" basedir="." >
+	<property name="src.dir" value="src"></property>
+	<property name="classes.dir" value="WEB-INF/classes"></property>
+	<property name="tomcat_home" value="C:/tools/apache-tomcat-6.0.0/apache-tomcat-6.0.0"></property>
+	<property name="deploy.dir" value="${tomcat_home}/webapps"></property>
+	<property name="project.libs" location="WebRoot/WEB-INF/lib" />
+	<property name="dist_home" value="${basedir}/build"></property>
+	<property name="dist.war" value="${dist_home}/AssetManage.war"></property>
+	<property name="pojo_home" value="${src.dir}/net/chinanets/pojos"></property>
+	<path id="base.path">
+		<fileset dir="${project.libs}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	<target name="init">
+		<mkdir dir="${basedir}/build"/>
+	</target>
+	<target name="compile">
+		<javac fork="true"
+				debug="true"
+				optimize="false"
+				deprecation="false"
+				encoding="UTF-8"
+				srcdir="${src.dir}"
+				destdir="${basedir}/WebRoot/${classes.dir}">
+			<classpath>
+				<path refid="base.path" />
+			</classpath>
+		</javac>
+		<copy todir="${basedir}/WebRoot/${classes.dir}">
+			<fileset dir="${src.dir}" includes="*.xml"/>
+		</copy>
+		<copy todir="${basedir}/WebRoot/${classes.dir}/net/chinanets/pojos">
+			<fileset dir="${pojo_home}" includes="*.hbm.xml"/>
+		</copy>
+	</target>
+	<target name="war" depends="init">
+		<war warfile="${dist.war}" webxml="${basedir}/WebRoot/WEB-INF/web.xml">
+			<fileset dir="${basedir}/WebRoot">
+				<include name="*.jsp"/>
+				<include name="${classes.dir}/**"/>
+				<include name="WEB-INF/*.xml"/>
+				<exclude name="${basedir}/build.xml"/>
+				<exclude name="${classes.dir}/net/chinanets/test/**"/>
+			</fileset>
+			<lib dir="${project.libs}"></lib>
+		</war>
+	</target>
+		
+	<target name="deploy" depends="war">
+		<copy file="${dist.war}" todir="${deploy.dir}"></copy>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${dist_home}" />
+		<delete file="${deploy.dir}/AssetManage.war" />
+	</target>
+</project>

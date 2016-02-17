@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--所有物资使用情况统计,饼状图-->
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initializeHandler(event)"
+		   width="100%" height="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="12" xmlns:local="*" xmlns:asset="com.asset.*" xmlns:mycoms="com.mycoms.*">
+	<mx:RemoteObject id="ChartService" destination="chartService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			private function buttonSelectClick(event:Event):void{
+				FlexGlobals.topLevelApplication.mainPage.AssetPage.shouldSetTreeIndex = true;
+				FlexGlobals.topLevelApplication.mainPage.AssetPage.defaultAssetWFTreeIndex = -2;//判断是否为快捷按钮
+				FlexGlobals.topLevelApplication.mainPage.AssetPage.defaultMenuID = event.currentTarget.id;
+				FlexGlobals.topLevelApplication.mainPage.AssetPage.modelMap["203"] = null;
+				FlexGlobals.topLevelApplication.mainPage.AssetPage.modelMap["204"] = null;
+				FlexGlobals.topLevelApplication.mainPage.AssetPage.modelMap["206"] = null;
+				FlexGlobals.topLevelApplication.mainPage.menuItemClickAsset();
+				var assetMainWd:AssetMain = FlexGlobals.topLevelApplication.mainPage.AssetPage;
+				assetMainWd.resetCurrentGridPage(event.currentTarget.id,true);
+			}
+			
+
+			protected function initializeHandler(event:FlexEvent):void
+			{
+				var ruleId:String = Application.application.userVo.ruleId;
+				if(ruleId=="42" || ruleId=="43" || ruleId=="45" ){
+					mainTile.removeChild(smzq_rkdj);
+				}
+			}
+
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+		<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#99CCFF" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+			<mx:Label text="快捷菜单" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13"/>
+		</mx:HBox> 
+		<mx:Tile id="mainTile" width="100%" height="100%" paddingTop="20" paddingLeft="20" borderStyle="none" horizontalAlign="center" horizontalGap="10" verticalAlign="top" verticalGap="0">
+			<mycoms:ImageCanvas id="smzq_rkdj" txt="入库登记" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_rk_img.gif"/>
+			<mycoms:ImageCanvas id="smzq_lysq" txt="领用申请" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_ly_img.gif"/>
+			<mycoms:ImageCanvas id="smzq_tksq" txt="退库申请"  click="buttonSelectClick(event)" width="100" height="100" imgname="sy_tk_img.gif"/>
+			<mycoms:ImageCanvas id="smzq_wxdj" txt="维修登记" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_wx_img.gif"/>
+			<mycoms:ImageCanvas id="smzq_bfsq" txt="报废申请" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_bf_img.gif"/>
+			<!--添加图例，也就是说明图形的某个线条的颜色和作用的实例-->
+		</mx:Tile>
+	</mx:VBox>
+</mx:Module>

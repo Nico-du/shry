@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt  name="tempDeviceId" column="新设备编号" />
+<paremt  name="deviceId" column="老设备编号" />
+<paremt  name="computerName" column="计算机名" />
+<paremt  name="cpuName" column="cpu名称" />
+<paremt  name="hdSn" column="硬盘序列号" />
+<paremt  name="systemPatch" column="系统补丁版本号" />
+<paremt  name="antivirusVersion" column="杀毒软件版本号" />
+<paremt  name="antivirusName" column="杀毒软件名称" />
+<paremt  name="s360Version" column="360版本号" />
+<paremt  name="osVersion" column="操作系统版本号" />
+<paremt  name="cpuModel" column="cpu型号" />
+<paremt  name="cpuCore" column="cpu核心数" />
+<paremt  name="level2Cache" column="cpu二级缓存数" />
+<paremt  name="cpuSocket" column="cpu接口类型" />
+<paremt  name="cpuNum" column="cpu编号" />
+<paremt  name="biosModel" column="bios型号" />
+<paremt  name="memorySize" column="内存大小" />
+<paremt  name="memoryModel" column="内存型号" />
+<paremt  name="hdModel" column="硬盘型号" />
+<paremt  name="hdSize" column="硬盘大小" />
+<paremt  name="macAddress" column="MAC地址" />
+<paremt  name="ipAddress" column="IP地址" />
+<paremt  name="motherboardModel" column="主板型号" />
+<paremt  name="motherboardName" column="主板名称"/>
+<paremt  name="motherboardSn" column="主板序列号"/>
+<paremt  name="ntime" column="最近更新时间"/>
+<paremt  name="collectDate" column="最近采集时间"/>
+</root>

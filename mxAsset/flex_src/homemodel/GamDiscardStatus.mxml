@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--固定资产废弃情况,展示近10年-->
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()"
+		   width="100%" height="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="12">
+	<mx:RemoteObject id="ChartService" destination="chartService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.graphics.SolidColorStroke;
+			import mx.rpc.events.ResultEvent;
+
+			[Bindable]
+			protected var strokeffect:SolidColorStroke=null;
+			
+			//默认数据
+			[Bindable]
+			protected var gamarray:ArrayCollection = new ArrayCollection([  
+				{buycount:100,year:"2008年"},  
+				{buycount:1000,year:"2009年"},  
+				{buycount:2000,year:"2010年"},
+				{buycount:2000,year:"2011年"},
+				{buycount:2500,year:"2012年"},
+				{buycount:2500,year:"2013年"},
+				{buycount:2500,year:"2014年"},
+			]);
+			
+			//初始化页面
+			public function initPage():void{
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				strokeffect=new SolidColorStroke();
+				strokeffect.color=0xFFFFFF;
+				strokeffect.weight=1;
+				
+				ChartService.getXXSBInfo();
+				ChartService.addEventListener(ResultEvent.RESULT,resultBack);
+			}
+			private function resultBack(event:ResultEvent):void {
+				ChartService.removeEventListener(ResultEvent.RESULT,resultBack);
+				if(event.result == null)return;
+				var objList:ArrayCollection = event.result as ArrayCollection;
+				var objCell:Object;
+				gamarray.removeAll();
+				for(var i:int=0;i<objList.length;i++){
+					objCell = objList.getItemAt(i);
+					var arrItem:Object = new Object();
+					arrItem.year = objCell[0];
+					arrItem.buycount = objCell[1];
+					gamarray.addItem(arrItem);
+				}
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+		<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#99CCFF" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+			<mx:Label text="日用耗材使用情况" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="100%" borderStyle="none" horizontalAlign="center" horizontalGap="10" verticalAlign="middle" verticalGap="0">
+			<mx:Canvas width="100%" height="100%" borderStyle="none" >
+				<!-- SeriesZoom 效果是将图表数据聚合到您指定的焦点位置，或从该位置分解出图表数据 -->
+				<mx:LineChart id="gamdiscardlinechart" height="100%" width="100%" showDataTips="true" dataProvider="{gamarray}" fontSize="12">
+					<!--用来定义x轴 year是来自xml中的数据-->
+					<mx:horizontalAxis>
+						<mx:CategoryAxis id="xfilddata" categoryField="year" title="年份"/>
+					</mx:horizontalAxis>
+					<!--定义一组渲染X轴的特效-->
+					<mx:horizontalAxisRenderers>
+						<mx:AxisRenderer axis="{xfilddata}" placement="bottom" fontSize="12"/>
+					</mx:horizontalAxisRenderers>
+					<!--Y轴，同x轴-->
+					<mx:verticalAxis>
+						<mx:LinearAxis id="ylinear" baseAtZero="false" interval="1" title="数量" />
+					</mx:verticalAxis>
+					<mx:verticalAxisRenderers>
+						<mx:AxisRenderer axis="{ylinear}" x="10" fontSize="12"/>
+					</mx:verticalAxisRenderers>
+					<mx:series>
+						<!--其纵坐标的数据是根据yFiled中的数据动态生成的-->
+						<mx:LineSeries yField="buycount" displayName="日用耗材" form="segment" itemRenderer="mx.charts.renderers.CircleItemRenderer" lineStroke="{strokeffect}"/>
+					</mx:series>
+				</mx:LineChart>
+			</mx:Canvas>
+			<!--添加图例，也就是说明图形的某个线条的颜色和作用的实例-->
+			<mx:Legend dataProvider="{gamdiscardlinechart}" width="100" height="100%" legendItemClass="cn.cnsasfram.utilty.ASLegendItem"/>
+		</mx:HBox>
+	</mx:VBox>
+</mx:Module>

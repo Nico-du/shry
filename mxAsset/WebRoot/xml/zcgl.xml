@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<!-- 
+	<paremt  column="项目名称" labelFunction="formatName" editorDataField="formatName"/>
+	 -->
+	<paremt  column="支出日期" labelFunction="formatDate" editorDataField="formatDate"/>
+	<paremt  name="zcsm" column="支出说明" />
+	<paremt  name="pfs" column="支出额" />
+	<paremt  name="jbr" column="经办人" />
+	<paremt  name="fs" column="支出方式" />
+	<paremt  name="pj" column="批件" />
+	<!--paremt  name="showPjName" column="批件名称" /-->
+	<paremt  name="zc" column="政采" />
+	<paremt  name="zcye" column="政采余额" />
+	<paremt  column="审核状态" labelFunction="formatShzt" editorDataField="formatShzt"/>
+</root>

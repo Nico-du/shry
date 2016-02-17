@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()"
+				layout="absolute" styleName="layoutSkinLogin" pageTitle="上海闵行行政司法管理系统" width="100%" height="100%">
+	<mx:RemoteObject id="userServiceRmt" destination="UserService" showBusyCursor="true" endpoint="/mxAsset/messagebroker/amf"/>
+	<mx:Style source="style/flex_skins.css"/>
+	<mx:Script source="flex/util/InitMainWindow.as"/> 
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.codelist.ASCodeListHelper;
+			import cn.cnsasfram.entity.enum.Errors;
+			import cn.cnsasfram.helper.ASCSSClassHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import flex.pojos.RuleVo;
+			import flex.pojos.UserSessionVo;
+			import flex.util.BeforeunloadManager;
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.controls.Alert;
+			import mx.controls.HScrollBar;
+			import mx.controls.VScrollBar;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.core.ScrollPolicy;
+			import mx.managers.BrowserManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			public var mainPage:MainWindow;
+			//CODELIST对象
+			public var codelistheler:ASCodeListHelper=new ASCodeListHelper();
+			//定义Timer对象
+		//	public var systimer:Timer=new Timer(600000);
+			//用户对象
+			[Bindable]
+			public var userVo:UserSessionVo;
+			[Bindable] 
+			public var kmczArr:Array = new Array();
+			public var userAutorityXML:XML;
+			//树形默认ICON
+			[Bindable]
+			[Embed(source="images/icon_menutree.gif")]
+			protected static var treeDefaultLeafIcon:Class;
+			
+			//JavaScript操作浏览器url			
+			private static var FUNCTION_USEREXIT:String =    
+				"document.insertScript = function (){ " +   
+				"window.onbeforeunload = function(){ " +   
+				"var flexObj = Login.checkExit(); " +   
+				"if(flexObj != \"\"){ " +   
+				"return flexObj; " +   
+				"}else{ " +   
+				"return ; " +   
+				"} " +   
+				"} " +   
+				"} ";  
+			
+			//初始化调用方法
+			public function initPage():void{
+				//定时刷新CODEList
+			//	this.systimer.addEventListener(TimerEvent.TIMER,sysTimerAction);
+			//	this.systimer.start();
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//监听Timer事件
+			public function sysTimerAction(timerEvent:TimerEvent):void{
+				this.codelistheler.initCodeList();
+			}
+			
+			//初始化之前设置样式
+			public function beforeInitPage():void{
+				initApplicationStyle();
+				BrowserManager.getInstance().setTitle("上海闵行行政司法管理系统");
+				
+				Alert.cancelLabel="取消";
+				Alert.okLabel = "确认";
+				
+				//单点登录的方法  Servlet1
+				/* var urlFull:String = ExternalInterface.call("window.location.search.substring",1);
+				if(!CommonMethod.isNullOrWhitespace(urlFull) && urlFull.indexOf("logid=") > -1){
+					loginPanel.visible = false;
+				} */
+				
+				//CA登录的方法 JS1
+				ExternalInterface.addCallback("doCALogin",doCALogin);	
+			}
+			
+			//初始化之后
+			public function afterInitPage():void{
+				mainBox.addEventListener(KeyboardEvent.KEY_DOWN,enterClick);
+				this.userName.setFocus();
+				
+				//单点登录的方法  Servlet2
+				//验证时否单点登录
+			var urlFull:String = ExternalInterface.call("window.location.search.substring",1);
+			var userId:String = "";
+			if(!CommonMethod.isNullOrWhitespace(urlFull) && urlFull.indexOf("logid=") > -1){
+				var arrayParam:Array = urlFull.split('&');
+				for each(var str:String in arrayParam){
+					if(str.indexOf("logid=") > -1){
+						userId = str.substr(urlFull.indexOf("logid=")+6);
+						break;
+					}
+				}
+				if(!CommonMethod.isNullOrWhitespace(userId)){
+					doCALogin(userId);
+				}else{
+					loginPanel.visible = true;
+				}
+			}
+			}
+			//使用用户CA编码登录
+			public function doCALogin(userBm:String):void{
+				if(!ASStringHelper.isNullOrEmpty(userBm)){//验证CA登录
+					userServiceRmt.validateCALogin(userBm);
+					userServiceRmt.addEventListener(ResultEvent.RESULT,checkSingleLoginBack);
+				}
+			}
+			
+			//点击登录按钮
+			private function enterClick(evt:KeyboardEvent):void{
+				if (evt.keyCode==13){
+					if(loginPanelUserName.visible){
+					checkUserLogin();
+					}else{
+					checkCAUserLogin();
+					}
+				}
+			}
+			
+			//检测用户输入
+			private function checkCAUserLogin():void{
+				//CA登录的方法 JS2
+				if (ASStringHelper.isNullOrEmpty(usbPwd.text) || usbPwd.text=="请输入USB密码登录"){
+					Alert.show("请输入USB密码登录!","信息提示");
+					return ;
+					usbPwd.setFocus();
+				}
+				if(ExternalInterface.available){
+					ExternalInterface.call("JSDoCALoginGetBm",usbPwd.text);
+				}
+			}
+			
+			//检测用户输入
+			private function checkUserLogin():void{
+				var username:String=StringUtil.trim(userName.text);
+				var userpwd:String=StringUtil.trim(userPwd.text);
+				if (ASStringHelper.isNullOrEmpty(username)){
+					Alert.show("用户名不能为空！","信息提示");
+					return ;
+					userName.setFocus();
+				}
+				if(ASStringHelper.isNullOrEmpty(userpwd)){
+					Alert.show("密码不能为空！","信息提示");
+					return;
+					userPwd.setFocus();
+				}	
+				userServiceRmt.validateUser(username,userpwd);
+				userServiceRmt.addEventListener(ResultEvent.RESULT,checkUserLoginBack);
+				userServiceRmt.addEventListener(FaultEvent.FAULT,loginFaultBack);
+			}
+			
+			protected function checkSingleLoginBack(rmtResult:ResultEvent):void{
+				userServiceRmt.removeEventListener(ResultEvent.RESULT,checkSingleLoginBack);
+				if(rmtResult.result != null){
+					checkUserLoginBack(rmtResult);
+				}else{
+					loginPanel.visible = true;
+					Alert.show("当前用户不存在，请检查CA是否属于本院或联系系统管理员同步最新的人员数据。",CommonXMLData.Alert_Title);
+				}
+			}
+			
+			//登录成功后
+			protected function checkUserLoginBack(rmtResult:ResultEvent):void{
+				userServiceRmt.removeEventListener(KeyboardEvent.KEY_DOWN,enterClick);
+				userServiceRmt.removeEventListener(ResultEvent.RESULT,checkUserLoginBack);
+				userServiceRmt.removeEventListener(FaultEvent.FAULT,loginFaultBack);
+				
+				if(rmtResult.result==Errors.NOTEXISTUSERCA){
+					Alert.show(Errors.getErrorInfo(Errors.NOTEXISTUSERCA));
+					return;
+				}else if(rmtResult.result==null){
+					Alert.show("用户名或密码错误!");
+					return;
+				}
+				userVo = rmtResult.result as UserSessionVo;
+				
+				userServiceRmt.getUserAuthority(userVo.id);
+				userServiceRmt.addEventListener(ResultEvent.RESULT,getUserAuthorityBack);
+			}
+			//获取用户权限XML
+			private function getUserAuthorityBack(event:ResultEvent):void{
+				userServiceRmt.removeEventListener(ResultEvent.RESULT,getUserAuthorityBack);
+				userAutorityXML = new XML(event.result.toString());
+				if(!userAutorityXML.hasComplexContent()){
+					Alert.show("用户权限不足,请分配用户权限!");
+					return;	
+				}
+				this.styleName="layoutSkinLogin2";
+				this.removeAllChildren();
+				loginPanel.visible = true;
+				if(Application.application.userVo.ruleId != "41" && Application.application.userVo.ruleId != "44" ){
+					CommonMethod.isExportLYDVisible = false;
+				}
+				
+				mainPage = new MainWindow();				
+				this.addChild(mainPage);
+				
+				//登陆成功后初始化系统数据
+				initSysData();
+				//刷新离开提示
+				flex.util.BeforeunloadManager.regist();
+			}
+			
+			
+			//登录失败后
+			private function loginFaultBack(rmtFaultResult:FaultEvent):void {
+				userServiceRmt.removeEventListener(ResultEvent.RESULT,checkUserLoginBack);
+				userServiceRmt.removeEventListener(FaultEvent.FAULT,loginFaultBack);
+				Alert.show(rmtFaultResult.fault.rootCause.message,"提示");
+				userPwd.text = "";
+			}
+
+			protected function usbPwd_focusInHandler(event:FocusEvent):void
+			{
+				if(usbPwd.text == "请输入USB密码登录"){
+				usbPwd.setStyle("color","#0068AD");
+				usbPwd.setStyle("paddingTop","10");
+				usbPwd.text = ""; 
+				usbPwd.displayAsPassword = true;
+				}
+			}
+
+
+			protected function usbPwd_focusOutHandler(event:FocusEvent):void
+			{
+				if(CommonMethod.isNullOrWhitespace(usbPwd.text)){
+				usbPwd.setStyle("color","gray");
+				usbPwd.setStyle("paddingTop","7");
+				usbPwd.displayAsPassword = false;
+				usbPwd.text = "请输入USB密码登录";
+				}
+			}
+			 
+			private function resetUsbPwd():void{
+				usbPwd.text = "";
+				usbPwd_focusOutHandler(null);
+			}
+			
+			private function changeLoginWay():void{
+				loginPanelHbx.visible = caRdb.selected;
+				loginPanelHbx.includeInLayout = caRdb.selected;
+				loginPanelUserName.visible = !caRdb.selected;
+				loginPanelUserName.includeInLayout = !caRdb.selected;
+			}
+			
+			protected function rdb_mouseOverHandler(lbl:Object):void
+			{
+				Mouse.cursor = MouseCursor.BUTTON;
+			}
+			protected function rdb_mouseOutHandler(lbl:Object):void
+			{
+				Mouse.cursor = MouseCursor.ARROW;
+			}
+		]]>
+	</mx:Script>
+	<mx:Move id="smove" target="{sysMsg}"  yFrom="{this.height}" yTo="{this.height - sysMsg.height}" />
+	<mx:VBox id="mainBox" height="100%" width="100%" styleName="myHVAlign" x="0" y="0" horizontalAlign="center" color="#05657A">
+		<mx:HBox paddingTop="120" paddingBottom="120">
+			<mx:Image source="style/flex_skins/backgroundLoginHeaderTitle.png"/>
+		</mx:HBox>  
+		<mx:HBox width="510" >
+			<mx:RadioButton groupName="loginway" label="CA登录" id="caRdb" click="changeLoginWay()" selected="true" fontSize="18" fontWeight="bold" color="#BEC3C3" textRollOverColor="#0068AD"  mouseOver="rdb_mouseOverHandler(caRdb)" mouseOut="rdb_mouseOutHandler(caRdb)"/>
+			<mx:RadioButton groupName="loginway" label="用户名登录" id="userRdb" click="changeLoginWay()" fontSize="18" fontWeight="bold" color="#BEC3C3" textRollOverColor="#0068AD" mouseOver="rdb_mouseOverHandler(userRdb)" mouseOut="rdb_mouseOutHandler(userRdb)"/>
+		</mx:HBox>
+		<mx:HBox paddingLeft="18" id="loginPanelHbx">
+			<mx:HBox id="loginPanel"  width="530" height="78" backgroundSize="100%" backgroundImage="@Embed(source='style/flex_skins/usbLogin_backimg.png')" borderStyle="none">
+				<mx:Grid width="100%" height="60" borderStyle="none" id="loginGridUSB">
+					<mx:GridRow width="100%" height="100%" id="usbgridRow" paddingBottom="3">
+						<mx:GridItem height="100%" verticalAlign="bottom" paddingBottom="2" paddingLeft="13"  >
+							<mx:HBox backgroundImage="@Embed(source='style/flex_skins/usbLogin_pwd.png')" backgroundSize="105%">
+							<mx:TextInput id="usbPwd" text="请输入USB密码登录" color="gray" paddingLeft="30" paddingTop="7"
+										  focusIn="usbPwd_focusInHandler(event)" focusOut="usbPwd_focusOutHandler(event)"
+										  displayAsPassword="false" height="46" width="308" styleName="inputStyle01"/>
+							</mx:HBox>
+						</mx:GridItem>
+						<mx:GridItem height="100%" verticalAlign="bottom" paddingBottom="2" paddingLeft="5">
+							<mx:Button label="登录" cornerRadius="3" click="checkCAUserLogin()" width="76" height="46" 
+									   id="usbloginButton" styleName="loginButtonStyle01" useHandCursor="true" buttonMode="true"/>
+						</mx:GridItem>
+						<mx:GridItem height="100%" verticalAlign="bottom" paddingBottom="2" paddingLeft="5">
+							<mx:Button label="重置" cornerRadius="3" click="resetUsbPwd()" width="76" height="46" 
+									   id="usbresetButton" styleName="loginButtonStyle01" useHandCursor="true" buttonMode="true"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+				</mx:HBox>
+		</mx:HBox>
+			<mx:HBox id="loginPanelUserName" backgroundImage="style/flex_skins/backgroundLoginInput.png"  visible="false" includeInLayout="false"  borderStyle="none" width="542" height="78">
+				<mx:Grid id="loginGridUserName" width="100%" height="60" borderStyle="none">
+					<mx:GridRow width="100%" height="100%" id="gridRow">
+						<mx:GridItem height="100%" id="userNameItem" verticalAlign="bottom" paddingLeft="11" paddingBottom="2" paddingRight="1">
+							<mx:TextInput id="userName" height="46"  paddingTop="6" styleName="inputStyle01" width="208" />
+						</mx:GridItem>
+						<mx:GridItem height="100%" verticalAlign="bottom" paddingBottom="2">
+							<mx:TextInput id="userPwd" displayAsPassword="true" height="46" width="208" styleName="inputStyle01" />
+						</mx:GridItem>
+						<mx:GridItem height="100%" verticalAlign="bottom" paddingBottom="2">
+							<mx:Button label="登录" cornerRadius="3" click="checkUserLogin()" width="76" height="46" 
+									   id="loginButton" styleName="loginButtonStyle01" useHandCursor="true" buttonMode="true"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+			</mx:HBox>
+		
+	</mx:VBox>
+</mx:Application>

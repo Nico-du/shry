@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt name="signingName" column="合同名称"></paremt>
+	<paremt name="signingDate" column="合同签订时间 "></paremt>
+	<paremt name="serverEnddate" column="服务期限 "></paremt>
+	<paremt name="serverContent" column="服务内容"></paremt>
+	<paremt name="serverPeopleName" column="服务人员姓名"></paremt>
+	<paremt name="serverPeoplePhone" column="服务人员电话"></paremt>
+	<paremt name="serverPeopleComment" column="服务人员备注"></paremt>
+	<paremt name="svSupplier.supplierName" column="供应商名称"></paremt>
+	<paremt name="signingComment" column="合同备注"></paremt>
+</root>
+<!-- private SvSupplier svSupplier; -->
+<!-- 	private Date signingDate; -->
+<!-- 	private Date serverEnddate; -->
+<!-- 	private String serverContent; -->
+<!-- 	private String serverPeopleName; -->
+<!-- 	private String serverPeoplePhone; -->
+<!-- 	private String serverPeopleComment; -->
+<!-- 	private String signingComment; -->
+<!-- 	private String signingName; -->
+<!-- 合同表 -->
+<!-- 合同签订时间 -->
+<!-- 服务期限 -->
+<!-- 服务内容 -->
+<!-- 服务人员姓名 -->
+<!-- 服务人员电话 -->
+<!-- 服务人员备注 -->
+<!-- 合同备注 -->
+<!-- 合同名称 -->
+<!-- 供应商ID -->

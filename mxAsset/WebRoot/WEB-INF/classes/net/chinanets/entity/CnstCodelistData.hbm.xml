@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="net.chinanets.entity.CnstCodelistData" table="CNST_CODELIST_DATA" schema="ZCGL">
+        <id name="codeid" type="java.lang.String">
+            <column name="CODEID" length="100" />
+        </id>
+        <property name="codetype" type="java.lang.String">
+            <column name="CODETYPE" length="100" not-null="true" />
+        </property>
+        <property name="codebs" type="java.lang.String">
+            <column name="CODEBS" length="100" not-null="true" />
+        </property>
+        <property name="codename" type="java.lang.String">
+            <column name="CODENAME" length="100" not-null="true" />
+        </property>
+        <property name="codememo" type="java.lang.String">
+            <column name="CODEMEMO" length="1000" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="net.chinanets.entity.CnstWfhistoryData" table="CNST_WFHISTORY_DATA" schema="ZCGL">
+        <id name="wfhistoryid" type="java.lang.String">
+            <column name="WFHISTORYID" length="100" />
+        </id>
+        <property name="wfhistoryname" type="java.lang.String">
+            <column name="WFHISTORYNAME" length="200" not-null="true" />
+        </property>
+        <property name="wfhstepid" type="java.lang.String">
+            <column name="WFHSTEPID" length="100" not-null="true" />
+        </property>
+        <property name="wfdataid" type="java.lang.String">
+            <column name="WFDATAID" length="100" not-null="true" />
+        </property>
+        <property name="wfdouserid" type="java.lang.String">
+            <column name="WFDOUSERID" length="100" not-null="true" />
+        </property>
+        <property name="wfdocontent" type="java.lang.String">
+            <column name="WFDOCONTENT" length="2000" />
+        </property>
+        <property name="usable" type="java.lang.Integer">
+            <column name="USABLE" precision="10" scale="0" not-null="true" />
+        </property>
+        <property name="ctime" type="java.util.Date">
+            <column name="CTIME" length="7" not-null="true" />
+        </property>
+        <property name="cuser" type="java.lang.String">
+            <column name="CUSER" length="100" not-null="true" />
+        </property>
+        <property name="utime" type="java.util.Date">
+            <column name="UTIME" length="7" not-null="true" />
+        </property>
+        <property name="uuser" type="java.lang.String">
+            <column name="UUSER" length="100" not-null="true" />
+        </property>
+        <property name="memo" type="java.lang.String">
+            <column name="MEMO" length="1000" />
+        </property>
+    </class>
+</hibernate-mapping>

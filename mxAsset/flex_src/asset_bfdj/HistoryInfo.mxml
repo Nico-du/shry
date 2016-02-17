@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()" close="closePage()"
+				layout="horizontal" width="600" height="400"	title="历史记录" showCloseButton="true">
+<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>		
+	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+		<mx:Script>
+			<![CDATA[
+				import com.adobe.serialization.json.JSON;
+				import com.adobe.serialization.json.JSONDecoder;
+				
+				import mx.collections.ArrayCollection;
+				import mx.core.FlexGlobals;
+				import mx.managers.PopUpManager;
+				import mx.rpc.events.ResultEvent;
+				
+				//页面初始化是否加载数据pageIsLoadPoer
+				public var pageIsLoadPoer:Boolean=true;
+				public var pageIsLoadData:Boolean=true;
+				[Bindable]public var dataArray:ArrayCollection=null;
+				public var dataId:String;
+				//页面初始化调用
+				public function initPage():void{
+					this.width=FlexGlobals.topLevelApplication.width*0.7;
+					this.height=FlexGlobals.topLevelApplication.height*0.7;
+					if(true){
+						beforeInitPage();
+					}
+				}
+				
+				//初始化页面之前调用
+				public function beforeInitPage():void{
+					if(pageIsLoadPoer){
+						loadUserPower();
+					}
+				}
+				
+				//分析权限
+				public function loadUserPower():void{
+					//判断读取权限
+					
+					//判断写入权限				
+					//ASCommonHelper.controlVisible(this.saveAndNewAction,false);
+					//ASCommonHelper.controlVisible(this.newAction,false);
+					//ASCommonHelper.controlVisible(this.removeAndCloseAction,false);
+				}
+				
+				//初始化页面之后调用
+				public function afterInitPage():void{
+					if(pageIsLoadData){
+						loadData();
+					}
+				}
+				
+				//页面关闭时调用
+				public function closePage():void{
+					PopUpManager.removePopUp(this);
+				}
+				
+				//关闭事件
+				protected function closeActionClick():void{
+					this.closePage();
+				}
+				
+				//加载数据
+				public function loadData():void{
+					this.dataSearchAction();
+				}
+				
+				//加载相关信息
+				protected function dataSearchAction():void{
+					this.AllAssetServiceRmt.getWFHistory(dataId);
+					this.AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
+				}
+				//加载相关信息回调方法
+				protected function dataSearchActionBack(rmtResult:ResultEvent):void{
+					this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
+					if(rmtResult.result != null){
+					this.dataArray = new ArrayCollection(JSON.decode(rmtResult.result.toString()) as Array);
+					}
+				}
+				//设置状态
+				protected function resetColumnBFSQZT(item:Object,column:DataGridColumn):String{
+					return (item.wfhistoryname.indexOf("开始") > -1 || item.wfhistoryname.indexOf("结束") > -1) ? item.wfhistoryname : (item.wfhistoryname+"审核");
+				}
+			]]>
+		</mx:Script>
+		
+			<mx:DataGrid x="0" y="0" width="100%" dataProvider="{dataArray}" height="100%" id="historyGrid">
+				<mx:columns>
+					<mx:DataGridColumn headerText="操作步骤" dataField="wfhistoryname" labelFunction="resetColumnBFSQZT" width="100" sortable="true" />
+					<mx:DataGridColumn headerText="操作时间" dataField="utime" width="140" sortable="true"/>
+					<mx:DataGridColumn headerText="操作内容" dataField="wfdocontent" width="80" sortable="true" />
+					<mx:DataGridColumn headerText="操作人" dataField="wfdousername" width="100" sortable="true" />
+					<mx:DataGridColumn headerText="处理意见" dataField="memo"  sortable="true" />
+					<!--<mx:DataGridColumn headerText="审批单编号" dataField="spdbh"/>-->
+				</mx:columns>
+			</mx:DataGrid>
+</mx:TitleWindow>

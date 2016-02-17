@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()" showCloseButton="true" close="closeHandler()"
+	title="选择领用物品(选择完成后请点击[保存]以保存已选择数据)"	 width="100%" height="100%"  fontSize="12" paddingLeft="0" paddingRight="0" >
+	<mx:RemoteObject id="userSerice" destination="UserService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script source="../flex/util/DICCommonMethod.as"/> 
+	<mx:Script>
+		<![CDATA[
+			import asset_lysq.LYSQMXFormMoudel;
+			
+			import cn.cnsasfram.helper.ASCommonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.DataGrid;
+			import mx.controls.TextInput;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.core.INavigatorContent;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.http.HTTPService;
+			import mx.utils.StringUtil;
+			
+			import org.osmf.traits.IDisposable;
+			
+			[Bindable]//树形默认ICON
+			[Embed(source="images/icon_xxsbtree.gif")]
+			protected static var defaultLeafIcon:Class;
+			[Bindable]//所有信息设备的XML
+			public var datatreeXML:XML;
+			//保存实例化的对象
+			private var modelMap:Dictionary=null;
+			//定义加载页面XML路径暂手动配置
+			private var initpagexmlpath:String="xml/DBFrame.xml";
+			
+			//设备类型国标编码
+			public var sblxDicid:String = "201010400";
+			public var selectType:Object = "reselect";
+			public var parentPage:LYSQMXFormMoudel = null;
+			public var sblxDicobj:Object = null;
+			public var callBackFunc:Function = null;
+			//初始化页面信息
+			public function initPage():void{
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				this.width = FlexGlobals.topLevelApplication.width*0.8;
+				this.height = FlexGlobals.topLevelApplication.height*0.8;
+				modelMap=new Dictionary();
+				loadAssetComoboxData();
+			//	requestFuncitonXml();
+			}
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				setSelectChange(sblxDicobj);
+			}
+			
+			
+			private var selectItem:XML;
+			//树节点选择事件
+			public function setSelectChange(curobj:Object):void{
+				if(curobj == null){
+					return;
+				}
+				selectItem = new XML("<node id=\""+curobj.dicid+"\" label=\""+curobj.dicname+"\" url=\""+curobj.dicid+"\" pcbh=\""+curobj.pcbh+"\" isSearchXml=\"true\" />");
+				var tempContent:Object=getDICModelBySelect(selectItem);
+				if(tempContent==null){
+					return;
+				}
+			//	tempContent.selectPage_pcbh = curobj.pcbh;
+				tempContent.selectPage_dicid = curobj.dicid;
+				tempContent.selectPage_dicname = curobj.dicname;
+				tempContent.selectPage_pageType = "领用";
+				//隐藏增删查改工具栏
+				if(tempContent.hasOwnProperty("toolBar")){
+					tempContent.addEventListener(FlexEvent.CREATION_COMPLETE,tempContentCreationCompleteFunc);
+				}
+				
+				this.selectAssetStack.removeAll();
+				this.selectAssetStack.addChild(tempContent as DisplayObject);
+			//	this.selectAssetStack.selectedChild=tempContent;
+			}
+			//tempContent 样式修改  添加一列[批次编号]
+			private function tempContentCreationCompleteFunc(event:Event):void{
+				var btnBox:HBox = event.currentTarget.toolBar as HBox;
+				if(btnBox != null){ASCommonHelper.controlVisible(btnBox,false);
+				}else{
+					if(CommonXMLData.IsTestEnvironment){	Alert.show("no btnBox !");}
+				}
+				if( event.currentTarget.hasOwnProperty("cns_dg") &&  event.currentTarget.cns_dg is DataGrid){
+					var cns_dg:DataGrid =  event.currentTarget.cns_dg as DataGrid;
+					cns_dg.doubleClickEnabled = false;
+					
+					var dgColumn:DataGridColumn = new DataGridColumn();
+					dgColumn.dataField = "pcbh";
+					dgColumn.width = 100;
+					dgColumn.headerText ="批次编号"
+					var cnsdgCls:ArrayCollection = new ArrayCollection(cns_dg.columns);
+					cnsdgCls.addItemAt(dgColumn,1);
+					cns_dg.columns = cnsdgCls.toArray();
+				}
+			}
+			
+			/**
+			 *load  DBFrame.xml 到 CommonXMLData.Asset_ALLType_XML
+			 **/
+			private function loadAssetComoboxData():void{
+				if(CommonXMLData.Asset_ALLType_XML != null)return;
+				var service:HTTPService= new HTTPService();
+				service.url="xml/DBFrame.xml";
+				service.resultFormat="xml";
+				service.addEventListener(ResultEvent.RESULT,back);
+				service.send();
+			}
+			
+			private function back(evt:ResultEvent):void
+			{
+				CommonXMLData.Asset_ALLType_XML =new XML((evt.result as XMLNode).toString());
+			}
+			protected function closeHandler():void
+			{
+				/*  if(callBackFunc != null && callBackFunc.length == 1){
+					var callBackobj:Object = new Object
+					var ydjsl:int =0;
+					var currentObj:Object = selectAssetStack.selectedChild;
+					if(currentObj != null && currentObj.hasOwnProperty("cns_dg") && currentObj.cns_dg is DataGrid){
+						var cns_dg:DataGrid = currentObj.cns_dg as DataGrid;
+						ydjsl = (cns_dg.dataProvider as ArrayCollection).length;
+					}
+					callBackobj.ydjsl = ydjsl;
+					callBackFunc.call(null,callBackobj);
+				}  */
+				resetListPage();
+				PopUpManager.removePopUp(this);
+			}
+			private function selectHandler():void
+			{
+				var currentObj:Object = selectAssetStack.selectedChild;
+				if(currentObj.hasOwnProperty("cns_dg") && currentObj.cns_dg is DataGrid){
+					var cns_dg:DataGrid = currentObj.cns_dg as DataGrid;
+					var prtItem:ArrayCollection= cns_dg.dataProvider as ArrayCollection;
+					if(prtItem==null) return;
+						var ary:ArrayCollection = new ArrayCollection();
+						for(var i:int=0;i<prtItem.length;i++)
+						{
+							if(prtItem.getItemAt(i).selected)
+							{
+								ary.addItem(prtItem.getItemAt(i));
+							}
+						}
+						if(ary.length < 1){
+							return;
+						}
+						this.setInputValue(ary);
+						this.closeHandler();
+				}else{
+					Alert.show("当前页面没有cns_dg 属性!");
+				}
+			}
+			
+			//传值给ShowAssetSelectedDetail页面
+			private function setInputValue(selectedArray:ArrayCollection):void{
+				if(parentPage != null){
+					if(this.selectType == "reselect"){
+					parentPage.selectedAssetData = selectedArray;
+					}else if(this.selectType == "add"){
+						this.addSelectedAssetData(selectedArray);
+					}
+					parentPage.setTempContentListData();
+				}
+			}
+			
+			//添加 item,排除重复的item
+			private function addSelectedAssetData(selectedArray:Object):void{
+				var tempContent:Object = selectAssetStack.selectedChild;
+				var idColumn:String = tempContent.idColumnName.toLowerCase();
+				
+				var tempContentArray:ArrayCollection  = selectedArray as ArrayCollection;
+				if(parentPage.selectedAssetData == null){parentPage.selectedAssetData =tempContentArray; return;}
+				
+				for(var j:int=0;j<tempContentArray.length;j++){
+					var tempCurObj:Object = tempContentArray.getItemAt(j);
+					var isNeedAdd:Boolean = true;
+						for(var i:int=0;i<parentPage.selectedAssetData.length;i++){
+							var dataobjAbsout:Object = parentPage.selectedAssetData.getItemAt(i);
+							if(dataobjAbsout[idColumn] == tempCurObj[idColumn]){
+								isNeedAdd = false;
+								break;
+							}
+						}
+						if(isNeedAdd){
+							parentPage.selectedAssetData.addItem(tempCurObj);
+						}
+				}
+			}
+			
+			//重置列表为 未选择
+			private function resetListPage():void{
+				var currentObj:Object = selectAssetStack.selectedChild;
+				if(currentObj.hasOwnProperty("cns_dg") && currentObj.cns_dg is DataGrid){
+					var cns_dg:DataGrid = currentObj.cns_dg as DataGrid;
+					var prtItem:ArrayCollection= cns_dg.dataProvider as ArrayCollection;
+					if(prtItem==null) return;
+					for(var i:int=0;i<prtItem.length;i++)
+					{
+						if(prtItem.getItemAt(i).selected)
+						{
+							prtItem.getItemAt(i).selected = false;
+						}
+						
+					}
+				}
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+		<mx:VBox visible="false" includeInLayout="false" width="100%" height="20" verticalGap="2" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" verticalAlign="middle" fontSize="12">
+			<mx:HBox  width="100%" height="18" horizontalAlign="left" backgroundColor="#99CCFF" borderStyle="none" horizontalGap="0" verticalAlign="middle">
+				<mx:Label text="操作步骤：选择设备类型&gt;勾选设备&gt;[确认]" textIndent="5" textAlign="left" fontWeight="bold" fontSize="12"/>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:ViewStack id="selectAssetStack" width="100%" height="100%" creationPolicy="all">
+		</mx:ViewStack>
+	</mx:VBox>
+	<mx:HBox horizontalGap="180" width="100%" horizontalAlign="center">
+		<mx:Button label="确认" click="selectHandler()" width="80" x="491"/>
+		<mx:Button label="取消" click="closeHandler()" width="80" x="245"/>
+	</mx:HBox>
+</mx:TitleWindow>

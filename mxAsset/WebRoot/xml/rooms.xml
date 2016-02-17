@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt  name="roomName" column="会议室名称" />
+<paremt  name="roomNum" column="会议室门牌号" />
+<paremt  name="maxper" column="会议室人数" />
+<paremt  name="tbType" column="会议室类型" />
+<paremt  name="tbDate" column="要预订的时间段" />
+<paremt  name="tbDate2" column="预订过的时间段" />
+</root>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="net.chinanets.pojos.CnstDirectoryData" table="CNST_DIRECTORY_DATA">
+        <id name="directoryid" type="java.lang.String">
+            <column name="DIRECTORYID" length="100"/>
+        </id>
+        <property name="directoryname" type="java.lang.String" unique="true">
+            <column name="DIRECTORYNAME" length="100"/>
+        </property>
+        <property name="lastdirectoryid" type="java.lang.String">
+            <column name="LASTDIRECTORYID" length="100"/>
+        </property>
+        <property name="directorypath" type="java.lang.String">
+            <column name="DIRECTORYPATH" length="1000"/>
+        </property>
+        <property name="usable" type="java.lang.Integer">
+            <column name="USABLE" length="10"/>
+        </property>
+        <property name="ctime" type="java.util.Date">
+            <column name="CTIME"/>
+        </property>
+        <property name="cuser" type="java.lang.String">
+            <column name="CUSER" length="100"/>
+        </property>
+        <property name="utime" type="java.util.Date">
+            <column name="UTIME"/>
+        </property>
+        <property name="uuser" type="java.lang.String">
+            <column name="UUSER" length="100"/>
+        </property>
+        <property name="memo" type="java.lang.String">
+            <column name="MEMO" length="1000"/>
+        </property>
+    </class>
+</hibernate-mapping>

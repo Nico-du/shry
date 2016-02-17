@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" updateComplete="initDatePick()" width="100%" height="{aboutheight}" horizontalGap="0" verticalAlign="middle" verticalGap="0" borderStyle="none" fontSize="12">
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import mx.formatters.DateFormatter;
+			//默认高度
+			[Bindable]
+			public var aboutheight:Number=20;
+			//是否允许为空
+			[Bindable]
+			public var isAllowEnpty:Boolean=true;
+			//是否允许编辑
+			[Bindable]
+			public var isEditEnable:Boolean=true;
+			//是否展示今天时间
+			[Bindable]
+			public var isShowToday:Boolean=false;
+			//时间格式字符串
+			[Bindable]
+			public var strFormat:String="YYYY-MM-DD";
+			//星期格式字符串
+			[Bindable]
+			public var dayNamesFormat:Array=["日","一","二","三","四","五","六"];
+			//月份格式字符串
+			[Bindable]
+			public var mouthFormat:Array=["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
+			//错误信息提示
+			[Bindable]
+			public var dateErrorStr:String="";
+			//得到格式日期的对象
+			public var dateFormat:DateFormatter=new DateFormatter();
+			//初始化信息
+			public function initDatePick():void{
+				dateFormat.formatString=strFormat;
+				if(isShowToday){
+					dateNowClick();
+				}
+			}
+			
+			//点击默认当前时间
+			public function dateNowClick():void{
+				var tempDate:Date=new Date();
+				setDate(tempDate);
+			}
+			
+			//根据日期对象赋值时间
+			public function setDate(tempDate:Date):void{
+				if(tempDate==null){
+					this.resetDate();
+					return;
+				}
+				var tempDateStr:String=dateFormat.format(tempDate);
+				this.datePickFiled.text=tempDateStr;
+			}
+			
+			//根据日期字符串赋值时间
+			public function setText(tempStrDate:String):void{
+				if(ASStringHelper.isNullOrEmpty(tempStrDate)){
+					this.resetDate();
+					return;
+				}
+				var tempDate:Date=DateFormatter.parseDateString(tempStrDate);
+				this.setDate(tempDate);
+			}
+			
+			//得到格式后的时间字符串
+			public function getText():String{
+				return this.datePickFiled.text;
+			}
+			
+			//重置数据
+			public function resetDate():void{
+				this.datePickFiled.text="";
+			}
+		]]>
+	</mx:Script>
+	<mx:DateField id="datePickFiled" width="120" height="{aboutheight}" editable="{isEditEnable}" showToday="{isShowToday}" formatString="{strFormat}" yearNavigationEnabled="true" monthNames="{mouthFormat}" dayNames="{dayNamesFormat}"/>
+	<mx:Image click="dateNowClick()" useHandCursor="true" buttonMode="true" mouseChildren="false" source="@Embed(source='images/icon_timenow.gif')" width="20" height="{aboutheight}" verticalAlign="middle"/>
+</mx:HBox>

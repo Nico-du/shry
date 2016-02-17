@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow title="{typeName}高级查询" width="560" height="420" horizontalScrollPolicy="off" showCloseButton="true" close="closeAdvance(null)" verticalScrollPolicy="auto" xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" xmlns:code="http://code.google.com/p/flexlib/">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ListEvent;
+			import mx.controls.TextInput;
+			import mx.controls.Button;
+			import mx.controls.DateField;
+			import mx.controls.ComboBox;
+			import mx.controls.Label;
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			
+			[Bindable]public var typeName:String;
+			public var conArr:ArrayCollection;
+			public var conStr:String;
+			private var matStr:Array = [{label:"匹配",value:""},{label:"不匹配",value:"not"}];
+			private var matStr2:Array = [{label:"等于",value:""},{label:"不等于",value:"not"}];
+			private var strArr:Array;
+			public var point:ConditionNext;
+			
+			public function initAdvanded():void {
+				//conArr = _conArr;
+				//conStr = " where (1=1) ";
+				conStr = "";
+				var length:int = conArr.length;
+				var obj:Object;
+				var type:String;
+				var label:Label;
+				var date:DateField;
+				var text:TextInput;
+				var combo:ComboBox;
+				for(var i:int=0;i<length;i++) {
+					obj = conArr[i];
+					type = obj.data.type;
+					label = new Label();
+					label.text = obj.data.column+": ";
+					label.width = 160;
+					fb.addChild(label);
+					if(type == "text") {
+						combo = new ComboBox();
+						combo.dataProvider = matStr;
+						combo.labelField = "label";
+						combo.width = 120;
+						combo.name = obj.name+"combo";
+						fb.addChild(combo);
+						text = new TextInput();
+						text.width = 160;
+						text.name = obj.name+"input";
+						text.data = obj.data;
+						fb.addChild(text);
+						
+					} else if(type == "date") {
+						label = new Label();
+						label.text = "从";
+						label.width = 20;
+						fb.addChild(label);
+						date = new DateField();
+						date.editable=true;
+						date.formatString = "YYYY-MM";
+						date.width = 120;
+						date.dayNames = ["日","一","二","三","四","五","六"];
+						date.monthNames = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
+						date.name = obj.name+"from";
+						fb.addChild(date);
+						label = new Label();
+						label.text = "到";
+						label.width = 20;
+						fb.addChild(label);
+						date = new DateField();
+						date.editable=true;
+						date.formatString = "YYYY-MM";
+						date.dayNames = ["日","一","二","三","四","五","六"];
+						date.monthNames = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
+						date.width = 120;
+						date.name = obj.name+"to";
+						fb.addChild(date);
+					} else {
+						combo = new ComboBox();
+						combo.dataProvider = matStr2;
+						combo.labelField = "label";
+						combo.width = 120;
+						combo.name = obj.name+"combo";
+						fb.addChild(combo);
+						text = new TextInput();
+						text.width = 160;
+						text.name = obj.name+"input";
+						text.data = obj.data;
+						fb.addChild(text);
+					}
+				}
+				var button:Button;
+				button = new Button();
+				button.label = "确定";
+				button.width = 100;
+				button.addEventListener(MouseEvent.CLICK, submit);
+				fb.addChild(button);
+				button = new Button();
+				button.width = 100;
+				button.label = "重置";
+				button.addEventListener(MouseEvent.CLICK, reset);
+				fb.addChild(button);
+				button = new Button();
+				button.width = 100;
+				button.label = "关闭";
+				button.addEventListener(MouseEvent.CLICK, closeAdvance);
+				fb.addChild(button);
+			}
+			
+			private function reset(evt:MouseEvent):void {
+				conStr="";
+				/*
+				var length:int = conArr.length;
+				for(var i:int=0;i<length;i++) {
+					conArr[i].text = "";
+				}*/
+				 var ary:Array=fb.getChildren();
+ 				for each(var o:Object in ary)
+ 				 {
+ 					if(o is TextInput){o.text="";}
+ 					//else if(o is ComboBox){o.text="";}	
+ 					//else if(o is DateField){o.text="";}	
+                 }
+			}
+			
+			private function submit(evt:MouseEvent):void {
+				conStr = "";
+				var length:int = conArr.length;
+				var obj:Object;
+				var input:TextInput;
+				var combo:ComboBox;
+				var fromDate:DateField;
+				var toDate:DateField;
+				var type:String;
+				var orderByStr:String = "";//用来记录按什么排序，这里是按最后一个查询条件排序
+				for(var i:int=0;i<length;i++) {
+					obj = conArr[i];
+					type = obj.data.type;
+					orderByStr = obj.name;
+					if(type=="text") {
+						input = fb.getChildByName(obj.name+"input") as TextInput;
+						combo = fb.getChildByName(obj.name+"combo") as ComboBox;
+						if(input.text!=null&&input.text!="") {
+							if(combo.selectedLabel=="匹配") {
+								conStr+= " and "+obj.name+" like \'%"+input.text+"%\'";
+							} else {
+								conStr+= " and "+obj.name+" not like \'%"+input.text+"%\'";
+							}
+						}
+					} else if(type=="date") {
+						fromDate = fb.getChildByName(obj.name+"from") as DateField;
+						toDate = fb.getChildByName(obj.name+"to") as DateField;
+						if(fromDate.text!=null&&fromDate.text!=""&&toDate.text!=null&&toDate.text!="") {
+							conStr+= " and "+obj.name+" between \'"+fromDate.text+"\' and \'"+toDate.text+"\'";
+//							conStr+= " and "+obj.name+" between \'"+fromDate.text+"\' and \'"+toDate.text+"\'"+" order by "+obj.name+" asc";
+						} else if(fromDate.text!=null&&fromDate.text!=""&&(toDate.text==null||toDate.text=="")) {
+							conStr+= " and "+obj.name+" > \'"+fromDate.text+"\'";
+//							conStr+= " and "+obj.name+" > \'"+fromDate.text+"\'"+" order by "+obj.name+" asc";
+						} else if((fromDate.text==null||fromDate.text=="")&&toDate.text!=null&&toDate.text!="") {
+							conStr+= " and "+obj.name+" < \'"+toDate.text+"\'";
+//							conStr+= " and "+obj.name+" < \'"+toDate.text+"\'"+" order by "+obj.name+" asc";
+						}
+					} else {
+						combo = fb.getChildByName(obj.name+"combo") as ComboBox;
+						input = fb.getChildByName(obj.name+"input") as TextInput;
+						if(input.text!=null&&input.text!="") {
+							if(combo.selectedLabel=="等于") {
+								conStr+= " and "+obj.name+" = "+input.text;
+							} else {
+								conStr+= " and "+obj.name+" != "+input.text;
+							}
+						}
+					}
+				}
+				//trace(conStr);
+				//var index:int = conStr.indexOf("and",0);
+				point.conStr = conStr + " order by " + orderByStr + " asc ";//.substr(index+3);
+				point.revokeByAdvance();
+				closeAdvance(evt);
+			}
+			
+		
+			private function closeAdvance(evt:MouseEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</mx:Script>
+	<code:FlowBox id="fb" width="100%" height="100%" horizontalAlign="center" horizontalScrollPolicy="off" verticalScrollPolicy="off"></code:FlowBox>
+</mx:TitleWindow>

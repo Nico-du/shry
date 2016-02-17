@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<firstMenu id="root" label="信息化设备">
+    <secondMenu id="jsjzd" typeid="0" label="计算机终端">
+      <thirdMenu id="pcj" typeid="361" label="PC机" pageUrl="computerlist"/>
+      <thirdMenu id="bjb" typeid="362" label="笔记本" pageUrl="computerlist"/>
+      <thirdMenu id="jsjzdqt" typeid="363" label="其他" pageUrl="computerlist"/>
+    </secondMenu>
+    <secondMenu id="ydccjz" typeid="0" label="移动存储介质" >
+      <thirdMenu id="up" typeid="126" label="U盘" pageUrl="jzlist"/>
+      <thirdMenu id="ydyp" typeid="127" label="移动硬盘" pageUrl="jzlist"/>
+      <thirdMenu id="ydccjzqt" typeid="202" label="其他" pageUrl="jzlist"/>
+    </secondMenu>
+    <secondMenu id="zj" typeid="0" label="主机">
+      <thirdMenu id="xxj" typeid="115" label="小型机" pageUrl="serverlist"/>
+      <thirdMenu id="pcfwq" typeid="116" label="PC服务器" pageUrl="serverlist"/>
+      <thirdMenu id="gkj" typeid="117" label="工控机" pageUrl="serverlist"/>
+      <thirdMenu id="dpfwq" typeid="118" label="刀片服务器" pageUrl="serverlist"/>
+    </secondMenu>
+    <secondMenu id="ccsb" typid="0" label="存储设备">
+      <thirdMenu id="cpzl" typeid="110" label="磁盘阵列" pageUrl="storage"/>
+      <thirdMenu id="cpk" typeid="111" label="磁盘库" pageUrl="storage"/>
+      <thirdMenu id="cp" typeid="112" label="磁盘" pageUrl="storage"/>
+      <thirdMenu id="cd" typeid="113" label="磁带" pageUrl="storage"/>
+      <thirdMenu id="cpkzg" typeid="114" label="磁盘扩展柜" pageUrl="storage"/>
+    </secondMenu>
+    <secondMenu id="wlsb" typeid="0" label="网络设备">
+      <thirdMenu id="jhj" typeid="107" label="交换机" pageUrl="net"/>
+      <thirdMenu id="lyq" typeid="108" label="路由器" pageUrl="net"/>
+      <thirdMenu id="fzjh" typeid="109" label="负载均衡" pageUrl="net"/>
+    </secondMenu>
+   <secondMenu id="jfjs" typeid="0" label="机房建设">
+      <thirdMenu id="ups" typeid="105" label="UPS" pageUrl="upslist"/>
+      <thirdMenu id="fdj" typeid="106" label="发动机" pageUrl="upslist"/>
+      <thirdMenu id="jfjz" typeid="98" label="精密空调" pageUrl="upslist"/>
+      <thirdMenu id="jmkt" typeid="99" label="门禁" pageUrl="upslist"/>
+      <thirdMenu id="xf" typeid="100" label="消防" pageUrl="upslist"/>
+      <thirdMenu id="jk" typeid="101" label="监控" pageUrl="upslist"/>
+      <thirdMenu id="fjddb" typeid="102" label="防静电地板" pageUrl="upslist"/>
+      <thirdMenu id="jj" typeid="103" label="机架" pageUrl="upslist"/>
+      <thirdMenu id="db" typeid="104" label="地板" pageUrl="upslist"/>
+    </secondMenu>
+    <secondMenu id="zhbx" typeid="0" label="综合布线">
+      <thirdMenu id="xl" typeid="96" label="线缆" pageUrl="cablelist"/>
+      <thirdMenu id="mk" typeid="97" label="模块" pageUrl="modulelist"/>
+    </secondMenu>
+    <secondMenu id="sphy" typeid="0" label="视频会议">
+      <thirdMenu id="lxsb" typeid="367" label="录像设备" pageUrl="videolist"/>
+      <thirdMenu id="sqsb" typeid="368" label="摄像设备" pageUrl="videolist"/>
+      <thirdMenu id="tyj" typeid="369" label="投影机" pageUrl="videolist"/>
+      <thirdMenu id="xsp" typeid="370" label="显示屏" pageUrl="videolist"/>
+      <thirdMenu id="yxsb" typeid="371" label="音响设备" pageUrl="videolist"/>
+    </secondMenu>
+    <secondMenu id="wssb" typeid="0" label="外设设备">
+      <thirdMenu id="dyj" typeid="364" label="打印机" pageUrl="wssblist"/>
+      <thirdMenu id="smy" typeid="365" label="扫描仪" pageUrl="wssblist"/>
+      <thirdMenu id="czj" typeid="366" label="传真机" pageUrl="wssblist"/>
+      <thirdMenu id="wssbqt" typeid="372" label="其他" pageUrl="wssblist"/>
+    </secondMenu>
+</firstMenu>

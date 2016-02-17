@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="614" height="268" initialize="initializeWd()" creationComplete="" title="选择下一步处理人"
+				showCloseButton="true" close="closeWd()" verticalScrollPolicy="off" horizontalScrollPolicy="off" layout="absolute">
+<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" 
+					 showBusyCursor="true"/>
+	<mx:Script>
+	<![CDATA[
+		import flex.util.CommonMethod;
+		
+		import mx.managers.PopUpManager;
+		public var nextStepVo:Object;
+		public var fwLsjlVo:Object;
+		public var parentWd:Object = null;
+		public var isShWd:Boolean = true;
+		public function initializeWd():void{
+			initWdData();
+			resetShWd();
+		}
+		private function initWdData():void{
+			dqbz.text = nextStepVo.dqbz;
+			xgbz.text = nextStepVo.xgbz;
+			
+			dqclr.text = nextStepVo.dqclr;
+			xybclr.text = nextStepVo.xybclr;
+			dqclr.data = nextStepVo.dqclrdata;
+			xybclr.data = nextStepVo.xybclrdata;
+		}
+		//提交初稿窗口隐藏批复意见
+		private function resetShWd():void{
+			if(!this.isShWd){
+			this.height = 176;
+			this.qrzjHbx.y = 102;	
+			this.pfyjLbl.visible = false;
+			this.pfyj.visible = false;
+			this.pfyj.includeInLayout = false;
+			}
+		}
+		private function closeWd():void{
+			PopUpManager.removePopUp(this);
+		}
+
+		protected function nextStepBtn_clickHandler(event:MouseEvent):void
+		{
+			nextStepVo.xybclrdata = xybclr.data ;
+			nextStepVo.xybclr = xybclr.text;
+			nextStepVo.pfyj = pfyj.text;
+			
+			// ProcessMethods.PassToNextStep(fwLsjlVo,nextStepVo);
+			 if(parentWd != null){
+				 PopUpManager.removePopUp(this);
+				 parentWd.nextStepVo = nextStepVo;
+				 parentWd.submitToNextStep();
+			 }
+		}
+
+		]]>
+</mx:Script>
+	<mx:FormItem label="当前步骤:"  x="14" y="17"/>
+	<mx:TextInput id="dqbz" width="160"  editable="false"  x="114" y="16"/>
+	<mx:FormItem label="下个步骤:"  x="314" y="16"/>
+	<mx:TextInput id="xgbz" width="160"  editable="false"  x="415" y="14"/>
+	<mx:FormItem label="当前步骤处理人:"  x="14" y="54"/>
+	<mx:TextInput id="dqclr" width="160"  editable="false" x="114" y="52"/>
+	<mx:FormItem label="下一步处理人:"  x="314" y="53" required="true"/>
+	<mx:TextInput id="xybclr" width="160"  editable="false" click="CommonMethod.getSyr(this,xybclr);" x="415" y="51"/>
+	<mx:HBox x="152" y="193" id="qrzjHbx" width="300" horizontalAlign="center" horizontalGap="40">
+		<mx:Button label="确认转交" id="nextStepBtn" click="nextStepBtn_clickHandler(event)"/>
+		<mx:Button label="返   回" id="backBtn" click="closeWd()"/>
+	</mx:HBox>
+	<mx:FormItem label="批复意见:"  x="14" y="94" id="pfyjLbl"/>
+	<mx:TextArea id="pfyj" width="461"  x="114" y="94" height="75"/>
+</mx:TitleWindow>

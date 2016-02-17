@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt  column="项目名称" labelFunction="formatName" editorDataField="formatName"/>
+	<paremt  column="收款日期" labelFunction="formatDate1" editorDataField="formatDate1"/>
+	<paremt  name="sksm" column="收款说明" />
+	<paremt  name="skjr" column="收款金额" />
+	<paremt  name="jbr" column="经办人" />
+	<paremt  name="fs" column="结算方式" />
+	<paremt  name="pj" column="批件" />
+</root>

@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:code="http://code.google.com/p/flexlib/" xmlns:ns1="query.*">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.CollectionEvent;
+			import mx.controls.CheckBox;
+			import mx.olap.aggregators.CountAggregator;
+			import mx.formatters.Formatter;
+			import mx.formatters.DateFormatter;
+			import asset_Wssb.Wssb;
+			import asset_Wssb.AssetWssbVo;
+			import flex.pojos.ComputerVo;
+			import asset_Video.AssetVideoVo;
+    		import asset_Video.VideoM;
+    		import flex.pojos.NetVo;
+    		import asset_storage.NetDetail;
+    		import flex.pojos.StorageVo;
+    		import asset_storage.StorageDetail;
+    		import asset_server.DetailServer;
+    		import flex.pojos.ServerVo;
+   			import com.asset.util.HanZi2PinYin;
+			import mx.utils.ObjectUtil;
+
+
+    		import asset_Jz.JzVo;
+    		import asset_Jz.JzDetail;
+    		import asset_Computer.Computer;
+			import mx.events.ListEvent;
+			import mx.containers.TitleWindow;
+			import flash.utils.setTimeout;
+			import mx.controls.ComboBox;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.controls.DateField;
+			import mx.controls.DateChooser;
+			import mx.containers.HBox;
+			import mx.controls.Label;
+			import mx.controls.TextInput;
+			import mx.collections.ArrayCollection;
+			import flexlib.containers.FlowBox;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import flex.util.ExportExcel2;
+			import mx.utils.StringUtil;
+			
+			private var dateSecond:DateField = null;//第二个日期控件，用来从高级页面中移除多余的日期控件
+			private var dateFourth:DateField = null;//第四个日期控件
+			public var assetType:Object;
+			public var newArr:ArrayCollection;
+			public var oldArr:ArrayCollection;
+			private var conArr:ArrayCollection = new ArrayCollection();
+			private var columns:ArrayCollection = new ArrayCollection();
+			public var conStr:String;
+			private var asset:Object;
+			private var str:String="";
+			private var astTitle:String="";
+			private var querySuccess:Boolean = false;
+			[Bindable]private var typeName:String;
+			private var productFac:ClassFactory;
+			 import mx.events.DataGridEvent;
+	        private var columnName:String="";
+			public function initQuery():void {
+				
+				conStr = "";
+				typeName = assetType.label;
+				astTitle=assetType.label;
+				str=assetType.name;
+				conArr.removeAll();
+				fbox.removeAllChildren();
+				columns.removeAll();
+			
+				
+				
+				var input:TextInput;
+				var date:DateField;
+				var date2:DateField;
+				var combo:ComboBox;
+				var label:Label;
+				var obj:Object;
+				var dgc:DataGridColumn;
+				var hbox:HBox = new HBox();
+				hbox.width = 1000;
+				var dateId:int = 0;//用来表示date的id属性
+				if(newArr!=null) {
+					var length:int = newArr.length;
+					var n:int  = 0;
+					dgc = new DataGridColumn();
+					dgc.headerText = "选择项";
+					dgc.width = 50;
+					
+					productFac = new ClassFactory(CheckBoxRenderer);
+					//productFac.generator.selected = true;
+					dgc.itemRenderer = productFac;
+					columns.addItem(dgc);
+					for(var i:int=0;i<length;i++) {
+						obj = newArr[i];
+						//trace(obj.type);
+						label = new Label();
+						label.text = obj.column+":";
+//						label.width = 80;
+						hbox.addChild(label);
+						dgc = new DataGridColumn();
+						dgc.headerText = obj.column;
+						dgc.dataField = obj.name;
+						dgc.sortable = "true";
+						
+//						switch(dgc.dataField) {
+//						case "mc": dgc.sortCompareFunction = sortmc; break;
+//						case "zrr": dgc.sortCompareFunction = sortzrr; break;
+//						case "sydd": dgc.sortCompareFunction = sortsydd; break;
+//						case "bmmc": dgc.sortCompareFunction = sortbmmc; break;
+//						case "ppxh": dgc.sortCompareFunction = sortppxh; break;
+//						case "yqlx": dgc.sortCompareFunction = sortyqlx; break;
+//						case "syr": dgc.sortCompareFunction = sortsyr; break;
+//						case "smsx": dgc.sortCompareFunction = sortsmsx; break;
+//						case "lx": dgc.sortCompareFunction = sortlx; break;
+//						
+//					}
+						columns.addItem(dgc);
+						if(obj.type=="text") {
+							n++;
+							input = new TextInput();
+							input.name = obj.name;
+							input.width = 110;
+							hbox.addChild(input);
+							input.initialize();
+							input.data = new ConObject(obj.name,"text",obj.column);
+							conArr.addItem(input);
+						} else if(obj.type=="date") {
+							n = n + 2;
+							date = new DateField();
+//							date.id = "date" + dateId++;
+							date.name = obj.name;
+							date.data = new ConObject(obj.name,"date",obj.column);
+							date.formatString = "YYYY-MM-DD";//2002 Äê 8 ÔÂ 
+							date.dayNames = ["日","一","二","三","四","五","六"];
+							date.monthNames = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
+							date.yearNavigationEnabled = true;
+							date.editable = false;
+							date.width = 90;
+//							if(dateId == 2) {
+//								dateSecond = date;
+//							}
+							
+							date2 = new DateField();
+//							date2.id = "date" + dateId++;
+							date2.name = obj.name;
+							date2.data = new ConObject(obj.name,"date",obj.column);
+							date2.formatString = "YYYY-MM-DD";//2002 Äê 8 ÔÂ 
+							date2.dayNames = ["日","一","二","三","四","五","六"];
+							date2.monthNames = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
+							date2.yearNavigationEnabled = true;
+							date2.editable = false;
+							date2.width = 90;
+							if(dateSecond == null) {
+								dateSecond = date2;
+							}else {
+								dateFourth = date2;
+							}
+							
+							//date.disabledDays=[0,1,2,3,4,5,6];
+							var fromLabel:Label = new Label();
+							var toLabel:Label = new Label();
+							fromLabel.text = "从";
+							toLabel.text = "到";
+							
+							hbox.addChild(fromLabel);
+							hbox.addChild(date);
+							hbox.addChild(toLabel);
+							hbox.addChild(date2);//在查询页面中显示该控件
+							conArr.addItem(date);
+							conArr.addItem(date2);
+//							conArr.addItem(date2);//在高级查询窗口中显示该控件
+						} else {
+							n++;
+							input = new TextInput();
+							input.name = obj.name;
+							input.data = new ConObject(obj.name,"number",obj.column);
+							input.width = 110; 
+							hbox.addChild(input);
+							conArr.addItem(input);
+						}
+						fbox.addChild(hbox);
+//						if((n+1)%4==0){hbox=new HBox();hbox.width=800;}
+						if(n/4>=1){hbox=new HBox();hbox.width=1000; n = 0;}
+						
+					}
+					
+					dg.columns = columns.source;
+					var cls:Class = getDefinitionByName(assetType.app) as Class;
+					asset = new cls();
+					if(assetType.name=="pcj"){
+						asset.typeID=361;
+					}else if(assetType.name=="bjb"){
+						asset.typeID=362;
+					}else if(assetType.label=="U盘"){
+						asset.lx="U盘";
+					}else if(assetType.label=="移动硬盘"){
+						asset.lx="移动硬盘";
+					}else if(assetType.label=="打印机"){
+						asset.assetTypeID=364;
+					}else if(assetType.label=="扫描仪"){
+						asset.assetTypeID=365;
+					}else if(assetType.label=="传真机"){
+						asset.assetTypeID=366;
+					}
+					dPage.initDividePage(dg, asset);
+				} else {
+					Alert.show("选取字段不能为空！");
+					backToFirst();
+				}
+			}
+			
+			private function backToFirst():void {
+				var conQuery:ConditionQuery = new ConditionQuery();
+				this.visible = false;
+				this.parentDocument.m.addChild(conQuery);
+				this.parentDocument.m.removeChildAt(0);
+			}
+			
+			private function submitQuery():void {
+				var formatter:DateFormatter = new DateFormatter();
+				formatter.formatString = "YYYY-MM-DD";
+				var length:int = conArr.length;
+				var obj:Object;
+				var input:TextInput;
+				var date:DateField;
+				var type:String;
+				var temp:String;
+				var name:String;
+				var dateTxt:String = "";//用来记录两次日期的变量，add by songmz
+				var date1:String = "null";
+				var date2:String = "null";
+				var date3:String = "null";
+				var date4:String = "null";
+				conStr="";
+				var dateCount:int = 0;//日期型的计数器，判断有几个日期控件，用来在查询条件中添加add关键字，add by songmz
+				for(var i:int=0;i<length;i++) {
+					obj = conArr[i];
+					temp = StringUtil.trim(obj.text);
+					name = obj.data.name;
+					if(obj is TextInput) {
+						type=obj.data.type;
+						if(type == "number") {
+							asset[obj.data.name] = temp==""?null:temp;
+//							conStr += temp==""?"":" and "+name+" = "+temp;
+						} else {
+							try {
+								asset[obj.data.name] = temp==""?null:"%"+temp+"%";
+							}catch (e:Error) {
+								asset["bmmc"] = temp==""?null:"%"+temp+"%";
+							}
+//							conStr += temp==""?"":" and "+name+" like "+"'%"+obj.text+"%'";
+						}
+					} else if(obj is DateField) {
+						//asset[obj.data.name] = temp==""?null:temp;
+						//conStr += temp==""?"":" and "+name+" = "+temp;
+						dateCount++;
+						if(dateCount == 1) date1 = obj.text;
+						if(dateCount == 2) date2 = obj.text;
+						if(dateCount == 3) date3 = obj.text;
+						if(dateCount == 4) date4 = obj.text;
+						
+						var str:String;
+						if(name == "qysj") str = "起用时间";
+						if(name == "gzrq") str = "购置日期";
+						if(dateCount == 2) {
+							if(date1 == "" && date2 != "null" && date2 != "") {
+								Alert.show("请输入" + str + "的开始日期", "提示");
+								return;
+							}else if(date1 != "" && date2 == "") {
+								date2 = formatter.format(new Date());
+								obj.text = date2;
+								temp = obj.text;
+							}else if(date1 > date2) {
+								Alert.show(str + "的开始日期必须小于结束日期。", "提示");
+								return;
+							}
+						}
+						if(dateCount == 4) {
+							if(date3 == "" && date4 != "null" && date4 != "") {
+								Alert.show("请输入" + str + "的开始日期", "提示");
+								return;
+							}else if(date3 != "" && date4 == "") {
+								date4 = formatter.format(new Date());
+								obj.text = date4;
+								temp = obj.text;
+							}else if(date3 > date4) {
+								Alert.show(str + "的开始日期必须小于结束日期。", "提示");
+								return;
+							}
+						}
+						
+						if(dateCount == 1) {
+							if(date1 == "") {
+								continue;
+							}else if(date1 != "") {
+								conStr += temp==""?"":" 1=1 and "+name+" between '"+obj.text + "'";
+								dateTxt = temp;
+							}
+						}
+						if(dateCount == 2) {
+							if(date1 != "" && date2 != "") {
+								conStr += temp==""?"":" and '" + obj.text + "' ";
+								dateTxt = "";
+							}else if(date1 != "" && date2 == "") {
+								date2 = formatter.format(new Date());
+								obj.text =date2;
+								conStr += temp==""?"":" and '" + obj.text + "' ";
+								dateTxt = "";
+							}else if(date1 == "" && date2 == "") {
+								continue;
+							}
+						}
+						if(dateCount == 3) {
+							if(date3 == "") {
+								continue;
+							}else if(date3 != "") {
+								if(conStr == "") {
+									conStr += temp==""?"":" "+name+" between '"+obj.text + "'";
+								}else {
+									conStr += temp==""?"":" and "+name+" between '"+obj.text + "'";
+								}
+								dateTxt = temp;
+							}
+						}
+						if(dateCount == 4) {
+							if(date3 == "" && date4 == "") {
+								continue;
+							}else if(date3 != "" && date4 == "") {
+								date4 = formatter.format(new Date());
+								obj.text =date4;
+								conStr += temp==""?"":" and '" + obj.text + "' ";
+								dateTxt = "";
+							}else if(date3 != "" && date4 != "") {
+								conStr += temp==""?"":" and '" + obj.text + "' ";
+								dateTxt = "";
+							}
+						}
+						
+						
+//						trace(obj.text);//2020-09-02
+//						if(obj.text == "") {
+//							if((dateCount == 2 && date1 != "") || (dateCount == 4 && date3 != "")) {
+//								obj.text = formatter.format(new Date());
+//								temp = obj.text;
+//							}
+//						}
+//						if((date1 != "" && date2 != "") || (date3 != "" && date4 != "")) {
+//							if(dateTxt == "") {
+//								if(dateCount == 3 && date3 != "") {
+//									conStr += " and "
+//								}
+//							}else {
+//								conStr += temp==""?"":" and '" + obj.text + "' ";
+//								dateTxt = "";
+//							}
+//						}
+//							asset[obj.data.name] = temp==""?null:"";
+//							conStr += temp==""?"":" and "+name+" like "+"'%"+obj.text+"%'";
+					} 
+				}
+				if(assetType.name=="pcj"){
+					asset.typeID=361;
+				}else if(assetType.name=="bjb"){
+					asset.typeID=362;
+				}else if(assetType.label=="U盘"){
+					asset.lx="U盘";
+				}else if(assetType.label=="移动硬盘"){
+					asset.lx="移动硬盘";
+				}else if(assetType.label=="打印机"){
+					asset.assetTypeID=364;
+				}else if(assetType.label=="扫描仪"){
+					asset.assetTypeID=365;
+				}else if(assetType.label=="传真机"){
+					asset.assetTypeID=366;
+				}
+				if(columnName!="")
+					conStr+=" 1=1 order by nlssort("+columnName+",'NLS_SORT=SCHINESE_PINYIN_M')";
+				dPage.initDividePage(dg, asset, conStr);
+				querySuccess = true;
+			}
+			
+		
+			private function resetQuery():void {
+				conStr="";
+				var length:int = conArr.length;
+				for(var i:int=0;i<length;i++) {
+					conArr[i].text = "";
+				}
+			}
+			
+			private function selectColumns():void {
+				var selectCol:SelectColumns = new SelectColumns();
+				selectCol.initSelect(oldArr, dg);
+				PopUpManager.addPopUp(selectCol,this.parentApplication as DisplayObject,true);
+            	PopUpManager.centerPopUp(selectCol);
+            	
+			}
+			
+			public function exportSubmit():void {
+				
+				var item:ArrayCollection=dg.dataProvider as ArrayCollection;
+		        var arry:Array=new Array();//用来保存需要导出数据的id
+		        var idStr:String = "(";
+		    	if(item!=null){
+		    		for(var i:int=0;i<item.length;i++)
+		    		{
+	                   if(item.getItemAt(i).selected)
+	                   {
+	                   	  arry.push(item.getItemAt(i).id);
+	                   	  idStr += (item.getItemAt(i).id + ", ")
+	                   }
+		    		} 
+	    	   }
+	    	   idStr = idStr.substr(0, idStr.lastIndexOf(","));
+	    	   idStr += ")";
+	    	   trace(idStr);
+				
+				if(querySuccess == false) {
+					return;
+				}else {
+					querySuccess = false;
+				}
+				conStr=" where 1=1 ";
+				if(idStr!=")"){
+					conStr += " and id in " + idStr;
+				}
+				var bctj:String = ""; //补充条件
+				if(assetType.name=="pcj"){
+					bctj = "zclxid = '361'";
+				}else if(assetType.name=="bjb"){
+					bctj = "zclxid = '362'";
+				}else if(assetType.label=="U盘"){
+					bctj = "lx = 'U盘'";
+				}else if(assetType.label=="移动硬盘"){
+					bctj = "lx = '移动硬盘'";
+				}else if(assetType.label=="打印机"){
+					bctj = "zclxid = '364'";
+				}else if(assetType.label=="扫描仪"){
+					bctj = "zclxid = '365'";
+				}else if(assetType.label=="传真机"){
+					bctj = "zclxid = '366'";
+				}
+				
+				conStr += (" and " + bctj);
+				
+				
+				var exportExcel:ExportExcel2 = new ExportExcel2();
+				trace(asset);
+				var length:int = conArr.length;
+				var date:DateField;
+				var type:String;
+				var temp:String;
+				var name:String;
+				var dateTxt:String = "";
+				var obj:Object;
+				var dateCount:int = 0;
+				for(var i:int=0;i<length;i++) {
+					obj = conArr[i];
+					temp = StringUtil.trim(obj.text);
+					name = obj.data.name;
+					if(obj is TextInput) {
+						type=obj.data.type;
+						if(type == "number") {
+							asset[obj.data.name] = temp==""?null:temp;
+							conStr += temp==""?"":" and "+name+" = "+temp;
+						} else {
+							try {
+								asset[obj.data.name] = temp==""?null:"%"+temp+"%";
+							}catch (e:Error) {
+								asset["bmmc"] = temp==""?null:"%"+temp+"%";
+								name = "bmmc";
+							}
+							conStr += temp==""?"":" and "+name+" like "+"'%"+obj.text+"%'";
+						}
+					} else if(obj is DateField) {
+						//asset[obj.data.name] = temp==""?null:temp;
+//						conStr += temp==""?"":" and "+name+" = "+temp;
+							dateCount++;
+							if(dateTxt == "") {
+								if(dateCount == 3) {
+									conStr += "  "
+								}
+								conStr += temp==""?"":" and "+name+" between '"+obj.text + "'";
+								dateTxt = temp;
+							}else {
+								conStr += temp==""?"":" and '" + obj.text + "' ";
+								dateTxt = "";
+							}
+//							asset[obj.data.name] = temp==""?null:"";
+//							conStr += temp==""?"":" and "+name+" like "+"'%"+obj.text+"%'";
+					} 
+					
+				}
+				
+//				if(conStr!=""&&conStr!=null)
+//					conStr=" where (1=1) "+conStr;
+//					
+				
+				
+				exportExcel.ExportDGToExcel2(dg.columns,assetType.table,assetType.table+".xls",assetType.label,conStr);
+			}	
+			
+			private function advancedQuery():void {
+				var adQuery:AdvancedQuery = new AdvancedQuery();
+				adQuery.typeName = typeName;
+//				var obj:Object = conArr.getItemIndex(dateSecond);
+				var dateIndex1:int = conArr.getItemIndex(dateSecond);
+				var dateIndex2:int = conArr.getItemIndex(dateFourth);
+				if(dateIndex1 > 0) {
+					conArr.removeItemAt(conArr.getItemIndex(dateSecond));
+				}
+				if(dateIndex2 > 0) {
+					conArr.removeItemAt(conArr.getItemIndex(dateFourth));
+				}
+				adQuery.conArr = conArr;
+				adQuery.conStr = conStr;
+				adQuery.point = this;
+				adQuery.initialize();
+				adQuery.initAdvanded();
+				PopUpManager.addPopUp(adQuery,this.parentApplication as DisplayObject,true);
+            	PopUpManager.centerPopUp(adQuery);
+			}
+			
+			public function revokeByAdvance():void {
+
+				var index:int = conStr.indexOf("and",0);
+				var temp:String = conStr.substr(index+3);
+				dPage.initDividePage(dg, asset,temp);
+			}
+			private function showAsset(evt:ListEvent):void{
+    			switch(str){
+				  case "pcj":
+					    var c:ComputerVo=evt.itemRenderer.data as ComputerVo;
+					    var pc:Computer = new Computer();pc.computerId=String(c.id);
+					    pc.flag=false;pc.title=astTitle;
+					    thisPopUpManager(pc);
+				        break;
+				 case "bjb":
+					    var b:ComputerVo=evt.itemRenderer.data as ComputerVo;
+					    var bjb:Computer = new Computer();bjb.computerId=String(b.id);
+					    bjb.flag=false;bjb.title=astTitle;
+					    thisPopUpManager(bjb);
+				        break;
+				  case "jz":
+				       var jz:JzDetail=new JzDetail();
+				       jz.jz=evt.itemRenderer.data as JzVo;jz.title=astTitle;
+				       thisPopUpManager(jz);
+				        break;
+				  case "dyj":
+				  
+				        var p:AssetWssbVo = evt.itemRenderer.data as AssetWssbVo;
+				        var dyj:Wssb = new Wssb();dyj.flag=false;
+				        dyj.printId=p.id;dyj.title=astTitle;
+				        thisPopUpManager(dyj);
+				        break;
+				      
+				  case "smy":
+				        var smy:AssetWssbVo = evt.itemRenderer.data as AssetWssbVo;
+				        var scanner:Wssb = new Wssb();scanner.flag=false;
+				        scanner.printId=smy.id;scanner.title=astTitle;
+				        thisPopUpManager(scanner);
+				        break;
+				      
+				  case "czj":
+				       var czj:AssetWssbVo = evt.itemRenderer.data as AssetWssbVo;
+				       var fax:Wssb = new Wssb();fax.flag=false;
+				       fax.printId=czj.id;fax.title=astTitle;
+				       thisPopUpManager(fax);
+				       break;
+				  case "zj": 
+				        var server:DetailServer = new DetailServer();
+				        server.serverVo=evt.itemRenderer.data as ServerVo;
+				        server.title=astTitle;
+				        thisPopUpManager(server);
+				       break;
+				  case "ccsb":
+				        var stora:StorageDetail = new StorageDetail();
+				         stora.vo=evt.itemRenderer.data as StorageVo;
+				         stora.title=astTitle;
+				         thisPopUpManager(stora);
+				       break;
+				  case "wlsb":
+				       var net:NetDetail = new NetDetail();
+				         net.vo=evt.itemRenderer.data as NetVo;
+				         net.title=astTitle;
+				         thisPopUpManager(net);
+                       break;
+				  case "sphy":
+				      var vide:VideoM = new VideoM();
+				      var vo:AssetVideoVo=evt.itemRenderer.data as AssetVideoVo;
+				      vide.vid=vo.id;vide.title=astTitle;
+				      thisPopUpManager(vide);
+                      break;
+				}
+    		}
+    		
+    		private function thisPopUpManager(ast:TitleWindow):void{
+    				PopUpManager.addPopUp(ast,this.parentApplication as DisplayObject,true);
+	            	PopUpManager.centerPopUp(ast); 
+    		}
+    		
+
+		private function selectCheckBox(event:ListEvent):void {
+			event.currentTarget.selectedItem.selected = !event.currentTarget.selectedItem.selected;
+		}
+			/**  
+			* 点击dataGrid列头上的排序按钮  
+			*/  
+			public function dataGridSort(evt:DataGridEvent):void {   
+			    //1 得到要排序的列   
+			    var column:DataGridColumn = DataGridColumn(evt.currentTarget.columns[evt.columnIndex]);   
+			    //2 得到列名   
+			     columnName=column.dataField;   
+			    //3 重写此列的排序函数   
+			    submitQuery();
+		//	    column.sortCompareFunction=function(obj1:Object,obj2:Object):int{   
+		//	        return srotsyr(obj1,obj2);   
+		//	    };   
+	
+			}
+
+		]]>
+	</mx:Script>
+	<mx:Panel title="自定义查询>>查询:{typeName}" width="100%" height="100%" horizontalScrollPolicy="off" layout="absolute" horizontalAlign="center">
+	
+	<mx:VBox width="100%" height="100%" verticalScrollPolicy="off" horizontalAlign="center">
+
+	<mx:VBox id="fbox" width="100%" height="100%" paddingLeft="100" paddingTop="10" ></mx:VBox>
+	<mx:HBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" horizontalGap="20">
+		<mx:Button x="145" label="查询" icon="@Embed(source='images/find.gif')" click="submitQuery();"/>
+		<mx:Button x="145" label="重置" icon="@Embed(source='images/reset.gif')" click="resetQuery();"/>
+		<mx:Button x="239.5" label="返回" icon="@Embed(source='images/fanhui.gif')" click="backToFirst()"/>
+		<mx:Button label="高级" icon="@Embed(source='images/gaoji.gif')" click="advancedQuery()"/>
+		<mx:Button x="337" label="导出结果" icon="@Embed(source='images/export.gif')" click="submitQuery();exportSubmit()"/>
+		<mx:Button x="447" label="选择显示列" icon="@Embed(source='../images/tools_min.png')" click="selectColumns()"/>
+
+	</mx:HBox>
+
+
+	<mx:DataGrid id="dg" x="31" width="100%" itemClick="selectCheckBox(event)" headerRelease="dataGridSort(event)"  doubleClickEnabled="true" itemDoubleClick="showAsset(event)" >
+		
+	</mx:DataGrid>
+	<ns1:DividedPage left="10%" id="dPage" width="100%"></ns1:DividedPage>
+	</mx:VBox>
+	</mx:Panel>
+</mx:Canvas>

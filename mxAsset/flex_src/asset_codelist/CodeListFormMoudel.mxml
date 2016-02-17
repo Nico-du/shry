@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:dataPick="cn.cnspagemoudel.date.*" xmlns:cnscombox="cn.cnspagemoudel.combox.*" creationPolicy="all"
+				title="编辑信息" layout="absolute" showCloseButton="true" fontSize="12" horizontalScrollPolicy="off" verticalScrollPolicy="off" 
+				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()">
+	<mx:RemoteObject id="CodeListServiceRmt" destination="codeListService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.codelist.ASCodeListHelper;
+			import cn.cnsasfram.entity.DoResult;
+			import cn.cnsasfram.entity.enum.Errors;
+			import cn.cnsasfram.helper.ASCommonHelper;
+			import cn.cnsasfram.helper.ASDateHelper;
+			import cn.cnsasfram.helper.ASJsonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.adobe.serialization.json.JSON;
+			
+			import flex.util.CommonMethod;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			//所有按钮高度，工具栏
+			[Bindable]
+			protected var aboutheight:Number=20;
+			
+			//页面标题
+			[Bindable]
+			public var pageTitle:String="代码表";
+			
+			//数据标题
+			[Bindable]
+			public var dataTitles:String="";
+			
+			//数据ID
+			[Bindable]
+			public var dataId:String="";
+			//默认操作实体名称
+			public var tempObjBeanName:String="CNST_CODELIST_DATA";
+			//视图名称
+			public var tempObjViewName:String="CNSV_CODELIST";
+			//保存数据
+			public var dataArray:ArrayCollection=null;
+			//页面是否加载权限控制
+			public var pageIsLoadPoer:Boolean=true;
+			//页面初始化是否加载数据
+			public var pageIsLoadData:Boolean=true;
+			//父窗口
+			public var parentPage:CodeListGridMoudel=null;
+			//临时存储方法
+			public var tempFunction:Function=null;
+			//已知代码类型
+			public var codetypeStr:String = null;
+			//页面初始化调用
+			public function initPage():void{
+			if(!CommonMethod.isNullOrWhitespace(codetypeStr)){
+				if(FlexGlobals.topLevelApplication.width*0.65 < 770){
+					this.width = 770;
+				}else{
+					this.width = FlexGlobals.topLevelApplication.width*0.65;
+				}
+				this.height=FlexGlobals.topLevelApplication.height*0.65;
+			}else{
+				this.width=FlexGlobals.topLevelApplication.width*0.9;
+				this.height=FlexGlobals.topLevelApplication.height*0.9;
+			}
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				if(pageIsLoadPoer){
+					loadUserPower();
+				}
+			}
+			
+			//分析权限
+			public function loadUserPower():void{
+				//判断读取权限
+				
+				//判断写入权限
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				if(pageIsLoadData){
+					loadData();
+				}
+				if(!CommonMethod.isNullOrWhitespace(codetypeStr)){
+					CODETYPE.setValue(codetypeStr);
+					
+					this.getCodeList(codetypeStr);
+			//		CODETYPE.selectedIndex = CommonMethod.getCbxItemIndex(codetypeStr,CODETYPE,"value");
+					CODETYPE.enabled=false;
+					if(CommonMethod.isNullOrWhitespace(this.dataId)){
+						var bhStr:String = codetypeStr;
+						CommonMethod.getMaxNewDataBH(tempObjBeanName,"CODEBS",bhStr,CODEBS);
+						CODEBS.enabled=false;
+					}
+				}
+			}
+			
+			//验证codetype是否存在
+			protected function getCodeList(typename:String):void{
+				if(ASStringHelper.isNullOrEmpty(typename)){
+					return;
+				}
+				AllAssetServiceRmt.RunSelectClassBySql("SELECT * FROM CNST_CODELIST_DATA WHERE CODEBS= '"+typename+"' ","net.chinanets.entity.CnstCodelistData");  
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,getCodeListBack);
+			}
+			//加载CODELIST回调方法
+			protected function getCodeListBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,getCodeListBack);
+				var dataArrayRst:ArrayCollection= (rmtResult.result as ArrayCollection);
+				if(dataArrayRst == null || dataArrayRst.length ==0){
+					this.validateNotExistCodetype();
+				}else{
+					this.pageTitle = dataArrayRst.getItemAt(0).codename;
+				}
+			}
+			private function validateNotExistCodetype():void{
+				//	Alert.show("基础数据["+codetypeStr+"]不存在,请在系统服务-代码表管理中添加该基础数据后在来添加!","系统提醒");
+					Alert.show("基础数据["+parentPage.codeNameStr+"]不存在,是否让系统自动生成该基础数据？","系统提示",Alert.OK|Alert.CANCEL,Application.application as Sprite,generateBaseData);
+					PopUpManager.removePopUp(this);
+			}
+			
+			//生成基础代码表
+			protected function generateBaseData(doEvent:CloseEvent):void{
+				if(doEvent.detail==Alert.CANCEL){
+					return;
+				}
+				var dataJson:Object=new Object();
+				dataJson.codeid=this.dataId;
+				dataJson.codetype="DMB";
+				dataJson.codebs= codetypeStr;
+				dataJson.codename= parentPage.codeNameStr +"";
+				
+				var submitjson:String= JSON.encode(dataJson);
+				CodeListServiceRmt.SaveOrUpdateCodeList(submitjson);
+				CodeListServiceRmt.addEventListener(ResultEvent.RESULT,saveGenerateRYHCDataBack);
+			}
+			
+			//保存日用耗材类型回调方法
+			public function saveGenerateRYHCDataBack(rmtResult:ResultEvent):void{
+				CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,saveGenerateRYHCDataBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					Alert.show("生成基础数据["+parentPage.codeNameStr+"]失败!");
+				}else{
+					Alert.show("生成基础数据["+parentPage.codeNameStr+"]成功!请再次点击新建来新建数据!");
+				}
+			}
+			//页面关闭时调用
+			public function closePage():void{
+				if(true){
+					beforeClosePage();
+				}
+				PopUpManager.removePopUp(this);
+				if(true){
+					afterClosePage();
+				}
+			}
+			
+			//关闭页面之前调用
+			protected function beforeClosePage():void{
+			}
+			
+			//关闭页面之后调用
+			protected function afterClosePage():void{
+				if(this.parentPage!=null){
+					this.parentPage.loadData(FlexGlobals.topLevelApplication.codelistheler.initCodeList);
+				}
+				this.pageIsLoadData=false;
+			}
+			
+			//保存事件
+			protected function saveActionClick():void{
+				this.tempFunction=this.loadData;
+				this.saveData();
+			}
+			
+			//保存并新建事件
+			protected function saveAndNewActionClick():void{
+				this.tempFunction=this.resetData;
+				this.saveData();
+			}
+			
+			//新建事件
+			protected function newActionClick():void{
+				this.resetData();
+			}
+			
+			//保存并关闭事件
+			protected function saveAndCloseActionClick():void{
+				this.tempFunction=this.closePage;
+				this.saveData();
+			}
+			
+			//删除并关闭事件
+			protected function removeAndCloseActionClick():void{
+				this.tempFunction=this.closePage;
+				this.removeData();
+			}
+			
+			//关闭事件
+			protected function closeActionClick():void{
+				this.closePage();
+			}
+			
+			//加载数据
+			public function loadData():void{
+				this.dataSearchAction();
+			}
+			
+			//保存数据
+			public function saveData():void{
+				this.dataSaveOrUpdateAction();
+			}
+			
+			//删除数据
+			public function removeData():void{
+				if(ASStringHelper.isNullOrEmpty(this.dataId)){
+					return;
+				}
+				Alert.show("您确认要删除基础数据吗？","系统提示",Alert.OK|Alert.CANCEL,this,dataRemoveAction,null,Alert.CANCEL);
+			}
+			
+			//重置数据
+			protected function resetData():void{
+				this.dataId="";
+				this.dataArray=new ArrayCollection();
+				var tempObject:Object=new Object();
+				tempObject.codetype=this.CODETYPE.getValue();
+				this.dataArray.addItem(tempObject);
+				this.afterLoadData();
+				this.errormsgbox.removeAllChildren();
+			}
+			
+			
+			//加载搜索条件
+			protected function getDataSeacrchCondition():String{
+				var condition:Object=new Object();
+				condition.s_codeid_string_eq=this.dataId;
+				var conditionJson:String=JSON.encode(condition);
+				return conditionJson;
+			}
+			//加载相关信息
+			protected function dataSearchAction():void{
+				if(ASStringHelper.isNullOrEmpty(this.dataId)){
+					return;
+				}
+				var strcondition:String=getDataSeacrchCondition();
+				if(ASStringHelper.isNullOrEmpty(strcondition)){
+					return;
+				}
+				this.CodeListServiceRmt.GetCodeList(tempObjViewName,20,1,strcondition);
+				this.CodeListServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
+			}
+			//加载相关信息回调方法
+			protected function dataSearchActionBack(rmtResult:ResultEvent):void{
+				this.CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
+				var objResult:Object=rmtResult.result;
+				var strresult:String=objResult.toString();
+				var jsonObj:Object=JSON.decode(strresult,true);
+				var itemtotal:Object=jsonObj.itemtotal;
+				var othermsg:Object=jsonObj.othermsg;
+				var items:Object=jsonObj.items;
+				if(items==null){
+					this.resultmsg.text="未请求到相关数据"
+					this.resultmsg.alpha=1;
+					this.fadeEffect.stop();
+					this.fadeEffect.play(null,false);
+					return;
+				}
+				this.dataArray=new ArrayCollection(items as Array);
+				this.afterLoadData();
+			}
+			//加载数据成功之后调用
+			protected function afterLoadData():void{
+				if(this.dataArray==null || this.dataArray.length<1){
+					return;
+				}
+				var tempObj:Object=this.dataArray.getItemAt(0);
+				this.dataTitles=tempObj[this.CODENAME.id.toLowerCase()];
+				this.CODETYPE.setValue(tempObj[this.CODETYPE.id.toLowerCase()]);
+				this.CODEBS.text=tempObj[this.CODEBS.id.toLowerCase()];
+				this.CODENAME.text=tempObj[this.CODENAME.id.toLowerCase()];
+				this.CODEMEMO.text=tempObj[this.CODEMEMO.id.toLowerCase()];
+				
+				if(!CommonMethod.isNullOrWhitespace(codetypeStr)){
+					CODETYPE.setValue(codetypeStr);
+					//		CODETYPE.selectedIndex = CommonMethod.getCbxItemIndex(codetypeStr,CODETYPE,"value");
+					CODETYPE.enabled=false;
+					if(CommonMethod.isNullOrWhitespace(this.dataId)){
+						var bhStr:String = codetypeStr+"-";
+						CommonMethod.getMaxNewDataBH(tempObjBeanName,"CODEBS",bhStr,CODEBS);
+						CODEBS.enabled=false;
+					}
+				}
+			}
+			
+			//保存数据之前验证数据
+			protected function beforeSaveData():Boolean{
+				this.errormsgbox.removeAllChildren();
+				var errorMsg:String="";
+				var isCheckSuccess:Boolean=true;
+				if(ASStringHelper.isNullOrEmpty(this.CODEBS.text)){
+					errorMsg="[标识]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.CODENAME.text)){
+					errorMsg="[名称]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				return isCheckSuccess;
+			}
+			//显示错误信息
+			protected function showCheckErrors(errorMsg:String):void{
+				if(ASStringHelper.isNullOrEmpty(errorMsg)){
+					return;
+				}
+				var tempTextInput:TextInput=new TextInput();
+				tempTextInput.percentWidth=100;
+				tempTextInput.height=aboutheight;
+				tempTextInput.editable=false;
+				tempTextInput.setStyle("borderColor","red");
+				tempTextInput.setStyle("color","red");
+				tempTextInput.text=errorMsg;
+				this.errormsgbox.addChild(tempTextInput);
+			}
+			//得到保存数据
+			protected function getSaveOrUpdatetData():String{
+				var dataJson:Object=new Object();
+				dataJson.codeid=this.dataId;
+				dataJson.codetype=this.CODETYPE.getValue();
+				dataJson.codebs=this.CODEBS.text;
+				dataJson.codename=this.CODENAME.text;
+				dataJson.codememo=this.CODEMEMO.text;
+				return JSON.encode(dataJson);
+			}
+			//保存数据
+			protected function dataSaveOrUpdateAction():void{
+				if(!beforeSaveData()){
+					return;
+				}
+				var submitjson:String=getSaveOrUpdatetData();
+				CodeListServiceRmt.SaveOrUpdateCodeList(submitjson);
+				CodeListServiceRmt.addEventListener(ResultEvent.RESULT,dataSaveOrUpdateActionBack);
+			}
+			//保存数据回调方法
+			protected function dataSaveOrUpdateActionBack(rmtResult:ResultEvent):void{
+				CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,dataSaveOrUpdateActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					this.resultmsg.text=doResult.strErrorInfo;
+				}else{
+					this.resultmsg.text="数据操作成功";
+					this.dataId=doResult.strErrorInfo;
+					if(ASStringHelper.stringCompare(this.CODETYPE.getValue(),"RYHC",true)==0){
+						this.saveRYHCData();
+					}
+					this.afterDoAction();
+				}
+				this.resultmsg.alpha=1;
+				this.fadeEffect.stop();
+				this.fadeEffect.play(null,false);
+			}
+			
+			//得到日用耗材的JSON
+			public function getRYHCJson():String{
+				var userid:String=FlexGlobals.topLevelApplication.userVo.id+"";
+				var userbmid:String=FlexGlobals.topLevelApplication.userVo.deptId+"";
+				var dataJson:Object=new Object();
+				dataJson.cuser=userid;
+				dataJson.ryhcid="";
+				dataJson.ryhcbh=this.CODEBS.text;
+				dataJson.ryhcname=this.CODENAME.text;
+				dataJson.glrid=userid;
+				dataJson.glbmid=userbmid
+				dataJson.uuser=userid;
+				dataJson.memo = this.CODEMEMO.text;
+				return JSON.encode(dataJson);
+			}
+			
+			//保存日用耗材类型
+			public function saveRYHCData():void{
+				var submitJson:String=this.getRYHCJson();
+				AllAssetServiceRmt.SaveOrUpdateRYHC(submitJson,"DBMSAVE");
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,saveRYHCDataBack);
+			}
+			//保存日用耗材类型回调方法
+			public function saveRYHCDataBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,saveRYHCDataBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					this.resultmsg.text=doResult.strErrorInfo;
+				}else{
+					this.resultmsg.text="日用耗材数据操作成功";
+				}
+				this.resultmsg.alpha=1;
+				this.fadeEffect.stop();
+				this.fadeEffect.play(null,false);
+			}
+			
+			//删除当前数据
+			protected function dataRemoveAction(doEvent:CloseEvent):void{
+				if(doEvent.detail==Alert.CANCEL){
+					return;
+				}
+				CodeListServiceRmt.RemoveCodeList(this.dataId);
+				CodeListServiceRmt.addEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+			}
+			//删除当前数据回调方法
+			protected function dataRemoveActionBack(rmtResult:ResultEvent):void{
+				CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					this.resultmsg.text=doResult.strErrorInfo;
+					return;
+				}else{
+					this.resultmsg.text="数据删除成功";
+					if(this.CODETYPE.getValue()=="RYHC"){
+					this.dataRemoveRYHCAction();
+					}
+					this.afterDoAction();
+				}
+			}
+			//删除日用耗材
+			protected function dataRemoveRYHCAction():void{
+				AllAssetServiceRmt.RemoveObject(this.CODEBS.text,"cnst_ryhc_data","ryhcbh","");
+			}
+			
+			//所有Action操作之后
+			protected function afterDoAction():void{
+				this.tempFunction.call(this);
+				
+			}
+		]]>
+	</mx:Script>
+	<mx:Fade id="fadeEffect" target="{resultmsg}" alphaFrom="1"  alphaTo="0" duration="10000"/>
+	<mx:VBox id="editForm" borderStyle="none" width="100%" height="100%" horizontalAlign="center" 
+			 horizontalGap="0" verticalGap="2" paddingTop="2" paddingLeft="2" paddingBottom="2" paddingRight="2">
+		<mx:HBox id="formToolBar" borderStyle="none" width="100%" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" backgroundColor="#99CCFF">
+			<mx:LinkButton id="saveAction" click="saveActionClick()" height="{aboutheight}" label="保存" toolTip="保存" icon="@Embed(source='images/formtoolbar/form_save.gif')"/>
+			<mx:LinkButton id="saveAndNewAction" click="saveAndNewActionClick()" height="{aboutheight}" label="保存并新建" toolTip="保存并新建" icon="@Embed(source='images/formtoolbar/form_saveandnew.gif')"/>
+			<mx:LinkButton id="newAction" click="newActionClick()" height="{aboutheight}" label="新建" toolTip="新建" icon="@Embed(source='images/formtoolbar/form_new.gif')"/>
+			<mx:LinkButton id="saveAndCloseAction" click="saveAndCloseActionClick()" height="{aboutheight}" label="保存并关闭" toolTip="保存并关闭" icon="@Embed(source='images/formtoolbar/form_saveandclose.gif')"/>
+			<mx:LinkButton id="removeAndCloseAction" click="removeAndCloseActionClick()"  height="{aboutheight}" label="删除并关闭" toolTip="删除并关闭" icon="@Embed(source='images/formtoolbar/form_removeandclose.gif')"/>
+			<mx:LinkButton id="closeAction" click="closeActionClick()" height="{aboutheight}" label="关闭" toolTip="关闭" icon="@Embed(source='images/formtoolbar/close.gif')"/>
+		</mx:HBox>
+		<mx:HBox id="dataTitle" borderStyle="none" width="100%" height="25" paddingLeft="5" horizontalAlign="left" verticalAlign="middle">
+			<mx:Image source="@Embed(source='images/kvm.gif')" width="23" height="23" verticalAlign="middle"/>
+			<mx:Label text="{pageTitle}" textIndent="10" textAlign="center" fontSize="15" fontWeight="bold"/>
+			<mx:Label text="{dataTitles}" textAlign="center" fontSize="12" fontWeight="bold"/>
+			<mx:HBox id="resultBox" borderStyle="none" width="100%" height="25" horizontalAlign="right" verticalAlign="middle">
+				<mx:TextInput id="resultmsg" editable="false" alpha="0" borderStyle="none" textAlign="center" paddingTop="3" height="25" fontSize="12" backgroundColor="#FFFACD"/>
+			</mx:HBox>
+		</mx:HBox>
+		<mx:VBox id="dataFormBox" borderStyle="none" width="100%" horizontalGap="0" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:Form id="dataForm1" width="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" 
+					 horizontalGap="0" verticalGap="0" indicatorGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+				<mx:Panel id="nvPage1" label="基本信息 " width="100%" borderStyle="none" headerHeight="0" horizontalScrollPolicy="off" verticalScrollPolicy="off" 
+						  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
+					<mx:VBox id="nvPage1Group1" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="solid" borderColor="#99CCFF">
+						<mx:HBox width="100%" height="20" horizontalGap="0" verticalGap="0" backgroundColor="#99CCFF" borderStyle="none">
+							<mx:Label text="基本信息" width="100%" height="20" textAlign="left"/>
+							<mx:LinkButton label="" width="20" height="20" icon="@Embed(source='images/pg_next1.gif')"/>
+						</mx:HBox>
+						<mx:Grid id="nvPage1Grid1" width="100%" horizontalGap="0" verticalGap="5" paddingTop="5" paddingBottom="5" paddingLeft="3" paddingRight="3">
+							<mx:GridRow width="100%" height="{aboutheight}">
+								<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+									<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+										<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+										<mx:Label text="所属类型:" fontWeight="bold" height="{aboutheight}"/>
+									</mx:HBox>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+									<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
+										<cnscombox:CNSCombox id="CODETYPE" enabled="{ASStringHelper.isNullOrEmpty(this.dataId)}" typename="UNKNOW,DMB" isnullable="false" width="100%" height="{aboutheight}"/>
+									</mx:FormItem>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+									<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+										<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+										<mx:Label text="标识:" fontWeight="bold" height="{aboutheight}"/>
+									</mx:HBox>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+									<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+										<mx:TextInput id="CODEBS" enabled="{ASStringHelper.isNullOrEmpty(this.dataId)}" width="100%" height="{aboutheight}"/>
+									</mx:FormItem>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+									<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+										<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+										<mx:Label text="名称:" fontWeight="bold" height="{aboutheight}"/>
+									</mx:HBox>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">
+									<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+										<mx:TextInput id="CODENAME" width="100%" height="{aboutheight}"/>
+									</mx:FormItem>
+								</mx:GridItem>
+							</mx:GridRow>
+							<mx:GridRow width="100%" height="{aboutheight*3}">
+								<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+									<mx:Label text="备注:" height="{aboutheight}"/>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="90%" colSpan="5">
+									<mx:TextArea id="CODEMEMO" width="100%" height="100%"></mx:TextArea>
+								</mx:GridItem>
+							</mx:GridRow>
+						</mx:Grid>
+					</mx:VBox>
+				</mx:Panel>
+			</mx:Form>
+			<mx:VBox id="errormsgbox" width="100%" borderStyle="none" paddingTop="2" paddingBottom="2" verticalGap="2"></mx:VBox>
+		</mx:VBox>
+	</mx:VBox>
+</mx:TitleWindow>

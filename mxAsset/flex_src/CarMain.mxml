@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>     
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:ns1="*" initialize="initPage()"  updateComplete="afterInitPage()" 
+		   width="100%" height="100%" paddingTop="5" paddingLeft="5" paddingBottom="5" paddingRight="5" 
+		   fontSize="12" backgroundColor="white">
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.google.code.flexiframe.IFrame;
+			
+			import flex.pojos.UserSessionVo;
+			
+			import mx.containers.VBox;
+			import mx.controls.Tree;
+			import mx.core.FlexGlobals;
+			import mx.core.INavigatorContent;
+			
+			//访问路径
+			private var projectUrl:String;
+			//用户对象
+			private var userVo:UserSessionVo = null;;
+			//菜单数据
+			private var carTreeData:XML=null;
+			
+			//初始化页面
+			public function initPage():void{
+				this.userVo=FlexGlobals.topLevelApplication.userVo;
+				this.projectUrl = FlexGlobals.topLevelApplication.url;
+				this.projectUrl = projectUrl.substr(0,projectUrl.indexOf("mxAsset"));
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{				
+				this.carTreeData=this.carTreeXmlList
+				this.carTree.dataProvider=carTreeData;
+				this.carTree.callLater(expandTree);
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				this.carManagerStack.removeAllChildren();
+				carTreeSelectClick();
+			}
+			
+			//展开树节点
+			protected function expandTree():void{
+				this.carTree.expandChildrenOf(this.carTreeData,true);
+				this.carTree.selectedIndex=0;
+				var selectItem:XML=this.carTree.selectedItem as XML;
+				var selectChildList:XMLList=selectItem.children();
+				if(selectChildList==null){
+					return;
+				}
+				var tempItem:XML=selectChildList[0];
+				this.carTree.selectedItem=tempItem;
+			}
+			
+			//点击树节点事件
+			public function carTreeSelectClick():void{
+				if(!directoryTreeIsSelectItem()){
+					return;
+				}
+				var selectItem:XML=this.carTree.selectedItem as XML;
+				if(selectItem==null){
+					return;
+				}
+				//如果点击父节点，返回
+				if(selectItem.hasComplexContent()){
+					return;
+				}
+				var tempContent:INavigatorContent=getModelBySelect(selectItem);
+				if(tempContent==null){
+					return;
+				}
+				this.carManagerStack.selectedChild=tempContent;
+			}
+			
+			//判断树节点是否选择项
+			public function directoryTreeIsSelectItem():Boolean{
+				var treeSelectedIndex:int=this.carTree.selectedIndex;
+				if(treeSelectedIndex!=-1){
+					return true;
+				}else{
+					return false;
+				}
+			}
+			
+			//根据选中得到对象
+			public function getModelBySelect(selectItem:XML):INavigatorContent{
+				if(selectItem==null){
+					return null;
+				}
+				var strpageurl:String=selectItem.@pageUrl;
+				if(ASStringHelper.isNullOrEmpty(strpageurl)){
+					return null;
+				}
+				this.carManagerStack.removeAllChildren();
+				var strUserName:String=this.userVo.mc;
+				var pagewidth:Number=this.carManagerStack.width;
+				var pageheight:Number=this.carManagerStack.height;
+				var sourceUrl:String=this.projectUrl+strpageurl;
+				sourceUrl+="name="+strUserName;
+				sourceUrl+="&wid="+pagewidth;
+				sourceUrl+="&hei="+pageheight;
+				
+				var tempModule:IFrame=new IFrame();
+				tempModule.percentWidth=100;
+				tempModule.percentHeight=100;
+				tempModule.source=sourceUrl;
+				this.carManagerStack.addChild(tempModule);
+				return tempModule;
+			}
+		]]>
+	</mx:Script>
+	<mx:XML id="carTreeXmlList">
+		<root id="root" label="车辆管理">
+			<node id="clxx" label="车辆信息">
+				<node id="clzt" label="车辆状态" pageUrl="sjhq/CLGL/car/carStatus.jsp?"/>
+				<node id="clcx" label="车辆查询" pageUrl="sjhq/CLGL/car/carList.jsp?"/>
+				<node id="fycx" label="费用查询" pageUrl="sjhq/FKGL/CostManagement/costList.jsp?"/>
+				<node id="njcx" label="年检查询" pageUrl="sjhq/FKGL/AnnualInspection/annualInspectionList.jsp?"/>
+				<node id="bxcx" label="保险查询" pageUrl="sjhq/FKGL/Insurance/insuranceList.jsp?"/>
+				<node id="sgcx" label="事故查询" pageUrl="sjhq/FKGL/Rules/rulesList.jsp?"/>
+				<node id="wxcx" label="维修查询" pageUrl="sjhq/FKGL/Maintain/maintainList.jsp?"/>
+			</node>
+			<node id="sqgl" label="申请管理">
+				<node id="ycsq" label="用车申请" pageUrl="sjhq/CLGL/applyCar/applyCarList.jsp?"/>
+				<node id="ycsh" label="用车审核" pageUrl="sjhq/CLGL/applyCar/auditApply.jsp?"/>
+			</node>
+			<node id="jcdj" label="进出登记">
+				<node id="ccdj" label="出车登记" pageUrl="sjhq/CLGL/recordCar/recordOut.jsp?"/>
+				<node id="hcdj" label="回车登记" pageUrl="sjhq/CLGL/recordCar/recordBack.jsp?"/>
+				<node id="jlcx" label="记录查询" pageUrl="sjhq/CLGL/recordCar/recordCarList.jsp?"/>
+			</node>
+		</root>
+	</mx:XML >
+	<mx:HDividedBox width="100%" height="100%" borderStyle="none" horizontalAlign="center" horizontalGap="5" verticalAlign="middle" verticalGap="0">
+		<mx:VBox width="150" height="100%" verticalGap="2" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" verticalAlign="middle" fontSize="12"  horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:HBox width="100%" height="20" horizontalAlign="left" backgroundColor="#99CCFF" borderStyle="none" horizontalGap="0" verticalAlign="middle">
+				<mx:Label text="车辆管理" textIndent="5" textAlign="left" fontWeight="bold" fontSize="13"/>
+			</mx:HBox>
+			<mx:Tree id="carTree" click="carTreeSelectClick()" borderStyle="none" dragEnabled="false" width="100%" height="100%" 
+					 labelField="@label" showRoot="false"/>
+		</mx:VBox>
+		<mx:ViewStack id="carManagerStack" width="100%" height="100%" creationPolicy="all">
+		</mx:ViewStack>
+	</mx:HDividedBox>
+</mx:Module> 

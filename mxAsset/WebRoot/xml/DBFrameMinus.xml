@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<FirstMenu label="资产清单" icon="asset.jpg">
+	<SecondMenu label="计算机终端" icon="file.jpg">
+		<ThirdMenu name="pcj" label="PC机" icon="pcj.jpg" app="flex.pojos.ComputerVo" table="Asset_Computer">
+			<attribute name="sbxlh" column="设备序列号" type="text"/>
+			<attribute name="czxtbb" column="操作系统版本" type="text"/>
+			<attribute name="gzrq" column="购置日期" type="date"/>
+			<attribute name="synx" column="使用年限" type="number"/>
+			<attribute name="gzje" column="购置金额" type="number"/>
+			<attribute name="bxq" column="保修期" type="date"/>
+			<attribute name="zt" column="使用状态" type="text"/>
+			<attribute name="smzqzt" column="生命周期状态" type="text"/>
+			<attribute name="wl" column="网络" type="text"/>
+			<attribute name="yu" column="域" type="text"/>
+			<attribute name="xxly" column="信息来源" type="text"/>
+			<attribute name="qysj" column="起用时间" type="date"/>
+			<attribute name="zyyt" column="主要用途" type="text"/>
+			<attribute name="jbpz" column="主要配置" type="text"/>
+			
+		</ThirdMenu>
+		<ThirdMenu name="bjb" label="笔记本" icon="bjb.jpg" app="flex.pojos.ComputerVo" table="Asset_Computer">
+			<attribute name="sbxlh" column="设备序列号" type="text"/>
+			<attribute name="czxtbb" column="操作系统版本" type="text"/>
+			<attribute name="gzrq" column="购置日期" type="date"/>
+			<attribute name="synx" column="使用年限" type="number"/>
+			<attribute name="gzje" column="购置金额" type="number"/>
+			<attribute name="bxq" column="保修期" type="date"/>
+			<attribute name="zt" column="使用状态" type="text"/>
+			<attribute name="smzqzt" column="生命周期状态" type="text"/>
+			<attribute name="wl" column="网络" type="text"/>
+			<attribute name="yu" column="域" type="text"/>
+			<attribute name="xxly" column="信息来源" type="text"/>
+			<attribute name="qysj" column="起用时间" type="text"/>
+			<attribute name="zyyt" column="主要用途" type="text"/>
+			<attribute name="jbpz" column="主要配置" type="text"/>
+		</ThirdMenu>
+		</SecondMenu>
+		<SecondMenu label="外设设备" icon="file.jpg">
+		<ThirdMenu name="dyj" label="打印机" icon="dyj.jpg" app="asset_Wssb.AssetWssbVo" table="Asset_Wssb" >
+			<attribute name="sbxlh" column="设备序列号" type="text"/>
+			<attribute name="gzrq" column="购置日期" type="date"/>
+			<attribute name="synx" column="使用年限" type="number"/>
+			<attribute name="gzje" column="购置金额" type="number"/>
+			<attribute name="bxrq" column="保修日期" type="date"/>
+			<attribute name="zt" column="使用状态" type="text"/>
+			<attribute name="smzqzt" column="生命周期状态" type="text"/>
+			<attribute name="sydd" column="使用地点" type="text"/>
+			<attribute name="wl" column="网络" type="text"/>
+			<attribute name="yu" column="域" type="text"/>
+			<attribute name="zyyt" column="主要用途" type="text"/>
+			<attribute name="xxly" column="信息来源" type="text"/>
+			<attribute name="qysj" column="启用时间" type="text"/>
+		</ThirdMenu>
+		<ThirdMenu name="smy" label="扫描仪" icon="smy.jpg" app="asset_Wssb.AssetWssbVo" table="Asset_Wssb">
+			<attribute name="gzrq" column="购置日期" type="date"/>
+			<attribute name="synx" column="使用年限" type="number"/>
+			<attribute name="gzje" column="购置金额" type="number"/>
+			<attribute name="bxrq" column="保修日期" type="date"/>
+			<attribute name="zt" column="使用状态" type="text"/>
+			<attribute name="smzqzt" column="生命周期状态" type="text"/>
+			<attribute name="sydd" column="使用地点" type="text"/>
+			<attribute name="wl" column="网络" type="text"/>
+			<attribute name="yu" column="域" type="text"/>
+			<attribute name="zyyt" column="主要用途" type="text"/>
+			<attribute name="xxly" column="信息来源" type="text"/>
+			<attribute name="qysj" column="启用时间" type="date"/>
+		</ThirdMenu>
+		<ThirdMenu name="czj" label="传真机" icon="czj.jpg" app="asset_Wssb.AssetWssbVo" table="Asset_Wssb">
+			<attribute name="sbxlh" column="设备序列号" type="text"/>
+			<attribute name="gzrq" column="购置日期" type="date"/>
+			<attribute name="synx" column="使用年限" type="text"/>
+			<attribute name="gzje" column="购置金额" type="text"/>
+			<attribute name="bxrq" column="保修日期" type="date"/>
+			<attribute name="zt" column="使用状态" type="text"/>
+			<attribute name="smzqzt" column="生命周期状态" type="text"/>
+			<attribute name="bm" column="使用部门" type="text"/>
+			<attribute name="wl" column="网络" type="text"/>
+			<attribute name="yu" column="域" type="text"/>
+			<attribute name="zyyt" column="主要用途" type="text"/>
+			<attribute name="xxly" column="信息来源" type="text"/>
+			<attribute name="qysj" column="启用时间" type="text"/>
+		</ThirdMenu>
+	</SecondMenu>
+	<SecondMenu label="移动存储介质" icon="file.jpg">
+		<ThirdMenu name="jz" label="U盘" icon="pcjpj.jpg" app="asset_Jz.JzVo" table="Asset_Jz">
+			<attribute name="qysj" column="启用时间" type="text"/>
+			<attribute name="lxdh" column="联系电话" type="text"/>
+			<attribute name="smzqzt" column="生命周期状态" type="text"/>
+		</ThirdMenu>
+		<ThirdMenu name="jz" label="移动硬盘" icon="pcjpj.jpg" app="asset_Jz.JzVo" table="Asset_Jz">
+			<attribute name="qysj" column="启用时间" type="text"/>
+			<attribute name="lxdh" column="联系电话" type="text"/>
+			<attribute name="smzqzt" column="生命周期状态" type="text"/>
+		</ThirdMenu>
+	</SecondMenu>
+	<SecondMenu label="主机" icon="file.jpg">
+		<ThirdMenu name="zj" label="主机" icon="zj.jpg" app="flex.pojos.ServerVo" table="Asset_Server">
+			<attribute name="gzrq" column="购置日期" type="date"/>
+			<attribute name="synx" column="使用年限" type="text"/>
+			<attribute name="gzje" column="购置金额" type="text"/>
+			<attribute name="bxq" column="保修期" type="text"/>
+			<attribute name="smzqzt" column="生命周期状态" type="text"/>
+			<attribute name="lsdh" column="联系电话" type="text"/>
+			<attribute name="ip" column="ip" type="text"/>
+			<attribute name="wl" column="网络" type="text"/>
+			<attribute name="yu" column="域" type="text"/>
+			<attribute name="xxly" column="信息来源" type="text"/>
+			<attribute name="qysj" column="起用日期" type="text"/>
+			<attribute name="bz" column="备注" type="text"/>
+		</ThirdMenu>
+	</SecondMenu>
+	<SecondMenu label="存储设备" icon="file.jpg">
+		<ThirdMenu name="ccsb" label="存储设备" icon="ccsb.jpg"
+			app="flex.pojos.StorageVo" table="Asset_Storage">
+			<attribute name="gzrq" column="购置日期" type="date" />
+			<attribute name="synx" column="使用年限" type="text" />
+			<attribute name="gzje" column="购置金额" type="text" />
+			<attribute name="bxq" column="保修期" type="text" />
+			<attribute name="qysj" column="启用日期" type="text" />
+		</ThirdMenu>
+	</SecondMenu>
+	<SecondMenu label="网络设备" icon="file.jpg">
+		<ThirdMenu name="wlsb" label="网络设备" icon="wlsb.jpg"
+			app="flex.pojos.NetVo" table="Asset_Net">
+			<attribute name="gzrq" column="购置日期" type="date" />
+			<attribute name="synx" column="使用年限" type="text" />
+			<attribute name="gzje" column="购置金额" type="text" />
+			<attribute name="bxq" column="保修期" type="text" />
+			<attribute name="qysj" column="启用日期" type="text" />
+		</ThirdMenu>
+	</SecondMenu>
+	<SecondMenu label="动力设备" icon="file.jpg">
+		<ThirdMenu name="dlsb" label="动力设备" icon="dlsb.jpg"
+			app="flex.pojos.UpsVo" table="Asset_Ups">
+			<attribute name="gzrq" column="购置日期" type="date" />
+			<attribute name="synx" column="使用年限" type="text" />
+			<attribute name="gzje" column="购置金额" type="text" />
+			<attribute name="bxq" column="保修期" type="text" />
+			<attribute name="qysj" column="启用日期" type="text" />
+		</ThirdMenu>
+	</SecondMenu>
+	<SecondMenu label="机房建设" icon="file.jpg">
+		<ThirdMenu name="jfjs" label="机房建设" icon="jfjs.jpg"
+			app="asset_Module.AssetModuleVo" table="Asset_Module">
+			<attribute name="gzrq" column="购置日期" type="text" />
+			<attribute name="gzje" column="购置金额" type="number" />
+			<attribute name="synx" column="使用年限" type="number" />
+			<attribute name="qysj" column="启用时间" type="text" />
+		</ThirdMenu>
+	</SecondMenu>
+	<SecondMenu label="综合布线" icon="file.jpg">
+		<ThirdMenu name="zhbx" label="综合布线" icon="zhbx.jpg"
+			app="asset_Cable.AssetCableVo" table="Asset_Cable">
+			<attribute name="gzje" column="购置金额" type="number" />
+			<attribute name="qysj" column="启用时间" type="text" />
+		</ThirdMenu>
+	</SecondMenu>
+	<SecondMenu label="视频会议" icon="file.jpg">
+		<ThirdMenu name="sphy" label="视频会议" icon="sphy.jpg"
+			app="asset_Video.AssetVideoVo" table="Asset_Video">
+			<attribute name="qysj" column="启用时间" type="text" />
+			<attribute name="gzrq" column="购置日期" type="text" />
+			<attribute name="synx" column="使用年限" type="number" />
+			<attribute name="gzje" column="购置金额" type="number" />
+			<attribute name="bxrq" column="保修日期" type="text" />
+			<attribute name="sbcs" column="设备参数" type="text" />
+			<attribute name="xxly" column="信息来源" type="text" />
+		</ThirdMenu>
+	</SecondMenu>
+</FirstMenu>

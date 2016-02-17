@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="888" height="40">
+	<mx:Script>
+		<![CDATA[
+			import asset_ups.UpsList;
+			import mx.controls.Alert;
+			import mx.collections.ArrayCollection;
+			import mx.rpc.remoting.mxml.RemoteObject;
+			import mx.controls.DataGrid;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import flex.pojos.UpsVo;
+			
+			[Bindable] private var currentPage:int = 1;
+			[Bindable] private var totalPage:int = 1;
+			[Bindable] private var totalCount:int = 0;
+			[Bindable] private var pageSize:int = 15;
+			[Bindable] private var arrColl:ArrayCollection;
+			[Bindable] public   var checkBoxVisible:Boolean=true;
+			private var dg:DataGrid;
+			private var obj:Object;
+			private var condition:String;
+			
+			public function init():void{
+				pageNu.value=15;
+			}
+						
+			public function initDividePage(dataGrid:DataGrid,object:Object,con:String=""):void {
+				
+				condition = con;
+				dg = dataGrid;
+				
+				if(object=="UpsVo"){
+					object = new UpsVo();
+					 condition =" zclx='UPS' or zclx='发动机'";
+				}
+				    
+				if(object=="AssetModuleVo")
+				{
+					object = new UpsVo();
+					condition = " zclx='地板' or zclx='精密空调' or zclx='门禁' or zclx='消防' or zclx='监控' or zclx='防静电地板' or zclx='机架'";
+				}
+					obj = object;
+				
+				queryService.getCountByObject(obj,condition);
+				queryService.addEventListener(ResultEvent.RESULT, resultSuccess);
+				queryService.addEventListener(FaultEvent.FAULT, backFault);
+			}
+			
+			private function resultSuccess(evt:ResultEvent):void {
+				if(pageNu.value ==0)
+					pageNu.value=15;
+				totalCount = evt.result as Number;
+				pageSize = Number(pageNu.value);
+				judgePage();
+				queryService.removeEventListener(ResultEvent.RESULT,resultSuccess);
+				queryService.removeEventListener(FaultEvent.FAULT,backFault);
+				listService.getObjectList(obj,pageSize,currentPage,condition);
+				listService.addEventListener(ResultEvent.RESULT,backSuccess);
+				listService.addEventListener(FaultEvent.FAULT,backFault);
+			}
+			
+			private function backSuccess(event:ResultEvent):void {
+				arrColl = event.result as ArrayCollection;
+				dg.dataProvider = arrColl;
+				dg.rowCount = arrColl.length;
+				listService.removeEventListener(ResultEvent.RESULT,backSuccess);
+				listService.removeEventListener(FaultEvent.FAULT,backFault);
+			}
+			
+			private function backFault(evt:FaultEvent):void {
+				Alert.show("In DividedPage Error!");
+			}
+			
+			private function judge(i:int):Boolean {
+				if(i<=totalPage && i>=1) {
+					currentPage = i;
+				} else {
+					mx.controls.Alert.show("页码超出范围！");
+					currentPage = totalPage;
+					return false;
+				}
+				return true;
+			}
+			
+			private function judgePage():void {
+				if(totalCount < pageSize || totalCount ==0) {
+					totalPage = 1;
+				} else if(totalCount%pageSize) {
+					totalPage = totalCount/pageSize + 1;
+				} else {
+					totalPage = totalCount/pageSize;
+				}
+				if(currentPage>totalPage) {
+					currentPage = totalPage;
+				} 
+					
+			}
+			private function submitQuery(ps:int, cp:int):void {
+				pageSize = ps;
+				currentPage = cp;
+				qx.selected=false;
+				fx.selected=false;
+				queryService.addEventListener(FaultEvent.FAULT,backFault);
+				queryService.addEventListener(ResultEvent.RESULT,submitBack);
+				queryService.getObjectList(obj,pageSize,currentPage,condition);
+			}
+			
+			private function submitBack(event:ResultEvent):void {
+				queryService.removeEventListener(FaultEvent.FAULT,backFault);
+				queryService.removeEventListener(ResultEvent.RESULT,submitBack);
+				arrColl = event.result as ArrayCollection;
+				dg.rowCount = arrColl.length;
+				dg.dataProvider = arrColl;
+				
+			}
+			
+			private function opAll(evt:Event):void {
+			var v:String=evt.currentTarget.label;
+			
+		   if(dg!=null)
+		   {
+			if(v=="全选") {
+				fx.selected=false;
+				for(var i:int = 0; i < dg.dataProvider.length; i++) {
+					dg.dataProvider.getItemAt(i).selected = qx.selected;
+				}
+			}else {
+				for(var j:int = 0; j < dg.dataProvider.length; j++) {
+					dg.dataProvider.getItemAt(j).selected = !dg.dataProvider.getItemAt(j).selected;
+				}
+				qx.selected=false;
+			}
+		   }
+          }
+          
+          private function initShow(ps:int, cp:int):void{
+          	
+          	this.submitQuery(ps,cp);
+          } 
+			
+			
+		]]>
+	</mx:Script>
+	<mx:RemoteObject id="queryService" destination="QueryService" endpoint="/mxAsset/messagebroker/amf"/>
+	<mx:RemoteObject id="listService" destination="QueryService" endpoint="/mxAsset/messagebroker/amf"/>
+	<mx:CheckBox label="全选" id="qx" click="opAll(event)" visible="{checkBoxVisible}"  x="10" y="8"/>
+	<mx:CheckBox label="反选" id="fx" click="opAll(event)" visible="{checkBoxVisible}"  x="63" y="8"/>
+	<mx:Label x="136" y="12" text="第{currentPage}页/共{totalPage}页 共{totalCount}条记录      每页显示记录 " width="300"/>
+	<!--<mx:ComboBox id="comboValue" x="267" y="8" width="64" labelField="label" change="pageSize=Number(comboValue.selectedLabel);judgePage();submitQuery(pageSize,currentPage);">
+		<mx:dataProvider>
+			<mx:ArrayCollection>
+				<mx:Object label="15"></mx:Object>
+				<mx:Object label="20"></mx:Object>
+				<mx:Object label="30"></mx:Object>
+				<mx:Object label="40"></mx:Object>
+			</mx:ArrayCollection>
+		</mx:dataProvider>
+	</mx:ComboBox>
+	!-->
+	
+	<!--Number(pageNu.value);judgePage()-->
+	
+	<mx:NumericStepper id="pageNu" x="408" y="8" minimum="15" maximum="{totalCount=0?15:totalCount}" change="pageSize=Number(pageNu.value);judgePage();submitQuery(pageSize,currentPage);"/>
+	
+	<mx:LinkButton x="473" y="8" label="首页" enabled="{currentPage!=1?true:false}" icon="@Embed(source='../images/pg_home1.gif')" width="69" click="submitQuery(pageSize,1);"/>
+	<mx:LinkButton x="537" y="8" label="上一页" enabled="{currentPage!=1?true:false}" icon="@Embed(source='../images/pg_prev1.gif')" width="71" click="currentPage-=1;submitQuery(pageSize,currentPage);"/>
+	<mx:LinkButton x="604" y="8" label="下一页" enabled="{totalPage>=(currentPage+1)?true:false}" icon="@Embed(source='../images/pg_next1.gif')" width="80" click="currentPage+=1;submitQuery(pageSize,currentPage);"/>
+	<mx:LinkButton x="677" y="8" label="尾页" enabled="{currentPage==totalPage?false:true}" icon="@Embed(source='../images/pg_end1.gif')" width="62" click="submitQuery(pageSize,totalPage);"/>
+	<mx:NumericStepper id="pageNum" x="736" y="8" minimum="1" maximum="{totalPage}" value="{currentPage}" change="if(judge(pageNum.value)) submitQuery(pageSize,currentPage);"/>
+	<mx:Button x="813" y="8" label="跳转" width="57" click="submitQuery(pageSize,currentPage)"/>
+	
+</mx:Canvas>
+

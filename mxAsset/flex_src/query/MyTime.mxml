@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="260" height="23">
+<mx:Script>
+	<![CDATA[
+		[Bindable] public var startTime:String="";
+		[Bindable] public var endTime:String="";
+	]]>
+</mx:Script>
+	<mx:Text text="从"/>
+	<mx:TextInput width="100" id="S" change="startTime=S.text"/>
+	<mx:Text text="到"/>
+	<mx:TextInput width="100" id="E" change="endTime=E.text"/>
+	
+</mx:HBox>

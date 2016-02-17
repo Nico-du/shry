@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+		 cornerRadius="2" horizontalScrollPolicy="off" verticalScrollPolicy="off" borderStyle="solid" borderColor="#99CCFF" borderThickness="1"
+		 horizontalAlign="center" verticalAlign="bottom" initialize="vbox1_mouseOutHandler()"
+		 mouseOver="vbox1_mouseOverHandler()" mouseOut="vbox1_mouseOutHandler()" >
+<mx:Script>
+	<![CDATA[
+		[Bindable] public var imgname:String;
+		[Bindable] public var txt:String;
+		[Bindable] public var isbuttonMode:Boolean = true;
+		
+		
+
+		protected function vbox1_mouseOverHandler():void
+		{
+			if(isbuttonMode){
+				Mouse.cursor = MouseCursor.BUTTON;
+			}
+			this.setStyle("borderThickness","3");
+			this.setStyle("borderColor","#6699CC");
+		}
+
+		protected function vbox1_mouseOutHandler():void
+		{
+			if(isbuttonMode){
+				Mouse.cursor = MouseCursor.AUTO;
+			}
+			this.setStyle("borderThickness","1");
+			this.setStyle("borderColor","#99CCFF");
+		}
+
+	]]>
+</mx:Script>
+	<mx:Image id="imgCom"  source="images/{imgname}"/>
+	<mx:Text  id="txtCom"  text="{txt}" fontWeight="bold" textAlign="center" fontSize="15"/>
+</mx:VBox>

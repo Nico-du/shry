@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<paremt name="supplierName" column="供应商名称"></paremt>
+	<paremt name="legalName" column="法人姓名"></paremt>
+	<paremt name="legalPhone" column="法人联系电话"></paremt>
+	<paremt name="linkmanName" column="联系人姓名"></paremt>
+	<paremt name="linkmanPhone" column="联系人电话"></paremt>
+	<paremt name="supplierAddress" column="供应商地址"></paremt>
+	<paremt name="supplierComment" column="供应商备注"></paremt>
+</root>
+<!-- private String supplierName; -->
+<!-- 	private String legalName; -->
+<!-- 	private String legalPhone; -->
+<!-- 	private String linkmanName; -->
+<!-- 	private String linkmanPhone; -->
+<!-- 	private String supplierAddress; -->
+<!-- 	private String supplierComment; -->
+<!-- 供应商表 -->
+<!-- 供应商名称 -->
+<!-- 法人姓名 -->
+<!-- 法人联系电话 -->
+<!-- 联系人姓名 -->
+<!-- 联系人电话 -->
+<!-- 供应商地址 -->
+<!-- 供应商备注 -->

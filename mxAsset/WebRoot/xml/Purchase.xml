@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt  name="pback" column="文物陈列品名称" />
+<paremt  name="pdate" column="采购时间" />
+<paremt  name="pname" column="采购人" />
+<paremt  name="price" column="价格" />
+
+
+</root>

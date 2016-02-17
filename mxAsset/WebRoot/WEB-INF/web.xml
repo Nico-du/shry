@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>mxAsset</display-name>
+		<!-- 
+	<filter>
+		<filter-name>struts2</filter-name>
+		<filter-class>org.apache.struts2.dispatcher.FilterDispatcher</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>struts2</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	
+	<listener>
+		<listener-class>
+			org.springframework.web.context.request.RequestContextListener
+		</listener-class>
+	</listener>
+	 -->
+	 <!-- solve hibernate no session exception , OpenSessionInViewFilter-->
+	 <filter>
+		<filter-name>hibernateFilter</filter-name>
+		<filter-class>net.chinanets.spring.MyOpenSessionFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>hibernateFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath*:appconfig.xml</param-value>
+	</context-param>
+
+	 <context-param>
+		<param-name>flex.class.path</param-name>
+		<param-value>/WEB-INF/flex/hotfixes,/WEB-INF/flex/jars</param-value>
+	</context-param>
+
+	<!-- Http Flex Session attribute and binding listener support -->
+	<listener>
+		<listener-class>flex.messaging.HttpFlexSession</listener-class>
+	</listener>
+
+
+
+<servlet>
+		<servlet-name>CreateBarCode</servlet-name>
+		<servlet-class>barcode.BarCodeServlet</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>CreateBarCode</servlet-name>
+		<url-pattern>/CreateBarCode</url-pattern>
+	</servlet-mapping>
+
+	<!-- MessageBroker Servlet -->
+	<servlet>
+		<servlet-name>MessageBrokerServlet</servlet-name>
+		<servlet-class>flex.messaging.MessageBrokerServlet</servlet-class>
+		<init-param>
+			<param-name>services.configuration.file</param-name>
+			<param-value>/WEB-INF/flex/services-config.xml</param-value>
+		</init-param>
+		<init-param>
+			<param-name>flex.write.path</param-name>
+			<param-value>/WEB-INF/flex</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+  <servlet>
+    <servlet-name>UploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.UploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>UploadBHFile</servlet-name>
+    <servlet-class>net.chinanets.servlet.UploadBHFile</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>JzExcelUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.JzExcelUploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>FsmJzPcUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.FsmJzPcUploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>CmputPcUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.CmputPcUploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>CmputPc2UploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.CmputPc2UploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>SmJzPcUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.SmJzPcUploadServlet</servlet-class>
+  </servlet>
+<servlet>
+    <servlet-name>ExportServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.ExportToExcel</servlet-class>
+  </servlet>
+
+  <servlet>
+
+    <servlet-name>ServerUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.ServerUploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+
+    <servlet-name>JzHjbServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.JzHjbServlet</servlet-class>
+  </servlet>
+
+
+
+
+
+  <servlet>
+    <servlet-name>OutComputerBookServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.OutComputerBookServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>OutComputerInfoBookServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.OutComputerInfoBookServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>StorageUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.StorageUploadServlet</servlet-class>
+  </servlet>  <servlet>
+    <servlet-name>NetUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.NetUploadServlet</servlet-class>
+  </servlet>
+ <servlet>
+    <servlet-name>UploadGzje</servlet-name>
+    <servlet-class>net.chinanets.servlet.UploadGzje</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>HeTongServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.HeTongServlet</servlet-class>
+  </servlet>
+   <servlet>
+    <servlet-name>WssbUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.WssbUploadServlet</servlet-class>
+  </servlet>
+
+
+  <servlet>
+    <servlet-name>UpsUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.UpsUploadServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+
+    <servlet-name>DeployWorkFlowServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.DeployWorkFlowServlet</servlet-class>
+  </servlet>
+  <servlet>
+
+    <servlet-name>WorkFlowServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.WorkFlowServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>VideoUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.VideoUploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WssbPcUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.WssbPcUploadServlet</servlet-class>
+  </servlet>
+
+<servlet>
+    <servlet-name>OutToExcel</servlet-name>
+    <servlet-class>net.chinanets.servlet.OutToExcel</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>KmzcUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.KmzcUploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>KmxxzcUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.KmxxzcUploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>ZcglUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.ZcglUploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>ZcglToExcel</servlet-name>
+    <servlet-class>net.chinanets.servlet.ZcglToExcel</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>SkglToExcel</servlet-name>
+    <servlet-class>net.chinanets.servlet.SkglToExcel</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>KmxxzcToExcel</servlet-name>
+    <servlet-class>net.chinanets.servlet.KmxxzcToExcel</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>ClobServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.ClobServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>SwiftGanttServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.SwiftGanttServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>ImpDocumentServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.ImpDocumentServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>LoginServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.LoginServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>ZipServelt</servlet-name>
+    <servlet-class>net.chinanets.servlet.ZipServelt</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>FujianServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.FujianServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>BfwordServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.BfwordServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>BfdServelt</servlet-name>
+    <servlet-class>net.chinanets.servlet.BfdServelt</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WssbServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.WssbServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>ProcessImageServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.ProcessImageServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>StartSocketService</servlet-name>
+    <servlet-class>net.chinanets.servlet.StartSocketService</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>Upload</servlet-name>
+    <servlet-class>net.chinanets.servlet.Upload</servlet-class>
+  </servlet>
+   <servlet>
+    <servlet-name>UploadFile</servlet-name>
+    <servlet-class>net.chinanets.servlet.UploadFile</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>CodeServlet</servlet-name>
+    <servlet-class>barcode.CodeServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>getTxt</servlet-name>
+    <servlet-class>net.chinanets.servlet.getTxt</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>PlanServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.PlanServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>ExportToTxt</servlet-name>
+    <servlet-class>net.chinanets.servlet.ExportToTxt</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>downLoad</servlet-name>
+    <servlet-class>net.chinanets.servlet.downLoad</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>DaoRuServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.DaoRuServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>DaoChuServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.DaoChuServlet</servlet-class>
+  </servlet>
+
+
+ <servlet>
+    <servlet-name>ImgFileServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.UploadImgFileServlet</servlet-class>
+  </servlet>
+
+<servlet-mapping>
+		<servlet-name>ImgFileServlet</servlet-name>
+		<url-pattern>/servlet/UploadImgFileServlet</url-pattern>
+</servlet-mapping>
+	
+
+
+
+
+
+
+
+
+
+ <servlet-mapping>
+    <servlet-name>OutToExcel</servlet-name>
+    <url-pattern>/servlet/OutToExcel</url-pattern>
+  </servlet-mapping>
+
+
+
+
+	<servlet-mapping>
+		<servlet-name>MessageBrokerServlet</servlet-name>
+		<url-pattern>/messagebroker/*</url-pattern>
+	</servlet-mapping>
+	
+  <servlet-mapping>
+    <servlet-name>UploadFile</servlet-name>
+    <url-pattern>/servlet/UploadFile</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>UploadBHFile</servlet-name>
+    <url-pattern>/servlet/UploadBHFile</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>UploadServlet</servlet-name>
+    <url-pattern>/servlet/UploadServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>JzExcelUploadServlet</servlet-name>
+    <url-pattern>/servlet/JzExcelUploadServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>FsmJzPcUploadServlet</servlet-name>
+    <url-pattern>/servlet/FsmJzPcUploadServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>CmputPcUploadServlet</servlet-name>
+    <url-pattern>/servlet/CmputPcUploadServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>CmputPc2UploadServlet</servlet-name>
+    <url-pattern>/servlet/CmputPc2UploadServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SmJzPcUploadServlet</servlet-name>
+    <url-pattern>/servlet/SmJzPcUploadServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ExportServlet</servlet-name>
+    <url-pattern>/servlet/ExportServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ServerUploadServlet</servlet-name>
+    <url-pattern>/servlet/ServerUploadServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>JzHjbServlet</servlet-name>
+    <url-pattern>/servlet/JzHjbServlet</url-pattern>
+  </servlet-mapping>
+
+ 
+
+  <servlet-mapping>
+    <servlet-name>OutComputerBookServlet</servlet-name>
+    <url-pattern>/servlet/OutComputerBookServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>OutComputerInfoBookServlet</servlet-name>
+    <url-pattern>/servlet/OutComputerInfoBookServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>NetUploadServlet</servlet-name>
+    <url-pattern>/servlet/netUploadServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>UploadGzje</servlet-name>
+    <url-pattern>/servlet/UploadGzje</url-pattern>
+  </servlet-mapping>
+    <servlet-mapping>
+    <servlet-name>StorageUploadServlet</servlet-name>
+    <url-pattern>/servlet/storageUploadServlet</url-pattern>
+  </servlet-mapping>  
+
+  <servlet-mapping>
+    <servlet-name>HeTongServlet</servlet-name>
+    <url-pattern>/servlet/HeTongServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>WssbUploadServlet</servlet-name>
+    <url-pattern>/servlet/WssbUploadServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>UpsUploadServlet</servlet-name>
+    <url-pattern>/servlet/UpsUploadServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>DeployWorkFlowServlet</servlet-name>
+    <url-pattern>/servlet/DeployWorkFlowServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>WorkFlowServlet</servlet-name>
+    <url-pattern>/servlet/WorkFlowServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>VideoUploadServlet</servlet-name>
+    <url-pattern>/servlet/VideoUploadServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>WssbPcUploadServlet</servlet-name>
+    <url-pattern>/servlet/WssbPcUploadServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>KmzcUploadServlet</servlet-name>
+    <url-pattern>/servlet/KmzcUploadServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>KmxxzcUploadServlet</servlet-name>
+    <url-pattern>/servlet/KmxxzcUploadServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ZcglUploadServlet</servlet-name>
+    <url-pattern>/servlet/ZcglUploadServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ZcglToExcel</servlet-name>
+    <url-pattern>/servlet/ZcglToExcel</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>SkglToExcel</servlet-name>
+    <url-pattern>/servlet/SkglToExcel</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>KmxxzcToExcel</servlet-name>
+    <url-pattern>/servlet/KmxxzcToExcel</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ClobServlet</servlet-name>
+    <url-pattern>/servlet/ClobServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>SwiftGanttServlet</servlet-name>
+    <url-pattern>/servlet/SwiftGanttServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ImpDocumentServlet</servlet-name>
+    <url-pattern>/servlet/ImpDocumentServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  
+    <servlet-name>LoginServlet</servlet-name>
+    <url-pattern>/servlet/LoginServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ZipServelt</servlet-name>
+    <url-pattern>/servlet/ZipServelt</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>FujianServlet</servlet-name>
+    <url-pattern>/servlet/FujianServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>BfwordServlet</servlet-name>
+    <url-pattern>/servlet/BfwordServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>BfdServelt</servlet-name>
+    <url-pattern>/servlet/BfdServelt</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>WssbServlet</servlet-name>
+    <url-pattern>/servlet/WssbServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ProcessImageServlet</servlet-name>
+    <url-pattern>/servlet/ProcessImageServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>StartSocketService</servlet-name>
+    <url-pattern>/servlet/StartSocketService</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Upload</servlet-name>
+    <url-pattern>/servlet/Upload</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>CodeServlet</servlet-name>
+    <url-pattern>/barcode/CodeServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>getTxt</servlet-name>
+    <url-pattern>/servlet/getTxt</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>PlanServlet</servlet-name>
+    <url-pattern>/servlet/PlanServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ExportToTxt</servlet-name>
+    <url-pattern>/servlet/ExportToTxt</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>downLoad</servlet-name>
+    <url-pattern>/servlet/downLoad</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DaoRuServlet</servlet-name>
+    <url-pattern>/servlet/DaoRuServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DaoChuServlet</servlet-name>
+    <url-pattern>/servlet/DaoChuServlet</url-pattern>
+  </servlet-mapping>
+
+     <servlet> 
+<servlet-name>BarcodeServlet</servlet-name> 
+<servlet-class>org.krysalis.barcode4j.servlet.BarcodeServlet</servlet-class> 
+</servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>BfServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.BfServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>BfJkServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.BfJkServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>ExportAllExcel</servlet-name>
+    <servlet-class>net.chinanets.servlet.ExportAllExcel</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>ExpExcelTemplateServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.ExpExcelTemplateServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>ReoprtServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.ReportServlet</servlet-class>
+  </servlet>
+
+<servlet-mapping> 
+<servlet-name>BarcodeServlet</servlet-name> 
+<url-pattern>/barcode</url-pattern> 
+</servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>BfServlet</servlet-name>
+    <url-pattern>/servlet/BfServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>BfJkServlet</servlet-name>
+    <url-pattern>/servlet/BfJkServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ExportAllExcel</servlet-name>
+    <url-pattern>/servlet/ExportAllExcel</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ExpExcelTemplateServlet</servlet-name>
+    <url-pattern>/servlet/ExpExcelTemplateServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ReoprtServlet</servlet-name>
+    <url-pattern>/servlet/ReportServlet</url-pattern>
+  </servlet-mapping>
+
+
+     
+	<welcome-file-list>
+		<welcome-file>Login.html</welcome-file>
+	</welcome-file-list>
+</web-app>

@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" fontSize="12" xmlns:ns1="*" xmlns:ns2="asset.*" xmlns:ns3="query.*" xmlns:code="http://code.google.com/p/flexlib/" creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import mx.utils.StringUtil;
+			import flex.util.ExportExcel2;
+			import asset_Wssb.Wssb;
+			import asset_Wssb.AssetWssbVo;
+			import asset_Computer.Computer;
+			import asset_Computer.SelectColumn;
+		    import asset_Video.AssetVideoVo;
+    		import asset_Video.VideoM;
+    		import flex.pojos.NetVo;
+    		import asset_storage.NetDetail;
+    		import asset_storage.StorageDetail;
+    		import asset_server.DetailServer;
+    		
+			import com.asset.util.HanZi2PinYin;
+			import mx.utils.ObjectUtil;
+   
+    		import asset_Jz.JzDetail;
+    		import asset_Computer.Computer;
+			import mx.containers.TitleWindow;
+			import mx.events.ListEvent;
+			import flex.pojos.NetVo;
+			import flex.pojos.ServerVo;
+			import flex.pojos.StorageVo;
+			import asset_Module.AssetModuleVo;
+			import flex.pojos.UpsVo;
+			import asset_Cable.AssetCableVo;
+			import asset_Video.AssetVideoVo;
+			import flex.pojos.StorageVo;
+			import flex.pojos.ServerVo;
+			import mx.events.CollectionEvent;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import asset_Jz.JzVo;
+			import flash.sampler.NewObjectSample;
+			import mx.events.IndexChangedEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.controls.Tree;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.Alert;
+			import mx.rpc.remoting.RemoteObject;
+			import mx.collections.ArrayCollection;
+			import flex.pojos.ComputerVo;
+			import mx.managers.PopUpManager;
+			private var che:DataGridColumn;
+			private var type:String;	
+			[Bindable]private var deptTitle:String;
+			public var deptName:String = "";
+			private var paramType:String = "";
+			private var itemType:String = "";
+		    private var astTitle:String="";
+			[Bindable]private var titleName:String;		
+			private var productFac:ClassFactory;
+			 import mx.events.DataGridEvent;
+	      private var columnName:String="";
+			private function init():void{
+				if(deptName!="" && deptName!=null){
+					deptTitle=deptName;
+				}else
+					deptTitle="保护技术部";
+				type='pcj';titleName='PC机';
+				page.initDividePage(typeDG,new ComputerVo());
+			}				
+			/**  
+	* 点击dataGrid列头上的排序按钮  
+	*/  
+	public function dataGridSort(evt:DataGridEvent):void {   
+	    //1 得到要排序的列   
+	    var column:DataGridColumn = DataGridColumn(evt.currentTarget.columns[evt.columnIndex]);   
+	    //2 得到列名   
+	     columnName=column.dataField;   
+	    //3 重写此列的排序函数   
+	    btnQuery();
+//	    column.sortCompareFunction=function(obj1:Object,obj2:Object):int{   
+//	        return srotsyr(obj1,obj2);   
+//	    };   
+	}  
+			private function btnQuery():void {
+				var con:String = new String();
+				var cons:Array = new Array();
+				sbbh.text.toString() == "" ? "":cons.push(sbbh.id.toString()+" like "+"'%"+sbbh.text.toString()+"%'");
+				if(cons.length>=1) {
+					con+=cons.pop() as String;
+					for(var i:int=0;i<cons.length;i++) {
+						con+=" and "+cons.pop() as String;
+					}
+				}
+				if(columnName!="")
+					con+=" nlssort("+columnName+",'NLS_SORT=SCHINESE_PINYIN_M')";
+				switch(type){
+					case "pcj" : var pcj:ComputerVo=new ComputerVo();pcj.typeID=361;page.initDividePage(typeDG,pcj,con); break;
+					case "bjb" : var bjb:ComputerVo=new ComputerVo();bjb.typeID=362;page.initDividePage(typeDG,bjb,con); break;
+					case "jz" : page.initDividePage(typeDG,new JzVo(),con); break;
+					case "dyj" : var print:AssetWssbVo=new AssetWssbVo();print.assetTypeID=364;page.initDividePage(typeDG,print,con);break;
+					case "czj" : var fax:AssetWssbVo=new AssetWssbVo();fax.assetTypeID=366;page.initDividePage(typeDG,fax,con);break;
+					case "smy":var scan:AssetWssbVo=new AssetWssbVo();scan.assetTypeID=365; page.initDividePage(typeDG,scan,con);break;
+					case "zj": page.initDividePage(typeDG,new ServerVo(),con);break;
+					case "ccsb": page.initDividePage(typeDG,new StorageVo(),con);break;
+					case "wlsb": page.initDividePage(typeDG,new NetVo(),con);break;
+					case "dlsb": page.initDividePage(typeDG,new UpsVo(),con);break;
+					case "jfjs": Alert.show("设备编号不能作为机房建设查询条件！");break;
+					case "zhbx": Alert.show("设备编号不能作为综合布线查询条件！");break;
+					case "sphy": page.initDividePage(typeDG,new AssetVideoVo(),con);break;
+				}
+			}
+			
+			private function getDeptEmp():void {
+				deptService.addEventListener(ResultEvent.RESULT,getDeptEmpBack);
+				deptService.addEventListener(FaultEvent.FAULT,deptBackFault);
+				deptService.getBmjg(deptName);
+			}
+			
+			private function getDeptEmpBack(event:ResultEvent):void {
+				deptService.removeEventListener(FaultEvent.FAULT,deptBackFault);
+				deptService.removeEventListener(ResultEvent.RESULT,getDeptEmpBack);
+				deptTree.dataProvider = XML(event.result);		
+			}
+			
+			private function deptBackFault(evt:FaultEvent):void {
+				deptService.removeEventListener(FaultEvent.FAULT,deptBackFault);
+				deptService.removeEventListener(ResultEvent.RESULT,getDeptEmpBack);
+				Alert.show(evt.fault.message);
+			}
+			
+			private function treeItemClick(item:Object):void {
+				sbbh.text = "";
+				titleName = item.@label;
+				astTitle=item.@label;
+				type = item.@app.toString();
+				switch(type){
+					case "pcj":	//
+						doColumn([{headerText:"设备编号",dataField:"sbbh",sortable:"true"},
+								  {headerText:"使用人",dataField:"syr",sortable:"true" },
+								  {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true" },
+								  {headerText:"品牌名称",dataField:"ppxh",sortable:"true"},
+								  {headerText:"安全保密属性",dataField:"smsx",sortable:"true"},
+								  {headerText:"生命周期状态",dataField:"smzqzt",sortable:"true"},
+								  {headerText:"部门名称",dataField:"bmmc",sortable:"true"}]);
+								  var pc:ComputerVo=new ComputerVo();pc.typeID=361;
+						page.initDividePage(typeDG,pc);
+						page.init();
+						break;
+					case "bjb":	//
+						doColumn([{headerText:"设备编号",dataField:"sbbh",sortable:"true" },
+								   {headerText:"使用人",dataField:"syr",sortable:"true" },
+								  {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true"},
+								  {headerText:"品牌名称",dataField:"ppxh",sortable:"true"},
+								  {headerText:"安全保密属性",dataField:"smsx",sortable:"true"},
+								  {headerText:"生命周期状态",dataField:"smzqzt",sortable:"true"},
+								  {headerText:"部门名称",dataField:"bmmc",sortable:"true"}]);
+								   var bjb:ComputerVo=new ComputerVo();bjb.typeID=362;
+						page.initDividePage(typeDG,bjb);
+						page.init();
+						break;
+					case "dyj":	//
+						doColumn([{headerText:"设备编号",dataField:"sbbh",sortable:"true" },
+								   {headerText:"使用人",dataField:"syr",sortable:"true" },
+								  {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true"},
+								  {headerText:"品牌名称",dataField:"ppxh",sortable:"true"},
+								  {headerText:"安全保密属性",dataField:"smsx",sortable:"true"},
+								  {headerText:"生命周期状态",dataField:"smzqzt",sortable:"true"},
+								  {headerText:"部门名称",dataField:"bmmc",sortable:"true"}]);
+						 var print:AssetWssbVo=new AssetWssbVo();print.assetTypeID=364;
+						page.initDividePage(typeDG,print);
+						page.init();
+						break;
+					case "czj" : //
+						doColumn([{headerText:"设备编号",dataField:"sbbh",sortable:"true" },
+								   {headerText:"使用人",dataField:"syr",sortable:"true" },
+								  {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true"},
+								  {headerText:"品牌名称",dataField:"ppxh",sortable:"true"},
+								  {headerText:"安全保密属性",dataField:"smsx",sortable:"true"},
+								  {headerText:"生命周期状态",dataField:"smzqzt",sortable:"true"},
+								  {headerText:"部门名称",dataField:"bmmc",sortable:"true"}]);
+								  var fax:AssetWssbVo=new AssetWssbVo();fax.assetTypeID=366;
+						page.initDividePage(typeDG,fax);
+						page.init();
+						break;
+					case "jz": //介质
+						doColumn([{headerText:"设备编号",dataField:"sbbh",sortable:"true"},
+								 {headerText:"使用人",dataField:"syr",sortable:"true" },
+								  {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true"},
+								  {headerText:"类型",dataField:"lx",sortable:"true"},
+								    {headerText:"安全保密属性",dataField:"smsx",sortable:"true"},
+								  {headerText:"生命周期状态",dataField:"smzqzt",sortable:"true"},
+								  {headerText:"部门名称",dataField:"bmmc",sortable:"true"}]);
+						page.initDividePage(typeDG, new JzVo());
+						page.init();
+						break;
+					case "smy": //扫描仪
+						doColumn([{headerText:"设备编号",dataField:"sbbh",sortable:"true"},
+								  {headerText:"名称",dataField:"mc",sortable:"true"},
+								   {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true"},
+								  {headerText:"类型",dataField:"lx",sortable:"true"},
+								  {headerText:"安全保密属性",dataField:"smsx",sortable:"true"},
+								  {headerText:"生命周期状态",dataField:"smzqzt",sortable:"true"},
+								  {headerText:"部门名称",dataField:"bmmc",sortable:"true"}]);
+						var scan:AssetWssbVo=new AssetWssbVo();scan.assetTypeID=365;
+						page.initDividePage(typeDG, scan);
+						page.init();
+						break;
+					case "zj": //主机
+						doColumn([{headerText:"设备编号",dataField:"sbbh",sortable:"true"},
+								  {headerText:"设备类型",dataField:"zclx"},
+								  {headerText:"操作系统版本",dataField:"czxtbb",sortable:"true" },
+								   {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true"},
+								  {headerText:"主要用途",dataField:"zyyt"},
+								  {headerText:"生命周期状态",dataField:"smzqzt",sortable:"true"},
+								  {headerText:"主要配置",dataField:"jbpz"}]);
+						page.initDividePage(typeDG, new ServerVo());
+						page.init();
+						break;
+					case "ccsb": //存储设备
+						doColumn([{headerText:"设备编号",dataField:"sbbh",sortable:"true"},
+								  {headerText:"品牌型号",dataField:"ppxh",sortable:"true"},
+								   {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true"},
+								  {headerText:"类型",dataField:"zclx"},
+								  {headerText:"安全保密属性",dataField:"smsx",sortable:"true"},
+								  {headerText:"生命周期状态",dataField:"smzqzt"},
+								  {headerText:"部门名称",dataField:"bmmc",sortable:"true"}]);
+						page.initDividePage(typeDG, new StorageVo());
+						page.init();
+						break;
+					case "wlsb": //网络设备
+						doColumn([{headerText:"设备编号",dataField:"sbbh",sortable:"true"},
+								  {headerText:"品牌型号",dataField:"ppxh",sortable:"true"},
+								   {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true"},
+								  {headerText:"类型",dataField:"zclx"},
+								  {headerText:"安全保密属性",dataField:"smsx",sortable:"true"},
+								  {headerText:"生命周期状态",dataField:"smzqzt"},
+								  {headerText:"部门名称",dataField:"bmmc",sortable:"true"}]);
+						page.initDividePage(typeDG, new NetVo());
+						page.init();
+						break;
+					case "dlsb": //动力设备
+						doColumn([{headerText:"设备编号",dataField:"sbbh",sortable:"true"},
+								  {headerText:"设备类型",dataField:"zclx"},
+								  {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true"},
+								  {headerText:"品牌型号",dataField:"ppxh",sortable:"true"},
+								  {headerText:"预期使用年限",dataField:"synx",sortable:"true"},
+								  {headerText:"生命周期状态",dataField:"smzqzt" ,sortable:"true"},
+								  {headerText:"部门名称",dataField:"bmmc",sortable:"true"}]);
+						page.initDividePage(typeDG, "UpsVo");
+						page.init();
+						break;
+					case "jfjs": //机房建设
+						doColumn([//{headerText:"名称",dataField:"mc",sortable:"true", sortCompareFunction:"sortmc"},
+								  {headerText:"设备类型",dataField:"zclx"},
+								  {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true"},
+								  {headerText:"品牌型号",dataField:"ppxh",sortable:"true"},
+								  {headerText:"预期使用年限",dataField:"synx",sortable:"true"},
+								  {headerText:"生命周期状态",dataField:"smzqzt" ,sortable:"true"},
+								  {headerText:"部门名称",dataField:"bmmc",sortable:"true"}]);
+						page.initDividePage(typeDG, "AssetModuleVo");
+						page.init();
+						break;
+					case "zhbx": //综合布线
+						doColumn([{headerText:"名称",dataField:"mc",sortable:"true"},
+								  {headerText:"品牌型号",dataField:"ppxh",sortable:"true"},
+								  {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"长度",dataField:"dwcd",sortable:"true"},
+								  {headerText:"传输速率",dataField:"cssl",sortable:"true"},
+								  {headerText:"主要用途",dataField:"zyyt",sortable:"true"},
+								  {headerText:"预期使用年限",dataField:"synx",sortable:"true"}]);
+						page.initDividePage(typeDG, new AssetCableVo());
+						page.init();
+						break;
+					case "sphy": //视频会议
+						doColumn([{headerText:"设备编号",dataField:"sbbh",sortable:"true"},
+								  {headerText:"名称",dataField:"mc",sortable:"true"},
+								  {headerText:"使用人",dataField:"syr",sortable:"true"},
+								  {headerText:"使用地点",dataField:"sydd",sortable:"true"},
+								  {headerText:"责任人",dataField:"zrr",sortable:"true"},
+								  {headerText:"品牌型号",dataField:"ppxh",sortable:"true"},
+								  {headerText:"生命周期状态",dataField:"smzqzt",sortable:"true"},
+								  {headerText:"部门名称",dataField:"bmmc",sortable:"true"}]);
+						page.initDividePage(typeDG, new AssetVideoVo());
+						page.init();
+						break;
+					default : Alert.show(item.@app);
+				}
+			}
+			
+			private function doColumn(cols:Array):void {
+				var length:int = cols.length;
+				var dataCol:DataGridColumn;
+				
+				che = new DataGridColumn();
+				che.headerText="选择项";
+				che.width = 50;
+				productFac = new ClassFactory(CheckBoxRenderer);
+				che.itemRenderer = productFac;
+				var columns:ArrayCollection = new ArrayCollection();
+				columns.addItem(che);
+				for(var i:int=0;i<length;i++) {
+					dataCol = new DataGridColumn();
+					dataCol.headerText = cols[i].headerText;
+					dataCol.dataField = cols[i].dataField;
+					dataCol.sortable = cols[i].sortable;
+					
+//					switch(cols[i].sortCompareFunction) {
+//						case "sortmc": dataCol.sortCompareFunction = sortmc; break;
+//						case "sortzrr": dataCol.sortCompareFunction = sortzrr; break;
+//						case "sortsydd": dataCol.sortCompareFunction = sortsydd; break;
+//						case "sortbmmc": dataCol.sortCompareFunction = sortbmmc; break;
+//						case "sortppxh": dataCol.sortCompareFunction = sortppxh; break;
+//						case "sortyqlx": dataCol.sortCompareFunction = sortyqlx; break;
+//						case "sortsyr": dataCol.sortCompareFunction = sortsyr; break;
+//						case "sortsmsx": dataCol.sortCompareFunction = sortsmsx; break;
+//						case "sortlx": dataCol.sortCompareFunction = sortlx; break;
+//						
+//					}
+//					dataCol.sortCompareFunction = cols[i].sortCompareFunction;
+					
+					columns.addItem(dataCol);
+				}
+				typeDG.columns = columns.source;
+			}
+			
+			private function displayDetail(item:Object):void {
+				//trace(item.@label);
+				//trace(item.@num);
+				//可以将itemType内容写成全路径，利用反射
+				itemType = item.@label;
+				if(itemType=='PC机') {
+					if(paramType=='bmmc') {
+						deptService.getObjectList(new ComputerVo()," bmmc like '"+deptTitle+"'");
+					} else if(paramType=='zsxm') {
+						deptService.getObjectList(new ComputerVo()," zrr like '"+deptTitle+"'");
+					}
+				} else if(itemType=='介质') {
+					if(paramType=='bmmc') {
+						deptService.getObjectList(new JzVo()," bmmc like '"+deptTitle+"'");
+					} else if(paramType=='zsxm') {
+						deptService.getObjectList(new JzVo()," zrr like '"+deptTitle+"'");
+					}
+				}
+				deptService.addEventListener(ResultEvent.RESULT,displayDetailSuccess);
+			}
+			
+			private function displayDetailSuccess(evt:ResultEvent):void {
+				deptService.removeEventListener(ResultEvent.RESULT,displayDetailSuccess);
+				var arrColl:ArrayCollection = evt.result as ArrayCollection;
+				if(itemType=='PC机') {
+					var detailPcPanel:QueryPcDetail = new QueryPcDetail();
+					detailPcPanel.objArr = arrColl;
+					detailPcPanel.initDetail();
+					thisPopUpManager(detailPcPanel);
+				} else if(itemType=='介质') {
+					var detailJzPanel:QueryJzDetail = new QueryJzDetail();
+					detailJzPanel.objArr = arrColl;
+					detailJzPanel.initDetail();
+					thisPopUpManager(detailJzPanel);
+				}
+			}
+			
+			private function deptItemClick(item:Object):void {
+				deptTitle = item.@label;
+				paramType = item.@name;
+
+				deptService.getBmzc(paramType, deptTitle);
+				deptService.addEventListener(ResultEvent.RESULT,deptNumSuccess);
+			}
+			
+			private function deptNumSuccess(evt:ResultEvent):void {
+				deptService.removeEventListener(ResultEvent.RESULT,deptNumSuccess);
+				var xml:XML = XML(evt.result);
+				deptDG.dataProvider = xml.asset;
+			}
+			
+			private function navigatorChange(event:IndexChangedEvent):void {
+				if(event.newIndex==0) {
+					page.initDividePage(typeDG,new ComputerVo());
+				} else if(event.newIndex==1) {
+					deptTitle = deptName;
+					getDeptEmp();
+				} else {
+					Alert.show("此Tab不存在");
+				}
+			}
+			
+			private function showAsset(evt:ListEvent):void{
+    			switch(type){
+				  case "pcj":
+					    var c:ComputerVo=evt.itemRenderer.data as ComputerVo;
+					    var pc:Computer = new Computer();pc.computerId=String(c.id);
+					    pc.flag=false;pc.title=astTitle;
+					    thisPopUpManager(pc);
+				        break;
+				 case "bjb":
+					    var b:ComputerVo=evt.itemRenderer.data as ComputerVo;
+					    var bjb:Computer = new Computer();bjb.computerId=String(b.id);
+					    bjb.flag=false;bjb.title=astTitle;
+					    thisPopUpManager(bjb);
+				        break;
+				  case "jz":
+				       var jz:JzDetail=new JzDetail();
+				       jz.jz=evt.itemRenderer.data as JzVo;jz.title=astTitle;
+				       thisPopUpManager(jz);
+				        break;
+				  case "dyj":
+				  /*
+				        var p:AssetPrinterVo = evt.itemRenderer.data as AssetPrinterVo;
+				        var dyj:Printer = new Printer();dyj.flag=false;
+				        dyj.printId=p.id;dyj.title=astTitle;
+				        thisPopUpManager(dyj);
+				        break;*/
+				  case "smy":
+				  /*
+				        var smy:AssetScannerVo = evt.itemRenderer.data as AssetScannerVo;
+				        var scanner:Scanner = new Scanner();scanner.flag=false;
+				        scanner.scannerId=smy.id;scanner.title=astTitle;
+				        thisPopUpManager(scanner);
+				        break;
+				        */
+				  case "czj":
+				       var czj:AssetWssbVo = evt.itemRenderer.data as AssetWssbVo;
+				       var fax:Wssb = new Wssb();fax.flag=false;
+				       fax.printId=czj.id;fax.title=astTitle;
+				       thisPopUpManager(fax);
+				       break;
+				  case "zj": 
+				        var server:DetailServer = new DetailServer();
+				        server.serverVo=evt.itemRenderer.data as ServerVo;
+				        server.title=astTitle;
+				        thisPopUpManager(server);
+				       break;
+				  case "ccsb":
+				        var stora:StorageDetail = new StorageDetail();
+				         stora.vo=evt.itemRenderer.data as StorageVo;
+				         stora.title=astTitle;
+				         thisPopUpManager(stora);
+				       break;
+				  case "wlsb":
+				       var net:NetDetail = new NetDetail();
+				         net.vo=evt.itemRenderer.data as NetVo;
+				         net.title=astTitle;
+				         thisPopUpManager(net);
+                       break;
+				  case "sphy":
+				      var vide:VideoM = new VideoM();
+				      var vo:AssetVideoVo=evt.itemRenderer.data as AssetVideoVo;
+				      vide.vid=vo.id;vide.title=astTitle;
+				      thisPopUpManager(vide);
+                      break;
+				}
+    		}
+    		
+    		private function thisPopUpManager(ast:TitleWindow):void{
+    			
+    				PopUpManager.addPopUp(ast,this.parentApplication as DisplayObject,true);
+	            	PopUpManager.centerPopUp(ast); 
+    		}
+    		
+    	
+
+		//导出当前dataGrid数据
+    	public function outExcelData():void
+    	{
+    		var item:ArrayCollection=typeDG.dataProvider as ArrayCollection;
+	        var arry:Array=new Array();//用来保存需要导出数据的id
+	        var idStr:String = "(";
+	    	if(item!=null){
+	    		for(var i:int=0;i<item.length;i++)
+	    		{
+                   if(item.getItemAt(i).selected)
+                   {
+                   	  arry.push(item.getItemAt(i).id);
+                   	  idStr += (item.getItemAt(i).id + ", ")
+                   }
+	    		} 
+    	   }
+    	   idStr = idStr.substr(0, idStr.lastIndexOf(","));
+    	   idStr += ")";
+    	   trace(idStr);
+    		
+    		
+    		
+    		
+    		var name:String=titleName + "信息列表.xls";
+    	    var exportExcel:ExportExcel2 = new ExportExcel2();
+    	    var ary:Array = typeDG.columns;
+    	    ary.shift();
+    	    var where:String = " where 1 = 1 ";
+    	    var tableName:String="";
+    	    var bctj:String = ""; //补充条件
+    	    
+    	    switch(titleName) {
+				case "PC机": tableName = "ASSET_COMPUTER"; bctj = "zclxid = '361 '"; break;
+				case "笔记本": tableName = "ASSET_COMPUTER"; bctj = "zclxid = '362 '"; break;
+				case "打印机": tableName = "ASSET_WSSB"; break;
+				case "扫描仪": tableName = "ASSET_WSSB"; break;
+				case "传真机": tableName = "ASSET_WSSB"; break;
+				case "介质": tableName = "ASSET_JZ"; break;
+				case "主机": tableName = "ASSET_SERVER"; break;
+				case "存储设备": tableName = "ASSET_STORAGE"; break;
+				case "网络设备": tableName = "ASSET_NET"; break;
+				case "动力设备": tableName = "ASSET_UPS"; break;
+				case "机房建设": tableName = "ASSET_UPS"; break;
+				case "综合布线": tableName = "ASSET_UPS"; break;
+				case "视频会议": tableName = "ASSET_VIDEO"; break;
+    	    }
+    	    if(bctj!="")
+    	    	where += (" and " + bctj);
+    	    
+    	    if(arry.length <= 0) {
+	    	    if(sbbh.text != "")
+	    	    {
+	    	    	var col:String="sbbh";
+				    var txt:String=StringUtil.trim(sbbh.text);
+	    	    	where +=" and lower("+col+") like lower('%"+txt+"%') ";
+	    	    }
+    	    }else {
+    	    	where += "and id in " + idStr;
+    	    }
+			exportExcel.ExportDGToExcel2(ary,tableName,name,"",where);
+    	}
+    	
+		private function selectCheckBox(event:ListEvent):void {
+           event.currentTarget.selectedItem.selected = !event.currentTarget.selectedItem.selected;
+       }
+		
+		]]>
+	</mx:Script>
+		<mx:XML id="firstMenuTree">
+		<root>
+			<menu label="PC机" icon="pcj.jpg" app="pcj"/>
+			<menu label="笔记本" icon="pcj.jpg" app="bjb"/>
+			<menu label="打印机" icon="dyj.jpg" app="dyj"/>
+			<menu label="扫描仪" icon="smy.jpg" app="smy"/>
+			<menu label="传真机" icon="czj.jpg" app="czj"/>
+			<menu label="介质" icon="file.jpg" app="jz"/>
+			<menu label="主机" icon="xxj.jpg" app="zj"/>
+			<menu label="存储设备" icon="cpzl.jpg" app="ccsb"/>
+			<menu label="网络设备" icon="file.jpg" app="wlsb"/>
+			<menu label="动力设备" icon="file.jpg" app="dlsb"/>
+			<menu label="机房建设" icon="jmkt.jpg" app="jfjs"/>
+			<menu label="综合布线" icon="xl.jpg" app="zhbx"/>
+			<menu label="视频会议" icon="lxsb.jpg" app="sphy"/>
+		</root>
+	</mx:XML>
+<mx:RemoteObject id="deptService" destination="QueryService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:TabNavigator width="100%" height="100%" change="navigatorChange(event);">
+		<mx:Canvas label="设备类型" width="100%" height="100%" verticalScrollPolicy="auto" >
+		<mx:Panel title="{titleName}查询" layout="absolute" width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+		<mx:HBox width="100%" height="100%">
+			<mx:List id="typeTree" dataProvider="{firstMenuTree.menu}" labelField="@label" width="147" height="439" itemClick="treeItemClick(typeTree.selectedItem)"></mx:List>
+			<mx:VBox width="100%" height="100%" >
+			<code:FlowBox width="100%" height="31" paddingTop="5">
+				<mx:Label text="设备编号:"></mx:Label>
+				<mx:TextInput id="sbbh"></mx:TextInput>
+				<!--mx:Label text="使用人:"></mx:Label>
+				<mx:TextInput id="syr"></mx:TextInput>
+				<mx:Label text="安全保密属性:"></mx:Label>
+				<mx:TextInput id="smsx"></mx:TextInput-->
+				<mx:Button label="导出" click="btnQuery();outExcelData()" icon="@Embed(source='images/export.gif')"/>
+				<mx:Button label="查询" click="btnQuery()" icon="@Embed(source='images/find.gif')"/>
+			</code:FlowBox>
+			<mx:DataGrid id="typeDG" width="100%" height="100%" itemClick="selectCheckBox(event)" headerRelease="dataGridSort(event)"  doubleClickEnabled="true" itemDoubleClick="showAsset(event)">
+				<mx:columns>
+					<mx:DataGridColumn headerText="选择项" width="50">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:CheckBox selected="{data.selected}"/>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="设备编号" dataField="sbbh" sortable="true"/>
+					<mx:DataGridColumn headerText="名称" dataField="mc" sortable="true" />
+					<mx:DataGridColumn headerText="使用人" dataField="syr" sortable="true" />
+					<mx:DataGridColumn headerText="使用地点" dataField="sydd" sortable="true" />
+					<mx:DataGridColumn headerText="部门名称" dataField="bmmc" sortable="true" />
+					<mx:DataGridColumn headerText="品牌名称" dataField="ppxh" sortable="true" />
+					<mx:DataGridColumn headerText="安全保密属性" dataField="smsx" sortable="true" />
+					<mx:DataGridColumn headerText="生命周期状态" dataField="smzqzt" sortable="true" />
+				</mx:columns>
+			</mx:DataGrid>
+			<ns3:DividedPage id="page" width="100%"></ns3:DividedPage>
+			</mx:VBox>	
+		</mx:HBox>
+	</mx:Panel>
+		</mx:Canvas>
+		<mx:Canvas label="部门人员" width="100%" height="100%"  verticalScrollPolicy="auto" horizontalScrollPolicy="off">
+			<mx:Panel title="{deptTitle}" height="100%" width="100%">
+			<mx:HBox height="100%" width="100%">
+				<mx:Tree id="deptTree" labelField="@label" showRoot="false" width="170" height="100%" itemClick="deptItemClick(deptTree.selectedItem)"></mx:Tree>
+				<mx:VBox height="100%" width="100%">
+					<mx:DataGrid id="deptDG" width="667" height="230" itemDoubleClick="displayDetail(deptDG.selectedItem)"  doubleClickEnabled="true">
+						<mx:columns>
+							<mx:DataGridColumn dataField="@label" headerText="设备类型"></mx:DataGridColumn>
+							<mx:DataGridColumn dataField="@num" headerText="设备数"></mx:DataGridColumn>
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:VBox>
+			</mx:HBox>
+			</mx:Panel>
+		</mx:Canvas>
+		
+	</mx:TabNavigator>
+
+</mx:Canvas>

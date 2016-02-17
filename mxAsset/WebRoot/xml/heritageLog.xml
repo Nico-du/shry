@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt  name="logHername" column="文物陈列品名称" />
+<paremt  name="logTypeId" column="类型" />
+<paremt  name="logDate" column="时间" />
+<paremt  name="logUser" column="操作人员" />
+<paremt  name="logAddress" column="存放地址" />
+
+</root>

@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()" 
+	 fontSize="12" paddingLeft="0" paddingRight="0" >
+	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script source="../flex/util/DICCommonMethod.as"/> 
+	<mx:Script>
+		<![CDATA[
+			import asset_rkdj.SetDicAssetDetail;
+			
+			import cn.cnsasfram.entity.DoResult;
+			import cn.cnsasfram.entity.enum.Errors;
+			import cn.cnsasfram.helper.ASCommonHelper;
+			import cn.cnsasfram.helper.ASJsonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.adobe.serialization.json.JSON;
+			
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.containers.HBox;
+			import mx.controls.Alert;
+			import mx.controls.DataGrid;
+			import mx.controls.TextInput;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.core.INavigatorContent;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.http.HTTPService;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			[Bindable]//树形默认ICON
+			[Embed(source="images/icon_xxsbtree.gif")]
+			protected static var defaultLeafIcon:Class;
+			[Bindable]//所有信息设备的XML
+			public var datatreeXML:XML;
+			//保存实例化的对象
+			private var modelMap:Dictionary=null;
+			//所有按钮及工具栏高度
+			[Bindable]
+			protected var aboutheight:Number=22;
+			//定义加载页面XML路径暂手动配置
+			private var initpagexmlpath:String="xml/DBFrame.xml";
+			//是否可修改已选这数据
+			[Bindable]
+			public var isSelectedDataEditable:Boolean = true;
+			//设备类型国标编码
+			public var sblxDicid:String = "201010400";
+			public var parentPage:Object = null;
+			public var sblxDicobj:Object = null;
+			//初始化页面信息
+			public function initPage():void{
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				/* this.width = FlexGlobals.topLevelApplication.width*0.8;
+				this.height = FlexGlobals.topLevelApplication.height*0.8; */
+				modelMap=new Dictionary();
+			//	requestFuncitonXml();
+			}
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				this.loadData();
+				toolBar.visible = this.isSelectedDataEditable;
+			}
+			//ID列名
+			private var selectAsset_idColumnName:String = "";
+			
+			//Load出当前领用单明细的相关 数据 
+			//savvy:查询dic基础数据表里的数据 ,联合 lsjl历史记录表中数据sqdid作为 查询条件
+			private function loadData():void{
+				var tempSetAsset:SetDicAssetDetail = new SetDicAssetDetail();
+				var tempContent:Object = tempSetAsset.getDICModelBySelect( new XML("<node id=\""+sblxDicobj.dicid+"\" label=\""+sblxDicobj.dicname+"\" url=\""+sblxDicobj.dicid+"\" pcbh=\""+sblxDicobj.pcbh+"\" isSearchXml=\"true\" />"));
+				if(tempContent == null){return;	}
+				var tableName:String = tempContent.tempObjBeanName;
+				selectAsset_idColumnName = tempContent.idColumnName.toLowerCase();
+				var pojoName:String = tempContent.pojoName;
+				var sqdid:String = parentPage.dataId;
+				var sqlStr:String = "select * from "+tableName+" where "+selectAsset_idColumnName+" in (select ASETETID from CNST_ASSETBGJL_DATA where SQDID='"+sqdid+"')";
+				AllAssetServiceRmt.RunSelectClassBySql(sqlStr,"net.chinanets.pojos."+pojoName);  
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,loadDataActionBack);
+				
+				tempContent = null;
+				tempSetAsset = null;
+			}
+			//保存数据回调方法
+			protected function loadDataActionBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,loadDataActionBack);
+				parentPage.selectedAssetData = rmtResult.result as ArrayCollection;
+				
+				this.setSelectChange(sblxDicobj);
+			}
+			
+			/**
+			 * 获取已选择的DataId,作为查询条件
+			 **/
+			public function getDataIdCondition():String{
+				var dataIds:String = "";
+				if( parentPage.selectedAssetData==null || parentPage.selectedAssetData.length < 1){
+					return "1=2";//没有已选择的dic数据
+				}
+				for each(var curObj:Object in parentPage.selectedAssetData){
+					dataIds += curObj[selectAsset_idColumnName]+",";
+				}
+				return dataIds.substr(0,dataIds.length-1);
+			}
+			
+			
+			private var selectItem:XML;
+			public function setSelectChange(curobj:Object):void{
+				if(curobj == null){
+					return;
+				}
+				selectItem = new XML("<node id=\""+curobj.dicid+"\" label=\""+curobj.dicname+"\" url=\""+curobj.dicid+"\" pcbh=\""+curobj.pcbh+"\" isSearchXml=\"true\" />");
+				var tempContent:Object=getDICModelBySelect(selectItem,modelMap);
+				if(tempContent==null){
+					return;
+				}
+				tempContent.selectPage_dataids = this.getDataIdCondition();
+				this.initAssetPageData(tempContent,curobj);
+				this.initAssetPageStyle(tempContent);
+				this.selectAssetStack.removeAll();
+				this.selectAssetStack.addChild(tempContent as DisplayObject);
+			//	this.selectAssetStack.selectedChild=tempContent;
+			}
+			
+			//给AssetPageList赋值
+			private function initAssetPageData(tempContent:Object,curobj:Object):void{
+				this.setTempContentListData();
+			}
+			
+			//设置AssetPage样式
+			private function initAssetPageStyle(tempContent:Object):void{
+			//	tempContent.pageIsLoadPoer = false;
+			//	tempContent.pageIsLoadData = false;
+				//隐藏增删查改工具栏
+				if(tempContent.hasOwnProperty("toolBar")){
+					tempContent.addEventListener(FlexEvent.CREATION_COMPLETE,tempContentCreationCompleteFunc);
+				}
+			}
+			//tempContent 样式修改   隐藏增删查改工具栏
+			private function tempContentCreationCompleteFunc(event:Event):void{
+				var btnBox:HBox = event.currentTarget.toolBar as HBox;
+				if(btnBox != null){ASCommonHelper.controlVisible(btnBox,false);
+				}else{
+					if(CommonXMLData.IsTestEnvironment){	Alert.show("no btnBox !");}
+				}
+				if( event.currentTarget.hasOwnProperty("cns_dg") &&  event.currentTarget.cns_dg is DataGrid){
+					var cns_dg:DataGrid =  event.currentTarget.cns_dg as DataGrid;
+					cns_dg.doubleClickEnabled = false;
+				}
+			}
+			
+			//赋值dataArray
+			public function setTempContentListData():void{
+				if(parentPage != null){
+					var tempContent:Object = getTempContent();
+					if(tempContent != null){
+					tempContent.dataArray = ObjectUtil.copy(parentPage.selectedAssetData);
+					tempContent.selectPage_dataids = this.getDataIdCondition();
+					}
+				}
+			}
+			
+			protected function closeHandler():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			/**
+			 *获取当前列表页   selectAssetStack.selectedChild
+			 **/
+			private function getTempContent():Object{
+				if(this.selectAssetStack.selectedChild != null){
+					return this.selectAssetStack.selectedChild;
+				}
+				return null;
+			}
+			
+			//保存已选择的数据到历史记录 1.删除已存在的数据  2.保存新数据
+			//保存已选择数据  step 1
+			public function saveYXZAssetList():void{
+				var lydbhStr:String = parentPage.dataId;
+				AllAssetServiceRmt.RemoveObject(lydbhStr,"CNST_ASSETBGJL_DATA","SQDID","已选择数据记录");
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+			}
+			//删除当前数据回调方法
+			protected function dataRemoveActionBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+				this.saveYXZAsset();
+			}
+			
+			//保存已选择数据  step 2
+			public function saveYXZAsset():void{
+				var tempContent:Object = this.getTempContent();
+				if(tempContent != null){
+				
+				var sqrxm:String=FlexGlobals.topLevelApplication.userVo.userName.toString();
+				var sqrbm:String=FlexGlobals.topLevelApplication.userVo.deptName.toString();
+				
+				var tableName:String = tempContent.tempObjBeanName;
+				var arrYXZ:ArrayCollection = new ArrayCollection();
+				for each(var curObj:Object in parentPage.selectedAssetData){
+					 var newObj:Object = new Object();
+					 newObj.altertype = "领用";
+					 newObj.asetetid = curObj[selectAsset_idColumnName];
+					 newObj.assetidcolumn = selectAsset_idColumnName;
+					 newObj.assettabnename = tableName;
+					 newObj.zt = "0";//未完成
+					 
+					 newObj.bglx="领用申请";
+					 newObj.sqdbh= parentPage.LYDMXBH.text;
+					 newObj.sqdid=parentPage.dataId;
+					 newObj.sqdbhcolumn= "lydmxbh";
+					 newObj.sqdtablename=parentPage.tempObjBeanName;
+					 
+					 newObj.bgrq=CommonMethod.commonLongDateFormatter.format(new Date());
+					 newObj.wpmc=parentPage.LYDMXNAME.text;
+					 
+					 newObj.sqr=sqrxm;
+					 newObj.sqbm=sqrbm;
+					 newObj.sqrq= curObj.ctime;
+					 var submitjson:String = JSON.encode(newObj);
+					 AllAssetServiceRmt.SaveOrUpdateObject(submitjson,"net.chinanets.pojos.CnstAssetbgjlData","assetbgjlid","历史记录");
+				}
+				
+				}
+			}
+			
+			
+			
+		//选择物品信息  执行方法  SelectAssetDetail 中  setInputValue
+		private function doSelectAssetAction():void{
+			if(parentPage != null){
+				parentPage.saveActionClick(parentPage.XZXXX_clickHandler);
+			}
+		}
+			
+		//添加选择	 parentPage.selectedAssetData;
+		private function addSelectAsset():void{
+			if(parentPage != null){
+				parentPage.saveActionClick(parentPage.XZXXX_clickHandler("add"));
+			}
+		}
+			
+		//删除选择
+		private function delSelectAsset():void{
+			var tempContent:Object = this.getTempContent();
+			var tempContentArray:ArrayCollection  = tempContent.dataArray as ArrayCollection;
+			if(parentPage.selectedAssetData == null){ return;}
+			for(var j:int=0;j<tempContentArray.length;j++){
+				var tempCurObj:Object = tempContentArray.getItemAt(j);
+				if(tempCurObj.selected){
+						for(var i:int=0;i<parentPage.selectedAssetData.length;i++){
+								var dataobjAbsout:Object = parentPage.selectedAssetData.getItemAt(i);
+							if(dataobjAbsout[this.selectAsset_idColumnName] == tempCurObj[this.selectAsset_idColumnName]){
+								tempContentArray.removeItemAt(j);
+								parentPage.selectedAssetData.removeItemAt(i);
+								j--; 
+								i--;
+							}
+						}
+				}
+			}
+			
+			tempContent.selectPage_dataids = this.getDataIdCondition();
+		}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+		<mx:Canvas borderStyle="none" width="100%" height="100%" >
+			<mx:ViewStack id="selectAssetStack" width="100%" height="100%" creationPolicy="all" />
+				<mx:HBox id="toolBar" x="350" y="23"  height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" borderStyle="none" >
+					<mx:LinkButton id="removeAction" click="delSelectAsset()"  height="{aboutheight}" label="删除" toolTip="删除" icon="@Embed(source='images/delete.gif')"/>
+					<mx:LinkButton id="newAction" click="addSelectAsset()" height="{aboutheight}" label="添加" toolTip="添加领用物品" icon="@Embed(source='images/add.gif')"/>
+					<mx:LinkButton id="selectWPXX" label="重新选择领用物品" toolTip="重新选择领用物品" click="doSelectAssetAction()" x="300" y="0" fontWeight="bold" color="red" />
+				</mx:HBox>
+		</mx:Canvas>
+	</mx:VBox>
+</mx:Module>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Tree xmlns:mx="http://www.adobe.com/2006/mxml" borderStyle="none" dragEnabled="false">
+	<mx:itemRenderer>
+		<mx:Component>
+			<mx:TreeItemRenderer>
+				<mx:Script>
+					<![CDATA[
+						import cn.cnsasfram.helper.ASStringHelper;
+						override protected function updateDisplayList(unscaledWidth:Number,unscaledHeight:Number):void{
+							super.updateDisplayList(unscaledWidth, unscaledHeight);
+							if(listData){
+								var strColor:String=listData["item"].@color;
+								if(ASStringHelper.isNullOrEmpty(strColor)){
+									return;
+								}
+								strColor="0x"+strColor;
+								var tempColor:uint=mx.core.Singleton.getInstance("mx.styles::IStyleManager2").getColorName(strColor);
+								if(tempColor!=0){
+									label.setColor(tempColor);
+								}
+							}
+						}
+					]]>
+				</mx:Script>
+			</mx:TreeItemRenderer>
+		</mx:Component>
+	</mx:itemRenderer>
+</mx:Tree>

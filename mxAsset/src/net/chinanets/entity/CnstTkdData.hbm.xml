@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="net.chinanets.entity.CnstTkdData" table="CNST_TKD_DATA" schema="ZCGL">
+        <id name="tkdid" type="java.lang.String">
+            <column name="TKDID" length="100" />
+        </id>
+        <property name="tkdbh" type="java.lang.String">
+            <column name="TKDBH" length="200" not-null="true" />
+        </property>
+        <property name="tkrq" type="java.util.Date">
+            <column name="TKRQ" length="7" not-null="true" />
+        </property>
+        <property name="tkrid" type="java.lang.Long">
+            <column name="TKRID" not-null="true" />
+        </property>
+        <property name="tkbmid" type="java.lang.String">
+            <column name="TKBMID" not-null="true" length="100"/>
+        </property>
+        <property name="usable" type="java.lang.Integer">
+            <column name="USABLE" precision="10" scale="0" not-null="true" />
+        </property>
+        <property name="ctime" type="java.util.Date">
+            <column name="CTIME" length="7" not-null="true" />
+        </property>
+        <property name="cuser" type="java.lang.String">
+            <column name="CUSER" length="100" not-null="true" />
+        </property>
+        <property name="utime" type="java.util.Date">
+            <column name="UTIME" length="7" not-null="true" />
+        </property>
+        <property name="uuser" type="java.lang.String">
+            <column name="UUSER" length="100" not-null="true" />
+        </property>
+        <property name="memo" type="java.lang.String">
+            <column name="MEMO" length="1000" />
+        </property>
+        <property name="zt" type="java.lang.String">
+            <column name="ZT" length="20" />
+        </property>
+    </class>
+</hibernate-mapping>

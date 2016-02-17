@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt  name="heritageName" column="文物陈列品名称" />
+<paremt  name="heritageNum" column="唯一编号" />
+<paremt  name="heritageSum" column="数量" />
+<paremt  name="tbType" column="文物陈列品类型" />
+<paremt  name="heritageAddress" column="存放地址" />
+
+</root>

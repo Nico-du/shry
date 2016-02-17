@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="800" height="600" initialize="initializeWd()" creationComplete=""
+				title="流程历史"	showCloseButton="true" close="closePage()" verticalScrollPolicy="off" horizontalScrollPolicy="off" layout="absolute">
+<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" 
+					 showBusyCursor="true"/>
+	<mx:Script>
+	<![CDATA[
+		import flex.util.CommonMethod;
+		
+		import mx.collections.ArrayCollection;
+		import mx.managers.PopUpManager;
+		public var parentWd:Object = null;
+		public var historyList:ArrayCollection = null;
+        public var bgColors:String = new String{"#DEDEFF","#FFBEDC","#FFFFC0","#BEFFBE","#FFFFFF"}; 
+		public function initializeWd():void{
+			initHistory();
+		}
+		
+		private function initHistory():void{
+			for(var i=0;i<historyList.length;i++){
+			
+				
+				
+			}
+			
+			var hbx:HBox = new HBox();
+			hbx.percentWidth = 100;
+			hbx.height = 100;
+			
+			
+		}
+		
+		private function closePage():void{
+			PopUpManager.removePopUp(this);
+		}
+		]]>
+</mx:Script>
+	<mx:Canvas  width="100%" height="100%" borderStyle="none">
+		
+	<mx:Canvas width="100%" height="100" backgroundColor="#DEDEFF" borderThickness="2" borderStyle="solid" layout="absolute">
+		<mx:Canvas width="150" height="100%" borderStyle="solid"  borderThickness="2" borderSides="right">
+			<mx:Label text="科室单位审核" x="10" y="39"/>
+		</mx:Canvas>
+		<mx:TextArea text="李彩华 2014-11-11&#xd;safadsf&#xd;" x="179" y="5" height="70" width="200" borderThickness="2" backgroundColor="white" borderColor="gray" borderStyle="solid" />
+		<mx:Label text="启动流程" x="254" y="81" transformZ="2" z="0"/>
+	</mx:Canvas>
+	<mx:VRule x="275" y="75" strokeColor="black" height="59" width="5" />
+	
+		<mx:Canvas y="100" width="100%" height="100" backgroundColor="#DEDEFF" borderThickness="2" borderStyle="solid" layout="absolute">
+		<mx:Canvas width="150" height="100%" borderStyle="solid"  borderThickness="2" borderSides="right">
+			<mx:Label text="科室单位审核" x="10" y="39"/>
+		</mx:Canvas>
+		<mx:TextArea text="李彩华 2014-11-11&#xd;safadsf&#xd;" x="179" y="5" height="70" width="200" borderThickness="2" backgroundColor="white" borderColor="gray" borderStyle="solid" />
+		<mx:Label text="启动流程" x="254" y="81" transformZ="2" z="0"/>
+	</mx:Canvas>
+	</mx:Canvas>
+</mx:TitleWindow>

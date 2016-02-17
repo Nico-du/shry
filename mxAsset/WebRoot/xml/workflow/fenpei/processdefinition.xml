@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns=""  name="fenpei">
+
+	<start-state name="开始">
+		<transition to="提交申请" name="to 提交申请"></transition>
+	</start-state>
+
+
+	<task-node name="提交申请">
+		<transition to="初审"></transition>
+	</task-node>
+
+	<task-node name="初审">
+	    <task>
+	       <assignment class="net.chinanets.workflow.MyAssignment">
+	        <mc>设备管理A</mc>
+	       </assignment>
+	    </task> 
+		<transition to="受理" name="to 受理"></transition>
+		<transition to="结束" name="to 结束"></transition>
+	</task-node>
+
+	<task-node name="受理">
+	     <task>
+	      <assignment class="net.chinanets.workflow.MyAssignment">
+	        <mc>设备管理A</mc>
+	       </assignment>
+	       </task>
+		<transition to="审核" name="to 审核">
+		</transition>
+	</task-node>
+
+	<task-node name="审核">
+	     <task>
+	      <assignment class="net.chinanets.workflow.MyAssignment">
+	        <mc>设备主管</mc>
+	       </assignment>
+	       </task>
+		<transition to="办理" name="to 办理"></transition>
+		<transition to="初审" name="to 初审"></transition>
+	</task-node>
+
+	<task-node name="办理">
+	 <task>
+		   <assignment class="net.chinanets.workflow.MyAssignment">
+	        <mc>设备管理A</mc>
+	       </assignment>
+	   </task>
+		<transition to="结束" name="to 结束"></transition>
+	</task-node>
+
+
+	<end-state name="结束"></end-state>
+
+
+</process-definition>

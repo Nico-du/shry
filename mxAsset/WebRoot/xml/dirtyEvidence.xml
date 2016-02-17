@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt  name="dirtyevidenceName" column="脏证物名称" />
+<paremt  name="dirtyevidenceAh" column="案件案号" />
+<paremt  name="dirtyevidenceAddress" column="存放地址" />
+<paremt  name="dirTypeId" column="脏证物类型" />
+<paremt  name="dirtyevidenceBack" column="状态" />
+</root>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="net.chinanets.entity.CnstRyhcData" table="CNST_RYHC_DATA" schema="ZCGL">
+        <id name="ryhcid" type="java.lang.String">
+            <column name="RYHCID" length="100" />            
+        </id>
+        <property name="ryhcbh" type="java.lang.String">
+            <column name="RYHCBH" length="100" not-null="true" />
+        </property>
+        <property name="ryhcname" type="java.lang.String">
+            <column name="RYHCNAME" length="200" not-null="true" />
+        </property>
+        <property name="glrid" type="java.lang.Long">
+            <column name="GLRID" not-null="true" />
+        </property>
+        <property name="glbmid" type="java.lang.String">
+            <column name="GLBMID" not-null="true" length="100"/>
+        </property>
+        <property name="usable" type="java.lang.Integer">
+            <column name="USABLE" precision="10" scale="0"/>
+        </property>
+        <property name="ctime" type="java.util.Date">
+            <column name="CTIME" not-null="true" />
+        </property>
+        <property name="cuser" type="java.lang.String">
+            <column name="CUSER" length="100" not-null="true" />
+        </property>
+        <property name="utime" type="java.util.Date">
+            <column name="UTIME"  not-null="true" />
+        </property>
+        <property name="uuser" type="java.lang.String">
+            <column name="UUSER" length="100" not-null="true" />
+        </property>
+        <property name="memo" type="java.lang.String">
+            <column name="MEMO" length="1000" />
+        </property>
+    </class>
+</hibernate-mapping>

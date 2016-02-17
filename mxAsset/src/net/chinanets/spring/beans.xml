@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+    <!--DAO数据操作层-->
+	<bean id="addDBDao" class="net.chinanets.dao.imp.AddDBDaoImp">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="UsersDao" class="net.chinanets.dao.imp.UserDaoImp">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="RulesDao" class="net.chinanets.dao.imp.RulesDaoImp">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+		<property name="jdbcTemplate" ref="jdbcTemplate"></property>
+	</bean>
+	<bean id="queryDAO" class="net.chinanets.dao.imp.QueryDAOImpl">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="commonDao" class="net.chinanets.dao.imp.CommonDaoImp">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="allAssetDao" class="net.chinanets.dao.imp.AllAssetDaoImp">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="codeListDao" class="net.chinanets.dao.imp.CodeListDaoImp">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="wfhandleDao" class="net.chinanets.dao.imp.WFHandleDaoImp">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="DictionaryDao" class="net.chinanets.dao.imp.DictionaryDaoImp">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="DatumDao" class="net.chinanets.dao.imp.DatumDaoImp">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<!--service服务层 -->
+	<!-- 图书 -->
+	<!-- 日用耗材 -->
+	<!--供应商 -->
+	<!-- 数据字典 -->
+	<bean id="dictionaryService" class="net.chinanets.service.imp.DictionaryServiceImpl">
+		<property name="dictionaryDao" ref="DictionaryDao"></property>
+	</bean>
+	<bean id="UserService" class="net.chinanets.service.imp.UserServiceImp" parent="commonService">
+		<property name="usersDao" ref="UsersDao"></property>
+	</bean>
+	<bean id="RuleService" class="net.chinanets.service.imp.RuleServiceImp">
+		<property name="commonDao" ref="commonDao"></property>
+		<property name="ruleDao" ref="RulesDao"></property>
+	</bean>
+	<bean id="commonService" class="net.chinanets.service.imp.CommonServiceImp">
+		<property name="commonDao">
+			<ref local="commonDao" />
+		</property>
+	</bean>
+	<bean id="deptService" class="net.chinanets.service.imp.DeptServiceImp"
+		parent="commonService">
+	</bean>
+	<bean id="QueryService" class="net.chinanets.service.imp.QueryServiceImpl">
+		<property name="queryDAO" ref="queryDAO"></property>
+	</bean>
+	<bean id="statisService" class="net.chinanets.service.imp.StatisticServiceImpl" parent="commonService">
+		<property name="jdbcTemplate" >
+			<ref bean="jdbcTemplate"/>
+		</property>
+	</bean>
+<!-- 	<bean id="workFlowService" class="net.chinanets.service.imp.WorkFlowServiceImp" parent="commonService"></bean> -->
+	<bean id="documentService" class="net.chinanets.service.imp.DocumentServiceImp" parent="commonService"/>
+	
+	<bean id="addDBService" class="net.chinanets.service.imp.AddDBServiceImp" parent="commonService">
+	<property name="addDBDao" ref="addDBDao"></property>
+	</bean>
+	<bean id="datumService" class="net.chinanets.service.imp.DatumServiceImp" parent="commonService">
+		<property name="datumDao" ref="DatumDao"></property>
+	</bean>
+	<!--所有物资 -->
+	<bean id="allAssetService" class="net.chinanets.service.imp.AllAssetServiceImp" parent="commonService">
+		<property name="allAssetDao" ref="allAssetDao"></property>
+		<property name="wfHandleDao" ref="wfhandleDao"></property>
+	</bean>
+	<!--代码表-->
+	<bean id="codeListService" class="net.chinanets.service.imp.CodeListServieImp" parent="commonService">
+		<property name="codeListDao" ref="codeListDao"></property>
+	</bean>
+	<!--工作流-->
+	<bean id="wfhandleService" class="net.chinanets.service.imp.WFHandleServiceImp" parent="commonService">
+		<property name="wfHandleDao" ref="wfhandleDao"></property>
+	</bean>
+</beans>

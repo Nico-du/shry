@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()" updateComplete="initAddFoldBtn()"
+		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
+		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoudel.common.*" xmlns:tree="cn.cnspagemoudel.tree.*">
+	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script source="../systemManage/initAllAssetRule.as"/> 
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.entity.DoResult;
+			import cn.cnsasfram.entity.enum.Errors;
+			import cn.cnsasfram.helper.ASCommonHelper;
+			import cn.cnsasfram.helper.ASJsonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.adobe.serialization.json.JSON;
+			import com.benstucki.utilities.IconUtility;
+			
+			import flex.util.CommonMethod;
+			import flex.util.CommonUIMethod;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.CheckBox;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.events.ResizeEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectProxy;
+			//页面标题icon路径
+			[Bindable]
+			protected var pagetitleIcon:String="";
+			//页面默认标题名称
+			[Bindable]
+			protected var pagetitle:String="报废申请";
+			//分页中备注信息
+			[Bindable]
+			protected var dg_pg_othermsg:String="";
+			//分页中数据总数
+			[Bindable]
+			protected var dg_pg_datacount:int=0;
+			//表格数据源
+			[Bindable]
+			protected var dataArray:ArrayCollection=null;
+			//所有按钮及工具栏高度
+			[Bindable]
+			protected var aboutheight:Number=22;
+			//页面数据是否选中
+			[Bindable]
+			protected var dataIsSelected:Boolean=false;
+			
+			//指定linkbutton选中后的颜色,仅供选择
+			public var tempPublicDefaultColor:uint=0xCCFFFF;
+			//默认操作实体名称
+			public var tempObjBeanName:String="CNST_BFD_DATA";
+			//默认操作视图名称
+			public var tempObjViewName:String="CNSV_BFD";
+			//页面初始化是否加载权限
+			public var pageIsLoadPoer:Boolean=true;
+			//页面初始化是否加载数据
+			public var pageIsLoadData:Boolean=true;
+			//搜索表单初始化是否展开
+			public var searchFormIsOpen:Boolean=false;
+			
+			public var bfFlowList:ArrayCollection;
+			//WF_HomeModule跳转
+			public var wfid:String=null;
+			public var defaultTreeIndex:int = 1;
+			private var shouldSetTreeIndex:Boolean = true;
+			public var isShowNewPage:Boolean = false;
+			//初始调用方法
+			public function initPage():void{
+				this.highSearchChange();
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				//加载权限
+				if(pageIsLoadPoer){
+					loadUserPower();
+				}
+				//加载数据
+				if(pageIsLoadData){
+					this.workFlowTree.expandChildrenOf(this.workFlowXML,true);
+					workFlowTree.selectedIndex=defaultTreeIndex;
+					loadData();
+				}
+				addFoldBtn();
+			}
+			
+			//分析权限
+			public function loadUserPower():void{
+				
+				if(this.workFlowTree.selectedItem == null)return;
+				var strSelectId:String = this.workFlowTree.selectedItem.@id;
+				switch(strSelectId){
+					case "wf_cgx":
+						ASCommonHelper.controlVisible(this.newAction,this.isAddUsable);
+						ASCommonHelper.controlVisible(this.removeAction,this.isDelUsable);
+						ASCommonHelper.controlVisible(this.editAction,this.isEditUsable);
+						ASCommonHelper.controlVisible(this.exportAction,this.isExportUsable);
+						ASCommonHelper.controlVisible(this.otherAction,this.isOtherUsable);
+						ASCommonHelper.controlVisible(this.passToNextAction,this.isAddUsable);
+						break;
+					case "wf_blz":
+						ASCommonHelper.controlVisible(this.newAction,this.isAddUsable);
+						break;
+					case "wf_ybj":
+						ASCommonHelper.controlVisible(this.newAction,this.isAddUsable);
+						break;
+					case "wf_db_dbl":
+						
+						break;
+					case "wf_db_ybl":
+						
+						break;
+				}
+			}
+			
+			//加载数据
+			public function loadData():void{
+				AllAssetServiceRmt.getFlowDefine("BFSQ");
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,loadBfFlowListBack);
+			}
+			/**
+			 *读取报废流程信息 
+			 **/
+			public function loadBfFlowListBack(event:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,loadBfFlowListBack);
+				bfFlowList = event.result as ArrayCollection;
+				
+				dataSearchAction(this.cns_dg_pg.pagesize,1);
+			}
+			//获取待审核数量
+			public function getCurrentDshsl():void{//非审核人 没有‘我的处理’节点
+				if(Application.application.userVo.ruleId != "41" && Application.application.userVo.isShr != "1")return;
+				
+				var cdns:String =  "select count(*) from "+tempObjViewName+" where  bfsqzt not in ('初稿','已结束')";
+				if(Application.application.userVo.ruleId != "41"){ //超级管理员查看所有
+					cdns += "and bmldid="+Application.application.userVo.id; 
+				}
+				AllAssetServiceRmt.GetDataCount(cdns);
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataCountSearchActionBack);
+			}
+			//加载相关信息回调方法
+			protected function dataCountSearchActionBack(evt:ResultEvent):void{
+				this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataCountSearchActionBack);
+				if(!CommonMethod.isNullOrWhitespace(evt.result+"")){
+					if(workFlowXML.children().length() < 2){
+						workFlowXML.appendChild(workFlowDblXML);
+					}
+				if(workFlowXML.children().length() > 1){	 
+			    this.workFlowXML.node[1].node[0].@label="待办理("+evt.result+")";
+				if(Number(evt.result)< 1){
+					this.workFlowXML.node[1].node[0].@color = ""; 
+				}else{
+					this.workFlowXML.node[1].node[0].@color = "FF0000"; 
+				}
+			    this.workFlowTree.expandChildrenOf(this.workFlowXML,true);
+				if(shouldSetTreeIndex){
+					shouldSetTreeIndex = false;
+					workFlowTree.selectedIndex=defaultTreeIndex;
+					workFlowTree_clickHandler(null);
+				}
+				
+				}
+				}
+			}
+			
+			//点击搜索按钮事件
+			protected function searchClickAction():void{
+				dataSearchAction(this.cns_dg_pg.pagesize,1);
+			} 
+			
+			//表格单击事件
+			protected function gridItemDataClick(tempEvent:ListEvent):void{
+				var tempSelctedItem:Object=tempEvent.currentTarget.selectedItem;
+				if(tempSelctedItem==null){
+					return;
+				}
+				tempSelctedItem.selected=!tempSelctedItem.selected;				
+				this.cns_dg.invalidateList();
+				checkDataIsSelected();
+			}
+			
+			//表格双击事件
+			protected function gridItemDataDoubleClick(tempEvent:ListEvent):void{
+				var tempSelectedItem:Object=tempEvent.currentTarget.selectedItem;
+				lookDataAction(tempSelectedItem);
+			}
+			
+			//数据选中事件
+			protected function dataChooseActionClick(tempEvent:ListEvent):void{
+				var tempObj:Object=tempEvent.currentTarget.selectedItem;
+				if(tempObj==null || this.dataArray==null || this.dataArray.length<1){
+					return;
+				}
+				var tempStr:String=tempObj.value;
+				if(ASStringHelper.stringCompare(tempStr,"-1",true)==0){
+					return;
+				}else if(ASStringHelper.stringCompare(tempStr,"1",true)==0){
+					for each(var dataobjAll:Object in this.dataArray){
+						dataobjAll.selected=true;
+					}
+				}else if(ASStringHelper.stringCompare(tempStr,"0",true)==0){
+					for each(var dataobjAbsout:Object in this.dataArray){
+						dataobjAbsout.selected=!dataobjAbsout.selected;
+					}
+				}
+				this.cns_dg.invalidateList();
+				checkDataIsSelected();
+			}
+			
+			//查看事件
+			protected function selectActionClick():void{
+				var tempSelectItem:Object=null;
+				for each(var dataobj:Object in this.dataArray){
+					if(dataobj.selected){
+						tempSelectItem=dataobj;
+						break;
+					}
+				}
+				if(tempSelectItem==null){
+					return;
+				}
+				lookDataAction(tempSelectItem);
+			}
+			
+			//新建事件
+			public function newActionClick():void{
+				lookDataAction(null);
+			}
+			
+			//编辑事件
+			protected function editActionClick():void{
+				var tempSelectItem:Object=null;
+				for each(var dataobj:Object in this.dataArray){
+					if(dataobj.selected){
+						tempSelectItem=dataobj;
+						break;
+					}
+				}
+				if(tempSelectItem==null){
+					return;
+				}
+				lookDataAction(tempSelectItem);
+			}
+			
+			//删除事件
+			protected function removeActionClick():void{
+				Alert.show("您确认要删除报废单吗？","系统提示",Alert.OK|Alert.CANCEL,Application.application as Sprite,removeDataAction);
+			}
+			
+			//导出数据
+			protected function exportActionClick():void{
+				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"BFDID",tempObjViewName,"报废登记信息","报废登记信息");
+			}
+			
+			//下载模板事件
+			protected function exportModelActionClick():void{
+				
+			}
+			
+			//上传数据事件
+			protected function importDataActionClick():void{
+				
+			}
+			
+			//查看详细数据
+			public function lookDataAction(tempSelctedItem:Object):void{
+				var tempWindow:BFDJFormMoudel=new BFDJFormMoudel();
+				var tempid:String="";
+				if(tempSelctedItem!=null){
+					tempid=tempSelctedItem.bfdid;
+					this.isNewPage = false;
+				}else{
+					this.isNewPage = true;
+				}
+				tempWindow.isSHPage = this.workFlowTree.selectedItem.@id == "wf_db_dbl";
+				tempWindow.dataId=tempid;
+				tempWindow.currentBFDVo=tempSelctedItem;
+				tempWindow.parentPage=this;
+				this.cns_dg_pg.openEditPage(tempWindow);
+			}
+			//检测表格是否存在选中数据
+			public function checkDataIsSelected():void{
+				for each(var dataobj:Object in this.dataArray){
+					if(dataobj.selected){
+						this.dataIsSelected=true;
+						return;
+					}
+				}
+				this.dataIsSelected=false;
+			}
+			
+			//加载相关信息
+			protected function dataSearchAction(tempPageSize:int,tempPageCurrent:int):void{
+				var strcondition:String=getDataSeacrchCondition();
+				this.AllAssetServiceRmt.GetAllAsset(tempObjViewName,tempPageSize,tempPageCurrent,strcondition);
+				this.AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
+			}
+			//加载相关信息回调方法
+			protected function dataSearchActionBack(rmtResult:ResultEvent):void{
+				this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
+				var objResult:Object=rmtResult.result; 
+				var strresult:String=objResult.toString();
+				var jsonObj:Object=JSON.decode(strresult,true);
+				if(!jsonObj.hasOwnProperty("itemtotal"))return;
+				var itemtotal:Object=jsonObj.itemtotal;
+				var othermsg:Object=jsonObj.othermsg;
+				var items:Object=jsonObj.items;
+				if(items==null){
+					return;
+				}
+				if(isShowNewPage){newActionClick();isShowNewPage=false;}
+				this.dg_pg_datacount=parseInt(itemtotal as String);
+				this.dg_pg_othermsg=othermsg==null?"":othermsg.toString();
+				this.dataArray=ASCommonHelper.addArraySelectedPro(new ArrayCollection(items as Array));
+				this.checkDataIsSelected();
+				this.cns_dg_pg.setPagingCount();
+				this.loadUserPower();
+				getCurrentDshsl();
+				ProcessMethods.wfPageUpdateComplete(this);
+			}
+			//得到搜索条件
+			protected function getDataSeacrchCondition():String{
+				var condition:Object=new Object();
+				if(!searchFormIsOpen){
+					var bfdbh:String=this.bfdbh.text;
+					var djrname:String=this.djrname.text;
+					var djbmname:String=this.djbmname.text;
+					if(!ASStringHelper.isNullOrEmpty(bfdbh)){
+						condition.s_bfdbh_string_like=bfdbh;
+					}
+					if(!ASStringHelper.isNullOrEmpty(djrname)){
+						condition.s_djrname_string_like=djrname;
+					}
+					if(!ASStringHelper.isNullOrEmpty(djbmname)){
+						condition.s_djbmname_string_like=djbmname;
+					}
+				}else{
+					var quklytext:String=this.qukilySearchTxt.text;
+					if(!ASStringHelper.isNullOrEmpty(quklytext)){
+					condition.s_bfdbh_string_like=quklytext;
+					}
+				}
+				condition = getCurrentMenuCondition(condition);
+				var conditionJson:String=JSON.encode(condition) + "order by TMPT.utime desc";
+				return conditionJson;
+			}
+			
+			//删除数据
+			protected function removeDataAction(doEvent:CloseEvent):void{
+				if(doEvent.detail==Alert.CANCEL){
+					return;
+				}
+				var dataids:String=this.getRemoveDataArray();
+				if(ASStringHelper.isNullOrEmpty(dataids)){
+					return;
+				}
+				AllAssetServiceRmt.RemoveBFDJ(dataids);
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
+			}
+			//删除数据回调方法
+			protected function removeDataActionBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,removeDataActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					Alert.show(doResult.strErrorInfo);
+					return;
+				}else{
+				//	Alert.show("数据删除成功");
+					this.loadData();
+				}
+			}
+			//得到要删除的数据
+			protected function getRemoveDataArray():String{
+				var dataids:String="";
+				for each(var dataobj:Object in this.dataArray){
+					if(dataobj.selected){
+						dataids+=dataobj.bfdid+",";
+					}
+				}
+				if(ASStringHelper.isNullOrEmpty(dataids)){
+					dataids=dataids.substr(0,dataids.length-1);
+				}
+				return dataids;
+			}
+			//格式化datagrid的日期
+			public static function dateItemFormat(item:Object,dgColumn:DataGridColumn):String{  
+				var dataFormat:DateFormatter = new DateFormatter();  
+				dataFormat.formatString = "YYYY-MM-DD";  
+				var value:Object = item[dgColumn.dataField];  
+				return dataFormat.format(value);  
+			}
+			
+			//选择高级搜索切换
+			protected function highSearchChange():void{
+				if(searchFormIsOpen){
+					this.qukilySearchBar.enabled=false;
+					ASCommonHelper.controlVisible(this.highSearchBox,true);
+					this.highSearch.label="隐藏";
+				}else{
+					this.qukilySearchBar.enabled=true;
+					ASCommonHelper.controlVisible(this.highSearchBox,false);
+					this.highSearch.label="高级";
+				}
+				searchFormIsOpen=!searchFormIsOpen;
+			}
+			
+			//搜索重置
+			protected function dataSearchResetAction():void{
+				this.bfdbh.text="";
+				this.djrname.text="";
+				this.djbmname.text="";
+			}
+			
+			//得到title的ICON
+			protected function getTitleIcon(iconPath:String):Class{
+				if(ASStringHelper.isNullOrEmpty(iconPath)){
+					return null;
+				}
+				return IconUtility.getClass(this.pagePanel,iconPath,20,20);
+			}
+			
+			//得到表格行号
+			protected function getColumnIndex(item:Object,column:DataGridColumn):String{
+				return String(this.cns_dg.dataProvider.getItemIndex(item)+1);
+			}
+			//设置状态
+			protected function resetColumnBFSQZT(item:Object,column:DataGridColumn):String{
+				return (item.bfsqzt.indexOf("初稿") > -1 || item.bfsqzt.indexOf("结束") > -1) ? item.bfsqzt : (item.bfsqzt+"审核");
+			}
+			
+
+			protected function getCurrentMenuCondition(condition:Object,curSlcid:String=null):Object
+			{
+				 var slcid:String;
+				 if(curSlcid != null){
+					slcid = curSlcid;
+				 }else{
+					slcid = workFlowTree.selectedItem.@id; 
+				 }
+				 var currentStep:String = "初稿";
+				 passToNextAction.visible = false;passToNextAction.includeInLayout = false;
+				 switch(slcid){
+					 case "wf_cgx": condition.s_bfsqzt_string_like = ProcessMethods.Process_Status_Name_CG;  
+						 newAction.visible = true; newAction.includeInLayout = true;
+						 editAction.visible = true; editAction.includeInLayout = true;
+						 removeAction.visible = true;removeAction.includeInLayout = true;
+						 passToNextAction.visible = true;passToNextAction.includeInLayout = true;
+						 break;
+					 case "wf_blz":condition.s_bfsqzt_string_notin = ProcessMethods.Process_Status_Name_CG+","+ProcessMethods.Process_Status_Name_YJS; 
+						 newAction.visible = true; newAction.includeInLayout = true;
+						 editAction.visible = false; editAction.includeInLayout = false;
+						 removeAction.visible = false;removeAction.includeInLayout = false;
+						 break;
+					 case "wf_ybj": condition.s_bfsqzt_string_like = ProcessMethods.Process_Status_Name_YJS;
+						 newAction.visible = true; newAction.includeInLayout = true;
+						 editAction.visible = false; editAction.includeInLayout = false;
+						 removeAction.visible = false;removeAction.includeInLayout = false;
+						 break;
+					 /* case "wf_db_cgx": condition.s_bfsqzt_string_like = ProcessMethods.Process_Status_Name_CGX;
+						 condition.s_bmldid_int_eq = Application.application.userVo.id; break; */
+					 case "wf_db_dbl":condition.s_bfsqzt_string_notin = ProcessMethods.Process_Status_Name_CG+","+ProcessMethods.Process_Status_Name_YJS;
+						 if(Application.application.userVo.ruleId != "41"){ //超级管理员查看所有
+							 condition.s_bmldid_string_eq = Application.application.userVo.id; 
+						 }
+						 newAction.visible = false; newAction.includeInLayout = false;
+						 editAction.visible = false; editAction.includeInLayout = false;
+						 removeAction.visible = false;removeAction.includeInLayout = false;
+						 break;
+					  case "wf_db_ybl":
+						   condition.s_cuser_string_noteq="'"+Application.application.userVo.id+"' AND "+"'"+Application.application.userVo.id+
+						  "' IN (SELECT WFDOUSERID FROM CNST_WFHISTORY_DATA WHERE WFDATAID=TMPT.BFDID)" ; 
+						  newAction.visible = false; newAction.includeInLayout = false;
+						  editAction.visible = false; editAction.includeInLayout = false;
+						  removeAction.visible = false;removeAction.includeInLayout = false;
+						  break; 
+				 }
+				 
+				 if(Application.application.userVo.ruleId != "41" && slcid != "wf_db_dbl" && slcid != "wf_db_ybl"){//超级管理员查看所有
+					 condition.s_cuser_string_eq = Application.application.userVo.id;
+				 }
+				 
+				 if(slcid == "wf_db_dbl"){
+					 shColumn.visible = true;
+					 lsjlColumn.visible = false;
+				 }else{
+					 shColumn.visible = false;
+					 lsjlColumn.visible = true;
+				 }
+				 
+				 if(slcid == "wf_cgx"){
+					 shColumn.visible = false;
+					 lsjlColumn.visible = false;
+				 }
+					 
+				 //控制当前显示 报废单的所属人 和 列表最后一列按钮文字	 
+				 if(slcid == "wf_db_dbl"){
+					 pagePanel.title ="待办理任务";
+				 }else if(slcid == "wf_db_ybl"){
+					 pagePanel.title ="已办理任务";
+				 }else{
+					 pagePanel.title ="报废申请-"+ workFlowTree.selectedItem.@label;
+				 }
+					 
+				 return condition;
+			}
+			protected function workFlowTree_clickHandler(event:MouseEvent):void
+			{
+				if(workFlowTree.selectedItem != null && workFlowTree.selectedItem.@id != "myStartwork" 
+					&& workFlowTree.selectedItem.@id != "myHandlework"){
+				searchClickAction();
+				}
+			}
+			
+			public function clickSHBtn(obj:Object):void{
+				if(shColumn.visible){
+				// lookDataAction(obj);
+				var tempWindow:BFDJFormMoudel=new BFDJFormMoudel();
+				var tempid:String="";
+				if(obj!=null){
+					tempid=obj.bfdid;
+				}
+				tempWindow.dataId=tempid;
+				tempWindow.currentBFDVo=obj;
+				tempWindow.parentPage=this;
+				
+				tempWindow.getNextStepData();
+				tempWindow.choseSHR();
+				
+				//this.cns_dg_pg.openEditPage(tempWindow);
+				}else{
+					ProcessMethods.historyActionActionClick(obj.bfdid);
+				}
+			}
+			
+			public function passToNextActionClick():void{
+				var tempSelectItem:Object=null;
+				for each(var dataobj:Object in this.dataArray){
+					if(dataobj.selected){
+						tempSelectItem=dataobj;
+						break;
+					}
+				}
+				if(tempSelectItem==null){
+					return;
+				}
+				shColumn.visible = true;
+				lsjlColumn.visible = false;
+				clickSHBtn(tempSelectItem);
+			}
+			
+			///添加折叠按钮
+			/**
+			 *初始化imgFold的坐标 
+			 **/
+			private var menuLeftWidth:Number;//记录menuLeft的宽度
+			private function initAddFoldBtn():void{
+				imgFold.x=this.getAssetMainMenuLeftWidth() + menuLeft.width + 10;
+				imgFold.y=(menuLeft.height-imgFold.height)/2 + 70; 
+				imgFold.visible = this.visible;
+			}
+			/**
+			 *添加展开/收起树形菜单按钮 
+			 **/
+			private function addFoldBtn():void{
+				PopUpManager.addPopUp(imgFold, this,false);
+				imgFold.addEventListener(MouseEvent.CLICK,imgFoldClickHandler);
+				menuLeft.addEventListener(ResizeEvent.RESIZE,resizeHandler);
+			}
+			private function resizeHandler(evt:Event):void{
+				imgFold.x = this.getAssetMainMenuLeftWidth() + menuLeft.width + 10;
+			}
+			private function imgFoldClickHandler(evt:Event):void{
+				if(moveEffect.isPlaying){
+					moveEffect.end();
+					resizeEffect.end();
+				}
+				if(menuLeft.width != 0){
+					menuLeftWidth = menuLeft.width;
+				}
+				
+				moveEffect.play();
+				resizeEffect.play();
+			}
+			protected function moveEffect_effectEndHandler(event:Event):void
+			{
+				imgFold.source = null;
+				if(imgFold.toolTip == "收起"){
+					imgFold.toolTip = "展开";
+					var tempClass:Class=IconUtility.getClass(imgFold,"images/mini-right.gif",5,35);
+					imgFold.source=tempClass;
+					
+					moveEffect.xTo = this.getAssetMainMenuLeftWidth() + menuLeftWidth + 10;
+					resizeEffect.widthTo = menuLeftWidth;
+					menuLeft.visible = false;
+				}else{
+					imgFold.toolTip = "收起";
+					var tempClass:Class=IconUtility.getClass(imgFold,"images/mini-left.gif",5,35);
+					imgFold.source=tempClass;
+					
+					moveEffect.xTo = this.getAssetMainMenuLeftWidth() + 10;
+					resizeEffect.widthTo = 0;
+				}
+				imgFold.x=this.getAssetMainMenuLeftWidth() + menuLeft.width + 10;
+			}
+			//隐藏AssetPage.menuLeft时   控制imgFold x坐标
+			private function getAssetMainMenuLeftWidth():int{
+				if(Application.application.mainPage.AssetPage.menuLeft.parent == null)return -5;
+				
+				return Application.application.mainPage.AssetPage.menuLeft.width;
+			}
+		]]>
+	</mx:Script>
+	<mx:XML id="workFlowXML">
+	<root id="mywork" label="我的任务">
+		<node id="myStartwork" label="我的发起" pageUrl="">
+			<node id="wf_cgx" label="草稿箱" pageUrl=""/>
+			<node id="wf_blz" label="办理中" pageUrl=""/>
+			<node id="wf_ybj" label="已结束" pageUrl=""/>
+		</node>
+	</root>
+	</mx:XML>
+	<mx:XML id="workFlowDblXML">
+		<node id="myHandlework" label="我的处理" pageUrl="">
+			<node id="wf_db_dbl" label="待办理(5)" pageUrl="" color="FF0000"/>
+			<node id="wf_db_ybl" label="已办理" pageUrl=""/>
+		</node>
+	</mx:XML>
+	<mx:Move id="moveEffect" target="{imgFold}"  xFrom="{this.getAssetMainMenuLeftWidth() + menuLeft.width + 10}" xTo="{ this.getAssetMainMenuLeftWidth() + 10}" effectStart="{menuLeft.visible = true;}" effectEnd="moveEffect_effectEndHandler(event)"/>
+	<mx:Resize id="resizeEffect" target="{menuLeft}"  widthFrom="{menuLeft.width}" widthTo="{0}" />
+	<mx:Image id="imgFold" includeInLayout="false" visible="false" toolTip="收起" source="@Embed(source='images/mini-left.gif')" mouseOver="{Mouse.cursor = MouseCursor.BUTTON;}" mouseOut="{Mouse.cursor = MouseCursor.ARROW;}" />
+	<mx:HDividedBox width="100%" height="100%" verticalAlign="middle" verticalGap="0" borderStyle="none" horizontalAlign="center" horizontalGap="3">
+		<mx:Canvas label="报废相关" width="150" height="100%" id="menuLeft">
+			<mx:VBox width="100%" height="100%" verticalGap="2" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" verticalAlign="middle">
+				<mx:HBox width="100%" height="20" horizontalAlign="left" backgroundColor="#99CCFF" borderStyle="none" horizontalGap="0" verticalAlign="middle">
+					<mx:Label text="报废相关" textIndent="5" textAlign="left" fontWeight="bold" fontSize="13" width="100%"/>
+					<mx:LinkButton label="" id="zdMenu" toolTip="收起" visible="false" includeInLayout="false" click="CommonUIMethod.ui_foldLeftMenu(zdMenu)" width="20" height="20" icon="@Embed(source='images/pg_prev1.gif')"/>
+				</mx:HBox>
+				<tree:TreeMoudel id="workFlowTree" fontWeight="bold" dataProvider="{workFlowXML.children()}" borderStyle="none" dragEnabled="false" width="100%" height="100%" labelField="@label" showRoot="true" click="workFlowTree_clickHandler(event)"/>
+			</mx:VBox>
+		</mx:Canvas>
+		<mx:Panel id="pagePanel" title="{pagetitle}" titleIcon="{getTitleIcon(pagetitleIcon)}" width="100" height="100%" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" verticalGap="2" horizontalGap="0">
+			<!--快捷搜索-->
+			<mx:HBox id="qukilySearchBox" width="100%" height="{aboutheight}" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
+				<mx:HBox id="qukilySearchBar" width="80%" height="{aboutheight}" horizontalGap="1" horizontalAlign="left" borderStyle="none">
+					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="编号" textAlign="right"/>
+					<mx:TextInput id="qukilySearchTxt" enter="searchClickAction()" width="150" height="{aboutheight}"/>
+					<mx:Button id="qukilySearchBtn" click="searchClickAction()" height="{aboutheight}" label="搜索" icon="@Embed(source='images/find.gif')"/>
+				</mx:HBox>
+				<mx:HBox width="20%" horizontalGap="1" horizontalAlign="right" borderStyle="none">
+					<mx:Button id="highSearch" click="highSearchChange()" width="55" height="{aboutheight}" label="高级"/>
+				</mx:HBox>
+			</mx:HBox>
+			<!--搜索表单-->
+			<mx:HBox id="highSearchBox" width="100%" borderStyle="solid" verticalGap="0" horizontalGap="0">
+				<mx:Form id="highSearchForm" width="100%" horizontalGap="0" verticalGap="0" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" indicatorGap="0" borderStyle="none">
+					<mx:Grid width="100%" horizontalGap="0" verticalGap="4" borderStyle="none">
+						<mx:GridRow width="100%" height="{aboutheight}">
+							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="编号:" height="{aboutheight}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
+									<mx:TextInput id="bfdbh" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="登记人:" height="{aboutheight}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+									<mx:TextInput id="djrname" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="登记部门:" height="{aboutheight}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+									<mx:TextInput id="djbmname" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
+						</mx:GridRow>
+					</mx:Grid>
+				</mx:Form>
+				<mx:VBox width="60" height="100%" borderStyle="none" verticalGap="2" paddingTop="2" paddingBottom="2" horizontalAlign="center" verticalAlign="middle">
+					<mx:Button id="btnsearchdata" click="searchClickAction()" width="55" height="{aboutheight}" label="搜索"/>
+					<mx:Button id="btnresetdata" click="dataSearchResetAction()" width="55" height="{aboutheight}" label="重置"/>
+				</mx:VBox>
+			</mx:HBox>
+			<!--工具栏-->
+			<mx:HBox id="toolBar" width="100%" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" borderStyle="none" backgroundColor="#99CCFF">
+				<mx:ComboBox id="dataChooseAction" labelField="label" change="dataChooseActionClick(event)" editable="false" width="67" height="{aboutheight}" blendMode="overlay">
+					<mx:Array id="cbChooseArray">
+						<mx:Object label="选择" value="-1"/>
+						<mx:Object label="全选" value="1"/>
+						<mx:Object label="反选" value="0"/>
+					</mx:Array>
+				</mx:ComboBox>
+				<mx:LinkButton id="passToNextAction" click="passToNextActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="提交至部门领导" toolTip="提交至部门领导" icon="@Embed(source='images/icon_gear.png')"/>
+				<mx:LinkButton id="selectAction" click="selectActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="查看" toolTip="查看" icon="@Embed(source='images/icon_choosedate.gif')"/>
+				<mx:LinkButton id="newAction" click="newActionClick()" height="{aboutheight}" label="新建" toolTip="新建" icon="@Embed(source='images/add.gif')"/>
+				<mx:LinkButton id="editAction" click="editActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="编辑" toolTip="编辑" icon="@Embed(source='images/edit.gif')"/>
+				<mx:LinkButton id="removeAction" click="removeActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="删除" toolTip="删除" icon="@Embed(source='images/delete.gif')"/>
+				<mx:LinkButton id="exportAction" click="exportActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="导出" toolTip="导出" icon="@Embed(source='images/export.gif')"/>
+				<mx:LinkButton id="refreshAction" click="searchClickAction()" height="{aboutheight}" label="刷新" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
+				<mx:ComboBox id="otherAction" cornerRadius="2"  visible="false" editable="false" width="90" height="{aboutheight}" blendMode="overlay">
+					<mx:Array id="cbotherchoose">
+						<mx:Object label="其它操作" value="unknow"/>
+						<mx:Object label="导出模板" value="exportModelAction"/>
+						<mx:Object label="导入数据" value="inportDataAction"/>
+					</mx:Array>
+				</mx:ComboBox>
+			</mx:HBox>
+			<!--表格数据-->
+			<mx:VBox width="100%" height="100%" verticalGap="2" borderStyle="none">
+				<mx:DataGrid id="cns_dg" dataProvider="{dataArray}" itemClick="gridItemDataClick(event)" 
+							 itemDoubleClick="gridItemDataDoubleClick(event)" doubleClickEnabled="true" width="100%" height="100%">
+					<mx:columns>
+						<mx:DataGridColumn headerText="" width="43" draggable="false" sortable="false" labelFunction="getColumnIndex" textAlign="center">
+				 			<mx:itemRenderer>
+								<mx:Component>
+									<mx:CheckBox selected="{data.selected}"/>
+								</mx:Component>
+							</mx:itemRenderer> 
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="编号" width="145" dataField="bfdbh" sortable="true"/>
+						<mx:DataGridColumn headerText="登记人" width="80" dataField="djrname" sortable="true"/>
+						<mx:DataGridColumn headerText="登记部门" width="80" dataField="djbmname" sortable="false"/>
+						<mx:DataGridColumn headerText="登记日期" width="85" dataField="djrq" sortable="false"/>
+						<mx:DataGridColumn headerText="报废总金额" width="80" dataField="bfzje" sortable="true"/>
+						<mx:DataGridColumn headerText="更新人" width="80" dataField="uusername" sortable="false"/>
+						<mx:DataGridColumn headerText="更新时间" width="85" dataField="utime" sortable="true"/>
+						<mx:DataGridColumn headerText="状态" width="100" dataField="bfsqzt" labelFunction="resetColumnBFSQZT" sortable="true"/>
+						<mx:DataGridColumn headerText="审核" id="shColumn" minWidth="70" width="70" resizable="true" dataField="" sortable="false">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:LinkButton horizontalGap="0" label="审核" icon="@Embed(source='images/icon_gear.png')" textAlign="center" click="this.parentDocument.clickSHBtn(data)" />
+								</mx:Component>
+							</mx:itemRenderer> 
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="历史记录" id="lsjlColumn" minWidth="70" width="70" resizable="true" dataField="" sortable="false">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:LinkButton horizontalGap="0" label="查看"   icon="@Embed(source='images/formtoolbar/form_save.gif')" textAlign="center" click="this.parentDocument.clickSHBtn(data)" />
+								</mx:Component>
+							</mx:itemRenderer> 
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
+					</mx:columns>
+				</mx:DataGrid>
+				<cnspg:PagingMoudel id="cns_dg_pg" width="100%" height="{aboutheight}" datacount="{dg_pg_datacount}" othermsg="{dg_pg_othermsg}" funReqData="dataSearchAction"/>
+			</mx:VBox>
+		</mx:Panel>
+	</mx:HDividedBox>
+</mx:Module>

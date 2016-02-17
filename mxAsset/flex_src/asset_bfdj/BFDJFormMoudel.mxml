@@ -1,0 +1,747 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:dataPick="cn.cnspagemoudel.date.*" xmlns:assetBFDJMX="asset_bfdj.*" creationPolicy="all"
+				title="报废单" layout="absolute" showCloseButton="true" fontSize="12" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()" xmlns:textinput="cn.cnspagemoudel.textinput.*">
+	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.entity.DoResult;
+			import cn.cnsasfram.entity.enum.Errors;
+			import cn.cnsasfram.helper.ASCommonHelper;
+			import cn.cnsasfram.helper.ASDateHelper;
+			import cn.cnsasfram.helper.ASJsonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.adobe.serialization.json.JSON;
+			
+			import flex.util.CommonMethod;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			//所有按钮高度，工具栏
+			[Bindable]
+			protected var aboutheight:Number=20;
+			
+			//页面标题
+			[Bindable]
+			public var pageTitle:String="报废单";
+			
+			//数据标题
+			[Bindable]
+			public var dataTitles:String="";
+			
+			//数据ID
+			[Bindable]public var dataId:String="";
+			//默认操作实体名称
+			public var tempObjBeanName:String="CNST_BFD_DATA";
+			//视图名称
+			public var tempObjViewName:String="CNSV_BFD";
+			//保存数据
+			public var dataArray:ArrayCollection=null;
+			//页面是否加载权限控制
+			public var pageIsLoadPoer:Boolean=true;
+			//页面初始化是否加载数据
+			public var pageIsLoadData:Boolean=true;
+			//父窗口
+			public var parentPage:BFDJGridMoudel=null;
+			//临时存储方法
+			public var tempFunction:Function=null;
+			//临时存储回调方法
+			public var tempCallBackFunc:Function=null;
+			//当前报废单VO
+			public var currentBFDVo:Object = null;
+			//是否审核界面 审核界面只能修改: 审核数量/实际数量
+			public var isSHPage:Boolean = false;
+			//临时Object
+			private var newObject:Object = new Object();
+			//页面初始化调用
+			public function initPage():void{
+				this.width=FlexGlobals.topLevelApplication.width*0.9;
+				this.height=FlexGlobals.topLevelApplication.height*0.9;
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				if(pageIsLoadPoer){
+					loadUserPower();
+				}
+			}
+			
+			//分析权限
+			public function loadUserPower():void{
+				//判断读取权限
+				
+				//判断写入权限
+				if(currentBFDVo != null){
+					if(currentBFDVo.bfsqzt.indexOf("结束") > -1){
+					ASCommonHelper.controlVisible(this.nextStepAction,false);
+					}else{
+					ASCommonHelper.controlVisible(this.nextStepAction,parentPage.isAddUsable);
+					}
+				}
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				if(pageIsLoadData){
+					loadData();
+				}
+				if(currentBFDVo != null){
+					getNextStepData();
+					ProcessMethods.changeProcessBtnState(this,parentPage.pagePanel.title);
+					
+				}//ADD流程处理
+				//改变当前页面按钮状态
+				ProcessMethods.changeCNSTModuelState(this,(parentPage.newAction.visible && parentPage.isNewPage),parentPage.editAction.visible,parentPage.removeAction.visible);
+				//改变明细页面按钮状态
+				bfdmxDg.parentPage = this;
+				ProcessMethods.changeCNSTModuelState(bfdmxDg,(this.newAction.visible || this.saveAction.visible),this.saveAction.visible,(this.removeAndCloseAction.visible || this.saveAction.visible));
+				
+				if(currentBFDVo != null){
+					if(currentBFDVo.bfsqzt == ProcessMethods.Process_Status_Name_CG || parentPage.isNewPage){
+						ASCommonHelper.controlVisible(this.historyAction,false);
+						ASCommonHelper.controlVisible(this.exportAction,false);
+					}else{ 
+						ASCommonHelper.controlVisible(this.historyAction,true);
+						ASCommonHelper.controlVisible(this.exportAction,CommonMethod.isExportLYDVisible);
+					}
+				}
+			}
+			
+			
+			//页面关闭时调用
+			public function closePage():void{
+				if(true){
+					beforeClosePage();
+				}
+				PopUpManager.removePopUp(this);
+				if(true){
+					afterClosePage();
+				}
+			}
+			
+			//关闭页面之前调用
+			protected function beforeClosePage():void{
+			}
+			
+			//关闭页面之后调用
+			protected function afterClosePage():void{
+				if(this.parentPage!=null){
+					this.parentPage.loadData();
+				}
+				this.pageIsLoadData=false;
+			}
+			
+			//保存事件
+			public function saveActionClick(callBackFunction:Function=null):void{
+				this.saveData();
+				this.tempFunction=this.loadData;
+			}
+			
+			//保存并新建事件
+			protected function saveAndNewActionClick():void{
+				this.saveData();
+				this.tempFunction=this.resetData;
+			}
+			
+			//新建事件
+			protected function newActionClick():void{
+				this.resetData();
+			}
+			
+			//保存并关闭事件
+			protected function saveAndCloseActionClick():void{
+				this.saveData();
+				this.tempFunction=this.closePage;
+			}
+			
+			//删除并关闭事件
+			protected function removeAndCloseActionClick():void{
+				this.removeData();
+				this.tempFunction=this.closePage;
+			}
+			
+			//关闭事件
+			protected function closeActionClick():void{
+				this.closePage();
+			}
+			
+			//加载数据
+			public function loadData():void{
+				this.dataSearchAction();
+			}
+			
+			//保存数据
+			public function saveData():void{
+				this.dataSaveOrUpdateAction();
+			}
+			//导出入库单及明细事件
+			protected function exportActionClick():void{
+				var paretSearchCdn:String = " from "+ parentPage.tempObjViewName + " where bfdid = '"+this.dataId+"' ";
+				CommonMethod.exportDoubleWFExcelData(bfdmxDg.cns_dg," where bfdid = '"+this.dataId+"' ","BFDMXID",bfdmxDg.tempObjViewName,"报废登记信息","报废",parentPage.cns_dg,paretSearchCdn);
+			}
+			
+			//删除数据
+			public function removeData():void{
+				if(ASStringHelper.isNullOrEmpty(this.dataId)){
+					return;
+				}
+				Alert.show("您确认要删除报废单吗？","系统提示",Alert.OK|Alert.CANCEL,Application.application as Sprite,dataRemoveAction);
+			}
+			
+			
+			
+			//提交到下一步操作
+			public function nextStepActionClick():void{
+				if(!beforeSubmitData())return;
+					getNextStepData();
+					choseSHR();
+				/* if(parentPage.pagePanel.title.indexOf("待办理") > -1){
+				}else{
+				Alert.yesLabel = "确   认";
+				Alert.noLabel = "选择处理人";
+				Alert.buttonWidth = 90;
+				Alert.buttonHeight = 25;
+				Alert.cancelLabel = "返   回";
+				Alert.show("您确认要转交下一步并使用默认处理人？","确认转交",(Alert.NO|Alert.YES|Alert.CANCEL),
+					this.parentApplication as Sprite ,passToNext);
+				} */
+			}
+			
+			public	var nextStepVo:Object = new Object();
+			public	var fwLsjlVo:Object = new Object();
+			//提交到下一步选择
+			private function passToNext(event:CloseEvent):void {
+				getNextStepData();
+				if(event.detail == Alert.YES) {
+					submitToNextStep();
+				}else if(event.detail == Alert.NO){
+					choseSHR();
+				} 
+			}
+			
+			//结束流程
+			private function passToEnd(event:CloseEvent):void {
+				if(event.detail == Alert.YES) {
+					submitToNextStep();
+				}
+			}
+			//选择审核人/填写审核意见 
+			public function choseSHR():void{
+				var nextStep:WFSimpleFormMoudel = new WFSimpleFormMoudel();
+				nextStep.nextStepVo = nextStepVo;
+				nextStep.fwLsjlVo = fwLsjlVo;
+				nextStep.parentPage = this;
+				if(currentBFDVo.bfsqzt == ProcessMethods.Process_Status_Name_CG){//初稿改变clyjlbl为申请理由
+					nextStep.isShWd = false;
+				}
+				PopUpManager.addPopUp(nextStep,Application.application as DisplayObject,true);
+				PopUpManager.centerPopUp(nextStep);
+			}
+			//获取提交流程的数据
+			public function getNextStepData():void{
+				var k:int =0;//当前步骤order
+				for(var i:int=0;i<parentPage.bfFlowList.length;i++){
+					if(parentPage.bfFlowList[i].wfstepid == currentBFDVo.bfsqbz){
+						k = i; break;
+					}
+				}
+				nextStepVo.wfsteptype = "BFSQ";
+				nextStepVo.dqbz = parentPage.bfFlowList[k].wfstepname+"审核";
+				nextStepVo.xgbz = (k+1 >=　parentPage.bfFlowList.length) ? "报废结束" :　parentPage.bfFlowList[k+1].wfstepname+"审核";
+				
+				nextStepVo.dqclr = Application.application.userVo.userName;
+				nextStepVo.dqclrdata = Application.application.userVo.id;
+				
+				nextStepVo.xybclr = (k+1 >=　parentPage.bfFlowList.length) ? "报废结束" :　parentPage.bfFlowList[k+1].defaultusername;
+				nextStepVo.xybclrdata = (k+1 >=　parentPage.bfFlowList.length) ? "报废结束" :　parentPage.bfFlowList[k+1].defaultuser;
+				nextStepVo.bfsqbz = parentPage.bfFlowList[k].wfstepid;
+				
+				fwLsjlVo.wfhistoryname = parentPage.bfFlowList[k].wfstepname;
+				fwLsjlVo.wfhstepid = parentPage.bfFlowList[k].wfstepid;
+				fwLsjlVo.wfdataid = this.dataId;
+				fwLsjlVo.wfdouserid =  Application.application.userVo.id;
+			//	fwLsjlVo.wfdocontent = this.memo.text;
+				fwLsjlVo.cuser =  Application.application.userVo.id;
+				fwLsjlVo.uuser =  Application.application.userVo.id;
+			}
+			
+			//重置数据
+			protected function resetData():void{
+				this.title = "新建报废单";
+				this.dataId="";
+				this.dataArray=new ArrayCollection();
+				this.dataArray.addItem(new Object());
+				this.afterLoadData();
+				this.errormsgbox.removeAllChildren();
+				this.setDefaultValue();
+			}
+			
+			private function setDefaultValue():void{
+				djrname.text = Application.application.userVo.userName;
+				djrname.data = Application.application.userVo.id;
+				this.djbmname.text = Application.application.userVo.deptName;
+				newObject.id = Application.application.userVo.deptId;
+				this.djbmname.data = newObject;
+				djrq.dateNowClick();
+				if(CommonMethod.isNullOrWhitespace(this.dataId)){
+					var bhStr:String = "BFD-"+CommonMethod.commonDateFormatter.format(new Date());
+					CommonMethod.getMaxNewDataBH(tempObjBeanName,"BFDBH",bhStr,bfdbh);
+				}
+			}
+			
+			//加载搜索条件
+			protected function getDataSeacrchCondition():String{
+				var condition:Object=new Object();
+				condition.s_bfdid_string_eq=this.dataId;
+				var conditionJson:String=JSON.encode(condition);
+				return conditionJson;
+			}
+			//加载相关信息
+			protected function dataSearchAction():void{
+				if(ASStringHelper.isNullOrEmpty(this.dataId)){
+					this.resetData();
+					return; 
+				}
+				this.title = "编辑报废单";
+				var strcondition:String=getDataSeacrchCondition();
+				if(ASStringHelper.isNullOrEmpty(strcondition)){
+					return;
+				}
+				this.AllAssetServiceRmt.GetAllAsset(tempObjViewName,20,1,strcondition);
+				this.AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
+			}
+			//加载相关信息回调方法
+			protected function dataSearchActionBack(rmtResult:ResultEvent):void{
+				this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
+				var objResult:Object=rmtResult.result;
+				var strresult:String=objResult.toString();
+				var jsonObj:Object=JSON.decode(strresult,true);
+				var itemtotal:Object=jsonObj.itemtotal;
+				var othermsg:Object=jsonObj.othermsg;
+				var items:Object=jsonObj.items;
+				if(items==null){
+					this.resultmsg.text="未请求到相关数据"
+					this.resultmsg.alpha=1;
+					this.fadeEffect.stop();
+					this.fadeEffect.play(null,false);
+					return;
+				}
+				this.dataArray=new ArrayCollection(items as Array);
+				this.afterLoadData();
+			}
+			//加载数据成功之后调用
+			protected function afterLoadData():void{
+				if(this.dataArray==null || this.dataArray.length<1){
+					return;
+				}
+			//	bfdmxDg.isNewActionEnable = !CommonMethod.isNullOrWhitespace(this.dataId);
+				bfdmxDg.bfdid = this.dataId;
+				var tempObj:Object=this.dataArray.getItemAt(0);
+				this.dataTitles=tempObj["bfdbh"];
+				this.bfdbh.text=tempObj["bfdbh"];
+				this.djrname.text=tempObj["djrname"];
+				this.djrq.setText(tempObj["djrq"]);
+				this.djbmname.text=tempObj["djbmname"];
+				
+				this.djrname.data=tempObj["djrid"];
+				newObject.id = tempObj["djbmid"];
+				this.djbmname.data = newObject;
+			//	this.bfzje.text=tempObj["bfzje"];
+				this.memo.text=tempObj["memo"];
+				if(!CommonMethod.isNullOrWhitespace(this.memo.text)&& MEMOLKB.visible){	setMemoVisable();}
+				this.UTIME.text=tempObj[this.UTIME.id.toLowerCase()];
+				this.UUSER.text=tempObj[this.UUSER.id.toLowerCase()+"name"];
+				this.CTIME.text=tempObj[this.CTIME.id.toLowerCase()];
+				this.CUSER.text=tempObj[this.CUSER.id.toLowerCase()+"name"];
+			}
+			
+			//提交数据之前验证数据
+			protected function beforeSubmitData():Boolean{
+				this.errormsgbox.removeAllChildren();
+				var errorMsg:String="";
+				var isCheckSuccess:Boolean=true;
+				if(CommonMethod.isNullOrWhitespace(dataId)){
+					saveActionClick();
+					/*  errorMsg = "请先保存报废单,并添加报废单明细数据后再提交";
+					showCheckErrors(errorMsg);
+					isCheckSuccess = false; */
+				}
+				if(bfdmxDg.dataArray == null || bfdmxDg.dataArray.length<1){
+					 errorMsg = "[报废单明细数据]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess = false;
+				}
+					return isCheckSuccess;
+			}
+			//保存数据之前验证数据
+			protected function beforeSaveData():Boolean{
+				this.errormsgbox.removeAllChildren();
+				var errorMsg:String="";
+				var isCheckSuccess:Boolean=true;
+				if(ASStringHelper.isNullOrEmpty(this.bfdbh.text)){
+					errorMsg="[编号]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.djrname.text)){
+					errorMsg="[登记人]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.djbmname.text)){
+					errorMsg="[登记部门]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.djrq.getText())){
+					errorMsg="[登记时间]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				//执行编号重复验证
+				if(isCheckSuccess){
+					CommonMethod.validateWFBH(this.bfdbh.text,"BFDID","BFDBH",this.tempObjBeanName,this.dataId,this,beforeSaveDataBack);
+					return false;
+				}
+				return isCheckSuccess;
+			}
+			//验证编号重复的回调函数 
+			public function beforeSaveDataBack(isbhcf:Boolean = false):void{
+				if(isbhcf){
+					var errorMsg:String="[报废单编号]重复,已重新生成,请再次点击保存按钮";
+					showCheckErrors(errorMsg);
+					bfdbh.text = CommonMethod.genernateIncreaseWFBH(this.bfdbh.text);
+					return;
+				}
+				dataSaveOrUpdate();
+			}
+			
+			//显示错误信息
+			protected function showCheckErrors(errorMsg:String):void{
+				if(ASStringHelper.isNullOrEmpty(errorMsg)){
+					return;
+				}
+				var tempTextInput:TextInput=new TextInput();
+				tempTextInput.percentWidth=100;
+				tempTextInput.height=aboutheight;
+				tempTextInput.editable=false;
+				tempTextInput.setStyle("borderColor","red");
+				tempTextInput.setStyle("color","red");
+				tempTextInput.text=errorMsg;
+				this.errormsgbox.addChild(tempTextInput);
+			}
+			//得到保存数据
+			protected function getSaveOrUpdatetData():String{
+				var userid:String=FlexGlobals.topLevelApplication.userVo.id.toString();
+				var dataJson:Object=new Object();
+				if(ASStringHelper.isNullOrEmpty(this.dataId) && ASStringHelper.isNullOrEmpty(dataJson.cuser)){
+					dataJson.cuser=userid;
+					dataJson.bfsqzt = "初稿";
+				}
+				dataJson.bfdid=this.dataId;
+				dataJson.bfdbh=this.bfdbh.text;
+				dataJson.djrq=this.djrq.getText();
+				dataJson.djrid=this.djrname.data;
+				if(djbmname.data != null)dataJson.djbmid= this.djbmname.data.id;
+				dataJson.bfzje=this.bfzje.text;
+				dataJson.memo=this.memo.text;
+				dataJson.uuser=userid;
+				currentBFDVo = dataJson;
+				return JSON.encode(dataJson);
+			}
+			
+			//保存数据
+			protected function dataSaveOrUpdateAction():void{
+				if(!beforeSaveData()){
+					return;
+				}
+				dataSaveOrUpdate();
+			}
+			public function dataSaveOrUpdate():void{
+				var submitjson:String=getSaveOrUpdatetData();
+				AllAssetServiceRmt.SaveOrUpdateBFDJ(submitjson);
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataSaveOrUpdateActionBack);
+			}
+			//保存数据回调方法
+			protected function dataSaveOrUpdateActionBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSaveOrUpdateActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					this.resultmsg.text=doResult.strErrorInfo;
+				}else{
+					this.resultmsg.text="数据操作成功";
+					this.dataId=doResult.strErrorInfo;
+					this.afterDoAction();
+				}
+				this.resultmsg.alpha=1;
+				this.fadeEffect.stop();
+				this.fadeEffect.play(null,false);
+				
+				if(isPassToNext){ProcessMethods.PassToNextStep(fwLsjlVo,nextStepVo,this); isPassToNext = false;}
+			}
+			private var isPassToNext:Boolean = false;
+			
+			public function submitToNextStep():void{
+				isPassToNext = true;
+				if(CommonMethod.isNullOrWhitespace(dataId)){
+					saveActionClick();	
+				}else{
+					if(isPassToNext){ProcessMethods.PassToNextStep(fwLsjlVo,nextStepVo,this,PassToNextStepBackFunc); isPassToNext = false;}
+				}
+			}
+			
+			/**
+			 * 流程结束时的操作  更新固定资产历史记录状态zt=1, 更新日用耗材历史记录zt=1
+			 **/
+			public function PassToNextStepBackFunc():void{
+				var sqlStr:String = "update cnst_assetbgjl_data set zt='1' where sqdid  in  ( select bfdmxid from cnst_bfdmx_data where bfdid='"+this.dataId+"' )";
+				this.commonService.RunUpdateBySQL(sqlStr);
+				this.commonService.addEventListener(ResultEvent.RESULT,updateLsjlBack);
+			}
+			private function updateLsjlBack(event:ResultEvent):void{
+					this.commonService.removeEventListener(ResultEvent.RESULT,updateLsjlBack);
+					var sqlGzdcztStr:String = "select * from cnst_assetbgjl_data where sqdid  in  (select bfdmxid from cnst_bfdmx_data where bfdid='"+this.dataId+"' ) ";
+					this.commonService.RunSelectClassBySql(sqlGzdcztStr,"net.chinanets.pojos.CnstAssetbgjlData");
+					this.commonService.addEventListener(ResultEvent.RESULT,getDicAssetLymxDataBack);
+			}
+			//获取当前领用单的固定资产明细
+			private function getDicAssetLymxDataBack(event:ResultEvent):void{
+				this.commonService.removeEventListener(ResultEvent.RESULT,getDicAssetLymxDataBack);
+				var rstArr:ArrayCollection = event.result as ArrayCollection;
+				if(rstArr == null || rstArr.length < 0){ return;}
+				for each( var eachRst:Object in rstArr){
+					var sqlStr:String = "update "+eachRst.assettabnename+" set zt='报废' where "+eachRst.assetidcolumn + " = '"+eachRst.asetetid+"'";
+					this.commonService.RunUpdateBySQL(sqlStr);
+				}
+			}
+			
+			//删除当前数据
+			protected function dataRemoveAction(doEvent:CloseEvent):void{
+				if(doEvent.detail==Alert.CANCEL){
+					return;
+				}
+				AllAssetServiceRmt.RemoveBFDJ(this.dataId);
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+			}
+			//删除当前数据回调方法
+			protected function dataRemoveActionBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataRemoveActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					this.resultmsg.text=doResult.strErrorInfo;
+					return;
+				}else{
+					this.resultmsg.text="数据删除成功";
+					this.afterDoAction();
+				}
+			}
+			//所有Action操作之后
+			protected function afterDoAction():void{
+				if(this.tempFunction!=null){
+					this.tempFunction.call(this);
+				}
+				if(this.tempCallBackFunc != null){
+					this.bfdmxDg.bfdid=this.dataId;
+					tempCallBackFunc.call(bfdmxDg,null);
+					tempCallBackFunc = null;
+				}
+			}
+			private function setMemoVisable():void{
+				{ASCommonHelper.controlVisible(MEMOLKB,false);ASCommonHelper.controlVisible(memolbl,true);memo.height=(aboutheight*3);datumFormTabNV.height += 3*aboutheight;
+					ASCommonHelper.controlVisible(ZJEROW,true);ZJEROW.addChild(ZJELBLITEM);ZJEROW.addChild(ZJEITEM);MEMOITEM.colSpan=5;MEMOITEM.percentWidth=90;
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:Resize id="resizeEffect2" target="{nvPage1}" heightFrom="{nvPage1.height}" heightTo="{nvPage1.height + (aboutheight*3 - memo.height)}" />
+	<mx:Resize id="resizeEffect" target="{memo}" heightFrom="{memo.height}" heightTo="{aboutheight*3}" />
+	<mx:Fade id="fadeEffect" target="{resultmsg}" alphaFrom="1"  alphaTo="0" duration="10000"/>
+	<mx:VBox id="editForm" borderStyle="none" width="100%" height="100%" horizontalAlign="center" 
+			 horizontalGap="0" verticalGap="2" paddingTop="2" paddingLeft="2" paddingBottom="2" paddingRight="2">
+		<mx:HBox id="formToolBar" borderStyle="none" width="100%" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" backgroundColor="#99CCFF">
+			<mx:LinkButton id="nextStepAction"  click="nextStepActionClick()" height="{aboutheight}" label="提交至部门领导" toolTip="提交至部门领导" icon="@Embed(source='images/icon_gear.png')"/>
+			<mx:LinkButton id="saveAction" click="saveActionClick()" height="{aboutheight}" label="保存" toolTip="保存到草稿箱" icon="@Embed(source='images/formtoolbar/form_save.gif')"/>
+			<mx:LinkButton id="exportAction" click="exportActionClick()" height="{aboutheight}" label="导出报废单" toolTip="导出报废单" icon="@Embed(source='images/export.gif')"/>
+			<mx:LinkButton id="saveAndNewAction" click="saveAndNewActionClick()" visible="true" height="{aboutheight}" label="保存并新建" toolTip="保存并新建" icon="@Embed(source='images/formtoolbar/form_saveandnew.gif')"/>
+			<mx:LinkButton id="newAction" click="newActionClick()" height="{aboutheight}" visible="true" label="新建" toolTip="新建" icon="@Embed(source='images/formtoolbar/form_new.gif')"/>
+			<mx:LinkButton id="saveAndCloseAction" click="saveAndCloseActionClick()" visible="true" height="{aboutheight}" label="保存并关闭" toolTip="保存并关闭" icon="@Embed(source='images/formtoolbar/form_saveandclose.gif')"/>
+			<mx:LinkButton id="removeAndCloseAction" click="removeAndCloseActionClick()" visible="true"  height="{aboutheight}" label="删除并关闭" toolTip="删除并关闭" icon="@Embed(source='images/formtoolbar/form_removeandclose.gif')"/>
+			<mx:LinkButton id="closeAction" click="closeActionClick()" height="{aboutheight}" label="关闭" toolTip="关闭" icon="@Embed(source='images/formtoolbar/close.gif')"/>
+			<mx:LinkButton id="historyAction" click="ProcessMethods.historyActionActionClick(this.dataId)" height="{aboutheight}" label="查看历史记录"  icon="@Embed(source='images/formtoolbar/form_save.gif')"/>
+		</mx:HBox>
+		<mx:HBox id="dataTitle" borderStyle="none" width="100%" height="25" paddingLeft="5" horizontalAlign="left" verticalAlign="middle">
+			<mx:Image source="@Embed(source='images/kvm.gif')" width="23" height="23" verticalAlign="middle"/>
+			<mx:Label text="{pageTitle}" textIndent="10" textAlign="center" fontSize="15" fontWeight="bold"/>
+			<mx:Label text="{dataTitles}" textAlign="center" fontSize="12" fontWeight="bold"/>
+			<mx:HBox id="resultBox" borderStyle="none" width="100%" height="25" horizontalAlign="right" verticalAlign="middle">
+				<mx:TextInput id="resultmsg" editable="false" alpha="0" borderStyle="none" textAlign="center" paddingTop="3" height="25" fontSize="12" backgroundColor="#FFFACD"/>
+			</mx:HBox>
+		</mx:HBox>
+		<mx:VBox id="dataFormBox" borderStyle="none" width="100%" horizontalGap="0" verticalGap="0">
+			<mx:Form id="dataForm1" width="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" horizontalGap="0" verticalGap="0" indicatorGap="0">
+				<mx:TabNavigator id="datumFormTabNV" creationPolicy="all" width="100%" borderStyle="solid" verticalGap="0" 
+								 paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2">
+					<mx:Box id="nvPage1" label="基本信息 " width="100%" borderStyle="none" horizontalGap="0" verticalGap="0" >
+						<mx:VBox id="nvPage1Group1" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="solid" borderColor="#99CCFF">
+							<mx:HBox width="100%" height="20" horizontalGap="0" verticalGap="0" backgroundColor="#99CCFF" borderStyle="none">
+								<mx:Label text="基本信息" width="100%" height="20" textAlign="left"/>
+								<mx:LinkButton label="" width="20" height="20" icon="@Embed(source='images/pg_next1.gif')"/>
+							</mx:HBox>
+							<mx:Grid id="nvPage1Grid1" width="100%" horizontalGap="0" verticalGap="5" paddingTop="5" paddingBottom="5" paddingLeft="3" paddingRight="3">
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+											<mx:Label text="编号:" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
+											<mx:TextInput id="bfdbh" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+											<mx:Label text="登记人:" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="left" verticalAlign="middle">
+											<mx:TextInput id="djrname" width="100%" height="{aboutheight}" editable="false" />
+											<mx:LinkButton id="CHDJRNAME" click="if(!this.saveAction.visible)return;CommonMethod.getWFSyr(this,djrname,djbmname);" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
+											</mx:HBox>
+										</mx:FormItem>
+									</mx:GridItem> 
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+											<mx:Label text="登记时间:" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<dataPick:DateSecondPick id="djrq" isShowToday="true" width="100%" aboutheight="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+								</mx:GridRow>
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+										<mx:Label text="登记部门:" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="left" verticalAlign="middle">
+											<mx:TextInput id="djbmname" width="100%" height="{aboutheight}" editable="false" />
+											<mx:LinkButton id="CHDJBMNAME" click="if(!this.saveAction.visible)return;CommonMethod.getDept(this,djbmname,true,false);" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
+											</mx:HBox>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+										</mx:FormItem>
+									</mx:GridItem>
+								</mx:GridRow>
+								<mx:GridRow width="100%" > 
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="备注:" id="memolbl" height="{aboutheight}" includeInLayout="false" visible="false"/>
+										<mx:LinkButton label="添加备注" id="MEMOLKB" icon="@Embed(source='images/add.gif')" 
+													   click="setMemoVisable()"/>
+									</mx:GridItem>
+									<mx:GridItem id="MEMOITEM" horizontalAlign="left" verticalAlign="middle" width="57%" colSpan="3">
+										<mx:TextArea id="memo" visible="{memolbl.visible}" maxChars="500" width="100%" height="{aboutheight}" focusIn="return;CommonUIMethod.ui_resetMemoHeight(memo,datumFormTabNV,aboutheight)"></mx:TextArea>
+									</mx:GridItem>
+									<mx:GridItem id="ZJELBLITEM" horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="报废总金额:"  height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem id="ZJEITEM" horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<textinput:NumberTextInput id="bfzje" editable="false" width="80" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+								</mx:GridRow>
+								<mx:GridRow id="ZJEROW" width="100%" height="{aboutheight}" visible="false" includeInLayout="false">
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+										</mx:FormItem>
+									</mx:GridItem>
+									
+								</mx:GridRow>
+							</mx:Grid>
+						</mx:VBox>
+					</mx:Box>
+					<mx:Panel id="nvPage2" label="其他信息" width="100%"  borderStyle="none" headerHeight="0" 
+							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
+						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none">
+							<mx:Grid id="nvPage1Grid2" width="100%" horizontalGap="0" verticalGap="5" paddingTop="5" paddingBottom="5" paddingLeft="3" paddingRight="3">
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" width="10%">
+										<mx:Label text="更新人:" fontWeight="bold" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="15%">
+										<mx:Label id="UUSER" width="100%" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" width="10%">
+										<mx:Label text="更新时间:" fontWeight="bold" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="15%">
+										<mx:Label id="UTIME" text="" width="100%" height="{aboutheight}"/>
+									</mx:GridItem>
+								</mx:GridRow>
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" width="10%">
+										<mx:Label text="创建人:" fontWeight="bold" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="15%">
+										<mx:Label id="CUSER" text="" width="100%" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" width="10%">
+										<mx:Label text="创建时间:" fontWeight="bold" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="15%">
+										<mx:Label id="CTIME" text="" width="100%" height="{aboutheight}"/>
+									</mx:GridItem>
+								</mx:GridRow>
+							</mx:Grid>	
+						</mx:VBox>		
+					</mx:Panel>
+				</mx:TabNavigator>
+			</mx:Form>
+			<mx:VBox id="errormsgbox" width="100%" borderStyle="none" paddingTop="2" paddingBottom="2" verticalGap="2"></mx:VBox>
+		</mx:VBox>
+		<mx:VBox id="childbox" width="100%" height="100%">
+			<assetBFDJMX:BFDJMXGridMoudel id="bfdmxDg" parentPage="{this}"  bfdid="{dataId}" pageIsLoadData="{dataId!=''}" />
+		</mx:VBox>
+	</mx:VBox>
+</mx:TitleWindow>

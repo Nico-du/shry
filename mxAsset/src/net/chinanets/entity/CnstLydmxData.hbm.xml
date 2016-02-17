@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="net.chinanets.entity.CnstLydmxData" table="CNST_LYDMX_DATA" schema="ZCGL">
+        <id name="lydmxid" type="java.lang.String">
+            <column name="LYDMXID" length="100" />            
+        </id>
+        <property name="lydmxname" type="java.lang.String">
+            <column name="LYDMXNAME" length="100" not-null="true" />
+        </property>
+        <property name="lydmxbh" type="java.lang.String">
+            <column name="LYDMXBH" length="100"/>
+        </property>
+        <property name="lydmxtype" type="java.lang.String">
+            <column name="LYDMXTYPE" length="100" not-null="true" />
+        </property>
+        <property name="lydid" type="java.lang.String">
+        	<column name="LYDID" length="100" not-null="true"></column>
+        </property>
+        <property name="wppp" type="java.lang.String">
+            <column name="WPPP" length="200" />
+        </property>
+        <property name="wpxh" type="java.lang.String">
+            <column name="WPXH" length="200" />
+        </property>
+        <property name="sbsl" type="java.lang.Float">
+            <column name="SBSL" precision="126" scale="0" not-null="true" />
+        </property>
+        <property name="shsl" type="java.lang.Float">
+            <column name="SHSL" precision="126" scale="0" not-null="true" />
+        </property>
+        <property name="sfsl" type="java.lang.Float">
+            <column name="SFSL" precision="126" scale="0" not-null="true" />
+        </property>
+        <property name="wpdw" type="java.lang.String">
+            <column name="WPDW" length="100" />
+        </property>
+        <property name="wpdj" type="java.lang.Float">
+            <column name="WPDJ" precision="126" scale="0" />
+        </property>
+        <property name="wpje" type="java.lang.Float">
+            <column name="WPJE" precision="126" scale="0" />
+        </property>
+        <property name="ggsl" type="java.lang.Float">
+            <column name="GGSL" precision="126" scale="0" />
+        </property>
+        <property name="ggmc" type="java.lang.String">
+            <column name="GGMC" length="100" />
+        </property>
+        <property name="usable" type="java.lang.Integer">
+            <column name="USABLE" precision="10" scale="0" not-null="true" />
+        </property>
+        <property name="ctime" type="java.util.Date">
+            <column name="CTIME" length="7" not-null="true" />
+        </property>
+        <property name="cuser" type="java.lang.String">
+            <column name="CUSER" length="100" not-null="true" />
+        </property>
+        <property name="utime" type="java.util.Date">
+            <column name="UTIME" length="7" not-null="true" />
+        </property>
+        <property name="uuser" type="java.lang.String">
+            <column name="UUSER" length="100" not-null="true" />
+        </property>
+        <property name="memo" type="java.lang.String">
+            <column name="MEMO" length="1000" />
+        </property>
+        <property name="gbdm" type="java.lang.String">
+            <column name="GBDM" length="100" />
+        </property>
+         <property name="pcbh" type="java.lang.String">
+            <column name="PCBH" length="100" />
+        </property>
+         <property name="wpmc" type="java.lang.String">
+            <column name="WPMC" length="200" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="net.chinanets.entity.CnstWxdData" table="CNST_WXD_DATA" schema="ZCGL">
+        <id name="wxdid" type="java.lang.String">
+            <column name="WXDID" length="100" />
+        </id>
+        <property name="wxdbh" type="java.lang.String">
+            <column name="WXDBH" length="200" not-null="true" />
+        </property>
+        <property name="sqrid" type="java.lang.Long">
+            <column name="SQRID" length="100" />
+        </property>
+        <property name="sqbmid" type="java.lang.String">
+            <column name="SQBMID" length="100" />
+        </property>
+        <property name="sqrq" type="java.util.Date">
+            <column name="SQRQ" length="7" not-null="true" />
+        </property>
+        <property name="wxfpbh" type="java.lang.String">
+            <column name="WXFPBH" length="100" />
+        </property>
+        <property name="wxsqzt" type="java.lang.String">
+            <column name="WXSQZT" length="20" />
+        </property>
+        <property name="wxsqbz" type="java.lang.String">
+            <column name="WXSQBZ" length="20" />
+        </property>
+        <property name="bmldid" type="java.lang.Long">
+            <column name="BMLDID" precision="22" scale="0" />
+        </property>
+        <property name="yldid" type="java.lang.Long">
+            <column name="YLDID" precision="22" scale="0" />
+        </property>
+        <property name="glyid" type="java.lang.Long">
+            <column name="GLYID" precision="22" scale="0" />
+        </property>
+        <property name="usable" type="java.lang.Integer">
+            <column name="USABLE" precision="10" scale="0" not-null="true" />
+        </property>
+        <property name="ctime" type="java.util.Date">
+            <column name="CTIME" not-null="true" />
+        </property>
+        <property name="cuser" type="java.lang.String">
+            <column name="CUSER" length="100" not-null="true" />
+        </property>
+        <property name="utime" type="java.util.Date">
+            <column name="UTIME" not-null="true" />
+        </property>
+        <property name="uuser" type="java.lang.String">
+            <column name="UUSER" length="100" not-null="true" />
+        </property>
+        <property name="memo" type="java.lang.String">
+            <column name="MEMO" length="1000" />
+        </property>
+    </class>
+</hibernate-mapping>

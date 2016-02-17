@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<paremt  name="driTypeId" column="操作类型" />
+<paremt  name="logBack" column="脏证物名称" />
+<paremt  name="logDate" column="时间" />
+</root>

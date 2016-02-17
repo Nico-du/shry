@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" title="选择显示列" layout="absolute" width="580" height="420">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.controls.Alert;
+			import mx.controls.DataGrid;
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			//[Bindable] private var propArray:ArrayCollection;
+			[Bindable] private var dataGrid:DataGrid;
+			[Bindable] private var arrTerm:Array=new Array();
+			[Bindable] private var arr:Array;
+			public function initSelect(prop:ArrayCollection, dg:DataGrid):void {
+				//trace(prop);
+				//trace(dg);
+				var arrColl:Array = prop.source;
+				arr = dg.columns;
+				dataGrid = dg;
+				for(var i:int=0;i<arrColl.length;i++) {
+					for(var j:int=0;j<arr.length;j++) {
+						if(arr[j].headerText == arrColl[i].column) {
+							break;
+						} else if(j==arr.length-1) {
+							var dgc:DataGridColumn = new DataGridColumn();
+							dgc.headerText= arrColl[i].column;
+							dgc.dataField  = arrColl[i].name;
+							arrTerm.push(dgc);
+						}
+					}
+				}
+				//oldList.dataProvider = arrTerm;
+				//newList.dataProvider = arr;
+				//oldList.dataProvider = propArray;
+				//oldList.labelField = "column";
+			}
+			
+			private function closeSelf():void {
+	 			PopUpManager.removePopUp(this);
+	 		}
+	 		
+	 		private function submit():void {
+	 			//dataGrid.columns = newList.dataProvider as Array;
+	 			//Alert.show(dataGrid.columns.length+" : "+arr.length);
+	 			dataGrid.columns = arr;
+	 			PopUpManager.removePopUp(this);
+	 		}
+		]]>
+	</mx:Script>
+	<mx:List x="85" dataProvider="{arrTerm}" y="41" labelField="headerText" width="160" height="251" allowMultipleSelection="false" 
+				dragEnabled="true" dropEnabled="true" dragMoveEnabled="true"/>
+	<mx:List dataProvider="{arr}" x="323" y="41" height="251" width="160" labelField="headerText" allowMultipleSelection="false" 
+				dragEnabled="true" dropEnabled="true" dragMoveEnabled="true"/>
+	<mx:Button x="147.7" y="326" label="确定" click="submit()"/>
+	<mx:Button x="388" y="326" label="关闭" click="PopUpManager.removePopUp(this);"/>
+	<mx:Label x="85" y="10" text="可选显示列：" width="134" height="23"/>
+	<mx:Label x="323" y="10" text="已选显示列：" width="134" height="23"/>
+</mx:TitleWindow>

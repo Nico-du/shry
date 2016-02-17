@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:CheckBox xmlns:mx="http://www.adobe.com/2006/mxml" >
+	<mx:Script>
+		<![CDATA[
+			
+			override public function set data(value:Object):void
+			{
+				super.data = value;
+				
+				if(data)
+				{
+					this.selected = data.selected;
+				}
+			}
+		]]>
+	</mx:Script>
+</mx:CheckBox>
