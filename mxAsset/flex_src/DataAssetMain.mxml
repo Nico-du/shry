@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:ns1="*" creationComplete="initPage()" updateComplete="afterInitPage()"
+		   width="100%" height="100%" paddingTop="5" paddingLeft="5" paddingBottom="5" paddingRight="5"
+		   fontSize="12" backgroundColor="white" >
+	<mx:Script>
+		<![CDATA[
+			/*import asset_report.ReportBmhclyzk;
+			import asset_report.XgzlGridModule;
+			import upGrade.XjjlList;
+			import upGrade.XjtjView;
+			import asset_service.MetroMap;
+			import asset_service.ServiceList;
+			import flex.pojos.SvSupplierVo;
+			
+			import kmzc.formanserver.aboutdatum;*/
+			
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.benstucki.utilities.IconUtility;
+			
+			
+			import mx.containers.VBox;
+			import mx.controls.Tree;
+			import mx.core.INavigatorContent;
+			import mx.events.EffectEvent;
+			import mx.events.ResizeEvent;
+			import mx.managers.PopUpManager;
+			
+			
+			//菜单数据
+			public var menuTreeDate:XML=null;
+			//保存实例化的对象
+			private var modelMap:Dictionary=null;
+			//相关资料
+			private var ABOUTDATUM:String="ABOUTDATUM";
+			//供应商
+			private var SUPPLIER:String="SupplierPage";
+			//运维人员
+			private var PEOPLE:String="PeoplePage";
+			//合同管理
+			private var COMPACT:String="CompactPage";
+			//巡检登记
+			private var XJDJ:String="XjdjPage";
+			//巡检查询
+			private var XJCX:String="XjcxPage";
+			//巡检查询
+			private var XJTJ:String="XjtjPage";
+			//巡检查询
+			private var REPORT_BMLY:String="BmwplyPage";
+			//巡检查询
+			private var DTCY:String="DtcyPage";
+			//相关资料下载
+			private var XGZL:String="XgzlPage";
+			//操作手册下载
+			private var CZSC:String="CzscPage";
+			//部门物品使用状况报表
+			private var BMBB:String="BmbbPage";
+			
+			
+			//初始化页面
+			public function initPage():void{
+				modelMap=new Dictionary();
+				if(true){
+					beforeInitPage();
+				}
+				addFoldBtn(); 
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				/* if(!CommonXMLData.IsTestEnvironment){
+					delete serviceMainXml.item[1].node[2];
+					delete serviceMainXml.item[1].node[0];
+				}
+				this.menuTreeDate=this.serviceMainXml; */
+				this.menutree.dataProvider=menuTreeDate;
+				this.menutree.callLater(expandTree);
+				
+			 	for(var i:int=0;i<managerStack.getChildren().length;i++){
+					this.modelMap[managerStack.getChildAt(i)["id"]] = managerStack.getChildAt(i);
+				}
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				treeSelectClick();
+				initAddFoldBtn();
+				this.menutree.callLater(expandTree);
+			}
+			
+			//展开树节点
+			protected function expandTree():void{
+				this.menutree.expandChildrenOf(this.menuTreeDate,true);
+				this.menutree.selectedIndex=0;
+				if(this.menutree.selectedItem == null)return;
+				var selectItem:XML=this.menutree.selectedItem as XML;
+				var selectChildList:XMLList=selectItem.children();
+				if(selectChildList==null){
+					return;
+				}
+				var tempItem:XML=selectChildList[0];
+				this.menutree.selectedItem=tempItem;
+			}
+			
+			//点击树节点事件
+			public function treeSelectClick(event:Event=null):void{
+				if(!directoryTreeIsSelectItem()){
+					return;
+				}
+				var selectItem:XML=this.menutree.selectedItem as XML;
+				if(selectItem==null){
+					return;
+				}
+				//如果点击父节点，返回
+				if(selectItem.hasComplexContent()){
+					return;
+				}
+				var tempContent:Object=getModelBySelect(selectItem);
+				if(tempContent==null){
+					return;
+				}
+				this.managerStack.selectedChild=tempContent as INavigatorContent;
+					if((event != null) && (selectItem.@pageUrl == XJDJ)){
+						tempContent.addXjjl();
+					}
+			}
+			
+			//判断树节点是否选择项
+			public function directoryTreeIsSelectItem():Boolean{
+				var treeSelectedIndex:int=this.menutree.selectedIndex;
+				if(treeSelectedIndex!=-1){
+					return true;
+				}else{
+					return false;
+				}
+			}
+			
+			//根据选中得到对象
+			public function getModelBySelect(selectItem:XML):INavigatorContent{
+				if(selectItem==null){
+					return null;
+				}
+				var strid:String=selectItem.@id;
+				var strname:String=selectItem.@label;
+				var strpageurl:String=selectItem.@pageUrl;
+				var targetModel:*=this.modelMap[strid];
+				if(targetModel!=null){
+					return targetModel;
+				}
+				var tempMoudel:*=null;
+				/*if(ASStringHelper.stringCompare(this.ABOUTDATUM,strpageurl,true)==0){
+					tempMoudel=new aboutdatum();
+				}else if(ASStringHelper.stringCompare(this.SUPPLIER,strpageurl,true)==0){
+					tempMoudel=new ServiceList();
+					tempMoudel.pageType="供应商";
+				}else if(ASStringHelper.stringCompare(this.PEOPLE,strpageurl,true)==0){
+					tempMoudel=new ServiceList();
+					tempMoudel.pageType="运维人员";
+				}else if(ASStringHelper.stringCompare(this.COMPACT,strpageurl,true)==0){
+						tempMoudel=new ServiceList();
+						tempMoudel.pageType="合同";
+				}else if(ASStringHelper.stringCompare(XJDJ,strpageurl,true)==0){
+					tempMoudel=new XjjlList();
+				}else if(ASStringHelper.stringCompare(XJCX,strpageurl,true)==0){
+					tempMoudel=new XjjlList();
+				}else if(ASStringHelper.stringCompare(XJTJ,strpageurl,true)==0){
+					tempMoudel=new XjtjView();
+				}else if(ASStringHelper.stringCompare(REPORT_BMLY,strpageurl,true)==0){
+					tempMoudel=new ReportBmhclyzk();
+				}else if(ASStringHelper.stringCompare(XGZL,strpageurl,true)==0){
+					tempMoudel=new XgzlGridModule();
+				}else if(ASStringHelper.stringCompare(CZSC,strpageurl,true)==0){
+					CommonMethod.downloadExcel( "ReadMe/" + encodeURIComponent("UserHandBook_V1.doc"));
+					this.menutree.selectedIndex = -1;
+					return null;
+				}else if(ASStringHelper.stringCompare(DTCY,strpageurl,true)==0){//地铁查阅
+					tempMoudel=new MetroMap();
+					PopUpManager.addPopUp(tempMoudel, this,true);
+					menutree.selectedIndex = -1;
+					return null;
+				}*/
+				if(tempMoudel == null){return null;}
+				
+				if(CommonMethod.executePwdAuthority(tempMoudel,selectItem) == null)return null;	//执行权限验证	1
+				this.modelMap[strid]=tempMoudel;
+				this.managerStack.addChild(tempMoudel);
+				
+				return tempMoudel;
+			}
+			
+			
+			/**
+			 *添加展开/收起树形菜单按钮 
+			 **/
+			private function addFoldBtn():void{
+				PopUpManager.addPopUp(imgFold, this,false);
+				imgFold.addEventListener(MouseEvent.CLICK,imgFoldClickHandler);
+				menuLeft.addEventListener(ResizeEvent.RESIZE,resizeHandler);
+			}
+			/**
+			 *初始化imgFold的坐标 
+			 **/
+			private var menuLeftWidth:Number;//记录menuLeft的宽度
+			private function initAddFoldBtn():void{
+				imgFold.x=menuLeft.width+5;
+				imgFold.y=(menuLeft.height-imgFold.height)/2 + 70;
+				imgFold.visible = this.visible;
+			}
+			private function resizeHandler(evt:Event):void{
+				imgFold.x = menuLeft.width + 5;
+			}
+			private function imgFoldClickHandler(evt:Event):void{
+				if(moveEffect.isPlaying){
+					moveEffect.end();
+					resizeEffect.end();
+				}
+				if(menuLeft.width != 0){
+					menuLeftWidth =  menuLeft.width;
+				}
+				
+				moveEffect.play();
+				resizeEffect.play();
+			}
+			
+			
+			protected function moveEffect_effectEndHandler(event:EffectEvent):void
+			{
+				imgFold.source = null;
+				if(imgFold.toolTip == "收起"){
+					imgFold.toolTip = "展开";
+					var tempClass:Class=IconUtility.getClass(imgFold,"images/mini-right.gif",5,35);
+					imgFold.source=tempClass;
+					
+					moveEffect.xTo = menuLeftWidth + 5;
+					resizeEffect.widthTo = menuLeftWidth;
+					menuLeft.visible = false;
+				}else{
+					imgFold.toolTip = "收起";
+					var tempClass:Class=IconUtility.getClass(imgFold,"images/mini-left.gif",5,35);
+					imgFold.source=tempClass;
+					
+					moveEffect.xTo = 5;
+					resizeEffect.widthTo = 0;
+				} 
+			}
+		]]>
+	</mx:Script>
+	<mx:XML id="serviceMainXml">
+		<root>
+			<item id="jbfw" label="风扇数据">
+			    <node id="SupplierPage" label="总成数据" pageUrl="SupplierPage"/>
+				<node id="PeoplePage" label="风叶数据" pageUrl="PeoplePage"/>
+				<node id="PeoplePage" label="风叶型号" pageUrl="PeoplePage"/>
+			</item>
+			<item id="bmfw" label="电机数据">
+				<node id="dtcy" label="电机数据" pageUrl="DtcyPage"/>
+				<node id="dtcy" label="电机型号" pageUrl="DtcyPage"/>
+				<node id="dtcy" label="基础参数" pageUrl="DtcyPage"/>
+			</item>
+		</root>
+	</mx:XML>
+		<!--<node id="grrc" label="个人日程" pageUrl=""/>
+	    <node id="CompactPage" label="合同管理" pageUrl="CompactPage"/>
+		<node id="xgzl" label="相关资料" pageUrl="aboutdatum"/>
+		<node id="dhcx" label="电话查询" pageUrl=""/>-->
+	<mx:Move id="moveEffect" target="{imgFold}"  xFrom="{menuLeft.width + 5}" xTo="{5}" effectStart="{menuLeft.visible = true;}" effectEnd="moveEffect_effectEndHandler(event)"/>
+	<mx:Resize id="resizeEffect" target="{menuLeft}"  widthFrom="{menuLeft.width}" widthTo="{0}" />
+	<mx:Image id="imgFold" includeInLayout="false" toolTip="收起" source="@Embed(source='images/mini-left.gif')" mouseOver="{Mouse.cursor = MouseCursor.BUTTON;}" mouseOut="{Mouse.cursor = MouseCursor.ARROW;}" />
+	<mx:HDividedBox width="100%" height="100%" borderStyle="none" horizontalAlign="center" horizontalGap="5" verticalAlign="middle" verticalGap="0">
+		<mx:VBox id="menuLeft" width="150" height="100%" verticalGap="2" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" verticalAlign="middle" fontSize="12"  horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:HBox width="100%" height="20" horizontalAlign="left" backgroundColor="#99CCFF" borderStyle="none" horizontalGap="0" verticalAlign="middle">
+				<mx:Label text="资料管理" textIndent="5" textAlign="left" fontWeight="bold" fontSize="13"/>
+			</mx:HBox>
+			<mx:Tree id="menutree" borderStyle="none" dragEnabled="false" width="100%" height="100%" click="treeSelectClick(event);" 
+					 labelField="@label" showRoot="false"/>
+		</mx:VBox>
+		<mx:ViewStack id="managerStack" width="100%" height="100%" creationPolicy="all">
+		</mx:ViewStack>
+	</mx:HDividedBox>
+</mx:Module>
