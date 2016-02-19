@@ -280,7 +280,7 @@
 	<mx:HDividedBox width="100%" height="100%" borderStyle="none" horizontalAlign="center" horizontalGap="5" verticalAlign="middle" verticalGap="0">
 		<mx:VBox id="menuLeft" width="150" height="100%" verticalGap="2" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" verticalAlign="middle" fontSize="12"  horizontalScrollPolicy="off" verticalScrollPolicy="off">
 			<mx:HBox width="100%" height="20" horizontalAlign="left" backgroundColor="#99CCFF" borderStyle="none" horizontalGap="0" verticalAlign="middle">
-				<mx:Label text="日常服务" textIndent="5" textAlign="left" fontWeight="bold" fontSize="13"/>
+				<mx:Label text="图表管理" textIndent="5" textAlign="left" fontWeight="bold" fontSize="13"/>
 			</mx:HBox>
 			<mx:Tree id="menutree" borderStyle="none" dragEnabled="false" width="100%" height="100%" click="treeSelectClick(event);" 
 					 labelField="@label" showRoot="false"/>

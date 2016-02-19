@@ -3,7 +3,6 @@
 	<classpathentry kind="src" output="WebRoot/WEB-INF/classes" path="src"/>
 	<classpathentry kind="src" path="WebRoot/WEB-INF/lib"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/activation.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/adobe-assembler-client.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/adobe-convertpdf-client.jar"/>
@@ -160,5 +159,10 @@
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/zonyGetTaskNum.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/zonyGetTasks.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/zonyStartProcess.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="WebRoot/WEB-INF/lib"/>
 </classpath>

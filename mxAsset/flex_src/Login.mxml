@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()"
-				layout="absolute" styleName="layoutSkinLogin" pageTitle="上海闵行行政司法管理系统" width="100%" height="100%">
+				layout="absolute" styleName="layoutSkinLogin" pageTitle="上海日用-友捷冷却风扇性能数据管理系统" width="100%" height="100%">
 	<mx:RemoteObject id="userServiceRmt" destination="UserService" showBusyCursor="true" endpoint="/mxAsset/messagebroker/amf"/>
 	<mx:Style source="style/flex_skins.css"/>
 	<mx:Script source="flex/util/InitMainWindow.as"/> 
@@ -75,7 +75,7 @@
 			//初始化之前设置样式
 			public function beforeInitPage():void{
 				initApplicationStyle();
-				BrowserManager.getInstance().setTitle("上海闵行行政司法管理系统");
+				BrowserManager.getInstance().setTitle("上海日用-友捷冷却风扇性能数据管理系统");
 				
 				Alert.cancelLabel="取消";
 				Alert.okLabel = "确认";
@@ -87,7 +87,7 @@
 				} */
 				
 				//CA登录的方法 JS1
-				ExternalInterface.addCallback("doCALogin",doCALogin);	
+			//	ExternalInterface.addCallback("doCALogin",doCALogin);	
 			}
 			
 			//初始化之后
@@ -214,7 +214,7 @@
 				//登陆成功后初始化系统数据
 				initSysData();
 				//刷新离开提示
-				flex.util.BeforeunloadManager.regist();
+		//		flex.util.BeforeunloadManager.regist();
 			}
 			
 			
@@ -272,13 +272,13 @@
 	<mx:Move id="smove" target="{sysMsg}"  yFrom="{this.height}" yTo="{this.height - sysMsg.height}" />
 	<mx:VBox id="mainBox" height="100%" width="100%" styleName="myHVAlign" x="0" y="0" horizontalAlign="center" color="#05657A">
 		<mx:HBox paddingTop="120" paddingBottom="120">
-			<mx:Image source="style/flex_skins/backgroundLoginHeaderTitle.png"/>
+			<!--<mx:Image source="style/flex_skins/backgroundLoginHeaderTitle.png"/>-->
 		</mx:HBox>  
-		<mx:HBox width="510" >
+		<mx:HBox width="510" visible="false">
 			<mx:RadioButton groupName="loginway" label="CA登录" id="caRdb" click="changeLoginWay()" selected="true" fontSize="18" fontWeight="bold" color="#BEC3C3" textRollOverColor="#0068AD"  mouseOver="rdb_mouseOverHandler(caRdb)" mouseOut="rdb_mouseOutHandler(caRdb)"/>
 			<mx:RadioButton groupName="loginway" label="用户名登录" id="userRdb" click="changeLoginWay()" fontSize="18" fontWeight="bold" color="#BEC3C3" textRollOverColor="#0068AD" mouseOver="rdb_mouseOverHandler(userRdb)" mouseOut="rdb_mouseOutHandler(userRdb)"/>
 		</mx:HBox>
-		<mx:HBox paddingLeft="18" id="loginPanelHbx">
+		<mx:HBox paddingLeft="18" id="loginPanelHbx" visible="false" includeInLayout="false"  >
 			<mx:HBox id="loginPanel"  width="530" height="78" backgroundSize="100%" backgroundImage="@Embed(source='style/flex_skins/usbLogin_backimg.png')" borderStyle="none">
 				<mx:Grid width="100%" height="60" borderStyle="none" id="loginGridUSB">
 					<mx:GridRow width="100%" height="100%" id="usbgridRow" paddingBottom="3">
@@ -301,14 +301,14 @@
 				</mx:Grid>
 				</mx:HBox>
 		</mx:HBox>
-			<mx:HBox id="loginPanelUserName" backgroundImage="style/flex_skins/backgroundLoginInput.png"  visible="false" includeInLayout="false"  borderStyle="none" width="542" height="78">
+			<mx:HBox id="loginPanelUserName" backgroundImage="style/flex_skins/backgroundLoginInput.png"   borderStyle="none" width="542" height="78">
 				<mx:Grid id="loginGridUserName" width="100%" height="60" borderStyle="none">
 					<mx:GridRow width="100%" height="100%" id="gridRow">
 						<mx:GridItem height="100%" id="userNameItem" verticalAlign="bottom" paddingLeft="11" paddingBottom="2" paddingRight="1">
-							<mx:TextInput id="userName" height="46"  paddingTop="6" styleName="inputStyle01" width="208" />
+							<mx:TextInput id="userName" height="46"  text="admin" paddingTop="6" styleName="inputStyle01" width="208" />
 						</mx:GridItem>
 						<mx:GridItem height="100%" verticalAlign="bottom" paddingBottom="2">
-							<mx:TextInput id="userPwd" displayAsPassword="true" height="46" width="208" styleName="inputStyle01" />
+							<mx:TextInput id="userPwd" displayAsPassword="true" height="46" text="admin" width="208" styleName="inputStyle01" />
 						</mx:GridItem>
 						<mx:GridItem height="100%" verticalAlign="bottom" paddingBottom="2">
 							<mx:Button label="登录" cornerRadius="3" click="checkUserLogin()" width="76" height="46" 

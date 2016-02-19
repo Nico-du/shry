@@ -39,15 +39,15 @@
 	</mx:Script>
 	<mx:VBox width="100%" height="100%" borderStyle="solid" borderColor="#99CCFF" paddingBottom="2" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0">
 		<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#99CCFF" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
-			<mx:Label text="我的任务" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13"/>
+			<mx:Label text="备忘录" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13"/>
 		</mx:HBox>
 		<cnsdg:CNSASBaseDataGrid id="workflow_dg"  width="100%" height="100%" borderStyle="none" dgcustomed="false" verticalAlign="middle" doubleClickEnabled="true" doubleClick="gotoMession(event)">
 			<cnsdg:columns>
-				<mx:DataGridColumn headerText="任务编号" width="200" dataField="rwbh" sortable="true"/>
-				<mx:DataGridColumn headerText="任务类型" width="100" dataField="rwmc" sortable="true"/>
-				<mx:DataGridColumn headerText="申请人" width="120" dataField="sqr" sortable="true"/>
-				<mx:DataGridColumn headerText="申请时间" width="85" dataField="sqsj" sortable="true"/>
-				<mx:DataGridColumn headerText="当前状态" width="120" dataField="sqzt" sortable="true" labelFunction="mylabelFunc"/>
+				<mx:DataGridColumn headerText="任务名称" width="100" dataField="rwbh" sortable="true"/>
+				<mx:DataGridColumn headerText="任务内容" width="300" dataField="rwmc" sortable="true"/>
+				<mx:DataGridColumn headerText="处理人" width="80" dataField="sqr" sortable="true"/>
+				<mx:DataGridColumn headerText="填写时间" width="85" dataField="sqsj" sortable="true"/>
+				<!--<mx:DataGridColumn headerText="当前状态" width="120" dataField="sqzt" sortable="true" labelFunction="mylabelFunc"/>-->
 			</cnsdg:columns>
 		</cnsdg:CNSASBaseDataGrid>
 	</mx:VBox>

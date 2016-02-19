@@ -3,12 +3,23 @@
 		   width="100%" height="100%" backgroundColor="#1CA0E3" initialize="mainWindowinit()">
 	<mx:RemoteObject id="userService" destination="UserService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Style>
+		 
+		/* {
+			fontSize: 12;
+			fontFamily: "微软雅黑";
+			color: #000000;
+			themeColor: #0a246a;  
+			modalTransparencyBlur:0;
+			modalTransparencyColor: #3B3333;
+			modalTransparency: 0.3; 
+		} */
 		.LinkButtonStyle01{
 			cornerRadius: 2;
 			color: #ffffff;
 			textRollOverColor: #ffffff;
 			textSelectedColor: #ffffff;
 			font-weight:bold;
+			fontFamily: "微软雅黑";
 		}
 		.loginLable{
 			fontSize:12;
@@ -31,6 +42,7 @@
 			import flex.util.CommonXMLData;
 			
 			import mx.controls.Alert;
+			import mx.controls.Image;
 			import mx.core.Application;
 			import mx.core.FlexGlobals;
 			import mx.core.UIComponent;
@@ -55,7 +67,7 @@
 			
 			//初始化信息
 			protected function mainWindowinit():void{
-				BrowserManager.getInstance().setTitle("上海闵行行政司法管理系统");
+				BrowserManager.getInstance().setTitle("上海日用-友捷冷却风扇性能数据管理系统");
 				if(true){
 					beforeInitPage();
 				}
@@ -98,10 +110,10 @@
 			 */
 			private function getUserStructureMenu():void{
 				if(Application.application.userVo.ruleId == "41"){
-					MeetMainPage.menuTreeDate = MeetMainPage.meetingMainXml;
+					SelectionMainPage.menuTreeDate = SelectionMainPage.serviceMainXml;
 					ServiceMainPage.menuTreeDate = ServiceMainPage.serviceMainXml;
 					SystemMainPage.menuTreeDate = SystemMainPage.systemMainXml;
-					MeetMainPage.beforeInitPage();
+					SelectionMainPage.beforeInitPage();
 					ServiceMainPage.beforeInitPage();
 					SystemMainPage.beforeInitPage();
 					return;
@@ -117,9 +129,9 @@
 				var rstXML:XML = new XML(event.result+"");
 				switch(getUserStructureMenuCount){
 					case 0:
-						if(rstXML.children().length() < 1){this.removeWindowMenuBar("MeetMain"); break;}
-						MeetMainPage.menuTreeDate = rstXML;
-						MeetMainPage.beforeInitPage();
+						if(rstXML.children().length() < 1){this.removeWindowMenuBar("SelectionMain"); break;}
+						SelectionMainPage.menuTreeDate = rstXML;
+						SelectionMainPage.beforeInitPage();
 						break;
 					case 1:
 						if(rstXML.children().length() < 1){this.removeWindowMenuBar("ServiceMain"); break;}
@@ -175,7 +187,7 @@
 				var tempLinkButton:LinkButton=null;
 				if(tempEvent == null){
 					for(var i:int =0;i<mainWindowMenuBar.getChildren().length;i++){
-						if(mainWindowMenuBar.getChildren()[i].id == "Asset"){
+						if(mainWindowMenuBar.getChildren()[i].id == "DataAsset"){
 							tempLinkButton = mainWindowMenuBar.getChildren()[i] as LinkButton;
 						}
 					}
@@ -194,9 +206,9 @@
 						this[shoutmenuid].initPage();
 					}else if(menuid == "SystemMain"){
 						this[shoutmenuid].treeSelectClick();
-					} else if(menuid == "MeetMain"){
+					} else if(menuid == "SelectionMain"){
 						this[shoutmenuid].treeSelectClick();
-					} else if(menuid == "Asset"){
+					} else if(menuid == "DataAsset"){
 					if(FlexGlobals.topLevelApplication.mainPage.AssetPage.defaultAssetWFTreeIndex != -2){ this[shoutmenuid].setDefaultPage();}
 					}  
 				}
@@ -246,10 +258,10 @@
 	</mx:Script>
 	<mx:XMLList id="menuXmlList">
 		<node menuid="SY" menuname="首页" pageurl="HomeModel" menuicon="images/home_mid.png"/>
-		<node menuid="WZGL" menuname="物资管理" pageurl="Asset" menuicon="images/kvm.png"/>
-		<node menuid="HWGL" menuname="会务管理" pageurl="MeetMain" menuicon="images/icon_officpark_01.png"/>
-		<node menuid="CLGL" menuname="车辆管理" pageurl="" menuicon="images/car.png"/>
-		<node menuid="RCFW" menuname="日常服务" pageurl="ServiceMain" menuicon="images/info.png"/>
+		<node menuid="WZGL" menuname="资料管理" pageurl="DataAsset" menuicon="images/kvm.png"/>
+		<node menuid="HWGL" menuname="选型管理" pageurl="SelectionMain" menuicon="images/icon_officpark_01.png"/>
+		<node menuid="CLGL" menuname="" pageurl="" menuicon="images/car.png"/>
+		<node menuid="RCFW" menuname="图表管理" pageurl="ServiceMain" menuicon="images/info.png"/>
 		<node menuid="XTFW" menuname="系统服务" pageurl="SystemMain" menuicon="images/system.png"/>
 	</mx:XMLList>
 	<!--<node menuid="CYGL" menuname="餐饮管理" pageurl="" menuicon="images/reset.png"/>
@@ -259,7 +271,7 @@
 	<mx:VBox id="mainWindowBox" width="100%" height="100%" verticalGap="0" horizontalAlign="center" horizontalGap="0">
 		<mx:HBox id="mainWindowTop" width="100%" height="61" verticalAlign="middle" paddingLeft="20" backgroundSize="100%" 
 				 backgroundImage="@Embed(source='style/flex_skins/backgroundLayoutHeader_s.jpg')">
-			<mx:Image source="style/flex_skins/backgroundLayoutHeader_s.png" width="100%"/>
+			<!--<mx:Image source="style/flex_skins/backgroundLayoutHeader_s.png" width="100%"/>-->
 		</mx:HBox>
 		<mx:HBox id="mainWindowMenu" width="100%" backgroundImage="@Embed(source='images/main_banner_bg.jpg')" verticalAlign="middle" backgroundSize="100%">
 			<mx:ControlBar id="mainWindowMenuBar" width="100%" paddingTop="0" paddingBottom="0" paddingLeft="10" paddingRight="10" fontWeight="bold" fontSize="13"></mx:ControlBar>
@@ -271,8 +283,8 @@
 		</mx:HBox> 
 		<mx:ViewStack id="mainWindowStack" width="100%" height="100%" creationPolicy="all">
 			<nsone:HomeModel id="HomeModelPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
-			<nsone:AssetMain id="AssetPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
-			<nsone:MeetingMain id="MeetMainPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
+			<nsone:DataAssetMain id="DataAssetPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
+			<nsone:SelectionMain id="SelectionMainPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
 			<nsone:CarMain id="AssetCarPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
 			<nsone:ServiceMain id="ServiceMainPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
 			

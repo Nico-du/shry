@@ -36,11 +36,11 @@
 			<mx:Label text="快捷菜单" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13"/>
 		</mx:HBox> 
 		<mx:Tile id="mainTile" width="100%" height="100%" paddingTop="20" paddingLeft="20" borderStyle="none" horizontalAlign="center" horizontalGap="10" verticalAlign="top" verticalGap="0">
-			<mycoms:ImageCanvas id="smzq_rkdj" txt="入库登记" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_rk_img.gif"/>
-			<mycoms:ImageCanvas id="smzq_lysq" txt="领用申请" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_ly_img.gif"/>
-			<mycoms:ImageCanvas id="smzq_tksq" txt="退库申请"  click="buttonSelectClick(event)" width="100" height="100" imgname="sy_tk_img.gif"/>
-			<mycoms:ImageCanvas id="smzq_wxdj" txt="维修登记" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_wx_img.gif"/>
-			<mycoms:ImageCanvas id="smzq_bfsq" txt="报废申请" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_bf_img.gif"/>
+			<mycoms:ImageCanvas id="smzq_rkdj" txt="风叶选型" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_rk_img.gif"/>
+			<mycoms:ImageCanvas id="smzq_lysq" txt="风叶查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_ly_img.gif"/>
+			<mycoms:ImageCanvas id="smzq_tksq" txt="电机查询"  click="buttonSelectClick(event)" width="100" height="100" imgname="sy_tk_img.gif"/>
+			<mycoms:ImageCanvas id="smzq_wxdj" txt="曲线图生成" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_wx_img.gif"/>
+			<mycoms:ImageCanvas id="smzq_bfsq" txt="图表下载" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_bf_img.gif"/>
 			<!--添加图例，也就是说明图形的某个线条的颜色和作用的实例-->
 		</mx:Tile>
 	</mx:VBox>
