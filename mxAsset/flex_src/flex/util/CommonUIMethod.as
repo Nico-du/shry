@@ -103,8 +103,8 @@ package flex.util
 		 *设置  所有 imgFold是否可见
 		 **/
 		public static function ui_resetImgFoldVisible(currentID:String):void{
-			if(currentID != "Asset"){
-				Application.application.mainPage.AssetPage.imgFold.visible = false;
+			if(currentID != "DataAsset"){
+				Application.application.mainPage.DataAssetPage.imgFold.visible = false;
 				//102 领用  105 报废
 				if(Application.application.mainPage.AssetPage.modelMap["102"] != null){
 					Application.application.mainPage.AssetPage.modelMap["102"].imgFold.visible = false;
@@ -113,8 +113,8 @@ package flex.util
 					Application.application.mainPage.AssetPage.modelMap["105"].imgFold.visible = false;
 				}
 			}
-			if(currentID != "MeetMain"){
-			Application.application.mainPage.MeetMainPage.imgFold.visible = false;
+			if(currentID != "SelectionMain"){
+			Application.application.mainPage.SelectionMainPage.imgFold.visible = false;
 			}
 			if(currentID != "ServiceMain"){
 			Application.application.mainPage.ServiceMainPage.imgFold.visible = false;
