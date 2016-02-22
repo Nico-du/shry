@@ -2,6 +2,7 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:ns1="*" creationComplete="initPage()" updateComplete="afterInitPage()"
 		   width="100%" height="100%" paddingTop="5" paddingLeft="5" paddingBottom="5" paddingRight="5"
 		   fontSize="12" backgroundColor="white" >
+	<mx:Script source="flex/util/DICCommonMethod.as"/> 
 	<mx:Script>
 		<![CDATA[
 			/*import asset_report.ReportBmhclyzk;
@@ -32,7 +33,7 @@
 			//菜单数据
 			public var menuTreeDate:XML=null;
 			//保存实例化的对象
-			private var modelMap:Dictionary=null;
+			public var modelMap:Dictionary=null;
 			//相关资料
 			private var ABOUTDATUM:String="ABOUTDATUM";
 			//供应商
@@ -58,6 +59,7 @@
 			//部门物品使用状况报表
 			private var BMBB:String="BmbbPage";
 			
+			public var defaultAssetWFTreeIndex:int = -1;
 			
 			//初始化页面
 			public function initPage():void{
@@ -73,8 +75,8 @@
 				/* if(!CommonXMLData.IsTestEnvironment){
 					delete serviceMainXml.item[1].node[2];
 					delete serviceMainXml.item[1].node[0];
-				}
-				this.menuTreeDate=this.serviceMainXml; */
+				}*/
+				this.menuTreeDate=this.serviceMainXml; 
 				this.menutree.dataProvider=menuTreeDate;
 				this.menutree.callLater(expandTree);
 				
@@ -244,6 +246,50 @@
 					moveEffect.xTo = 5;
 					resizeEffect.widthTo = 0;
 				} 
+			}
+			
+			
+			//自动切换Grid页面
+			public function resetCurrentGridPage(curBtnId:String,isShowNewPage:Boolean = false,menuId:String=null):void{
+			/* 	var btnId:String="";
+				if(menuId != null){
+					btnId = menuId;
+				}else{
+					btnId = curBtnId;	
+				}
+				
+				setBtnState(btnId);
+				
+				var selectItem:XML=getSelectItem(btnId);
+				if(defaultAssetWFTreeIndex == -2){//快捷按钮事件判断
+					isShowNewPage = true;
+					defaultAssetWFTreeIndex = 1;
+				}
+				if("smzq_kcxx" == btnId){isShowNewPage=false;}
+				var strid:String = selectItem.@id;
+				var tmpWd:Object = this.modelMap[strid];
+				var isNewPage:Boolean = (tmpWd == null);
+				if(selectItem==null){
+					return;
+				}
+				var tempContent:Object=getModelBySelect(selectItem);
+				if(tempContent==null){
+					return;
+				}
+				this.managerStack.selectedChild=tempContent as INavigatorContent;
+				if(isShowNewPage){
+					if(!isNewPage){
+						tempContent.newActionClick();
+					}else{
+						tempContent.isShowNewPage = isShowNewPage;
+					}
+				} */
+			}
+			
+			public function getCurrentDicids(selectItem:XML):String{
+				var tempObj:Object = getDICModelBySelect(selectItem);
+				if(tempObj == null){ return "";}
+				return  tempObj.data.@dicids;
 			}
 		]]>
 	</mx:Script>

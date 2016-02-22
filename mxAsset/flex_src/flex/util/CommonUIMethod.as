@@ -106,11 +106,11 @@ package flex.util
 			if(currentID != "DataAsset"){
 				Application.application.mainPage.DataAssetPage.imgFold.visible = false;
 				//102 领用  105 报废
-				if(Application.application.mainPage.AssetPage.modelMap["102"] != null){
-					Application.application.mainPage.AssetPage.modelMap["102"].imgFold.visible = false;
+				if(Application.application.mainPage.DataAssetPage.modelMap["102"] != null){
+					Application.application.mainPage.DataAssetPage.modelMap["102"].imgFold.visible = false;
 				}
-				if(Application.application.mainPage.AssetPage.modelMap["105"] != null){
-					Application.application.mainPage.AssetPage.modelMap["105"].imgFold.visible = false;
+				if(Application.application.mainPage.DataAssetPage.modelMap["105"] != null){
+					Application.application.mainPage.DataAssetPage.modelMap["105"].imgFold.visible = false;
 				}
 			}
 			if(currentID != "SelectionMain"){
@@ -168,7 +168,7 @@ package flex.util
 					xmleach.@id = eachItem.id;
 					xmleach.@label = eachItem.label;
 					xmleach.@isSearchXml = "true";
-					var asm:AssetMain = new AssetMain();
+					var asm:DataAssetMain = new DataAssetMain();
 					xmleach.@dicids = asm.getCurrentDicids(xmleach);
 					xmlAll.node[0].appendChild(xmleach);
 					asm=null;

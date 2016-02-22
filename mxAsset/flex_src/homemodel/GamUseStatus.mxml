@@ -16,7 +16,7 @@
 				FlexGlobals.topLevelApplication.mainPage.AssetPage.modelMap["204"] = null;
 				FlexGlobals.topLevelApplication.mainPage.AssetPage.modelMap["206"] = null;
 				FlexGlobals.topLevelApplication.mainPage.menuItemClickAsset();
-				var assetMainWd:AssetMain = FlexGlobals.topLevelApplication.mainPage.AssetPage;
+				var assetMainWd:DataAssetMain = FlexGlobals.topLevelApplication.mainPage.DataAssetPage;
 				assetMainWd.resetCurrentGridPage(event.currentTarget.id,true);
 			}
 			

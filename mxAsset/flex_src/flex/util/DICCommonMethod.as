@@ -191,7 +191,7 @@
 			}else if(CommonMethod.isEqualDicId(strpageurl,DICINTANGIBLEASSETLIST,3)){
 				tempObj=new DICIntangibleGridMoudel();
 			}*/ 
-			if(tempObj == null && CommonXMLData.IsTestEnvironment){Alert.show("尚未映射的设备类型"+strpageurl); return  null;}
+			if(tempObj == null ){ if( CommonXMLData.IsTestEnvironment){Alert.show("尚未映射的设备类型"+strpageurl); } return  null;}
 			if(isDoAUValidate){if(CommonMethod.executePwdAuthority(tempObj,selectItem) == null)return null;} 	//执行权限验证	
 			
 			//传值给每个页面

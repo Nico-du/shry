@@ -97,6 +97,7 @@
 	<bean id="datumService" class="net.chinanets.service.imp.DatumServiceImp" parent="commonService">
 		<property name="datumDao" ref="DatumDao"></property>
 	</bean>
+	<bean id="chartService" class="net.chinanets.service.imp.ChartServiceImp" parent="commonService"/>
 	<!--所有物资 -->
 	<bean id="allAssetService" class="net.chinanets.service.imp.AllAssetServiceImp" parent="commonService">
 		<property name="allAssetDao" ref="allAssetDao"></property>

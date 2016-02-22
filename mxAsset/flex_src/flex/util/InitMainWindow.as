@@ -83,7 +83,7 @@ import mx.messaging.FlexClient;
 		 this.codelistheler.initCodeList();
 		 
 		 //任务提醒
-		 initSysMsgWd();
+//		 initSysMsgWd();
 	 }
 
     

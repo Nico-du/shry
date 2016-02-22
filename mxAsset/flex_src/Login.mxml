@@ -269,7 +269,7 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Move id="smove" target="{sysMsg}"  yFrom="{this.height}" yTo="{this.height - sysMsg.height}" />
+	<!--<mx:Move id="smove" target="{sysMsg}"  yFrom="{this.height}" yTo="{this.height - sysMsg.height}" />-->
 	<mx:VBox id="mainBox" height="100%" width="100%" styleName="myHVAlign" x="0" y="0" horizontalAlign="center" color="#05657A">
 		<mx:HBox paddingTop="120" paddingBottom="120">
 			<!--<mx:Image source="style/flex_skins/backgroundLoginHeaderTitle.png"/>-->

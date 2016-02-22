@@ -209,7 +209,7 @@
 					} else if(menuid == "SelectionMain"){
 						this[shoutmenuid].treeSelectClick();
 					} else if(menuid == "DataAsset"){
-					if(FlexGlobals.topLevelApplication.mainPage.AssetPage.defaultAssetWFTreeIndex != -2){ this[shoutmenuid].setDefaultPage();}
+			//		if(FlexGlobals.topLevelApplication.mainPage.DataAssetPage.defaultAssetWFTreeIndex != -2){ this[shoutmenuid].setDefaultPage();}
 					}  
 				}
 				
