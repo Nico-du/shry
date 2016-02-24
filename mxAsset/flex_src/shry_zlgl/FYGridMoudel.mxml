@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()"
+		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
+		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoudel.common.*"
+		   xmlns:cnscombox="cn.cnspagemoudel.combox.*">
+	<mx:RemoteObject id="CodeListServiceRmt" destination="codeListService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script source="../systemManage/initAllAssetRule.as"/>
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.codelist.ASCodeListHelper;
+			import cn.cnsasfram.entity.DoResult;
+			import cn.cnsasfram.entity.enum.Errors;
+			import cn.cnsasfram.helper.ASCommonHelper;
+			import cn.cnsasfram.helper.ASJsonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.adobe.serialization.json.JSON;
+			import com.benstucki.utilities.IconUtility;
+			
+			import flex.util.CommonMethod;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.CheckBox;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectProxy;
+			//页面标题icon路径
+			[Bindable]
+			protected var pagetitleIcon:String="";
+			//页面默认标题名称
+			[Bindable]
+			protected var pagetitle:String="风叶数据";
+			//分页中备注信息
+			[Bindable]
+			protected var dg_pg_othermsg:String="";
+			//分页中数据总数
+			[Bindable]
+			protected var dg_pg_datacount:int=0;
+			//表格数据源
+			[Bindable]
+			protected var dataArray:ArrayCollection=null;
+			//所有按钮及工具栏高度
+			[Bindable]
+			protected var aboutheight:Number=22;
+			//页面数据是否选中
+			[Bindable]
+			protected var dataIsSelected:Boolean=false;
+			
+			//指定linkbutton选中后的颜色,仅供选择
+			public var tempPublicDefaultColor:uint=0xCCFFFF;
+			//默认操作实体名称
+			public var tempObjBeanName:String="CNST_CODELIST_DATA";
+			//默认实体视图名称
+			public var tempObjViewName:String="CNSV_CODELIST";
+			//页面初始化是否加载权限
+			public var pageIsLoadPoer:Boolean=true;
+			//页面初始化是否加载数据
+			public var pageIsLoadData:Boolean=true;
+			//搜索表单初始化是否展开
+			public var searchFormIsOpen:Boolean=false;
+			//用户添加基础资料
+			[Bindable]	public var codeTypeStr:String = null;
+			[Bindable]	public var codeNameStr:String = null;
+			//初始调用方法
+			public function initPage():void{
+				this.highSearchChange();
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				//加载权限
+				if(pageIsLoadPoer){
+					loadUserPower();
+				}
+				//加载数据
+				if(pageIsLoadData){
+					loadData();
+				}
+				if(!CommonMethod.isNullOrWhitespace(codeTypeStr)){
+					setAddCodelistStyle();
+				}
+			}
+			
+			//分析权限
+			public function loadUserPower():void{
+				//判断读取权限
+				
+				//判断写入权限
+				ASCommonHelper.controlVisible(this.newAction,this.isAddUsable);
+				ASCommonHelper.controlVisible(this.removeAction,this.isDelUsable);
+				ASCommonHelper.controlVisible(this.editAction,this.isEditUsable);
+				ASCommonHelper.controlVisible(this.exportAction,this.isExportUsable);
+				ASCommonHelper.controlVisible(this.otherAction,false);
+			}
+			public function setAddCodelistStyle(){
+				pagePanel.setStyle("headerHeight",0);
+				ASCommonHelper.controlVisible(this.highSearch,false);
+			}
+			private var loadBackFunc:Function = null;
+			//加载数据
+			public function loadData(loadBackFunc:Function=null):void{
+				dataSearchAction(this.cns_dg_pg.pagesize,this.cns_dg_pg.pagecurrent);
+				if(loadBackFunc != null){
+					this.loadBackFunc = loadBackFunc;
+				}
+			}
+			
+			//点击搜索按钮事件
+			public function searchClickAction():void{
+				this.cns_dg_pg.pagecurrent=1;
+				dataSearchAction(this.cns_dg_pg.pagesize,this.cns_dg_pg.pagecurrent);
+			} 
+			
+			//表格单击事件
+			protected function gridItemDataClick(tempEvent:ListEvent):void{
+				var tempSelctedItem:Object=tempEvent.currentTarget.selectedItem;
+				if(tempSelctedItem==null){
+					return;
+				}
+				tempSelctedItem.selected=!tempSelctedItem.selected;				
+				this.cns_dg.invalidateList();
+				checkDataIsSelected();
+			}
+			
+			//表格双击事件
+			protected function gridItemDataDoubleClick(tempEvent:ListEvent):void{
+				var tempSelctedItem:Object=tempEvent.currentTarget.selectedItem;
+				lookDataAction(tempSelctedItem);
+			}
+			
+			//数据选中事件
+			protected function dataChooseActionClick(tempEvent:ListEvent):void{
+				var tempObj:Object=tempEvent.currentTarget.selectedItem;
+				if(tempObj==null || this.dataArray==null || this.dataArray.length<1){
+					return;
+				}
+				var tempStr:String=tempObj.value;
+				if(ASStringHelper.stringCompare(tempStr,"-1",true)==0){
+					return;
+				}else if(ASStringHelper.stringCompare(tempStr,"1",true)==0){
+					for each(var dataobjAll:Object in this.dataArray){
+						dataobjAll.selected=true;
+					}
+				}else if(ASStringHelper.stringCompare(tempStr,"0",true)==0){
+					for each(var dataobjAbsout:Object in this.dataArray){
+						dataobjAbsout.selected=!dataobjAbsout.selected;
+					}
+				}
+				this.cns_dg.invalidateList();
+				checkDataIsSelected();
+			}
+			
+			//查看事件
+			protected function selectActionClick():void{
+				var tempSelectItem:Object=null;
+				for each(var dataobj:Object in this.dataArray){
+					if(dataobj.selected){
+						tempSelectItem=dataobj;
+						break;
+					}
+				}
+				if(tempSelectItem==null){
+					return;
+				}
+				lookDataAction(tempSelectItem);
+			}
+			
+			//新建事件
+			protected function newActionClick():void{
+				lookDataAction(null);
+			}
+			
+			//编辑事件
+			protected function editActionClick():void{
+				var tempSelectItem:Object=null;
+				for each(var dataobj:Object in this.dataArray){
+					if(dataobj.selected){
+						tempSelectItem=dataobj;
+						break;
+					}
+				}
+				if(tempSelectItem==null){
+					return;
+				}
+				lookDataAction(tempSelectItem);
+			}
+			
+			//删除事件
+			protected function removeActionClick():void{
+				Alert.show("您确认要删除基础数据吗？","系统提示",Alert.OK|Alert.CANCEL,Application.application as Sprite,removeDataAction);
+			}
+			
+			//导出数据
+			protected function exportActionClick():void{
+				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"CODEID",tempObjViewName,"基础数据信息","基础数据信息");
+			}
+			
+			//下载模板事件
+			protected function exportModelActionClick():void{
+				
+			}
+			
+			//上传数据事件
+			protected function importDataActionClick():void{
+				
+			}
+			
+			//查看详细数据
+			protected function lookDataAction(tempSelctedItem:Object):void{
+				var tempWindow:CodeListFormMoudel=new CodeListFormMoudel();
+				var tempid:String="";
+				if(tempSelctedItem!=null){
+					tempid=tempSelctedItem.codeid;
+				}
+				tempWindow.codetypeStr = codeTypeStr;
+				tempWindow.dataId=tempid;
+				tempWindow.parentPage=this;
+				this.cns_dg_pg.openEditPage(tempWindow);
+			}
+			
+			//检测表格是否存在选中数据
+			protected function checkDataIsSelected():void{
+				for each(var dataobj:Object in this.dataArray){
+					if(dataobj.selected){
+						this.dataIsSelected=true;
+						return;
+					}
+				}
+				this.dataIsSelected=false;
+			}
+			
+			//加载相关信息
+			protected function dataSearchAction(tempPageSize:int,tempPageCurrent:int):void{
+				var strcondition:String=getDataSeacrchCondition();
+				CodeListServiceRmt.GetCodeList(tempObjViewName,tempPageSize,tempPageCurrent,strcondition);
+				CodeListServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
+			}
+			//加载相关信息回调方法
+			protected function dataSearchActionBack(rmtResult:ResultEvent):void{
+				this.CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
+				if(this.loadBackFunc != null){loadBackFunc.call();loadBackFunc=null;}
+				var objResult:Object=rmtResult.result;
+				var strresult:String=objResult.toString();
+				var jsonObj:Object=JSON.decode(strresult,true);
+				var itemtotal:Object=jsonObj.itemtotal;
+				var othermsg:Object=jsonObj.othermsg;
+				var items:Object=jsonObj.items;
+				if(items==null){
+					return;
+				}
+				this.dg_pg_datacount=parseInt(itemtotal as String);
+				this.dg_pg_othermsg=othermsg==null?"":othermsg.toString();
+				this.dataArray=ASCommonHelper.addArraySelectedPro(new ArrayCollection(items as Array));
+				this.checkDataIsSelected();
+				this.cns_dg_pg.setPagingCount();
+			}
+			//得到搜索条件
+			protected function getDataSeacrchCondition():String{
+				var condition:Object=new Object();
+				if(!searchFormIsOpen){
+					var codetype:String=this.CODETYPE.getValue();
+					var codename:String=this.CODENAME.text;
+					var codeid:String=this.CODEID.text;
+					if(!ASStringHelper.isNullOrEmpty(codetype)){
+						condition.s_codetype_string_eq=codetype.toString();
+					}
+					if(!ASStringHelper.isNullOrEmpty(codename)){
+						condition.s_codename_string_like=codename;
+					}
+					if(!ASStringHelper.isNullOrEmpty(codeid)){
+						condition.s_codebs_string_like=codeid;
+					}
+				}else{
+					var quklytext:String=this.qukilySearchTxt.text;
+					if(!ASStringHelper.isNullOrEmpty(quklytext)){
+						condition.s_codename_string_like=quklytext;
+						condition.s_codetype_string_notin="UNKNOW,DMB";
+					}
+				}
+				
+				if(!CommonMethod.isNullOrWhitespace(codeTypeStr)){
+					condition.s_codetype_string_eq = codeTypeStr;
+				}
+				
+				if(Application.application.userVo.ruleId != 41){
+					condition.s_codetype_string_notin="UNKNOW,DMB";
+				}
+				
+				var conditionJson:String=JSON.encode(condition);
+				return conditionJson;
+			}
+			
+			//删除数据
+			protected function removeDataAction(doEvent:CloseEvent):void{
+				if(doEvent.detail==Alert.CANCEL){
+					return;
+				}
+				var dataids:String=this.getRemoveDataArray();
+				if(ASStringHelper.isNullOrEmpty(dataids)){
+					return;
+				}
+				CodeListServiceRmt.RemoveCodeList(dataids);
+				CodeListServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
+			}
+			//删除数据回调方法
+			protected function removeDataActionBack(rmtResult:ResultEvent):void{
+				CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,removeDataActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					Alert.show(doResult.strErrorInfo);
+					return;
+				}else{
+					Alert.show("数据删除成功");
+					this.dataRemoveRYHCAction();
+					this.loadData();
+				}
+			}
+			//删除日用耗材
+			protected function dataRemoveRYHCAction():void{
+				AllAssetServiceRmt.RemoveObject(removedcodebs,"cnst_ryhc_data","ryhcbh","");
+				removedcodebs = "";
+			}
+			private var removedcodebs:String="";
+			//得到要删除的数据
+			protected function getRemoveDataArray():String{
+				var dataids:String="";
+				for each(var dataobj:Object in this.dataArray){
+					if(dataobj.selected){
+						dataids+=dataobj.codeid+",";
+						removedcodebs += dataobj.codebs+",";
+					}
+				}
+				if(ASStringHelper.isNullOrEmpty(dataids)){
+					dataids=dataids.substr(0,dataids.length-1);
+				}
+				return dataids;
+			}
+			
+			//格式化datagrid的日期
+			public static function dateItemFormat(item:Object,dgColumn:DataGridColumn):String{  
+				var dataFormat:DateFormatter = new DateFormatter();  
+				dataFormat.formatString = "YYYY-MM-DD";  
+				var value:Object = item[dgColumn.dataField];  
+				return dataFormat.format(value);  
+			}
+			
+			//选择高级搜索切换
+			protected function highSearchChange():void{
+				if(searchFormIsOpen){
+					this.qukilySearchBar.enabled=false;
+					ASCommonHelper.controlVisible(this.highSearchBox,true);
+					this.highSearch.label="隐藏";
+				}else{
+					this.qukilySearchBar.enabled=true;
+					ASCommonHelper.controlVisible(this.highSearchBox,false);
+					this.highSearch.label="高级";
+				}
+				searchFormIsOpen=!searchFormIsOpen;
+			}
+			
+			//搜索重置
+			protected function dataSearchResetAction():void{
+				this.CODETYPE.selectedIndex=-1;
+				this.CODENAME.text="";
+			}
+			
+			//得到title的ICON
+			protected function getTitleIcon(iconPath:String):Class{
+				if(ASStringHelper.isNullOrEmpty(iconPath)){
+					return null;
+				}
+				return IconUtility.getClass(this.pagePanel,iconPath,20,20);
+			}
+			
+			//得到表格行号
+			protected function getColumnIndex(item:Object,column:DataGridColumn):String{
+				return String(this.cns_dg.dataProvider.getItemIndex(item)+1);
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:HDividedBox width="100%" height="100%" verticalAlign="middle" verticalGap="0" borderStyle="none" horizontalAlign="center" horizontalGap="3">
+		<mx:Panel id="pagePanel" title="{pagetitle}" titleIcon="{getTitleIcon(pagetitleIcon)}" width="100" height="100%" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" verticalGap="2" horizontalGap="0">
+			<!--快捷搜索-->
+			<mx:HBox id="qukilySearchBox" width="100%" height="{aboutheight}" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
+				<mx:HBox id="qukilySearchBar" width="80%" height="{aboutheight}" horizontalGap="1" horizontalAlign="left" borderStyle="none">
+					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="名称" textAlign="right"/>
+					<mx:TextInput id="qukilySearchTxt" enter="searchClickAction()" width="150" height="{aboutheight}"/>
+					<mx:Button id="qukilySearchBtn" click="searchClickAction()" height="{aboutheight}" label="搜索" icon="@Embed(source='images/find.gif')"/>
+				</mx:HBox>
+				<mx:HBox width="20%" horizontalGap="1" horizontalAlign="right" borderStyle="none">
+					<mx:Button id="highSearch" click="highSearchChange()" width="55" height="{aboutheight}" label="高级"/>
+				</mx:HBox>
+			</mx:HBox>
+			<!--搜索表单-->
+			<mx:HBox id="highSearchBox" width="100%" borderStyle="solid" verticalGap="0" horizontalGap="0">
+				<mx:Form id="highSearchForm" width="100%" horizontalGap="0" verticalGap="0" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" indicatorGap="0" borderStyle="none">
+					<mx:Grid width="100%" horizontalGap="0" verticalGap="4" borderStyle="none">
+						<mx:GridRow width="100%" height="{aboutheight}">
+							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="类型:" height="{aboutheight}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
+									<cnscombox:CNSCombox id="CODETYPE" typename="UNKNOW,DMB" isnullable="true" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="名称:" height="{aboutheight}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+									<mx:TextInput id="CODENAME" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="标识:" height="{aboutheight}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+									<mx:TextInput id="CODEID" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
+						</mx:GridRow>
+						<mx:GridRow width="100%" height="{aboutheight}">
+							
+						</mx:GridRow>
+					</mx:Grid>
+				</mx:Form>
+				<mx:VBox width="60" height="100%" borderStyle="none" verticalGap="2" paddingTop="2" paddingBottom="2" horizontalAlign="center" verticalAlign="middle">
+					<mx:Button id="btnsearchdata" click="searchClickAction()" width="55" height="{aboutheight}" label="搜索"/>
+					<mx:Button id="btnresetdata" click="dataSearchResetAction()" width="55" height="{aboutheight}" label="重置"/>
+				</mx:VBox>
+			</mx:HBox>
+			<!--工具栏-->
+			<mx:HBox id="toolBar" width="100%" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" borderStyle="none" backgroundColor="#99CCFF">
+				<mx:ComboBox id="dataChooseAction" labelField="label" change="dataChooseActionClick(event)" editable="false" width="67" height="{aboutheight}" blendMode="overlay">
+					<mx:Array id="cbChooseArray">
+						<mx:Object label="选择" value="-1"/>
+						<mx:Object label="全选" value="1"/>
+						<mx:Object label="反选" value="0"/>
+					</mx:Array>
+				</mx:ComboBox>
+				<mx:LinkButton id="selectAction" click="selectActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="查看" toolTip="查看" icon="@Embed(source='images/icon_choosedate.gif')"/>
+				<mx:LinkButton id="newAction" click="newActionClick()" height="{aboutheight}" label="新建" toolTip="新建" icon="@Embed(source='images/add.gif')"/>
+				<mx:LinkButton id="editAction" click="editActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="编辑" toolTip="编辑" icon="@Embed(source='images/edit.gif')"/>
+				<mx:LinkButton id="removeAction" click="removeActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="删除" toolTip="删除" icon="@Embed(source='images/delete.gif')"/>
+				<mx:LinkButton id="exportAction" click="exportActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="导出" toolTip="导出" icon="@Embed(source='images/export.gif')"/>
+				<mx:LinkButton id="refreshAction" click="loadData()" height="{aboutheight}" label="刷新" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
+				<mx:ComboBox id="otherAction" cornerRadius="2" editable="false" width="90" height="{aboutheight}" blendMode="overlay">
+					<mx:Array id="cbotherchoose">
+						<mx:Object label="其它操作" value="unknow"/>
+						<mx:Object label="导出模板" value="exportModelAction"/>
+						<mx:Object label="导入数据" value="inportDataAction"/>
+					</mx:Array>
+				</mx:ComboBox>
+			</mx:HBox>
+			<!--表格数据-->
+			<mx:VBox width="100%" height="100%" verticalGap="2" borderStyle="none">
+				<mx:DataGrid id="cns_dg" dataProvider="{dataArray}" itemClick="gridItemDataClick(event)" 
+							 itemDoubleClick="gridItemDataDoubleClick(event)" doubleClickEnabled="true" width="100%" height="100%">
+					<mx:columns>
+						<mx:DataGridColumn headerText="" width="43" draggable="false" sortable="false" labelFunction="getColumnIndex" textAlign="center">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:CheckBox selected="{data.selected}"/>
+								</mx:Component>
+							</mx:itemRenderer> 
+						</mx:DataGridColumn>
+						<mx:DataGridColumn headerText="所属类型" width="160" dataField="codetypename" sortable="true"/>
+						<mx:DataGridColumn headerText="标识" width="120" dataField="codebs" sortable="true"/>
+						<mx:DataGridColumn headerText="名称" width="180" dataField="codename" sortable="false"/>
+						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
+					</mx:columns>
+				</mx:DataGrid>
+				<cnspg:PagingMoudel id="cns_dg_pg" width="100%" height="{aboutheight}" datacount="{dg_pg_datacount}" othermsg="{dg_pg_othermsg}" funReqData="dataSearchAction"/>
+			</mx:VBox>
+		</mx:Panel>
+	</mx:HDividedBox>
+</mx:Module>
