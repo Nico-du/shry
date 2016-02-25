@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()"
 		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
-		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoudel.common.*"
-		   xmlns:cnscombox="cn.cnspagemoudel.combox.*">
-	<mx:RemoteObject id="CodeListServiceRmt" destination="codeListService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoudel.common.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
-	<mx:Script source="../systemManage/initAllAssetRule.as"/>
 	<mx:Script>
 		<![CDATA[
-			import cn.cnsasfram.codelist.ASCodeListHelper;
 			import cn.cnsasfram.entity.DoResult;
 			import cn.cnsasfram.entity.enum.Errors;
 			import cn.cnsasfram.helper.ASCommonHelper;
@@ -24,8 +20,8 @@
 			import mx.controls.Alert;
 			import mx.controls.CheckBox;
 			import mx.core.Application;
-			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
 			import mx.formatters.DateFormatter;
 			import mx.managers.PopUpManager;
@@ -45,7 +41,7 @@
 			protected var dg_pg_datacount:int=0;
 			//表格数据源
 			[Bindable]
-			protected var dataArray:ArrayCollection=null;
+			public var dataArray:ArrayCollection=null;
 			//所有按钮及工具栏高度
 			[Bindable]
 			protected var aboutheight:Number=22;
@@ -56,18 +52,19 @@
 			//指定linkbutton选中后的颜色,仅供选择
 			public var tempPublicDefaultColor:uint=0xCCFFFF;
 			//默认操作实体名称
-			public var tempObjBeanName:String="CNST_CODELIST_DATA";
-			//默认实体视图名称
-			public var tempObjViewName:String="CNSV_CODELIST";
+			public var tempObjBeanName:String="CNST_BFDMX_DATA";
+			//默认操作视图名称
+			public var tempObjViewName:String="CNSV_BFDMX";
 			//页面初始化是否加载权限
 			public var pageIsLoadPoer:Boolean=true;
 			//页面初始化是否加载数据
 			public var pageIsLoadData:Boolean=true;
 			//搜索表单初始化是否展开
 			public var searchFormIsOpen:Boolean=false;
-			//用户添加基础资料
-			[Bindable]	public var codeTypeStr:String = null;
-			[Bindable]	public var codeNameStr:String = null;
+			//报废单ID
+			public var bfdid:String="";
+			//父窗口
+			public var parentPage:BFDJFormMoudel = null;
 			//初始调用方法
 			public function initPage():void{
 				this.highSearchChange();
@@ -91,9 +88,6 @@
 				if(pageIsLoadData){
 					loadData();
 				}
-				if(!CommonMethod.isNullOrWhitespace(codeTypeStr)){
-					setAddCodelistStyle();
-				}
 			}
 			
 			//分析权限
@@ -101,29 +95,23 @@
 				//判断读取权限
 				
 				//判断写入权限
-				ASCommonHelper.controlVisible(this.newAction,this.isAddUsable);
-				ASCommonHelper.controlVisible(this.removeAction,this.isDelUsable);
-				ASCommonHelper.controlVisible(this.editAction,this.isEditUsable);
-				ASCommonHelper.controlVisible(this.exportAction,this.isExportUsable);
-				ASCommonHelper.controlVisible(this.otherAction,false);
+				//	ASCommonHelper.controlVisible(this.otherAction,false);
+				ASCommonHelper.controlVisible(this.otherAction,parentPage.parentPage.otherAction.visible);
+				ASCommonHelper.controlVisible(this.exportAction,parentPage.parentPage.exportAction.visible);
+				
+				ProcessMethods.changeCNSTModuelState(this,parentPage.parentPage.newAction.visible && parentPage.parentPage.workFlowTree.selectedItem.@id=="wf_cgx",
+					parentPage.parentPage.editAction.visible,parentPage.parentPage.removeAction.visible || parentPage.parentPage.workFlowTree.selectedItem.@id=="wf_cgx");
+				if(parentPage.isSHPage){ASCommonHelper.controlVisible(this.editAction,true);	}
 			}
-			public function setAddCodelistStyle(){
-				pagePanel.setStyle("headerHeight",0);
-				ASCommonHelper.controlVisible(this.highSearch,false);
-			}
-			private var loadBackFunc:Function = null;
+			
 			//加载数据
-			public function loadData(loadBackFunc:Function=null):void{
-				dataSearchAction(this.cns_dg_pg.pagesize,this.cns_dg_pg.pagecurrent);
-				if(loadBackFunc != null){
-					this.loadBackFunc = loadBackFunc;
-				}
+			public function loadData():void{
+				dataSearchAction(this.cns_dg_pg.pagesize,1);
 			}
 			
 			//点击搜索按钮事件
-			public function searchClickAction():void{
-				this.cns_dg_pg.pagecurrent=1;
-				dataSearchAction(this.cns_dg_pg.pagesize,this.cns_dg_pg.pagecurrent);
+			protected function searchClickAction():void{
+				dataSearchAction(this.cns_dg_pg.pagesize,1);
 			} 
 			
 			//表格单击事件
@@ -139,8 +127,8 @@
 			
 			//表格双击事件
 			protected function gridItemDataDoubleClick(tempEvent:ListEvent):void{
-				var tempSelctedItem:Object=tempEvent.currentTarget.selectedItem;
-				lookDataAction(tempSelctedItem);
+				var tempSelectedItem:Object=tempEvent.currentTarget.selectedItem;
+				lookDataAction(tempSelectedItem);
 			}
 			
 			//数据选中事件
@@ -182,7 +170,9 @@
 			
 			//新建事件
 			protected function newActionClick():void{
-				lookDataAction(null);
+				parentPage.tempCallBackFunc = lookDataAction;
+				parentPage.saveData();
+				//	lookDataAction(null);
 			}
 			
 			//编辑事件
@@ -202,12 +192,12 @@
 			
 			//删除事件
 			protected function removeActionClick():void{
-				Alert.show("您确认要删除基础数据吗？","系统提示",Alert.OK|Alert.CANCEL,Application.application as Sprite,removeDataAction);
+				Alert.show("您确认要删除报废单明细吗？","系统提示",Alert.OK|Alert.CANCEL,Application.application.mainPage,removeDataAction);
 			}
 			
 			//导出数据
 			protected function exportActionClick():void{
-				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"CODEID",tempObjViewName,"基础数据信息","基础数据信息");
+				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"BFDMXID",tempObjViewName,"报废登记明细信息","报废登记明细信息");
 			}
 			
 			//下载模板事件
@@ -221,20 +211,18 @@
 			}
 			
 			//查看详细数据
-			protected function lookDataAction(tempSelctedItem:Object):void{
-				var tempWindow:CodeListFormMoudel=new CodeListFormMoudel();
+			protected function lookDataAction(tempSelctedItem:Object=null):void{
+				var tempWindow:BFDJMXFormMoudel=new BFDJMXFormMoudel();
 				var tempid:String="";
 				if(tempSelctedItem!=null){
-					tempid=tempSelctedItem.codeid;
+					tempid=tempSelctedItem.bfdmxid;
 				}
-				tempWindow.codetypeStr = codeTypeStr;
 				tempWindow.dataId=tempid;
 				tempWindow.parentPage=this;
 				this.cns_dg_pg.openEditPage(tempWindow);
 			}
-			
 			//检测表格是否存在选中数据
-			protected function checkDataIsSelected():void{
+			public function checkDataIsSelected():void{
 				for each(var dataobj:Object in this.dataArray){
 					if(dataobj.selected){
 						this.dataIsSelected=true;
@@ -246,14 +234,16 @@
 			
 			//加载相关信息
 			protected function dataSearchAction(tempPageSize:int,tempPageCurrent:int):void{
+				if(ASStringHelper.isNullOrEmpty(this.bfdid) && parentPage != null){	return ;}
+				
 				var strcondition:String=getDataSeacrchCondition();
-				CodeListServiceRmt.GetCodeList(tempObjViewName,tempPageSize,tempPageCurrent,strcondition);
-				CodeListServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
+				this.AllAssetServiceRmt.GetAllAsset(tempObjViewName,tempPageSize,tempPageCurrent,strcondition);
+				this.AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
 			}
 			//加载相关信息回调方法
 			protected function dataSearchActionBack(rmtResult:ResultEvent):void{
-				this.CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
-				if(this.loadBackFunc != null){loadBackFunc.call();loadBackFunc=null;}
+				this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
+				if(this.isDeleteDateComplete){this.removeAssetLSJL(); this.isDeleteDateComplete = false;}
 				var objResult:Object=rmtResult.result;
 				var strresult:String=objResult.toString();
 				var jsonObj:Object=JSON.decode(strresult,true);
@@ -268,39 +258,37 @@
 				this.dataArray=ASCommonHelper.addArraySelectedPro(new ArrayCollection(items as Array));
 				this.checkDataIsSelected();
 				this.cns_dg_pg.setPagingCount();
+				
+				if(parentPage!=null){CommonMethod.calculateZJE(parentPage.bfzje,dataArray,"sjhsje");	}
+				this.loadUserPower();
 			}
 			//得到搜索条件
 			protected function getDataSeacrchCondition():String{
 				var condition:Object=new Object();
 				if(!searchFormIsOpen){
-					var codetype:String=this.CODETYPE.getValue();
-					var codename:String=this.CODENAME.text;
-					var codeid:String=this.CODEID.text;
-					if(!ASStringHelper.isNullOrEmpty(codetype)){
-						condition.s_codetype_string_eq=codetype.toString();
+					var bfdmxbh:String=this.bfdmxbh.text;
+					var bfdmxname:String=this.bfdmxname.text;
+					var hsdw:String=this.hsdw.text;
+					var hsfzr:String=this.hsfzr.text;
+					if(!ASStringHelper.isNullOrEmpty(bfdmxbh)){
+						condition.s_bfdmxbh_string_like=bfdmxbh;
 					}
-					if(!ASStringHelper.isNullOrEmpty(codename)){
-						condition.s_codename_string_like=codename;
+					if(!ASStringHelper.isNullOrEmpty(bfdmxname)){
+						condition.s_bfdmxname_string_like=bfdmxname;
 					}
-					if(!ASStringHelper.isNullOrEmpty(codeid)){
-						condition.s_codebs_string_like=codeid;
+					if(!ASStringHelper.isNullOrEmpty(hsdw)){
+						condition.s_hsdw_string_like=hsdw;
+					}
+					if(!ASStringHelper.isNullOrEmpty(hsfzr)){
+						condition.s_hsfzr_string_like=hsfzr;
 					}
 				}else{
 					var quklytext:String=this.qukilySearchTxt.text;
 					if(!ASStringHelper.isNullOrEmpty(quklytext)){
-						condition.s_codename_string_like=quklytext;
-						condition.s_codetype_string_notin="UNKNOW,DMB";
+						condition.s_bfdmxbh_string_like=quklytext;
 					}
 				}
-				
-				if(!CommonMethod.isNullOrWhitespace(codeTypeStr)){
-					condition.s_codetype_string_eq = codeTypeStr;
-				}
-				
-				if(Application.application.userVo.ruleId != 41){
-					condition.s_codetype_string_notin="UNKNOW,DMB";
-				}
-				
+				condition.s_bfdid_string_eq=bfdid;
 				var conditionJson:String=JSON.encode(condition);
 				return conditionJson;
 			}
@@ -314,35 +302,37 @@
 				if(ASStringHelper.isNullOrEmpty(dataids)){
 					return;
 				}
-				CodeListServiceRmt.RemoveCodeList(dataids);
-				CodeListServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
+				AllAssetServiceRmt.RemoveBFDJMX(dataids);
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
+				this.deleteDataIds = dataids;
 			}
 			//删除数据回调方法
 			protected function removeDataActionBack(rmtResult:ResultEvent):void{
-				CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,removeDataActionBack);
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,removeDataActionBack);
 				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
 				if(doResult!=null && doResult.nRetCode!=Errors.OK){
 					Alert.show(doResult.strErrorInfo);
 					return;
 				}else{
-					Alert.show("数据删除成功");
-					this.dataRemoveRYHCAction();
+					//	Alert.show("数据删除成功");
+					this.isDeleteDateComplete = true;
 					this.loadData();
 				}
 			}
-			//删除日用耗材
-			protected function dataRemoveRYHCAction():void{
-				AllAssetServiceRmt.RemoveObject(removedcodebs,"cnst_ryhc_data","ryhcbh","");
-				removedcodebs = "";
+			private var isDeleteDateComplete:Boolean = false;
+			private var deleteDataIds:String = "";
+			public function removeAssetLSJL():void{
+				if(!CommonMethod.isNullOrWhitespace(deleteDataIds)){
+					AllAssetServiceRmt.RemoveObject(deleteDataIds,"CNST_ASSETBGJL_DATA","SQDID","报废登记");
+					this.deleteDataIds = "";
+				}
 			}
-			private var removedcodebs:String="";
 			//得到要删除的数据
 			protected function getRemoveDataArray():String{
 				var dataids:String="";
 				for each(var dataobj:Object in this.dataArray){
 					if(dataobj.selected){
-						dataids+=dataobj.codeid+",";
-						removedcodebs += dataobj.codebs+",";
+						dataids+=dataobj.bfdmxid+",";
 					}
 				}
 				if(ASStringHelper.isNullOrEmpty(dataids)){
@@ -350,7 +340,6 @@
 				}
 				return dataids;
 			}
-			
 			//格式化datagrid的日期
 			public static function dateItemFormat(item:Object,dgColumn:DataGridColumn):String{  
 				var dataFormat:DateFormatter = new DateFormatter();  
@@ -375,8 +364,10 @@
 			
 			//搜索重置
 			protected function dataSearchResetAction():void{
-				this.CODETYPE.selectedIndex=-1;
-				this.CODENAME.text="";
+				this.bfdmxbh.text="";
+				this.bfdmxname.text="";
+				this.hsdw.text="";
+				this.hsfzr.text="";
 			}
 			
 			//得到title的ICON
@@ -399,7 +390,7 @@
 			<!--快捷搜索-->
 			<mx:HBox id="qukilySearchBox" width="100%" height="{aboutheight}" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
 				<mx:HBox id="qukilySearchBar" width="80%" height="{aboutheight}" horizontalGap="1" horizontalAlign="left" borderStyle="none">
-					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="名称" textAlign="right"/>
+					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="编号" textAlign="right"/>
 					<mx:TextInput id="qukilySearchTxt" enter="searchClickAction()" width="150" height="{aboutheight}"/>
 					<mx:Button id="qukilySearchBtn" click="searchClickAction()" height="{aboutheight}" label="搜索" icon="@Embed(source='images/find.gif')"/>
 				</mx:HBox>
@@ -413,32 +404,37 @@
 					<mx:Grid width="100%" horizontalGap="0" verticalGap="4" borderStyle="none">
 						<mx:GridRow width="100%" height="{aboutheight}">
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="类型:" height="{aboutheight}"/>
+								<mx:Label text="编号:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<cnscombox:CNSCombox id="CODETYPE" typename="UNKNOW,DMB" isnullable="true" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="bfdmxbh" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
 								<mx:Label text="名称:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
-								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="CODENAME" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
+									<mx:TextInput id="bfdmxname" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="标识:" height="{aboutheight}"/>
+								<mx:Label text="回收单位:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="CODEID" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="hsdw" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
-						</mx:GridRow>
-						<mx:GridRow width="100%" height="{aboutheight}">
-							
+							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="回收负责人:" height="{aboutheight}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+									<mx:TextInput id="hsfzr" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
 						</mx:GridRow>
 					</mx:Grid>
 				</mx:Form>
@@ -457,11 +453,11 @@
 					</mx:Array>
 				</mx:ComboBox>
 				<mx:LinkButton id="selectAction" click="selectActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="查看" toolTip="查看" icon="@Embed(source='images/icon_choosedate.gif')"/>
-				<mx:LinkButton id="newAction" click="newActionClick()" height="{aboutheight}" label="新建" toolTip="新建" icon="@Embed(source='images/add.gif')"/>
+				<mx:LinkButton id="newAction" click="newActionClick()" enabled="true" height="{aboutheight}" label="新建" toolTip="新建" icon="@Embed(source='images/add.gif')"/>
 				<mx:LinkButton id="editAction" click="editActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="编辑" toolTip="编辑" icon="@Embed(source='images/edit.gif')"/>
 				<mx:LinkButton id="removeAction" click="removeActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="删除" toolTip="删除" icon="@Embed(source='images/delete.gif')"/>
 				<mx:LinkButton id="exportAction" click="exportActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="导出" toolTip="导出" icon="@Embed(source='images/export.gif')"/>
-				<mx:LinkButton id="refreshAction" click="loadData()" height="{aboutheight}" label="刷新" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
+				<mx:LinkButton id="refreshAction" click="searchClickAction()" height="{aboutheight}" label="刷新" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
 				<mx:ComboBox id="otherAction" cornerRadius="2" editable="false" width="90" height="{aboutheight}" blendMode="overlay">
 					<mx:Array id="cbotherchoose">
 						<mx:Object label="其它操作" value="unknow"/>
@@ -475,16 +471,27 @@
 				<mx:DataGrid id="cns_dg" dataProvider="{dataArray}" itemClick="gridItemDataClick(event)" 
 							 itemDoubleClick="gridItemDataDoubleClick(event)" doubleClickEnabled="true" width="100%" height="100%">
 					<mx:columns>
-						<mx:DataGridColumn headerText="" width="43" draggable="false" sortable="false" labelFunction="getColumnIndex" textAlign="center">
+						<mx:DataGridColumn headerText="" minWidth="43" width="43" draggable="false" sortable="false" labelFunction="getColumnIndex" textAlign="center">
 							<mx:itemRenderer>
 								<mx:Component>
 									<mx:CheckBox selected="{data.selected}"/>
 								</mx:Component>
 							</mx:itemRenderer> 
 						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="所属类型" width="160" dataField="codetypename" sortable="true"/>
-						<mx:DataGridColumn headerText="标识" width="120" dataField="codebs" sortable="true"/>
-						<mx:DataGridColumn headerText="名称" width="180" dataField="codename" sortable="false"/>
+						<mx:DataGridColumn headerText="编号" width="100" dataField="bfdmxbh" sortable="true"/>
+						<mx:DataGridColumn headerText="物品名称" width="100" dataField="bfdmxname" sortable="true"/>
+						<mx:DataGridColumn headerText="类型" width="80" dataField="bfdmxtype" sortable="true"/>
+						<mx:DataGridColumn headerText="名称" width="100" dataField="wpmc" sortable="true"/>
+						<mx:DataGridColumn headerText="负责人" width="100" dataField="hsfzr" sortable="true"/>
+						<mx:DataGridColumn headerText="回收单位" width="80" dataField="hsdw" sortable="true"/>
+						<mx:DataGridColumn headerText="联系方式" width="80" dataField="hsrlx" sortable="true"/>
+						<!--<mx:DataGridColumn headerText="申请数量" width="80" dataField="sqbfsl" sortable="true"/>
+						<mx:DataGridColumn headerText="审核数量" width="80" dataField="shbfsl" sortable="true"/>
+						<mx:DataGridColumn headerText="报废数量" width="80" dataField="sjbfsl" sortable="true"/>-->				
+						<mx:DataGridColumn headerText="预估金额" width="80" dataField="yghsje" sortable="true"/>				
+						<mx:DataGridColumn headerText="实际金额" width="80" dataField="sjhsje" sortable="true"/>				
+						<mx:DataGridColumn headerText="更新人" width="100" dataField="uusername" sortable="true"/>
+						<mx:DataGridColumn headerText="更新时间" width="155" dataField="utime" sortable="true"/>
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
 					</mx:columns>
 				</mx:DataGrid>
