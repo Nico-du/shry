@@ -52,7 +52,7 @@
 			//页面初始化是否加载数据
 			public var pageIsLoadData:Boolean=true;
 			//父窗口
-			public var parentPage:BFDJMXGridMoudel=null;
+			public var parentPage:FYGridMoudel=null;
 			//临时存储方法
 			public var tempFunction:Function=null;
 			
@@ -83,13 +83,13 @@
 				//ASCommonHelper.controlVisible(this.removeAndCloseAction,false);
 				
 				//审核界面 只能修改实际数量
-				if(parentPage.parentPage.isSHPage){
+				/* if(parentPage.parentPage.isSHPage){
 					CommonMethod.setEnable(nvPage1,false);
 					shbfsl.enabled = true; shbfsl.editable = true;
 					sjbfsl.enabled = true; sjbfsl.editable = true;
-					sjhsje.enabled = true; sjhsje.editable = true;
-				}
-				ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible,parentPage.editAction.visible || parentPage.parentPage.isSHPage,parentPage.removeAction.visible);
+					lggd.enabled = true; lggd.editable = true;
+				} */
+				ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible,parentPage.editAction.visible ,parentPage.removeAction.visible);
 			}
 			
 			//初始化页面之后调用
@@ -183,17 +183,12 @@
 				this.afterLoadData();
 				this.errormsgbox.removeAllChildren();
 				
-				if(CommonMethod.isNullOrWhitespace(this.dataId)){
-					this.isSaveAction = true;
-					var bfdmxbhStr:String = parentPage.parentPage.bfdbh.text;
-					CommonMethod.getMaxNewDataBH(tempObjBeanName,"FYBH",bfdmxbhStr,bfdmxbh);
-				}
 			}
 			
 			//加载搜索条件
 			protected function getDataSeacrchCondition():String{
 				var condition:Object=new Object();
-				condition.s_bfdmxid_string_eq=this.dataId;
+				condition.s_fyid_string_eq=this.dataId;
 				var conditionJson:String=JSON.encode(condition);
 				return conditionJson;
 			}
@@ -237,32 +232,32 @@
 					return;
 				}
 				var tempObj:Object=this.dataArray.getItemAt(0);
-				this.dataTitles=tempObj["bfdmxbh"];
-				this.bfdmxbh.text=tempObj["bfdmxbh"];
-				this.assetbh.text=tempObj["assetbh"];
-				this.hsdw.text=tempObj["hsdw"];
-				this.hsfzr.text=tempObj["hsfzr"];
-				this.bfdmxname.text=tempObj["bfdmxname"];
-				this.bfdmxtype.text=tempObj["bfdmxtype"];
-				this.wpmc.text=tempObj["wpmc"];
+				this.dataTitles=tempObj["xh"];
+				this.xh.text=tempObj["xh"];
+				this.ypsm.text=tempObj["ypsm"];
+				this.zl.text=tempObj["zl"];
+				this.dlhzj.text=tempObj["dlhzj"];
+				this.ypfb.text=tempObj["ypfb"];
+				this.jqfs.text=tempObj["jqfs"];
+				this.qj.text=tempObj["qj"];
 				//	this.RKRQ.setText(tempObj[this.RKRQ.id.toLowerCase()]);
-				this.hsrlx.text=tempObj["hsrlx"];
-				this.sqbfsl.text=tempObj["sqbfsl"];
-				this.shbfsl.text=tempObj["shbfsl"];
-				this.sjbfsl.text=tempObj["sjbfsl"];
-				this.yghsje.text=tempObj["yghsje"];
-				this.sjhsje.text=tempObj["sjhsje"];
+				this.zj.text=tempObj["zj"];
+				this.fbzj.text=tempObj["fbzj"];
+				this.dlhzj.text=tempObj["dlhzj"];
+				this.lgzj.text=tempObj["lgzj"];
+				this.lggd.text=tempObj["lggd"];
+				this.ypzj.text=tempObj["ypzj"];
 				this.memo.text=tempObj["memo"];
 				
-				bfdmxtype.data=tempObj["assettablename"];
-				assetbh.data=tempObj["assetidcolumn"];
-				bfdmxname.data=tempObj["assetid"];
+				/* jqfs.data=tempObj["assettablename"];
+				ypsm.data=tempObj["assetidcolumn"];
+				ypfb.data=tempObj["assetid"]; */
 				
 				if(!CommonMethod.isNullOrWhitespace(this.memo.text)&& memolbl.visible){	setMemoVisable();}
-				this.UTIME.text=tempObj[this.UTIME.id.toLowerCase()];
-				this.UUSER.text=tempObj[this.UUSER.id.toLowerCase()+"name"];
-				this.CTIME.text=tempObj[this.CTIME.id.toLowerCase()];
-				this.CUSER.text=tempObj[this.CUSER.id.toLowerCase()+"name"];
+				this.UPDATEDATE.text=tempObj[this.UPDATEDATE.id.toLowerCase()];
+				this.UPDATEUSER.text=tempObj[this.UPDATEUSER.id.toLowerCase()+"name"];
+				this.INPUTDATE.text=tempObj[this.INPUTDATE.id.toLowerCase()];
+				this.INPUTUSER.text=tempObj[this.INPUTUSER.id.toLowerCase()+"name"];
 			}
 			
 			//保存数据之前验证数据
@@ -270,54 +265,24 @@
 				this.errormsgbox.removeAllChildren();
 				var errorMsg:String="";
 				var isCheckSuccess:Boolean=true;
-				if(ASStringHelper.isNullOrEmpty(this.bfdmxbh.text)){
-					errorMsg="[风叶数据编号]不允许为空";
+				if(ASStringHelper.isNullOrEmpty(this.xh.text)){
+					errorMsg="[风叶型号]不允许为空";
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
 				}
-				if(ASStringHelper.isNullOrEmpty(this.assetbh.text)){
-					errorMsg="[物品编号]不允许为空";
+				if(ASStringHelper.isNullOrEmpty(this.ypsm.text)){
+					errorMsg="[叶片数目]不允许为空";
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
 				}
-				if(ASStringHelper.isNullOrEmpty(this.bfdmxname.text)){
-					errorMsg="[物品名称]不允许为空";
+				if(ASStringHelper.isNullOrEmpty(this.ypfb.text)){
+					errorMsg="[叶片分布]不允许为空";
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
 				}
-				if(ASStringHelper.isNullOrEmpty(this.bfdmxtype.text)){
-					errorMsg="[类型]不允许为空";
-					showCheckErrors(errorMsg);
-					isCheckSuccess=false;
-				}
-				if(ASStringHelper.isNullOrEmpty(this.yghsje.text)){
-					errorMsg="[预估回收金额]不允许为空";
-					showCheckErrors(errorMsg);
-					isCheckSuccess=false;
-				}
-				/* if(ASStringHelper.isNullOrEmpty(this.shbfsl.text)){
-				errorMsg="[报废审核数量]不允许为空";
-				showCheckErrors(errorMsg);
-				isCheckSuccess=false;
-				}
-				if(ASStringHelper.isNullOrEmpty(this.sqbfsl.text)){
-				errorMsg="[报废申请数量]不允许为空";
-				showCheckErrors(errorMsg);
-				isCheckSuccess=false;
-				}
-				if(ASStringHelper.isNullOrEmpty(this.sjbfsl.text)){
-				errorMsg="[实际报废数量]不允许为空";
-				showCheckErrors(errorMsg);
-				isCheckSuccess=false;
-				}
-				if(ASStringHelper.isNullOrEmpty(this.sjhsje.text)){
-				errorMsg="[实际回收金额]不允许为空";
-				showCheckErrors(errorMsg);
-				isCheckSuccess=false;
-				} */
 				//执行编号重复验证
 				if(isCheckSuccess){
-					CommonMethod.validateWFBH(this.bfdmxbh.text,"FYID","FYBH",this.tempObjBeanName,this.dataId,this,beforeSaveDataBack);
+					CommonMethod.validateWFBH(this.xh.text,"FYID","XH",this.tempObjBeanName,this.dataId,this,beforeSaveDataBack);
 					return false;
 				}
 				return isCheckSuccess;
@@ -326,9 +291,9 @@
 			//验证编号重复的回调函数 
 			public function beforeSaveDataBack(isbhcf:Boolean = false):void{
 				if(isbhcf){
-					var errorMsg:String="[风叶数据编号]重复,已重新生成,请再次点击保存按钮";
+					var errorMsg:String="[风叶型号]重复,请重新输入";
 					showCheckErrors(errorMsg);
-					bfdmxbh.text = CommonMethod.genernateIncreaseWFBH(bfdmxbh.text);
+				//	xh.text = CommonMethod.genernateIncreaseWFBH(xh.text);
 					return;
 				}
 				dataSaveOrUpdate();
@@ -353,30 +318,29 @@
 				var userid:String=FlexGlobals.topLevelApplication.userVo.id.toString();
 				var dataJson:Object=new Object();
 				if(ASStringHelper.isNullOrEmpty(this.dataId)){
-					dataJson.cuser=userid;
+					dataJson.INPUTUSER=userid;
 				}
-				dataJson.bfdmxid=this.dataId;
-				dataJson.bfdid=this.parentPage.bfdid;;
-				dataJson.bfdmxbh=this.bfdmxbh.text;
-				dataJson.wpmc=this.wpmc.text;
-				//		dataJson.rkrq=this.RKRQ.getText();
-				dataJson.hsdw=this.hsdw.text;
-				dataJson.hsfzr=this.hsfzr.text;
-				dataJson.bfdmxname=this.bfdmxname.text;
-				dataJson.bfdmxtype=this.bfdmxtype.text;
-				dataJson.assetbh=this.assetbh.text;
-				dataJson.hsrlx=this.hsrlx.text;
-				dataJson.sqbfsl=this.sqbfsl.text;
-				dataJson.shbfsl=this.shbfsl.text;
-				dataJson.sjbfsl=this.sjbfsl.text;
-				dataJson.yghsje=this.yghsje.text;
-				dataJson.sjhsje=this.sjhsje.text;
-				dataJson.memo=this.memo.text;
-				dataJson.uuser=userid;
+				dataJson.fyid=this.dataId;
+				dataJson.xh=this.xh.text;
+				dataJson.zl=this.zl.text;
+				dataJson.ypsm=this.ypsm.text;
+				dataJson.jqfs=this.jqfs.text;
+				dataJson.ypfb=this.ypfb.text;
+				dataJson.qj=this.qj.text;
 				
-				dataJson.assettablename = bfdmxtype.data;
-				dataJson.assetidcolumn = assetbh.data;
-				dataJson.assetid = bfdmxname.data;
+				dataJson.zj=this.zj.text;
+				dataJson.fbzj=this.fbzj.text;
+				dataJson.dlhzj=this.dlhzj.text;
+				dataJson.lgzj=this.lgzj.text;
+				dataJson.lggd=this.lggd.text;
+				dataJson.ypzj=this.ypzj.text;
+				
+				dataJson.memo=this.memo.text;
+				dataJson.UPDATEUSER=userid;
+				
+				/* dataJson.assettablename = jqfs.data;
+				dataJson.assetidcolumn = ypsm.data;
+				dataJson.assetid = ypfb.data; */
 				return JSON.encode(dataJson);
 			}
 			//保存数据
@@ -389,7 +353,7 @@
 			
 			public function dataSaveOrUpdate():void{
 				var submitjson:String=getSaveOrUpdatetData();
-				AllAssetServiceRmt.SaveOrUpdateBFDJMX(submitjson);
+				AllAssetServiceRmt.SaveOrUpdateObject(submitjson,"net.chinanets.pojos.ShryFyData","fyid","风叶数据");
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataSaveOrUpdateActionBack);
 			}
 			//保存数据回调方法
@@ -402,7 +366,6 @@
 					this.resultmsg.text="数据操作成功";
 					this.dataId=doResult.strErrorInfo;
 					this.afterDoAction();
-					if(this.isSaveAction){this.saveAssetLSJL(true); this.isSaveAction = false;}
 				}
 				this.resultmsg.alpha=1;
 				this.fadeEffect.stop();
@@ -414,7 +377,7 @@
 				if(doEvent.detail==Alert.CANCEL){
 					return;
 				}
-				AllAssetServiceRmt.RemoveBFDJMX(this.dataId);
+				AllAssetServiceRmt.RemoveObject(this.dataId,"SHRY_FY_DATA","FYID","已选择数据记录");
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataRemoveActionBack);
 			}
 			//删除当前数据回调方法
@@ -446,50 +409,6 @@
 			}
 			
 			
-			//保存已选择的数据到历史记录 1.删除已存在的数据  2.保存新数据
-			//保存历史记录  step 1
-			//是否新建数据 需要保存历史记录
-			private var isSaveAction:Boolean  = false;
-			private var isAddLSJLData:Boolean  = false;
-			public function saveAssetLSJL(isAddLSJLData:Boolean=false):void{
-				this.isAddLSJLData = isAddLSJLData;
-				var lydbhStr:String = this.dataId;
-				AllAssetServiceRmt.RemoveObject(lydbhStr,"CNST_ASSETBGJL_DATA","SQDID","报废登记");
-				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,saveAssetLSJLActionBack);
-			}
-			//删除当前数据回调方法
-			protected function saveAssetLSJLActionBack(rmtResult:ResultEvent):void{
-				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,saveAssetLSJLActionBack);
-				if(this.isAddLSJLData){this.addOrDelDicAssetLSJL(); this.isAddLSJLData = false;}
-			}
-			
-			/**
-			 * 保存已选择数据  step 2
-			 **/
-			public function addOrDelDicAssetLSJL():void{
-				var callBackObj:Object = new Object(); 
-				callBackObj.asetetid = bfdmxname.data;
-				callBackObj.assetidcolumn = assetbh.data;
-				callBackObj.assettabnename =  bfdmxtype.data;
-				
-				callBackObj.bglx="报废登记";
-				callBackObj.sqdbh=this.bfdmxbh.text;
-				callBackObj.sqdid=this.dataId;
-				callBackObj.sqdbhcolumn= this.bfdmxbh.id.toLowerCase();
-				callBackObj.sqdtablename=this.tempObjBeanName;
-				
-				callBackObj.bgrq=CommonMethod.commonLongDateFormatter.format(new Date());
-				callBackObj.wpmc=this.bfdmxname.text;
-				
-				var sqrxm:String=FlexGlobals.topLevelApplication.userVo.userName.toString();
-				var sqrbm:String=FlexGlobals.topLevelApplication.userVo.deptName.toString();
-				callBackObj.sqr=sqrxm;
-				callBackObj.sqbm=sqrbm;
-				callBackObj.sqrq= CommonMethod.commonLongDateFormatter.format(new Date());
-				callBackObj.memo=this.memo.text;
-				callBackObj.zt = "0";//已完成
-				this.SaveOrUpdatetBGDJAction(callBackObj);
-			}
 		]]>
 	</mx:Script>
 	<mx:Fade id="fadeEffect" target="{resultmsg}" alphaFrom="1"  alphaTo="0" duration="10000"/>
@@ -531,7 +450,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<mx:TextInput id="bfdmxbh" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="xh" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -543,7 +462,7 @@
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
 											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="left" verticalAlign="middle">
-												<mx:TextInput id="assetbh" width="100%" height="{aboutheight}" editable="false"/>
+												<mx:TextInput id="ypsm" width="100%" height="{aboutheight}" editable="false"/>
 											</mx:HBox>
 										</mx:FormItem>
 									</mx:GridItem>
@@ -555,18 +474,18 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<mx:TextInput width="100%" height="{aboutheight}" id="bfdmxname"/>
+											<mx:TextInput width="100%" height="{aboutheight}" id="ypfb"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									
 								</mx:GridRow>
 								<mx:GridRow width="100%" height="{aboutheight}">
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-										<mx:Label text="嵌件:"  fontWeight="bold" height="{aboutheight}"/>
+										<mx:Label text="嵌件:"  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<mx:TextInput id="wpmc" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="qj" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -574,7 +493,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<mx:TextInput id="hsdw" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="zl" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -584,7 +503,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<mx:TextInput width="100%" height="{aboutheight}" id="bfdmxtype"/>
+											<mx:TextInput width="100%" height="{aboutheight}" id="jqfs"/>
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow>
@@ -623,7 +542,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="yghsje" width="100%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="zj" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -631,7 +550,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="sjhsje"  width="100%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="fbzj"  width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -639,7 +558,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<mx:TextInput id="hsfzr" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="dlhzj" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow>
@@ -651,7 +570,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="yghsje" width="100%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="lgzj" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -659,7 +578,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="sjhsje" width="100%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="lggd" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -667,7 +586,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<mx:TextInput id="hsfzr" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="ypzj" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow>
@@ -685,7 +604,7 @@
 									<mx:Label text="风叶图示:" id="piclbl" height="{aboutheight}" />
 								</mx:GridItem>
 								<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="90%" colSpan="5">
-									<mx:TextArea id="memo"  visible="{memolbl.visible}"  width="100%" maxChars="500"  height="100%"></mx:TextArea>
+									<mx:TextArea id="fyts"  visible="{memolbl.visible}"  width="100%" maxChars="500"  height="100%"></mx:TextArea>
 								</mx:GridItem>
 							</mx:GridRow>
 							</mx:Grid>
@@ -700,13 +619,13 @@
 										<mx:Label text="更新人:" fontWeight="bold" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="UUSER" width="100%" height="{aboutheight}"/>
+										<mx:Label id="UPDATEUSER0" width="100%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" width="10%">
 										<mx:Label text="更新时间:" fontWeight="bold" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="UTIME" text="" width="100%" height="{aboutheight}"/>
+										<mx:Label id="UPDATEDATE0" text="" width="100%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								<mx:GridRow width="100%" height="{aboutheight}">
@@ -714,34 +633,34 @@
 										<mx:Label text="创建人:" fontWeight="bold" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="CUSER" text="" width="100%" height="{aboutheight}"/>
+										<mx:Label id="INPUTUSER0" text="" width="100%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" width="10%">
 										<mx:Label text="创建时间:" fontWeight="bold" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="CTIME" text="" width="100%" height="{aboutheight}"/>
+										<mx:Label id="INPUTDATE0" text="" width="100%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 							</mx:Grid>	
 						</mx:VBox>		
 					</mx:Panel>
-					<mx:Panel id="nvPage2" label="其他信息" width="100%"  borderStyle="none" headerHeight="0" 
+					<mx:Panel id="nvPage3" label="其他信息" width="100%"  borderStyle="none" headerHeight="0" 
 							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none">
-							<mx:Grid id="nvPage1Grid2" width="100%" horizontalGap="0" verticalGap="5" paddingTop="5" paddingBottom="5" paddingLeft="3" paddingRight="3">
+						<mx:VBox id="nvPage1Group3" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none">
+							<mx:Grid id="nvPage1Grid3" width="100%" horizontalGap="0" verticalGap="5" paddingTop="5" paddingBottom="5" paddingLeft="3" paddingRight="3">
 								<mx:GridRow width="100%" height="{aboutheight}">
 									<mx:GridItem horizontalAlign="right" width="10%">
 										<mx:Label text="更新人:" fontWeight="bold" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="UUSER" width="100%" height="{aboutheight}"/>
+										<mx:Label id="UPDATEUSER" width="100%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" width="10%">
 										<mx:Label text="更新时间:" fontWeight="bold" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="UTIME" text="" width="100%" height="{aboutheight}"/>
+										<mx:Label id="UPDATEDATE" text="" width="100%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								<mx:GridRow width="100%" height="{aboutheight}">
@@ -749,13 +668,13 @@
 										<mx:Label text="创建人:" fontWeight="bold" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="CUSER" text="" width="100%" height="{aboutheight}"/>
+										<mx:Label id="INPUTUSER" text="" width="100%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" width="10%">
 										<mx:Label text="创建时间:" fontWeight="bold" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="CTIME" text="" width="100%" height="{aboutheight}"/>
+										<mx:Label id="INPUTDATE" text="" width="100%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 							</mx:Grid>	

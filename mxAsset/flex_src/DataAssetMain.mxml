@@ -5,22 +5,12 @@
 	<mx:Script source="flex/util/DICCommonMethod.as"/> 
 	<mx:Script>
 		<![CDATA[
-			/*import asset_report.ReportBmhclyzk;
-			import asset_report.XgzlGridModule;
-			import upGrade.XjjlList;
-			import upGrade.XjtjView;
-			import asset_service.MetroMap;
-			import asset_service.ServiceList;
-			import flex.pojos.SvSupplierVo;
-			
-			import kmzc.formanserver.aboutdatum;*/
-			
-			import flex.util.CommonMethod;
-			import flex.util.CommonXMLData;
 			import cn.cnsasfram.helper.ASStringHelper;
 			
 			import com.benstucki.utilities.IconUtility;
 			
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
 			
 			import mx.containers.VBox;
 			import mx.controls.Tree;
@@ -29,6 +19,8 @@
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
 			
+			import shry_zlgl.FYGridMoudel;
+			
 			
 			//菜单数据
 			public var menuTreeDate:XML=null;
@@ -36,28 +28,18 @@
 			public var modelMap:Dictionary=null;
 			//相关资料
 			private var ABOUTDATUM:String="ABOUTDATUM";
-			//供应商
-			private var SUPPLIER:String="SupplierPage";
-			//运维人员
-			private var PEOPLE:String="PeoplePage";
-			//合同管理
-			private var COMPACT:String="CompactPage";
-			//巡检登记
-			private var XJDJ:String="XjdjPage";
-			//巡检查询
-			private var XJCX:String="XjcxPage";
-			//巡检查询
-			private var XJTJ:String="XjtjPage";
-			//巡检查询
-			private var REPORT_BMLY:String="BmwplyPage";
-			//巡检查询
-			private var DTCY:String="DtcyPage";
-			//相关资料下载
-			private var XGZL:String="XgzlPage";
-			//操作手册下载
-			private var CZSC:String="CzscPage";
-			//部门物品使用状况报表
-			private var BMBB:String="BmbbPage";
+			//总成
+			private var ZC:String="ZCPage";
+			//风叶
+			private var FY:String="FYPage";
+			//电机
+			private var DJ:String="DJPage";
+			//总成性能
+			private var ZCXN:String="ZCXNPage";
+			//风叶性能
+			private var FYXN:String="FYXNPage";
+			//试验单
+			private var SYD:String="SYDPage";
 			
 			public var defaultAssetWFTreeIndex:int = -1;
 			
@@ -124,7 +106,7 @@
 					return;
 				}
 				this.managerStack.selectedChild=tempContent as INavigatorContent;
-					if((event != null) && (selectItem.@pageUrl == XJDJ)){
+					if((event != null) && (selectItem.@pageUrl == FY)){
 						tempContent.addXjjl();
 					}
 			}
@@ -152,9 +134,10 @@
 					return targetModel;
 				}
 				var tempMoudel:*=null;
-				/*if(ASStringHelper.stringCompare(this.ABOUTDATUM,strpageurl,true)==0){
-					tempMoudel=new aboutdatum();
-				}else if(ASStringHelper.stringCompare(this.SUPPLIER,strpageurl,true)==0){
+				if(ASStringHelper.stringCompare(this.FY,strpageurl,true)==0){
+					tempMoudel=new FYGridMoudel();
+				}
+				/*ielse if(ASStringHelper.stringCompare(this.SUPPLIER,strpageurl,true)==0){
 					tempMoudel=new ServiceList();
 					tempMoudel.pageType="供应商";
 				}else if(ASStringHelper.stringCompare(this.PEOPLE,strpageurl,true)==0){
@@ -295,15 +278,15 @@
 	</mx:Script>
 	<mx:XML id="serviceMainXml">
 		<root>
-			<item id="jbfw" label="风扇数据">
-			    <node id="SupplierPage" label="总成数据" pageUrl="SupplierPage"/>
-				<node id="PeoplePage" label="风叶数据" pageUrl="PeoplePage"/>
-				<node id="PeoplePage" label="风叶型号" pageUrl="PeoplePage"/>
+			<item id="jbfw" label="风扇参数">
+			    <node id="ZCPage" label="总成数据" pageUrl="ZCPage"/>
+				<node id="FYPage" label="风叶数据" pageUrl="FYPage"/>
+				<node id="FYPage" label="电机数据" pageUrl="DJPage"/>
 			</item>
-			<item id="bmfw" label="电机数据">
-				<node id="dtcy" label="电机数据" pageUrl="DtcyPage"/>
-				<node id="dtcy" label="电机型号" pageUrl="DtcyPage"/>
-				<node id="dtcy" label="基础参数" pageUrl="DtcyPage"/>
+			<item id="bmfw" label="性能数据">
+				<node id="FYPage" label="试验单数据" pageUrl="SYDPage"/>
+				<node id="dtcy" label="总成性能" pageUrl="ZCXNPage"/>
+				<node id="dtcy" label="风叶性能" pageUrl="FYXNPage"/>
 			</item>
 		</root>
 	</mx:XML>

@@ -5,6 +5,8 @@
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
+			import asset_bfdj.ProcessMethods;
+			
 			import cn.cnsasfram.entity.DoResult;
 			import cn.cnsasfram.entity.enum.Errors;
 			import cn.cnsasfram.helper.ASCommonHelper;
@@ -52,19 +54,19 @@
 			//指定linkbutton选中后的颜色,仅供选择
 			public var tempPublicDefaultColor:uint=0xCCFFFF;
 			//默认操作实体名称
-			public var tempObjBeanName:String="CNST_BFDMX_DATA";
+			public var tempObjBeanName:String="SHRY_FY_DATA";
 			//默认操作视图名称
-			public var tempObjViewName:String="CNSV_BFDMX";
+			public var tempObjViewName:String="SHRY_FY_DATA";
 			//页面初始化是否加载权限
 			public var pageIsLoadPoer:Boolean=true;
 			//页面初始化是否加载数据
 			public var pageIsLoadData:Boolean=true;
 			//搜索表单初始化是否展开
 			public var searchFormIsOpen:Boolean=false;
-			//报废单ID
+			//风叶ID
 			public var bfdid:String="";
 			//父窗口
-			public var parentPage:BFDJFormMoudel = null;
+			public var parentPage:Object = null;
 			//初始调用方法
 			public function initPage():void{
 				this.highSearchChange();
@@ -96,12 +98,10 @@
 				
 				//判断写入权限
 				//	ASCommonHelper.controlVisible(this.otherAction,false);
-				ASCommonHelper.controlVisible(this.otherAction,parentPage.parentPage.otherAction.visible);
-				ASCommonHelper.controlVisible(this.exportAction,parentPage.parentPage.exportAction.visible);
+				ASCommonHelper.controlVisible(this.otherAction,otherAction.visible);
+				ASCommonHelper.controlVisible(this.exportAction,exportAction.visible);
 				
-				ProcessMethods.changeCNSTModuelState(this,parentPage.parentPage.newAction.visible && parentPage.parentPage.workFlowTree.selectedItem.@id=="wf_cgx",
-					parentPage.parentPage.editAction.visible,parentPage.parentPage.removeAction.visible || parentPage.parentPage.workFlowTree.selectedItem.@id=="wf_cgx");
-				if(parentPage.isSHPage){ASCommonHelper.controlVisible(this.editAction,true);	}
+				ProcessMethods.changeCNSTModuelState(this,newAction.visible,editAction.visible,removeAction.visible);
 			}
 			
 			//加载数据
@@ -170,9 +170,7 @@
 			
 			//新建事件
 			protected function newActionClick():void{
-				parentPage.tempCallBackFunc = lookDataAction;
-				parentPage.saveData();
-				//	lookDataAction(null);
+					lookDataAction(null);
 			}
 			
 			//编辑事件
@@ -192,7 +190,7 @@
 			
 			//删除事件
 			protected function removeActionClick():void{
-				Alert.show("您确认要删除报废单明细吗？","系统提示",Alert.OK|Alert.CANCEL,Application.application.mainPage,removeDataAction);
+				Alert.show("您确认要删除风叶数据吗？","系统提示",Alert.OK|Alert.CANCEL,Application.application.mainPage,removeDataAction);
 			}
 			
 			//导出数据
@@ -212,7 +210,7 @@
 			
 			//查看详细数据
 			protected function lookDataAction(tempSelctedItem:Object=null):void{
-				var tempWindow:BFDJMXFormMoudel=new BFDJMXFormMoudel();
+				var tempWindow:FYFormMoudel=new FYFormMoudel();
 				var tempid:String="";
 				if(tempSelctedItem!=null){
 					tempid=tempSelctedItem.bfdmxid;
@@ -234,8 +232,6 @@
 			
 			//加载相关信息
 			protected function dataSearchAction(tempPageSize:int,tempPageCurrent:int):void{
-				if(ASStringHelper.isNullOrEmpty(this.bfdid) && parentPage != null){	return ;}
-				
 				var strcondition:String=getDataSeacrchCondition();
 				this.AllAssetServiceRmt.GetAllAsset(tempObjViewName,tempPageSize,tempPageCurrent,strcondition);
 				this.AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
@@ -259,25 +255,27 @@
 				this.checkDataIsSelected();
 				this.cns_dg_pg.setPagingCount();
 				
-				if(parentPage!=null){CommonMethod.calculateZJE(parentPage.bfzje,dataArray,"sjhsje");	}
 				this.loadUserPower();
 			}
 			//得到搜索条件
 			protected function getDataSeacrchCondition():String{
 				var condition:Object=new Object();
 				if(!searchFormIsOpen){
-					var bfdmxbh:String=this.bfdmxbh.text;
-					var bfdmxname:String=this.bfdmxname.text;
-					var hsdw:String=this.hsdw.text;
-					var hsfzr:String=this.hsfzr.text;
-					if(!ASStringHelper.isNullOrEmpty(bfdmxbh)){
-						condition.s_bfdmxbh_string_like=bfdmxbh;
+					var xh:String=this.xh.text;
+					var fysm:String=this.fysm.text;
+					var zj:String=this.zj.text;
+					var fbzj:String=this.fbzj.text;
+					var dlhzj:String=this.dlhzj.text;
+					var zl:String=this.zl.text;
+					var qj:String=this.qj.text;
+					if(!ASStringHelper.isNullOrEmpty(xh)){
+						condition.s_xh_string_like=xh;
 					}
-					if(!ASStringHelper.isNullOrEmpty(bfdmxname)){
-						condition.s_bfdmxname_string_like=bfdmxname;
+					if(!ASStringHelper.isNullOrEmpty(fysm)){
+						condition.s_fysm_string_like=fysm;
 					}
-					if(!ASStringHelper.isNullOrEmpty(hsdw)){
-						condition.s_hsdw_string_like=hsdw;
+					if(!ASStringHelper.isNullOrEmpty(zj)){
+						condition.s_zj_string_like=zj;
 					}
 					if(!ASStringHelper.isNullOrEmpty(hsfzr)){
 						condition.s_hsfzr_string_like=hsfzr;
@@ -285,10 +283,10 @@
 				}else{
 					var quklytext:String=this.qukilySearchTxt.text;
 					if(!ASStringHelper.isNullOrEmpty(quklytext)){
-						condition.s_bfdmxbh_string_like=quklytext;
+						condition.s_xh_string_like=quklytext;
 					}
 				}
-				condition.s_bfdid_string_eq=bfdid;
+		//		condition.s_bfdid_string_eq=bfdid;
 				var conditionJson:String=JSON.encode(condition);
 				return conditionJson;
 			}
@@ -302,7 +300,7 @@
 				if(ASStringHelper.isNullOrEmpty(dataids)){
 					return;
 				}
-				AllAssetServiceRmt.RemoveBFDJMX(dataids);
+				AllAssetServiceRmt..RemoveObject(dataids,"SHRY_FY_DATA","FYID","已选择数据记录"); 
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
 				this.deleteDataIds = dataids;
 			}
@@ -390,7 +388,7 @@
 			<!--快捷搜索-->
 			<mx:HBox id="qukilySearchBox" width="100%" height="{aboutheight}" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
 				<mx:HBox id="qukilySearchBar" width="80%" height="{aboutheight}" horizontalGap="1" horizontalAlign="left" borderStyle="none">
-					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="编号" textAlign="right"/>
+					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="型号" textAlign="right"/>
 					<mx:TextInput id="qukilySearchTxt" enter="searchClickAction()" width="150" height="{aboutheight}"/>
 					<mx:Button id="qukilySearchBtn" click="searchClickAction()" height="{aboutheight}" label="搜索" icon="@Embed(source='images/find.gif')"/>
 				</mx:HBox>
@@ -404,35 +402,67 @@
 					<mx:Grid width="100%" horizontalGap="0" verticalGap="4" borderStyle="none">
 						<mx:GridRow width="100%" height="{aboutheight}">
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="编号:" height="{aboutheight}"/>
+								<mx:Label text="型号:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="bfdmxbh" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="xh" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="名称:" height="{aboutheight}"/>
+								<mx:Label text="风叶数目:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="bfdmxname" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="fysm" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="回收单位:" height="{aboutheight}"/>
+								<mx:Label text="直径:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="hsdw" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="zj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="回收负责人:" height="{aboutheight}"/>
+								<mx:Label text="翻边直径:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="hsfzr" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="fbzj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
+						</mx:GridRow>
+						<mx:GridRow width="100%" height="{aboutheight}">
+							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="导流环直径:" height="{aboutheight}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
+									<mx:TextInput id="dlhzj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="重量:" height="{aboutheight}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+									<mx:TextInput id="zl" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="嵌件:" height="{aboutheight}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+									<mx:TextInput id="qj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="right" width="10%">
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
 								</mx:FormItem>
 							</mx:GridItem>
 						</mx:GridRow>
@@ -478,20 +508,17 @@
 								</mx:Component>
 							</mx:itemRenderer> 
 						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="编号" width="100" dataField="bfdmxbh" sortable="true"/>
-						<mx:DataGridColumn headerText="物品名称" width="100" dataField="bfdmxname" sortable="true"/>
-						<mx:DataGridColumn headerText="类型" width="80" dataField="bfdmxtype" sortable="true"/>
-						<mx:DataGridColumn headerText="名称" width="100" dataField="wpmc" sortable="true"/>
-						<mx:DataGridColumn headerText="负责人" width="100" dataField="hsfzr" sortable="true"/>
-						<mx:DataGridColumn headerText="回收单位" width="80" dataField="hsdw" sortable="true"/>
-						<mx:DataGridColumn headerText="联系方式" width="80" dataField="hsrlx" sortable="true"/>
-						<!--<mx:DataGridColumn headerText="申请数量" width="80" dataField="sqbfsl" sortable="true"/>
-						<mx:DataGridColumn headerText="审核数量" width="80" dataField="shbfsl" sortable="true"/>
-						<mx:DataGridColumn headerText="报废数量" width="80" dataField="sjbfsl" sortable="true"/>-->				
-						<mx:DataGridColumn headerText="预估金额" width="80" dataField="yghsje" sortable="true"/>				
-						<mx:DataGridColumn headerText="实际金额" width="80" dataField="sjhsje" sortable="true"/>				
-						<mx:DataGridColumn headerText="更新人" width="100" dataField="uusername" sortable="true"/>
-						<mx:DataGridColumn headerText="更新时间" width="155" dataField="utime" sortable="true"/>
+						<mx:DataGridColumn headerText="型号" width="100" dataField="xh" sortable="true"/>
+						<mx:DataGridColumn headerText="叶片数目" width="100" dataField="bfdmxname" sortable="true"/>
+						<mx:DataGridColumn headerText="直径" width="80" dataField="bfdmxtype" sortable="true"/>
+						<mx:DataGridColumn headerText="翻边直径" width="100" dataField="wpmc" sortable="true"/>
+						<mx:DataGridColumn headerText="导流环直径" width="100" dataField="hsfzr" sortable="true"/>
+						<mx:DataGridColumn headerText="轮毂直径" width="80" dataField="hsdw" sortable="true"/>
+						<mx:DataGridColumn headerText="重量" width="80" dataField="hsrlx" sortable="true"/>
+						<mx:DataGridColumn headerText="叶片分布" width="80" dataField="yghsje" sortable="true"/>				
+						<mx:DataGridColumn headerText="嵌件" width="80" dataField="sjhsje" sortable="true"/>				
+						<mx:DataGridColumn headerText="更新人" width="100" dataField="updateusername" sortable="true"/>
+						<mx:DataGridColumn headerText="更新时间" width="155" dataField="updatedate" sortable="true"/>
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
 					</mx:columns>
 				</mx:DataGrid>
