@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!-- http://blog.flexexamples.com/2007/11/15/displaying-grid-lines-in-a-flex-linechart-control/ -->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="vertical"
+        verticalAlign="middle"
+        backgroundColor="white">
+
+    <mx:XMLListCollection id="dp">
+        <mx:source>
+            <mx:XMLList>
+                <quote date="8/27/2007" open="40.38" close="40.81" />
+                <quote date="8/24/2007" open="40.5" close="40.41" />
+                <quote date="8/23/2007" open="40.82" close="40.6" />
+                <quote date="8/22/2007" open="40.4" close="40.77" />
+                <quote date="8/21/2007" open="40.41" close="40.13" />
+                <quote date="8/20/2007" open="40.55" close="40.74" />
+                <quote date="8/17/2007" open="40.18" close="40.32" />
+                <quote date="8/16/2007" open="39.83" close="39.96" />
+                <quote date="8/15/2007" open="40.22" close="40.18" />
+                <quote date="8/14/2007" open="41.01" close="40.41" />
+                <quote date="8/13/2007" open="41" close="40.83" />
+                <quote date="8/10/2007" open="41.3" close="41.06" />
+                <quote date="8/9/2007" open="39.9" close="40.75" />
+                <quote date="8/8/2007" open="39.61" close="40.23" />
+                <quote date="8/7/2007" open="39.08" close="39.42" />
+                <quote date="8/6/2007" open="38.71" close="39.38" />
+                <quote date="8/3/2007" open="39.47" close="38.75" />
+                <quote date="8/2/2007" open="39.4" close="39.52" />
+                <quote date="8/1/2007" open="40.29" close="39.58" />
+            </mx:XMLList>
+        </mx:source>
+    </mx:XMLListCollection>
+
+    <mx:ApplicationControlBar dock="true">
+        <mx:Form styleName="plain">
+            <mx:FormItem label="GridLines direction:">
+                <mx:ToggleButtonBar id="toggleButtonBar" selectedIndex="0">
+                    <mx:dataProvider>
+                        <mx:Array>
+                            <mx:String>horizontal</mx:String>
+                            <mx:String>vertical</mx:String>
+                            <mx:String>both</mx:String>
+                        </mx:Array>
+                    </mx:dataProvider>
+                </mx:ToggleButtonBar>
+            </mx:FormItem>
+        </mx:Form>
+    </mx:ApplicationControlBar>
+
+    <mx:LineChart id="lineChart"
+            showDataTips="true"
+            dataProvider="{dp}"
+            width="100%"
+            height="100%">
+
+        <mx:backgroundElements>
+            <mx:GridLines  gridDirection="{toggleButtonBar.dataProvider.getItemAt(toggleButtonBar.selectedIndex)}" />
+        </mx:backgroundElements>
+
+        <!-- vertical axis -->
+        <mx:verticalAxis>
+            <mx:LinearAxis baseAtZero="false" title="Price" />
+        </mx:verticalAxis>
+
+        <!-- horizontal axis -->
+        <mx:horizontalAxis>
+            <mx:CategoryAxis id="ca" categoryField="@date" title="Date" />
+        </mx:horizontalAxis>
+
+        <!-- horizontal axis renderer -->
+        <mx:horizontalAxisRenderers>
+            <mx:AxisRenderer axis="{ca}" canDropLabels="true" />
+        </mx:horizontalAxisRenderers>
+
+        <!-- series -->
+        <mx:series>
+            <mx:LineSeries yField="@open" form="curve" displayName="Open" />
+        </mx:series>
+    </mx:LineChart>
+
+</mx:Application>

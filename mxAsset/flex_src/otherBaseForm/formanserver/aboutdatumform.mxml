@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" title="相关资料-报表" layout="absolute" width="600" height="300" 
+				showCloseButton="true" fontSize="12" creationComplete="initPage()" close="closePage()" xmlns:s="library://ns.adobe.com/flex/spark">
+	<mx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			import mx.managers.PopUpManager;
+			
+			public var pageTitle:String="";
+			
+			public var parentPage:UIComponent=null;
+			
+			//页面初始化调用
+			public function initPage():void{
+				
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+			
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+			
+			}
+			
+			//页面关闭时调用
+			public function closePage():void{
+				if(true){
+					beforeClosePage();
+				}
+				PopUpManager.removePopUp(this);
+				if(true){
+					afterClosePage();
+				}
+			}
+			
+			//关闭页面之前调用
+			public function beforeClosePage():void{
+				
+			}
+			
+			//关闭页面之后调用
+			public function afterClosePage():void{
+				
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox id="editForm" borderStyle="none" width="100%" height="100%" horizontalGap="0" verticalGap="0">
+		<mx:HBox id="formToolBar" borderStyle="none" width="0" height="0"></mx:HBox>
+		<mx:HBox id="dataTitle" borderStyle="none" width="0" height="0"></mx:HBox>
+		<mx:VBox id="dataFormBox" borderStyle="none" width="100%" height="100%" horizontalGap="0" verticalGap="0">
+			<mx:Form id="dataForm1" width="100%" height="100%" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" horizontalGap="0" verticalGap="0" indicatorGap="0">
+				<mx:TabNavigator id="datumFormTabNV" width="100%" height="100%" borderStyle="solid" verticalGap="0" paddingTop="2">
+					<mx:Panel id="nvPage1" label="资料信息" width="100%" height="100%" borderStyle="none" headerHeight="0">
+						<mx:Grid id="nvPage1Grid1" width="100%" horizontalGap="0" verticalGap="4" paddingBottom="4">
+							<mx:GridRow width="100%" height="20">
+								<mx:GridItem horizontalAlign="right" width="25%">
+									<mx:HBox width="100%" height="20" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right">
+										<mx:Label text="*" color="red" paddingTop="2" width="10" height="20"/>
+										<mx:Label text="资料名称" fontWeight="bold" height="20"/>
+									</mx:HBox>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="left" width="25%">
+									<mx:FormItem direction="horizontal" horizontalGap="0" height="20" >
+										<mx:TextInput id="datumname" width="100%" height="20"/>
+									</mx:FormItem>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="right" width="25%">
+									<mx:Label text="资料大小" height="20"/>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="left" width="25%">
+									<mx:FormItem direction="horizontal" horizontalGap="0" height="20">
+										<mx:TextInput id="filesize" width="100%" height="20" editable="false"/>
+									</mx:FormItem>
+								</mx:GridItem>
+							</mx:GridRow>
+							<mx:GridRow width="100%" height="20">
+								<mx:GridItem horizontalAlign="right" width="25%">
+									<mx:HBox width="100%" height="20" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right">
+										<mx:Label text="*" color="red" paddingTop="2" width="10" height="20"/>										
+										<mx:Label text="上传人员" fontWeight="bold" height="20"/>
+									</mx:HBox>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="left" width="25%">
+									<mx:FormItem direction="horizontal" horizontalGap="0" height="20">
+										<mx:TextInput width="60%" height="20"/>
+										<mx:LinkButton id="upManChooseAction" fontWeight="normal" width="20" height="20" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
+										<mx:LinkButton id="upManCheckAction" fontWeight="normal" width="20" height="20" toolTip="查看信息" icon="@Embed(source='images/ico_checkdate_01.gif')"/>
+									</mx:FormItem>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="right" width="25%">
+									<mx:HBox width="100%" height="20" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right">
+										<mx:Label text="*" color="red" paddingTop="2" width="10" height="20"/>										
+										<mx:Label text="上传部门" fontWeight="bold" height="20"/>
+									</mx:HBox>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="left" width="25%">
+									<mx:FormItem direction="horizontal" horizontalGap="0" height="20">
+										<mx:TextInput width="60%" height="20"/>
+										<mx:LinkButton id="upDeptchooseAction" fontWeight="normal" height="20" width="20" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
+										<mx:LinkButton id="upDeptcheckAction" fontWeight="normal" height="20" width="20" toolTip="查看信息" icon="@Embed(source='images/ico_checkdate_01.gif')"/>
+									</mx:FormItem>
+								</mx:GridItem>
+							</mx:GridRow>
+							<mx:GridRow width="100%" height="20">
+								<mx:GridItem horizontalAlign="right" width="25%">
+									<mx:HBox width="100%" height="20" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right">
+										<mx:Label text="*" color="red" paddingTop="2" width="10" height="20"/>										
+										<mx:Label text="上传文件" fontWeight="bold" height="20"/>
+									</mx:HBox>
+								</mx:GridItem>
+								<mx:GridItem id="datum_FileBox" horizontalAlign="left" width="75%" colSpan="3">
+									<mx:LinkButton id="filePathUpload" fontWeight="normal" height="20" width="20" toolTip="文件上传" icon="@Embed(source='images/icon_fileupload.gif')"/>
+								</mx:GridItem>
+							</mx:GridRow>
+							<mx:GridRow width="100%" height="50" verticalAlign="middle">
+								<mx:GridItem horizontalAlign="center" width="100%" colSpan="4" verticalAlign="middle">
+									<mx:Button id="datasave" textAlign="center" label="保存" height="20" paddingTop="3"/>
+									<mx:Button id="datareset" textAlign="center" label="重置" height="20" paddingTop="3"/>
+									<mx:Button id="dataclose" textAlign="center" label="关闭" height="20" paddingTop="3"/>
+								</mx:GridItem>
+							</mx:GridRow>
+						</mx:Grid>
+					</mx:Panel>
+					<mx:Panel id="nvPage2" label="其他信息" width="100%" height="100%" borderStyle="none" headerHeight="0">
+						<mx:HBox id="nvPage2Grid1Row1" width="100%" horizontalGap="5" borderStyle="none">
+							<mx:FormItem label="" direction="horizontal" horizontalGap="0" width="50%" height="20">
+								<mx:HBox width="30%" height="20" horizontalAlign="right" borderStyle="none" horizontalGap="0" verticalGap="0">
+									<mx:Label text="更新人员" height="20"/>
+								</mx:HBox>
+								<mx:TextInput width="70%" height="20" borderStyle="none" editable="false"/>
+							</mx:FormItem>
+							<mx:FormItem label="" direction="horizontal" horizontalGap="0" width="50%" height="20">
+								<mx:HBox width="30%" height="20" horizontalAlign="right" borderStyle="none" horizontalGap="0" verticalGap="0">
+									<mx:Label text="更新时间" height="20"/>
+								</mx:HBox>
+								<mx:TextInput width="70%" height="20" borderStyle="none" editable="false"/>
+							</mx:FormItem>
+						</mx:HBox>
+						<mx:HBox id="nvPage2Grid1Row2" width="100%" horizontalGap="5" borderStyle="none">
+							<mx:FormItem label="" direction="horizontal" horizontalGap="0" width="50%" height="20">
+								<mx:HBox width="30%" height="20" horizontalAlign="right" borderStyle="none" horizontalGap="0" verticalGap="0">
+									<mx:Label text="创建人员" height="20"/>
+								</mx:HBox>
+								<mx:TextInput width="70%" height="20" borderStyle="none" editable="false"/>
+							</mx:FormItem>
+							<mx:FormItem label="" direction="horizontal" horizontalGap="0" width="50%" height="20">
+								<mx:HBox width="30%" height="20" horizontalAlign="right" borderStyle="none" horizontalGap="0" verticalGap="0">
+									<mx:Label text="创建时间" height="20"/>
+								</mx:HBox>
+								<mx:TextInput width="70%" height="20" borderStyle="none" editable="false"/>
+							</mx:FormItem>
+						</mx:HBox>
+					</mx:Panel>
+				</mx:TabNavigator>
+			</mx:Form>
+		</mx:VBox>
+	</mx:VBox>
+</mx:TitleWindow>

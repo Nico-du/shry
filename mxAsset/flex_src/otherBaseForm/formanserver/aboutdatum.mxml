@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
+		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoudel.common.*" xmlns:cnslb="cn.cnsasfram.button.*" xmlns:ns1="kmzc/formanserver.*">
+	<mx:RemoteObject id="DatumServiceRmt" destination="datumService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script source="../utils/utils.as"/>
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.entity.DoResult;
+			import cn.cnsasfram.entity.enum.Errors;
+			import cn.cnsasfram.helper.ASJsonHelper;
+			import cn.cnsasfram.helper.ASStringHelper;
+			
+			import com.adobe.serialization.json.JSON;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.CheckBox;
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			[Embed(source="../../images/folderclosed.gif")]
+			protected static var treeDefaultLeafIcon:Class;
+			
+			//文件目录XML
+			[Bindable]
+			protected var directoryMenu:XML;
+			//分页中备注信息
+			[Bindable]
+			protected var dg_pg_othermsg:String="";
+			//分页中保存数据总数
+			[Bindable]
+			protected var dg_pg_datacount:int=0;
+			//文件所有信息
+			[Bindable]
+			protected var dataArray:ArrayCollection=null;
+			
+			//默认操作实体名称
+			private var tempObjBeanName:String="CnstDatumData";
+			//指定linkbutton选中后的颜色
+			private var tempPublicDefaultColor:uint=0xCCFFFF;
+			//目录添加按钮是否选中
+			private var ADDDIRECTORYLBTN:Boolean=false;
+			//目录编辑按钮是否选中
+			private var EDITDEIRECTROYLBTN:Boolean=false;
+			//获取当前选中的目录索引
+			private var directorySelectIndex:int=0;
+			//保存当前所选中的目录ID
+			private var directorySelectId:String="";
+			
+			//初始调用方法
+			public function initPage():void{
+				//加载目录树
+				rmtLoadDirectoryTree();
+				//分析权限
+				initPower();
+			}
+			
+			//分析权限
+			public function initPower():void{
+				//判断读取权限
+					
+				//判断写入权限
+				
+				//自定义权限
+				this.controlVisible(this.selfchooseAction,false);
+				this.controlVisible(this.exportAction,false);
+				this.controlVisible(this.otherAction,false);
+			}
+			
+			//格式化datagrid的日期
+			public static function dateItemFormat(item:Object,dgColumn:DataGridColumn):String{  
+				var dataFormat:DateFormatter = new DateFormatter();  
+				dataFormat.formatString = "YYYY-MM-DD";  
+				var value:Object = item[dgColumn.dataField];  
+				return dataFormat.format(value);  
+			}
+			
+			//加载目录信息
+			protected function rmtLoadDirectoryTree():void{
+				if(this.directoryMenu!=null){
+					directorySelectIndex=this.directoryTree.selectedIndex;
+				}
+				DatumServiceRmt.GetDatumDirectoryXML();
+				DatumServiceRmt.addEventListener(ResultEvent.RESULT,rmtLoadDirectoryTreeBack);
+			}
+			//加载目录信息回调方法
+			protected function rmtLoadDirectoryTreeBack(rmtResult:ResultEvent):void{
+				DatumServiceRmt.removeEventListener(ResultEvent.RESULT,rmtLoadDirectoryTreeBack);
+				this.directoryTree.dataProvider=null;
+				this.directoryMenu=null;
+				var objResult:Object=rmtResult.result
+				if(objResult==null){
+					return;
+				}
+				this.directoryMenu=XML(objResult.toString());
+				if(this.directoryMenu==null){
+					return;
+				}
+				this.directoryTree.dataProvider=this.directoryMenu;
+				this.directoryTree.callLater(expandTree);
+				if(this.ADDDIRECTORYLBTN){
+					this.cancleAddDirectoryLBtnSelect();
+				}
+				if(this.EDITDEIRECTROYLBTN){
+					this.cancleEditDirectoryLBtnSelect();
+				}
+			}
+			//展开树节点
+			protected function expandTree():void{
+				this.directoryTree.expandChildrenOf(this.directoryMenu,true);
+				this.directoryTree.selectedIndex=directorySelectIndex;
+			}
+			
+			//判断树节点是否选择项
+			private function directoryTreeIsSelectItem():Boolean{
+				var treeSelectedIndex:int=this.directoryTree.selectedIndex;
+				if(treeSelectedIndex!=-1){
+					return true;
+				}else{
+					return false;
+				}
+			}
+			
+			//增加目录事件
+			protected function addDirectoryAction(tempEvent:MouseEvent):void{
+				if(!this.directoryTreeIsSelectItem() && this.directoryMenu!=null){
+					Alert.show("请选择指定添加目录");
+					return;	
+				}
+				if(this.ADDDIRECTORYLBTN){
+					this.cancleAddDirectoryLBtnSelect();
+					return;
+				}
+				if(this.EDITDEIRECTROYLBTN){
+					this.cancleEditDirectoryLBtnSelect();
+				}
+				this.controlVisible(this.treeUseTextBox,true);
+				this.txtTempDirectoryName.setFocus();
+				var tempClass:CNSASBaseLinkButton=tempEvent.currentTarget as CNSASBaseLinkButton;
+				tempClass.setBackGroundColor(this.tempPublicDefaultColor);
+				this.ADDDIRECTORYLBTN=true;
+			}
+			//取消增加目录按钮选中状态
+			private function cancleAddDirectoryLBtnSelect():void{
+				this.controlVisible(this.treeUseTextBox,false);
+				this.addDirectory.resetBackGroundColor();
+				this.txtTempDirectoryName.text="";
+				this.ADDDIRECTORYLBTN=false;
+			}
+			
+			//编辑目录名称
+			protected function editDirectoryAction(tempEvent:MouseEvent):void{
+				if(!this.directoryTreeIsSelectItem()){
+					Alert.show("请选择指定编辑目录");
+					return;
+				}
+				if(this.EDITDEIRECTROYLBTN){
+					this.cancleEditDirectoryLBtnSelect();					
+					return;
+				}
+				if(this.ADDDIRECTORYLBTN){
+					this.cancleAddDirectoryLBtnSelect();
+				}
+				this.controlVisible(this.treeUseTextBox,true);
+				var selectItemXml:XML=this.directoryTree.selectedItem as XML;
+				var selectItemName:String=selectItemXml.@label;
+				this.txtTempDirectoryName.text=selectItemName;
+				this.txtTempDirectoryName.setFocus();
+				var tempClass:CNSASBaseLinkButton=tempEvent.currentTarget as CNSASBaseLinkButton;
+				tempClass.setBackGroundColor(this.tempPublicDefaultColor);
+				this.EDITDEIRECTROYLBTN=true;
+			}
+			//取消编辑目录按钮
+			private function cancleEditDirectoryLBtnSelect():void{
+				this.controlVisible(this.treeUseTextBox,false);
+				this.editDirectory.resetBackGroundColor();
+				this.txtTempDirectoryName.text="";
+				this.EDITDEIRECTROYLBTN=false;
+			}
+			
+			//删除目录
+			protected function deleteDirectoryAction():void{
+				if(!this.directoryTreeIsSelectItem()){
+					return;
+				}
+				var selectItemXml:XML=this.directoryTree.selectedItem as XML;
+				if(selectItemXml==null){
+					return;
+				}
+				var itemChildList:XMLList=selectItemXml.children();
+				if(itemChildList!=null && itemChildList.length()>0){
+					Alert.show("当前目录存在其子目录,无法删除");
+					return;
+				}
+				if(this.directoryTree.selectedIndex==0){
+					Alert.show("根目录无法删除");
+					return;
+				}
+				Alert.show("您确认要删除当前目录及其子文件吗？","系统提示",Alert.OK|Alert.CANCEL,this,configDeleteDirectoryAction,null,Alert.CANCEL);
+			}
+			//确认删除目录
+			protected function configDeleteDirectoryAction(doEvent:CloseEvent):void{
+				if(doEvent.detail==Alert.CANCEL){
+					return;
+				}
+				var selectItemXml:XML=this.directoryTree.selectedItem as XML;
+				var selectItemId:String=selectItemXml.@id;
+				DatumServiceRmt.DeleteDatumDirectoryById(selectItemId);
+				DatumServiceRmt.addEventListener(ResultEvent.RESULT,configDeleteDirectoryActionBack);
+			}
+			//确认删除目录回调方法
+			protected function configDeleteDirectoryActionBack(rmtResult:ResultEvent):void{
+				DatumServiceRmt.removeEventListener(ResultEvent.RESULT,configDeleteDirectoryActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					Alert.show(doResult.strErrorInfo);
+					return;
+				}
+				rmtLoadDirectoryTree();//刷新树节点
+			}
+			
+			//更改之后提交信息
+			protected function directoryChangeSubmitAction():void{
+				if(!this.directoryTreeIsSelectItem() && this.directoryMenu!=null && !this.ADDDIRECTORYLBTN){
+					Alert.show("请选择目录");
+					return;
+				}
+				if(!this.ADDDIRECTORYLBTN && !this.EDITDEIRECTROYLBTN){
+					return;
+				}
+				var txtInputDirectoryName:String=this.txtTempDirectoryName.text;
+				if(txtInputDirectoryName.length<1){
+					Alert.show("添加或更改目录不允许为空");
+					return;
+				}
+				var directoryJson:Object=new Object();
+				var userId:String=FlexGlobals.topLevelApplication.userVo.id.toString();
+				directoryJson.directoryname=txtInputDirectoryName;
+				directoryJson.uuser=userId;
+				var selectTreeXml:XML=this.directoryTree.selectedItem as XML;
+				if(selectTreeXml==null && this.directoryMenu!=null){
+					return;
+				}else if(selectTreeXml==null && this.directoryMenu==null){
+					directoryJson.directorypath=selectDirectoryPath==null?"":selectDirectoryPath;
+					directoryJson.cuser=userId;
+				}else{
+					var selectDirectoryId:String=selectTreeXml.@id;
+					var selectDirectoryName:String=selectTreeXml.@label;
+					var selectDirectoryPath:String=selectTreeXml.@path;
+					if(!checkDirectoryName(txtInputDirectoryName,selectDirectoryName,selectTreeXml)){
+						return;
+					}
+					if(this.ADDDIRECTORYLBTN){
+						directoryJson.lastdirectoryid=selectDirectoryId;
+						directoryJson.directorypath=selectDirectoryPath;
+						directoryJson.cuser=userId;
+					}else if(this.EDITDEIRECTROYLBTN){
+						directoryJson.directoryid=selectDirectoryId;
+					}
+				}
+				var directoryJsonStr:String=JSON.encode(directoryJson);
+				if(ASStringHelper.isNullOrEmpty(directoryJsonStr)){
+					return;
+				}
+				DatumServiceRmt.AddOrUpdateDatumDirectory(directoryJsonStr);
+				DatumServiceRmt.addEventListener(ResultEvent.RESULT,directoryChangeSubmitActionBack);
+			}
+			//更新目录后回调方法
+			protected function directoryChangeSubmitActionBack(rmtResult:ResultEvent):void{
+				DatumServiceRmt.removeEventListener(ResultEvent.RESULT,directoryChangeSubmitActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					Alert.show(doResult.strErrorInfo);
+					return;
+				}
+				rmtLoadDirectoryTree();//刷新树节点
+			}
+			
+			//检验是否有重复名
+			protected function checkDirectoryName(txtInputDName:String,dName:String,selectTreeXml:XML):Boolean{
+				if(this.ADDDIRECTORYLBTN){
+					var selectTreeChildXmlList:XMLList=selectTreeXml.children();
+					if(selectTreeChildXmlList == null){
+						return true;	
+					}
+					for each(var tempXml:XML in selectTreeChildXmlList){
+						var tempTreeName:String=tempXml.@label;
+						if(ASStringHelper.stringCompare(txtInputDName,tempTreeName,false)==0){
+							Alert.show("不允许存在相同的目录名");
+							return false;
+						}
+					}
+				}else if(this.EDITDEIRECTROYLBTN){
+					if(ASStringHelper.stringCompare(txtInputDName,dName,false)==0){
+						return false;
+					}
+					var selectTreeParent:XML=selectTreeXml.parent();
+					if(selectTreeParent==null){
+						return true;
+					}
+					var selectTreeParentChileXmlList:XMLList=selectTreeParent.children();
+					for each(var tempChildXml:XML in selectTreeParentChileXmlList){
+						var tempChileTreeName:String=tempChildXml.@label;
+						if(ASStringHelper.stringCompare(txtInputDName,tempChileTreeName,false)==0){
+							Alert.show("不允许存在相同的目录名");
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+			
+			//点击树改变事件
+			protected function directoryTreeChangeClick():void{
+				if(!this.directoryTreeIsSelectItem()){
+					return;
+				}
+				var selectTreeXml:XML=this.directoryTree.selectedItem as XML;
+				if(selectTreeXml==null){
+					return;
+				}
+				this.directorySelectId=selectTreeXml.@id;
+				if(this.EDITDEIRECTROYLBTN){
+					var selectDirectoryItemName:String=selectTreeXml.@label;
+					this.txtTempDirectoryName.text=selectDirectoryItemName;
+				}
+				searchClickAction();
+			}
+			
+			//点击搜索按钮事件
+			protected function searchClickAction():void{
+				datumSearchAction(20,1);
+			} 
+			
+			//搜索相关资料
+			protected function datumSearchAction(tempPageSize:int,tempPageCurrent:int):void{
+				var strcondition:String=getDatumSeacrchCondition();
+				this.DatumServiceRmt.PagingRmtData(tempObjBeanName,tempPageSize,tempPageCurrent,strcondition);
+				this.DatumServiceRmt.addEventListener(ResultEvent.RESULT,datumSearchActionBack);
+			}
+			//搜索相关资料回调方法
+			protected function datumSearchActionBack(rmtResult:ResultEvent):void{
+				this.DatumServiceRmt.removeEventListener(ResultEvent.RESULT,datumSearchActionBack);
+				var objResult:Object=rmtResult.result;
+				var strresult:String=objResult.toString();
+				var jsonObj:Object=JSON.decode(strresult,true);
+				var itemtotal:Object=jsonObj.itemtotal;
+				var othermsg:Object=jsonObj.othermsg;
+				var items:Object=jsonObj.items;
+				if(items==null){
+					return;
+				}
+				this.dg_pg_datacount=parseInt(itemtotal as String);
+				this.dg_pg_othermsg=othermsg==null?"":othermsg.toString();
+				this.dataArray=items as ArrayCollection;
+				this.cns_dg_pg.setPagingCount();
+			}
+			
+			//得到搜索条件
+			protected function getDatumSeacrchCondition():String{
+				var condition:Object=new Object();
+				var datumname:String=this.datumname.text;
+				var ctimefrom:String=this.ctimefrom.text;
+				var ctimeto:String=this.ctimeto.text;
+				condition.s_directoryid_eq=this.directorySelectId;
+				if(!ASStringHelper.isNullOrEmpty(datumname)){
+					condition.s_datumname_like=datumname;
+				}
+				if(!ASStringHelper.isNullOrEmpty(ctimefrom)){
+					condition.s_ctime_gteq=ctimefrom;
+				}
+				if(!ASStringHelper.isNullOrEmpty(ctimeto)){
+					condition.s_ctime_lteq=ctimeto;
+				}
+				var conditionJson:String=JSON.encode(condition);
+				return conditionJson;
+			}
+			
+			//搜索相关资料重置
+			protected function datumSearchResetAction():void{
+				this.datumname.text="";
+				this.ctimefrom.text="";
+				this.ctimeto.text="";
+			}
+			
+			//新增事件
+			protected function newActionClick():void{
+				var editWindow:IFlexDisplayObject=new aboutdatumform();
+				PopUpManager.addPopUp(editWindow,this.parentApplication as DisplayObject,true);
+				PopUpManager.centerPopUp(editWindow);
+			}
+			
+			//编辑事件
+			protected function editActionClick():void{
+			
+			}
+			
+			//删除事件
+			protected function removeActionClick():void{
+			
+			}
+			
+			//表格数据选中行为
+			protected function chooseComBoxChangeAction():void{
+				
+			}
+			
+			//选择高级搜索切换
+			protected function highSearchChange():void{
+				var highSearchtxt:String=this.highSearch.label;
+				if(ASStringHelper.stringCompare(highSearchtxt,"高级",true)==0){
+					this.qukilySearchTxt.text="";
+					this.qukilySearchInput.enabled=false;
+					this.controlVisible(this.highsearchform,true);
+					this.highSearch.label="隐藏";
+				}else{					
+					this.qukilySearchInput.enabled=true;
+					this.controlVisible(this.highsearchform,false);
+					this.highSearch.label="高级";
+					datumSearchResetAction();
+				}
+			}
+			
+			//控件显示或隐藏
+			protected function controlVisible(tempControl:UIComponent,isVisible:Boolean):void{
+				if(isVisible){
+					tempControl.visible=true;
+					tempControl.includeInLayout=true;
+				}else{
+					tempControl.visible=false;
+					tempControl.includeInLayout=false;
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:HDividedBox width="100%" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="center" horizontalGap="3">
+		<mx:Canvas label="资料目录" width="150" height="100%">
+			<mx:VBox width="100%" height="100%" verticalGap="2" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" verticalAlign="middle">
+				<mx:HBox width="100%" height="20" horizontalAlign="left" backgroundColor="#99CCFF" borderStyle="none" horizontalGap="0" verticalAlign="middle">
+					<cnslb:CNSASBaseLinkButton id="addDirectory" click="addDirectoryAction(event)" fontWeight="normal" width="20" height="20" toolTip="增加" icon="@Embed(source='images/add.gif')"/>
+					<cnslb:CNSASBaseLinkButton id="editDirectory" click="editDirectoryAction(event)" fontWeight="normal" width="20" height="20" toolTip="编辑" icon="@Embed(source='images/edit.gif')"/>
+					<cnslb:CNSASBaseLinkButton id="removeDirectory" click="deleteDirectoryAction()" fontWeight="normal" width="20" height="20" toolTip="删除" icon="@Embed(source='images/delete.gif')"/>
+					<cnslb:CNSASBaseLinkButton id="refreshDirectory" click="rmtLoadDirectoryTree()" fontWeight="normal" width="20" height="20" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
+				</mx:HBox>
+				<mx:HBox id="treeUseTextBox" visible="false" includeInLayout="false" width="100%" height="20" verticalGap="0" horizontalAlign="left" borderStyle="solid" horizontalGap="0" verticalAlign="middle">
+					<mx:TextInput id="txtTempDirectoryName" enter="directoryChangeSubmitAction()" borderStyle="none" width="100%" height="20"/>
+					<mx:LinkButton id="lbTreeSubmit" click="directoryChangeSubmitAction()" fontWeight="normal" width="20" height="20" toolTip="确认" icon="@Embed(source='images/icon_ok.png')"/>
+				</mx:HBox>
+				<mx:Tree id="directoryTree" click="directoryTreeChangeClick()" defaultLeafIcon="{treeDefaultLeafIcon}" borderStyle="none" dragEnabled="false" width="100%" height="100%" labelField="@label" showRoot="true"/>
+			</mx:VBox>
+		</mx:Canvas>
+		<mx:Panel title="相关资料" width="100%" height="100%" paddingTop="2" paddingBottom="2" paddingLeft="2" paddingRight="2" verticalGap="2" horizontalGap="0">
+			<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalGap="1" verticalAlign="middle">
+				<mx:HBox id="qukilySearchBox" width="100%" height="22" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
+					<mx:HBox id="qukilySearchInput" width="80%" horizontalGap="1" horizontalAlign="left" borderStyle="none">
+						<mx:Label id="qukilySearchAction" fontWeight="bold"  width="50" height="20" text="资料名称" textAlign="right"/>
+						<mx:TextInput id="qukilySearchTxt"  borderStyle="solid" width="150" height="20"/>
+						<mx:Button id="qukilySearchBtn" height="20" label="搜索" icon="@Embed(source='images/find.gif')"/>
+					</mx:HBox>
+					<mx:HBox width="20%" horizontalGap="1" horizontalAlign="right" borderStyle="none">
+						<mx:Button id="highSearch" click="highSearchChange()" width="55" height="20" label="高级"/>
+					</mx:HBox>
+				</mx:HBox>
+				<mx:HBox id="highsearchform" width="100%" visible="false" includeInLayout="false" height="50" borderStyle="solid" horizontalGap="0">
+					<mx:VBox id="searchControl" width="100%" height="100%" borderStyle="none" verticalGap="1" paddingTop="2" paddingLeft="5">
+						<mx:HBox id="searchgroupone" width="100%" height="20" borderStyle="none" horizontalGap="5">
+							<mx:HBox width="33%" height="20" borderStyle="none" horizontalGap="0" verticalAlign="middle" horizontalAlign="right">
+								<mx:Label id="datumnamelb" fontWeight="bold" width="30%" height="20" text="资料名称" textAlign="right"/>
+								<mx:TextInput id="datumname" enter="searchClickAction()" borderStyle="solid" width="70%" height="20"/>
+							</mx:HBox>
+							<mx:HBox width="33%" height="20" borderStyle="none" horizontalGap="0" verticalAlign="middle" horizontalAlign="right">
+								<mx:Label id="ctimelb" fontWeight="bold" height="20" text="上传时间" textAlign="center"/>
+								<mx:DateField id="ctimefrom" width="50%" height="20" fontSize="11" editable="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD" monthNames='["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"]'/>
+								<mx:Label id="ctimefromlb" height="20" text="至"/>
+								<mx:DateField id="ctimeto" width="50%" height="20" fontSize="11" editable="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD" monthNames='["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"]'/>
+							</mx:HBox>
+						</mx:HBox>
+					</mx:VBox>
+					<mx:VBox width="60" height="100%" borderStyle="none" verticalGap="3" horizontalAlign="center" verticalAlign="middle">
+						<mx:Button id="btnsearchdata" click="searchClickAction()" width="55" height="20" label="搜索"/>
+						<mx:Button id="btnresetdata" click="datumSearchResetAction()" width="55" height="20" label="重置"/>
+					</mx:VBox>
+				</mx:HBox>
+				<mx:VBox width="100%" height="100%" verticalGap="2" borderStyle="none">
+					<mx:HBox id="toolBar" width="100%" height="20" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" borderStyle="none" backgroundColor="#99CCFF">
+						<mx:ComboBox id="chooseComBox" cornerRadius="2" change="chooseComBoxChangeAction()" editable="false" width="65" fontSize="12" height="20" blendMode="overlay" borderThickness="0">
+							<mx:Array id="cbChooseArray">
+								<mx:Object label="选择" value="-1"/>
+								<mx:Object label="全选" value="0"/>
+								<mx:Object label="反选" value="1"/>
+							</mx:Array>
+						</mx:ComboBox>
+						<mx:LinkButton id="selfchooseAction" fontWeight="normal"  height="20" label="选择列" toolTip="选择列" icon="@Embed(source='images/tools_min.png')"/>
+						<mx:LinkButton id="newAction" click="newActionClick()" height="20" label="新增" toolTip="新增" icon="@Embed(source='images/add.gif')"/>
+						<mx:LinkButton id="editAction" height="20" label="编辑" toolTip="编辑" icon="@Embed(source='images/edit.gif')"/>
+						<mx:LinkButton id="removeAction" height="20" label="删除" toolTip="删除" icon="@Embed(source='images/delete.gif')"/>
+						<mx:LinkButton id="exportAction" height="20" label="导出" toolTip="导出" icon="@Embed(source='images/export.gif')"/>
+						<mx:LinkButton id="downLoadAction" height="20" label="下载" toolTip="下载" icon="@Embed(source='images/icon_downLoad.gif')"/>
+						<mx:LinkButton id="refreshAction" height="20" label="刷新" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
+						<mx:ComboBox id="otherAction" cornerRadius="2" editable="false" width="90" fontSize="12" height="20" blendMode="overlay" borderThickness="0">
+							<mx:Array id="cbotherchoose">
+								<mx:Object label="其它操作" value="-1"/>
+								<mx:Object label="导出模板" value="1"/>
+								<mx:Object label="导入数据" value="2"/>
+							</mx:Array>
+						</mx:ComboBox>
+					</mx:HBox>
+					<cnsdg:CNSASBaseDataGrid id="cns_dg" dataProvider="{dataArray}" width="100%" height="100%" dgcustomed="false">
+						<cnsdg:columns>
+							<mx:DataGridColumn width="30" draggable="false" sortable="false" headerText="" >
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:CheckBox selected="false"/>
+									</mx:Component>
+								</mx:itemRenderer> 
+							</mx:DataGridColumn>
+							<mx:DataGridColumn headerText="资料名称" width="160" dataField="datumname" sortable="true"/>
+							<mx:DataGridColumn headerText="资料大小" width="80" dataField="filesize" sortable="true"/>
+							<mx:DataGridColumn headerText="更新人员" width="80" dataField="uuser" sortable="false"/>
+							<mx:DataGridColumn headerText="更新时间" width="120" dataField="utime" sortable="true" labelFunction="dateItemFormat" textAlign="center"/>
+							<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
+						</cnsdg:columns>
+					</cnsdg:CNSASBaseDataGrid>
+					<cnspg:PagingMoudel id="cns_dg_pg" width="100%" height="25" datacount="{dg_pg_datacount}" othermsg="{dg_pg_othermsg}" funReqData="datumSearchAction"/>
+				</mx:VBox>
+			</mx:VBox>
+		</mx:Panel>
+	</mx:HDividedBox>
+</mx:Module>
