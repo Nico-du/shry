@@ -4,7 +4,7 @@ import java.util.Date;
 
 
 /**
- * CnstAssetbgjlData entity. @author MyEclipse Persistence Tools
+ * CnstAssetbgjlData entity. @author dzj
  */
 
 public class CnstAssetbgjlData  implements java.io.Serializable {

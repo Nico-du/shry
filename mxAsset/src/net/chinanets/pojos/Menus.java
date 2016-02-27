@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Menus entity. @author MyEclipse Persistence Tools
+ * Menus entity. @author dzj
  */
 
 public class Menus implements java.io.Serializable {

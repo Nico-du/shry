@@ -3,7 +3,7 @@ package net.chinanets.pojos;
 
 
 /**
- * TbType entity. @author MyEclipse Persistence Tools
+ * TbType entity. @author dzj
  */
 
 public class TbType implements java.io.Serializable {

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Dept entity. @author MyEclipse Persistence Tools
+ * Dept entity. @author dzj
  */
 
 public class Dept implements java.io.Serializable {

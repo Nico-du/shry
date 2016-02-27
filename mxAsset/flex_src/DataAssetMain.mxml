@@ -20,6 +20,7 @@
 			import mx.managers.PopUpManager;
 			
 			import shry_zlgl.FYGridMoudel;
+			import shry_zlgl.ZCGridMoudel;
 			
 			
 			//菜单数据
@@ -106,9 +107,6 @@
 					return;
 				}
 				this.managerStack.selectedChild=tempContent as INavigatorContent;
-					if((event != null) && (selectItem.@pageUrl == FY)){
-						tempContent.addXjjl();
-					}
 			}
 			
 			//判断树节点是否选择项
@@ -136,7 +134,9 @@
 				var tempMoudel:*=null;
 				if(ASStringHelper.stringCompare(this.FY,strpageurl,true)==0){
 					tempMoudel=new FYGridMoudel();
-				}
+				}/* else if(ASStringHelper.stringCompare(this.ZC,strpageurl,true)==0){
+					tempMoudel=new ZCGridMoudel();
+				} */
 				/*ielse if(ASStringHelper.stringCompare(this.SUPPLIER,strpageurl,true)==0){
 					tempMoudel=new ServiceList();
 					tempMoudel.pageType="供应商";

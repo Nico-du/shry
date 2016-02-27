@@ -52,7 +52,12 @@ package flex.util
 	 **/
 	public class CommonMethod
 	{
-
+		/**
+		 *选择 一个 风叶/电机/总成数据 
+		 **/
+		//public static function getCommonData(String chooseType,fileColumns){
+			
+		//}
 		
 		
 		

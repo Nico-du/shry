@@ -37,7 +37,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author 唐
  * 
  */
-public class CommonDaoImp extends HibernateDaoSupport implements CommonDao {
+public class CommonDaoImp extends HibernateDaoSupport implements CommonDao,Serializable {
 	private static Log log = LogFactory.getLog(CommonDaoImp.class);
 
 	/**
@@ -493,7 +493,7 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao {
 
 	// 根据Id查找对象
 	@SuppressWarnings("rawtypes")
-	public Object FindByIdEx(Class classs, String strId) {
+	public Object FindByIdEx(Class classs, Serializable strId) {
 		Session session = this.getSession();
 		try {
 			return session.get(classs.getName(), strId);
@@ -679,9 +679,22 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao {
 		}
 		int start=(currentpage-1)*pagesize;
 		int end=start+pagesize;
+		String newStrSQL=StringHelper.Format(" %1$s LIMIT %2$s , %3$s",strSQL,start,end);
+		return RunSelectJSONArrayBySql(newStrSQL, null);
+	}
+	
+	/* oracle的分页方式 2
+	 //原始数据SQL分页查询
+	public JSONArray RunSelectJSONArrayBySql(String strSQL,int pagesize,int currentpage){
+		if(StringHelper.IsNullOrEmpty(strSQL)){
+			return null;
+		}
+		int start=(currentpage-1)*pagesize;
+		int end=start+pagesize;
 		String newStrSQL=StringHelper.Format("SELECT * FROM (%1$s) T where RN>%2$s AND RN<=%3$s",strSQL,start,end);
 		return RunSelectJSONArrayBySql(newStrSQL, null);
 	}
+	 */
 	
 	//原始SQL查询总数量
 	@SuppressWarnings("deprecation")
@@ -791,7 +804,7 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao {
 					String columnName=resultMeta.getColumnName(i);
 					String columnType=resultMeta.getColumnTypeName(i);
 					Object columnValue=null;
-					if(StringHelper.Compare(columnType, "DATE", true)==0){
+					if(StringHelper.Compare(columnType, "DATE", true)==0 || StringHelper.Compare(columnType, "DATETIME", true)==0){
 						columnValue=result.getTimestamp(columnName);
 						columnValue=DateHelper.GetStrDateTimeByDateClass(columnValue, null);
 					}else{

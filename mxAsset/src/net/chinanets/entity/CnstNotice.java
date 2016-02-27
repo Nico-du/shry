@@ -4,7 +4,7 @@ import java.util.Date;
 
 
 /**
- * CnstNotice entity. @author MyEclipse Persistence Tools
+ * CnstNotice entity. @author dzj
  */
 
 public class CnstNotice  implements java.io.Serializable {

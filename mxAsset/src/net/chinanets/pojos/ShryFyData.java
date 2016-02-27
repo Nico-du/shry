@@ -1,10 +1,10 @@
 package net.chinanets.pojos;
 
 import java.lang.Long;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /**
- * ShryFyData entity. @author MyEclipse Persistence Tools
+ * ShryFyData entity. @author dzj
  */
 
 public class ShryFyData implements java.io.Serializable {
@@ -28,10 +28,11 @@ public class ShryFyData implements java.io.Serializable {
 	private String wxturl;
 	private String xnturl;
 	private String zsturl;
+	private String syzt;
 	private String memo;
-	private Timestamp inputedate;
-	private String inputeuser;
-	private Timestamp updatedate;
+	private Date inputdate;
+	private String inputuser;
+	private Date updatedate;
 	private String updateuser;
 
 	// Constructors
@@ -44,8 +45,8 @@ public class ShryFyData implements java.io.Serializable {
 	public ShryFyData(String xh, String pp, String zj, String fbzj,
 			String dlhzj, String lgzj, String lggd, String ypzj, String zl,
 			String ypsm, String jqfs, String ypfb, String qj, String wxturl,
-			String xnturl, String zsturl, String memo, Timestamp inputedate,
-			String inputeuser, Timestamp updatedate, String updateuser) {
+			String xnturl, String zsturl, String memo, Date inputdate,
+			String inputuser, Date updatedate, String updateuser) {
 		this.xh = xh;
 		this.pp = pp;
 		this.zj = zj;
@@ -63,8 +64,8 @@ public class ShryFyData implements java.io.Serializable {
 		this.xnturl = xnturl;
 		this.zsturl = zsturl;
 		this.memo = memo;
-		this.inputedate = inputedate;
-		this.inputeuser = inputeuser;
+		this.inputdate = inputdate;
+		this.inputuser = inputuser;
 		this.updatedate = updatedate;
 		this.updateuser = updateuser;
 	}
@@ -215,27 +216,35 @@ public class ShryFyData implements java.io.Serializable {
 		this.memo = memo;
 	}
 
-	public Timestamp getInputedate() {
-		return this.inputedate;
+	public String getSyzt() {
+		return syzt;
 	}
 
-	public void setInputedate(Timestamp inputedate) {
-		this.inputedate = inputedate;
+	public void setSyzt(String syzt) {
+		this.syzt = syzt;
 	}
 
-	public String getInputeuser() {
-		return this.inputeuser;
+	public Date getInputdate() {
+		return inputdate;
 	}
 
-	public void setInputeuser(String inputeuser) {
-		this.inputeuser = inputeuser;
+	public void setInputdate(Date inputdate) {
+		this.inputdate = inputdate;
 	}
 
-	public Timestamp getUpdatedate() {
+	public String getInputuser() {
+		return inputuser;
+	}
+
+	public void setInputuser(String inputuser) {
+		this.inputuser = inputuser;
+	}
+
+	public Date getUpdatedate() {
 		return this.updatedate;
 	}
 
-	public void setUpdatedate(Timestamp updatedate) {
+	public void setUpdatedate(Date updatedate) {
 		this.updatedate = updatedate;
 	}
 

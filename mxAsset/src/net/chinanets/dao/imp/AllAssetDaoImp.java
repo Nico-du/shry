@@ -1,5 +1,6 @@
 package net.chinanets.dao.imp;
 
+import java.io.Serializable;
 import java.util.List;
 
 import net.chinanets.dao.AllAssetDao;
@@ -19,6 +20,25 @@ public class AllAssetDaoImp extends CommonDaoImp implements AllAssetDao {
 	public String GetAllAssetListByPaging(String tableName,int tempPageSize,int tempPageCurrent,String strcondition){
 		String strHQL=this.FindHqlBySearchForm(tableName, strcondition);
 		String selectResultCount="select count(0) "+strHQL;
+		String selectResultHql=StringHelper.Format("SELECT TMPT.* %1$s",strHQL);
+		JSONArray tempJson=this.RunSelectJSONArrayBySql(selectResultHql, tempPageSize, tempPageCurrent);
+		String total=this.RunSelectCountBySql(selectResultCount, null)+"";
+		String items="";
+		if(tempJson!=null && tempJson.size()>0){
+			items=tempJson.toString();
+		}
+		JSONObject result=new JSONObject();
+		result.put("itemtotal", total);
+		result.put("othermsg", "");
+		result.put("items", items);
+		return result.toString();
+	}
+	
+	/* oracle的查询方式 1
+	 //所有物资分页查询数据
+	public String GetAllAssetListByPaging(String tableName,int tempPageSize,int tempPageCurrent,String strcondition){
+		String strHQL=this.FindHqlBySearchForm(tableName, strcondition);
+		String selectResultCount="select count(0) "+strHQL;
 		String selectResultHql=StringHelper.Format("SELECT ROWNUM AS RN,TMPT.* %1$s",strHQL);
 		JSONArray tempJson=this.RunSelectJSONArrayBySql(selectResultHql, tempPageSize, tempPageCurrent);
 		String total=this.RunSelectCountBySql(selectResultCount, null)+"";
@@ -32,6 +52,7 @@ public class AllAssetDaoImp extends CommonDaoImp implements AllAssetDao {
 		result.put("items", items);
 		return result.toString();
 	}
+	 */
 	
 	//根据SQL查询DataEntity
 	public List<DataEntity> GetDataEntityBySQL(String strSQL){
@@ -51,7 +72,7 @@ public class AllAssetDaoImp extends CommonDaoImp implements AllAssetDao {
 	}
 	
 	//根据ID得到对象
-	public Object GetDataById(Class<?> tempClass,String strId){
+	public Object GetDataById(Class<?> tempClass,Serializable strId){
 		return this.FindByIdEx(tempClass, strId);
 	}
 	

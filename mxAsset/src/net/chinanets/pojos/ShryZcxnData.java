@@ -1,10 +1,10 @@
 package net.chinanets.pojos;
 
 import java.lang.Long;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /**
- * ShryZcxnData entity. @author MyEclipse Persistence Tools
+ * ShryZcxnData entity. @author dzj
  */
 
 public class ShryZcxnData implements java.io.Serializable {
@@ -23,9 +23,9 @@ public class ShryZcxnData implements java.io.Serializable {
 	private String srgl;
 	private String xl;
 	private String memo;
-	private Timestamp inputdate;
+	private Date inputdate;
 	private String inputuser;
-	private Timestamp updatedate;
+	private Date updatedate;
 	private String updateuser;
 
 	// Constructors
@@ -37,8 +37,8 @@ public class ShryZcxnData implements java.io.Serializable {
 	/** full constructor */
 	public ShryZcxnData(Long zcid, Long sydid, String ll,
 			String jyl, String zfszs, String ffszs, String dy, String dl,
-			String srgl, String xl, String memo, Timestamp inputdate,
-			String inputuser, Timestamp updatedate, String updateuser) {
+			String srgl, String xl, String memo, Date inputdate,
+			String inputuser, Date updatedate, String updateuser) {
 		this.zcid = zcid;
 		this.sydid = sydid;
 		this.ll = ll;
@@ -154,11 +154,11 @@ public class ShryZcxnData implements java.io.Serializable {
 		this.memo = memo;
 	}
 
-	public Timestamp getInputdate() {
+	public Date getInputdate() {
 		return this.inputdate;
 	}
 
-	public void setInputdate(Timestamp inputdate) {
+	public void setInputdate(Date inputdate) {
 		this.inputdate = inputdate;
 	}
 
@@ -170,11 +170,11 @@ public class ShryZcxnData implements java.io.Serializable {
 		this.inputuser = inputuser;
 	}
 
-	public Timestamp getUpdatedate() {
+	public Date getUpdatedate() {
 		return this.updatedate;
 	}
 
-	public void setUpdatedate(Timestamp updatedate) {
+	public void setUpdatedate(Date updatedate) {
 		this.updatedate = updatedate;
 	}
 

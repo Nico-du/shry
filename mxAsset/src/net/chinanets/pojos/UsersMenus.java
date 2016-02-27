@@ -1,7 +1,7 @@
 package net.chinanets.pojos;
 
 /**
- * UsersMenus entity. @author MyEclipse Persistence Tools
+ * UsersMenus entity. @author dzj
  */
 
 public class UsersMenus implements java.io.Serializable {

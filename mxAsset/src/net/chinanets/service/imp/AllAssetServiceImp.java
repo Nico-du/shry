@@ -1,5 +1,6 @@
 package net.chinanets.service.imp;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
@@ -94,7 +95,7 @@ public class AllAssetServiceImp extends CommonServiceImp implements AllAssetServ
 	//保存或更改Object
 	public String SaveOrUpdateObject(String ObjectJson,String classPath,String idColumn,String objName){
 		DoResult doResult=new DoResult();
-		doResult.setRetCode(Errors.OK);
+		doResult.setRetCode(Errors.INTERNALERROR);
 		try {
 			Class clazz = Class.forName(classPath);
 			if(clazz == null){return "";}
@@ -114,13 +115,13 @@ public class AllAssetServiceImp extends CommonServiceImp implements AllAssetServ
 				String filedName = field.getName();
 				if(idColumn.toLowerCase().equals(filedName.toLowerCase())){
 					Object objValue = field.get(objData);
-					dataid = (objValue == null ? null : objValue.toString());
+					dataid = ( objValue == null  || ( objValue.getClass() ==  Long.class  && (Long)objValue == 0L )  ? null : objValue.toString());
 					idField = field;
 				}
-				if("ctime".equals(field.getName().toLowerCase())){
+				if("inputdate".equals(field.getName().toLowerCase())){
 					ctimeField = field;
 				}
-				if("utime".equals(field.getName().toLowerCase())){
+				if("updatedate".equals(field.getName().toLowerCase())){
 					utimeField = field;
 				}
 				
@@ -128,25 +129,29 @@ public class AllAssetServiceImp extends CommonServiceImp implements AllAssetServ
 			if(idField == null /*|| ctimeField==null || utimeField == null*/){return "";}
 			
 			if(StringHelper.IsNullOrEmpty(dataid)){
-				String strGUID=CommonHelper.GenGuidEx();
-				idField.set(objData,strGUID);
+				doResult.setErrorInfo("创建"+objName+"失败");
+				if(idField.getType() == String.class){
+					String strGUID=CommonHelper.GenGuidEx();
+					idField.set(objData,strGUID);
+				}
 				if(ctimeField != null){ctimeField.set(objData, DateHelper.GetCurrentUtilDateTimeClass());}
 				if(utimeField != null){utimeField.set(objData, DateHelper.GetCurrentUtilDateTimeClass());}
 				if(!this.allAssetDao.SavaOrUpdateData(objData, true)){
 					doResult.setRetCode(Errors.INTERNALERROR);
-					doResult.setErrorInfo("创建"+objName+"失败");
 					return doResult.GetJSONByDoResult();
 				}
+				doResult.setRetCode(Errors.OK);
 				doResult.setErrorInfo(idField.get(objData).toString());
 			}else{
-				Object tempObjData=this.allAssetDao.GetDataById(clazz, dataid);
+				doResult.setErrorInfo("更新"+objName+"失败");
+				Object tempObjData=this.allAssetDao.GetDataById(clazz, (Serializable)idField.get(objData) );
+				if(tempObjData == null){doResult.setErrorInfo("未找到主键相关数据"); return doResult.GetJSONByDoResult(); }
 				JsonHelper.GetBeanByJsonString(ObjectJson, tempObjData);
-				utimeField.set(tempObjData, DateHelper.GetCurrentUtilDateTimeClass());
+				if(utimeField != null){utimeField.set(tempObjData, DateHelper.GetCurrentUtilDateTimeClass());}
 				if(!this.allAssetDao.SavaOrUpdateData(tempObjData, false)){
-					doResult.setRetCode(Errors.INTERNALERROR);
-					doResult.setErrorInfo("更新"+objName+"失败");
 					return doResult.GetJSONByDoResult();
 				}
+				doResult.setRetCode(Errors.OK);
 				doResult.setErrorInfo(idField.get(tempObjData).toString());
 			}
 		} catch (Exception e) {
@@ -158,7 +163,7 @@ public class AllAssetServiceImp extends CommonServiceImp implements AllAssetServ
 	//删除Object
 	public String RemoveObject(String dataid,String tableName,String idColumn,String objName){
 		DoResult doResult=new DoResult();
-		doResult.setRetCode(Errors.OK);
+		doResult.setRetCode(Errors.INTERNALERROR);
 		if(StringHelper.IsNullOrEmpty(dataid)){
 			doResult.setRetCode(Errors.INTERNALERROR);
 			doResult.setErrorInfo("无法删除空数据");
@@ -172,6 +177,7 @@ public class AllAssetServiceImp extends CommonServiceImp implements AllAssetServ
 			doResult.setErrorInfo("删除"+objName+"数据失败");
 			return doResult.GetJSONByDoResult();
 		}
+		doResult.setRetCode(Errors.OK);
 		return doResult.GetJSONByDoResult();
 	}
 	

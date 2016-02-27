@@ -1,5 +1,6 @@
 package net.chinanets.dao;
 
+import java.io.Serializable;
 import java.util.List;
 
 import net.chinanets.data.DataEntity;
@@ -14,7 +15,7 @@ public interface AllAssetDao extends CommonDao {
 	public String GetAllAssetListByPaging(String tableName,int tempPageSize,int tempPageCurrent,String strcondition);
 	
 	//根据ID得到对象
-	public Object GetDataById(Class<?> tempClass,String strId);
+	public Object GetDataById(Class<?> tempClass,Serializable strId);
 	
 	//根据SQL查询DataEntity
 	public List<DataEntity> GetDataEntityBySQL(String strSQL);

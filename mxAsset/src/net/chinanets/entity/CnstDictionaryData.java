@@ -1,7 +1,7 @@
 package net.chinanets.entity;
 
 /**
- * CnstDictionaryData entity. @author MyEclipse Persistence Tools
+ * CnstDictionaryData entity. @author dzj
  */
 
 public class CnstDictionaryData implements java.io.Serializable {

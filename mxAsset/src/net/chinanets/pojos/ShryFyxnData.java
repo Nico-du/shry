@@ -1,10 +1,10 @@
 package net.chinanets.pojos;
 
 import java.lang.Long;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /**
- * ShryFyxnData entity. @author MyEclipse Persistence Tools
+ * ShryFyxnData entity. @author dzj
  */
 
 public class ShryFyxnData implements java.io.Serializable {
@@ -25,9 +25,9 @@ public class ShryFyxnData implements java.io.Serializable {
 	private String zgl;
 	private String xl;
 	private String memo;
-	private Timestamp inputdate;
+	private Date inputdate;
 	private String inputuser;
-	private Timestamp updatedate;
+	private Date updatedate;
 	private String updateuser;
 
 	// Constructors
@@ -40,7 +40,7 @@ public class ShryFyxnData implements java.io.Serializable {
 	public ShryFyxnData(Long fyid, Long sydid, String zzs,
 			String fzs, String zy, String ll, String jyl, String fszs,
 			String nj, String yxgl, String zgl, String xl, String memo,
-			Timestamp inputdate, String inputuser, Timestamp updatedate,
+			Date inputdate, String inputuser, Date updatedate,
 			String updateuser) {
 		this.fyid = fyid;
 		this.sydid = sydid;
@@ -175,11 +175,11 @@ public class ShryFyxnData implements java.io.Serializable {
 		this.memo = memo;
 	}
 
-	public Timestamp getInputdate() {
+	public Date getInputdate() {
 		return this.inputdate;
 	}
 
-	public void setInputdate(Timestamp inputdate) {
+	public void setInputdate(Date inputdate) {
 		this.inputdate = inputdate;
 	}
 
@@ -191,11 +191,11 @@ public class ShryFyxnData implements java.io.Serializable {
 		this.inputuser = inputuser;
 	}
 
-	public Timestamp getUpdatedate() {
+	public Date getUpdatedate() {
 		return this.updatedate;
 	}
 
-	public void setUpdatedate(Timestamp updatedate) {
+	public void setUpdatedate(Date updatedate) {
 		this.updatedate = updatedate;
 	}
 

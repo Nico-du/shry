@@ -34,7 +34,7 @@
 			protected var pagetitleIcon:String="";
 			//页面默认标题名称
 			[Bindable]
-			protected var pagetitle:String="风叶数据";
+			protected var pagetitle:String="总成数据";
 			//分页中备注信息
 			[Bindable]
 			protected var dg_pg_othermsg:String="";
@@ -54,16 +54,16 @@
 			//指定linkbutton选中后的颜色,仅供选择
 			public var tempPublicDefaultColor:uint=0xCCFFFF;
 			//默认操作实体名称
-			public var tempObjBeanName:String="SHRY_FY_DATA";
+			public var tempObjBeanName:String="SHRY_ZC_DATA";
 			//默认操作视图名称
-			public var tempObjViewName:String="SHRY_FY_VIEW";
+			public var tempObjViewName:String="SHRY_ZC_VIEW";
 			//页面初始化是否加载权限
 			public var pageIsLoadPoer:Boolean=true;
 			//页面初始化是否加载数据
 			public var pageIsLoadData:Boolean=true;
 			//搜索表单初始化是否展开
 			public var searchFormIsOpen:Boolean=false;
-			//风叶ID
+			//总成ID
 			public var bfdid:String="";
 			//父窗口
 			public var parentPage:Object = null;
@@ -190,12 +190,12 @@
 			
 			//删除事件
 			protected function removeActionClick():void{
-				Alert.show("您确认要删除风叶数据吗？","系统提示",Alert.OK|Alert.CANCEL,Application.application.mainPage,removeDataAction);
+				Alert.show("您确认要删除总成数据吗？","系统提示",Alert.OK|Alert.CANCEL,Application.application.mainPage,removeDataAction);
 			}
 			
 			//导出数据
 			protected function exportActionClick():void{
-				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"FYID",tempObjViewName,"风叶数据信息","风叶数据信息");
+				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"ZCID",tempObjViewName,"总成数据信息","总成数据信息");
 			}
 			
 			//下载模板事件
@@ -210,10 +210,10 @@
 			
 			//查看详细数据
 			protected function lookDataAction(tempSelctedItem:Object=null):void{
-				var tempWindow:FYFormMoudel=new FYFormMoudel();
+				var tempWindow:ZCFormMoudel=new ZCFormMoudel();
 				var tempid:String="";
 				if(tempSelctedItem!=null){
-					tempid=tempSelctedItem.fyid;
+					tempid=tempSelctedItem.zcid;
 				}
 				tempWindow.dataId=tempid;
 				tempWindow.parentPage=this;
@@ -239,7 +239,6 @@
 			//加载相关信息回调方法
 			protected function dataSearchActionBack(rmtResult:ResultEvent):void{
 				this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
-				if(this.isDeleteDateComplete){this.removeAssetLSJL(); this.isDeleteDateComplete = false;}
 				var objResult:Object=rmtResult.result;
 				var strresult:String=objResult.toString();
 				var jsonObj:Object=JSON.decode(strresult,true);
@@ -309,9 +308,8 @@
 				if(ASStringHelper.isNullOrEmpty(dataids)){
 					return;
 				}
-				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_FY_DATA","FYID","风叶"); 
+				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_ZC_DATA","ZCID","总成"); 
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
-				this.deleteDataIds = dataids;
 			}
 			//删除数据回调方法
 			protected function removeDataActionBack(rmtResult:ResultEvent):void{
@@ -322,16 +320,7 @@
 					return;
 				}else{
 					//	Alert.show("数据删除成功");
-					this.isDeleteDateComplete = true;
 					this.loadData();
-				}
-			}
-			private var isDeleteDateComplete:Boolean = false;
-			private var deleteDataIds:String = "";
-			public function removeAssetLSJL():void{
-				if(!CommonMethod.isNullOrWhitespace(deleteDataIds)){
-					AllAssetServiceRmt.RemoveObject(deleteDataIds,"CNST_ASSETBGJL_DATA","SQDID","报废登记");
-					this.deleteDataIds = "";
 				}
 			}
 			//得到要删除的数据
@@ -339,7 +328,7 @@
 				var dataids:String="";
 				for each(var dataobj:Object in this.dataArray){
 					if(dataobj.selected){
-						dataids+=dataobj.fyid+",";
+						dataids+=dataobj.zcid+",";
 					}
 				}
 				if(ASStringHelper.isNullOrEmpty(dataids)){
@@ -520,14 +509,11 @@
 							</mx:itemRenderer> 
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="型号" width="120" dataField="xh" sortable="true"/>
-						<mx:DataGridColumn headerText="叶片数目" width="80" dataField="ypsm" sortable="true"/>
-						<mx:DataGridColumn headerText="直径(毫米)" width="80" dataField="zj" sortable="true"/>
-						<mx:DataGridColumn headerText="翻边直径(毫米)" width="110" dataField="fbzj" sortable="true"/>
-						<mx:DataGridColumn headerText="导流环直径(毫米)" width="110" dataField="dlhzj" sortable="true"/>
-						<mx:DataGridColumn headerText="轮毂直径(毫米)" width="110" dataField="lgzj" sortable="true"/>
-						<mx:DataGridColumn headerText="重量(克)" width="80" dataField="zl" sortable="true"/>
-						<mx:DataGridColumn headerText="叶片分布" width="80" dataField="ypfb" sortable="true"/>				
-						<mx:DataGridColumn headerText="状态" width="80" dataField="syzt" sortable="true"/>				
+						<mx:DataGridColumn headerText="风叶型号" width="120" dataField="ypsm" sortable="true"/>
+						<mx:DataGridColumn headerText="电机型号" width="120" dataField="zj" sortable="true"/>
+						<mx:DataGridColumn headerText="外形尺寸(毫米)" width="150" dataField="fbzj" sortable="true"/>
+						<mx:DataGridColumn headerText="重量(克)" width="110" dataField="dlhzj" sortable="true"/>
+						<mx:DataGridColumn headerText="适用车型" width="110" dataField="lgzj" sortable="true"/>
 						<mx:DataGridColumn headerText="更新人" width="100" dataField="updateusername" sortable="true"/>
 						<mx:DataGridColumn headerText="更新时间" width="155" dataField="updatedate" sortable="true"/>
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>

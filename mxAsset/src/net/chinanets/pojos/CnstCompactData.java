@@ -3,7 +3,7 @@ package net.chinanets.pojos;
 import java.util.Date;
 
 /**
- * CnstCompactData entity. @author MyEclipse Persistence Tools
+ * CnstCompactData entity. @author dzj
  */
 
 public class CnstCompactData implements java.io.Serializable {

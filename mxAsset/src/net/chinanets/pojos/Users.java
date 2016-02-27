@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Users entity. @author MyEclipse Persistence Tools
+ * Users entity. @author dzj
  */
 
 public class Users implements java.io.Serializable {

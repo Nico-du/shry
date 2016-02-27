@@ -3,7 +3,7 @@ package net.chinanets.pojos;
 import java.util.Date;
 
 /**
- * CnstLydmxLyslData entity. @author MyEclipse Persistence Tools
+ * CnstLydmxLyslData entity. @author dzj
  */
 
 public class CnstLydmxLyslData implements java.io.Serializable {

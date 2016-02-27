@@ -1,10 +1,10 @@
 package net.chinanets.pojos;
 
 import java.lang.Long;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /**
- * ShryZcData entity. @author MyEclipse Persistence Tools
+ * ShryZcData entity. @author dzj
  */
 
 public class ShryZcData implements java.io.Serializable {
@@ -21,10 +21,11 @@ public class ShryZcData implements java.io.Serializable {
 	private String zl;
 	private String fslx;
 	private String sycx;
+	private String syzt;
 	private String memo;
-	private Timestamp inputedate;
+	private Date inputdate;
 	private String inputuser;
-	private Timestamp updatedate;
+	private Date updatedate;
 	private String updateuser;
 
 	// Constructors
@@ -36,8 +37,8 @@ public class ShryZcData implements java.io.Serializable {
 	/** full constructor */
 	public ShryZcData(Long fyid, Long djid, String xh, String pp,
 			String jqfs, String wxcc, String zl, String fslx, String sycx,
-			String memo, Timestamp inputedate, String inputuser,
-			Timestamp updatedate, String updateuser) {
+			String memo, Date inputdate, String inputuser,
+			Date updatedate, String updateuser) {
 		this.fyid = fyid;
 		this.djid = djid;
 		this.xh = xh;
@@ -48,7 +49,7 @@ public class ShryZcData implements java.io.Serializable {
 		this.fslx = fslx;
 		this.sycx = sycx;
 		this.memo = memo;
-		this.inputedate = inputedate;
+		this.inputdate = inputdate;
 		this.inputuser = inputuser;
 		this.updatedate = updatedate;
 		this.updateuser = updateuser;
@@ -144,12 +145,20 @@ public class ShryZcData implements java.io.Serializable {
 		this.memo = memo;
 	}
 
-	public Timestamp getInputedate() {
-		return this.inputedate;
+	public String getSyzt() {
+		return syzt;
 	}
 
-	public void setInputedate(Timestamp inputedate) {
-		this.inputedate = inputedate;
+	public void setSyzt(String syzt) {
+		this.syzt = syzt;
+	}
+
+	public Date getInputdate() {
+		return inputdate;
+	}
+
+	public void setInputdate(Date inputdate) {
+		this.inputdate = inputdate;
 	}
 
 	public String getInputuser() {
@@ -160,11 +169,11 @@ public class ShryZcData implements java.io.Serializable {
 		this.inputuser = inputuser;
 	}
 
-	public Timestamp getUpdatedate() {
+	public Date getUpdatedate() {
 		return this.updatedate;
 	}
 
-	public void setUpdatedate(Timestamp updatedate) {
+	public void setUpdatedate(Date updatedate) {
 		this.updatedate = updatedate;
 	}
 

@@ -1,10 +1,10 @@
 package net.chinanets.pojos;
 
 import java.lang.Long;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /**
- * ShrySydData entity. @author MyEclipse Persistence Tools
+ * ShrySydData entity. @author dzj
  */
 
 public class ShrySydData implements java.io.Serializable {
@@ -13,7 +13,7 @@ public class ShrySydData implements java.io.Serializable {
 
 	private Long sydid;
 	private Long zcid;
-	private Timestamp syrq;
+	private Date syrq;
 	private String lxdh;
 	private String fjxs;
 	private String syfd;
@@ -32,9 +32,9 @@ public class ShrySydData implements java.io.Serializable {
 	private String skqbz;
 	private String bz;
 	private String zt;
-	private Timestamp inputdate;
+	private Date inputdate;
 	private String inputuser;
-	private Timestamp updatedate;
+	private Date updatedate;
 	private String updateuser;
 
 	// Constructors
@@ -44,12 +44,12 @@ public class ShrySydData implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public ShrySydData(Long zcid, Timestamp syrq, String lxdh,
+	public ShrySydData(Long zcid, Date syrq, String lxdh,
 			String fjxs, String syfd, String ckmj, String syfs, String fyzj,
 			String fjxh, String yps, String ypbh, String dqy, String syxz,
 			String kqwd, String sply, String xdsd, String syry, String skqbz,
-			String bz, String zt, Timestamp inputdate, String inputuser,
-			Timestamp updatedate, String updateuser) {
+			String bz, String zt, Date inputdate, String inputuser,
+			Date updatedate, String updateuser) {
 		this.zcid = zcid;
 		this.syrq = syrq;
 		this.lxdh = lxdh;
@@ -94,11 +94,11 @@ public class ShrySydData implements java.io.Serializable {
 		this.zcid = zcid;
 	}
 
-	public Timestamp getSyrq() {
+	public Date getSyrq() {
 		return this.syrq;
 	}
 
-	public void setSyrq(Timestamp syrq) {
+	public void setSyrq(Date syrq) {
 		this.syrq = syrq;
 	}
 
@@ -246,11 +246,11 @@ public class ShrySydData implements java.io.Serializable {
 		this.zt = zt;
 	}
 
-	public Timestamp getInputdate() {
+	public Date getInputdate() {
 		return this.inputdate;
 	}
 
-	public void setInputdate(Timestamp inputdate) {
+	public void setInputdate(Date inputdate) {
 		this.inputdate = inputdate;
 	}
 
@@ -262,11 +262,11 @@ public class ShrySydData implements java.io.Serializable {
 		this.inputuser = inputuser;
 	}
 
-	public Timestamp getUpdatedate() {
+	public Date getUpdatedate() {
 		return this.updatedate;
 	}
 
-	public void setUpdatedate(Timestamp updatedate) {
+	public void setUpdatedate(Date updatedate) {
 		this.updatedate = updatedate;
 	}
 

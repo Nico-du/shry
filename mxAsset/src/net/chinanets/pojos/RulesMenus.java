@@ -1,7 +1,7 @@
 package net.chinanets.pojos;
 
 /**
- * RulesMenus entity. @author MyEclipse Persistence Tools
+ * RulesMenus entity. @author dzj
  */
 
 public class RulesMenus implements java.io.Serializable {

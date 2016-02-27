@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Rules entity. @author MyEclipse Persistence Tools
+ * Rules entity. @author dzj
  */
 
 public class Rules implements java.io.Serializable {
