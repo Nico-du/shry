@@ -255,7 +255,7 @@
 				ypsm.data=tempObj["assetidcolumn"];
 				ypfb.data=tempObj["assetid"]; */
 				
-				if(!CommonMethod.isNullOrWhitespace(this.memo.text)){	setMemoVisable();}
+				if(!CommonMethod.isNullOrWhitespace(this.memo.text) && memolkb.visible){	setMemoVisable();}
 				this.UPDATEDATE.text=tempObj[this.UPDATEDATE.id.toLowerCase()];
 				this.UPDATEUSER.text=tempObj[this.UPDATEUSER.id.toLowerCase()+"name"];
 				this.INPUTDATE.text=tempObj[this.INPUTDATE.id.toLowerCase()];

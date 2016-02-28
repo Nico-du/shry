@@ -20,18 +20,18 @@ public class ShrySydData implements java.io.Serializable {
 	private String ckmj;
 	private String syfs;
 	private String fyzj;
-	private String fjxh;
+	private String zcxh;
 	private String yps;
-	private String ypbh;
+	private String fyxh;
 	private String dqy;
-	private String syxz;
+	private String symd;
 	private String kqwd;
 	private String sply;
 	private String xdsd;
 	private String syry;
 	private String skqbz;
-	private String bz;
-	private String zt;
+	private String memo;
+	private String syzt;
 	private Date inputdate;
 	private String inputuser;
 	private Date updatedate;
@@ -46,9 +46,9 @@ public class ShrySydData implements java.io.Serializable {
 	/** full constructor */
 	public ShrySydData(Long zcid, Date syrq, String lxdh,
 			String fjxs, String syfd, String ckmj, String syfs, String fyzj,
-			String fjxh, String yps, String ypbh, String dqy, String syxz,
+			String zcxh, String yps, String fyxh, String dqy, String symd,
 			String kqwd, String sply, String xdsd, String syry, String skqbz,
-			String bz, String zt, Date inputdate, String inputuser,
+			String memo, String syzt, Date inputdate, String inputuser,
 			Date updatedate, String updateuser) {
 		this.zcid = zcid;
 		this.syrq = syrq;
@@ -58,18 +58,18 @@ public class ShrySydData implements java.io.Serializable {
 		this.ckmj = ckmj;
 		this.syfs = syfs;
 		this.fyzj = fyzj;
-		this.fjxh = fjxh;
+		this.zcxh = zcxh;
 		this.yps = yps;
-		this.ypbh = ypbh;
+		this.fyxh = fyxh;
 		this.dqy = dqy;
-		this.syxz = syxz;
+		this.symd = symd;
 		this.kqwd = kqwd;
 		this.sply = sply;
 		this.xdsd = xdsd;
 		this.syry = syry;
 		this.skqbz = skqbz;
-		this.bz = bz;
-		this.zt = zt;
+		this.memo = memo;
+		this.syzt = syzt;
 		this.inputdate = inputdate;
 		this.inputuser = inputuser;
 		this.updatedate = updatedate;
@@ -149,15 +149,6 @@ public class ShrySydData implements java.io.Serializable {
 	public void setFyzj(String fyzj) {
 		this.fyzj = fyzj;
 	}
-
-	public String getFjxh() {
-		return this.fjxh;
-	}
-
-	public void setFjxh(String fjxh) {
-		this.fjxh = fjxh;
-	}
-
 	public String getYps() {
 		return this.yps;
 	}
@@ -166,12 +157,20 @@ public class ShrySydData implements java.io.Serializable {
 		this.yps = yps;
 	}
 
-	public String getYpbh() {
-		return this.ypbh;
+	public String getZcxh() {
+		return zcxh;
 	}
 
-	public void setYpbh(String ypbh) {
-		this.ypbh = ypbh;
+	public void setZcxh(String zcxh) {
+		this.zcxh = zcxh;
+	}
+
+	public String getFyxh() {
+		return fyxh;
+	}
+
+	public void setFyxh(String fyxh) {
+		this.fyxh = fyxh;
 	}
 
 	public String getDqy() {
@@ -182,12 +181,12 @@ public class ShrySydData implements java.io.Serializable {
 		this.dqy = dqy;
 	}
 
-	public String getSyxz() {
-		return this.syxz;
+	public String getSymd() {
+		return this.symd;
 	}
 
-	public void setSyxz(String syxz) {
-		this.syxz = syxz;
+	public void setSymd(String symd) {
+		this.symd = symd;
 	}
 
 	public String getKqwd() {
@@ -230,20 +229,21 @@ public class ShrySydData implements java.io.Serializable {
 		this.skqbz = skqbz;
 	}
 
-	public String getBz() {
-		return this.bz;
+
+	public String getMemo() {
+		return memo;
 	}
 
-	public void setBz(String bz) {
-		this.bz = bz;
+	public void setMemo(String memo) {
+		this.memo = memo;
 	}
 
-	public String getZt() {
-		return this.zt;
+	public String getSyzt() {
+		return syzt;
 	}
 
-	public void setZt(String zt) {
-		this.zt = zt;
+	public void setSyzt(String syzt) {
+		this.syzt = syzt;
 	}
 
 	public Date getInputdate() {

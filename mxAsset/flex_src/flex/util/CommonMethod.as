@@ -55,11 +55,44 @@ package flex.util
 		/**
 		 *选择 一个 风叶/电机/总成数据 
 		 **/
-		//public static function getCommonData(String chooseType,fileColumns){
+		/**
+		 *选择耗材的公共页面
+		 * currentWd 当前页面 (传 this);
+		 * mcInput 物品名称TextInput;
+		 * lxCbx 物品类型Combobox;
+		 * dwCbx 物品单位Combobox;
+		 * 部门Vo会存储在TextInput.data中和deptIDInput.text中;
+		 **/
+		public static function getAssetBH(currentWd:Object,chooseType:String,mcInput:TextInput):void{
+			//var ast:SelectAssetBH= pageCacheObj.getAssetBHPage;
+			//if(ast == null){ 
+			var ast:SelectAssetBH = new SelectAssetBH(); 
+			pageCacheObj.getAssetBHPage = ast;
+			//	ast.labelName = "mc";
+			//	ast.isIdOrVo = isSetVo;
+			ast.mcInput = mcInput;
+			ast.chooseType = chooseType;
+			ast.changeWdVsb();
+			PopUpManager.addPopUp(ast,currentWd.parentApplication as DisplayObject,true);
+			PopUpManager.centerPopUp(ast);
+		}
+		
+		/**
+		 * 处理基础数据的Grid的双击事件
+		 *判断是否 选择基础数据页面 如果是：双击事件就调用选中赋值 不是：执行查看详情事件 
+		 **/
+		public static function switchGridDoubleClickHandle(tempWindow,event:Event):void{
+			if(tempWindow.pagePanel.getStyle('headerHeight') >0){
+				tempWindow.gridItemDataDoubleClick(event);
+			}else{
+				var ast:SelectAssetBH= pageCacheObj.getAssetBHPage;
+				if(ast != null){
+					ast.setInputValue(event.currentTarget.selectedItem);
+					ast.closeHandler();
+				}
+			}
 			
-		//}
-		
-		
+		}
 		
 		//读取XML文件
 		private static var ipCfgXml:XML;

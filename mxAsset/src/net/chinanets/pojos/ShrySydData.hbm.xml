@@ -50,9 +50,9 @@
                 <comment>风叶直径</comment>
             </column>
         </property>
-        <property name="fjxh" type="java.lang.String">
-            <column name="fjxh" length="20">
-                <comment>风机型号</comment>
+        <property name="zcxh" type="java.lang.String">
+            <column name="zcxh" length="20">
+                <comment>总成型号</comment>
             </column>
         </property>
         <property name="yps" type="java.lang.String">
@@ -60,9 +60,9 @@
                 <comment>叶片数</comment>
             </column>
         </property>
-        <property name="ypbh" type="java.lang.String">
-            <column name="ypbh" length="20">
-                <comment>样品编号</comment>
+        <property name="fyxh" type="java.lang.String">
+            <column name="fyxh" length="20">
+                <comment>风叶型号</comment>
             </column>
         </property>
         <property name="dqy" type="java.lang.String">
@@ -70,8 +70,8 @@
                 <comment>大气压</comment>
             </column>
         </property>
-        <property name="syxz" type="java.lang.String">
-            <column name="syxz" length="20">
+        <property name="symd" type="java.lang.String">
+            <column name="symd" length="20">
                 <comment>试验性质</comment>
             </column>
         </property>
@@ -100,14 +100,14 @@
                 <comment>湿空气比重</comment>
             </column>
         </property>
-        <property name="bz" type="java.lang.String">
-            <column name="bz" length="2000">
+        <property name="memo" type="java.lang.String">
+            <column name="memo" length="2000">
                 <comment>备注</comment>
             </column>
         </property>
-        <property name="zt" type="java.lang.String">
-            <column name="zt" length="200">
-                <comment>状态</comment>
+        <property name="syzt" type="java.lang.String">
+            <column name="syzt" length="200">
+                <comment>试验状态</comment>
             </column>
         </property>
         <property name="inputdate" type="java.util.Date">

@@ -20,6 +20,7 @@
 			import mx.managers.PopUpManager;
 			
 			import shry_zlgl.FYGridMoudel;
+			import shry_zlgl.SYDGridMoudel;
 			import shry_zlgl.ZCGridMoudel;
 			
 			
@@ -134,13 +135,11 @@
 				var tempMoudel:*=null;
 				if(ASStringHelper.stringCompare(this.FY,strpageurl,true)==0){
 					tempMoudel=new FYGridMoudel();
-				}/* else if(ASStringHelper.stringCompare(this.ZC,strpageurl,true)==0){
+				} else if(ASStringHelper.stringCompare(this.ZC,strpageurl,true)==0){
 					tempMoudel=new ZCGridMoudel();
-				} */
-				/*ielse if(ASStringHelper.stringCompare(this.SUPPLIER,strpageurl,true)==0){
-					tempMoudel=new ServiceList();
-					tempMoudel.pageType="供应商";
-				}else if(ASStringHelper.stringCompare(this.PEOPLE,strpageurl,true)==0){
+				} else if(ASStringHelper.stringCompare(this.SYD,strpageurl,true)==0){
+					tempMoudel=new SYDGridMoudel();
+				}/*else if(ASStringHelper.stringCompare(this.PEOPLE,strpageurl,true)==0){
 					tempMoudel=new ServiceList();
 					tempMoudel.pageType="运维人员";
 				}else if(ASStringHelper.stringCompare(this.COMPACT,strpageurl,true)==0){
@@ -284,9 +283,9 @@
 				<node id="FYPage" label="电机数据" pageUrl="DJPage"/>
 			</item>
 			<item id="bmfw" label="性能数据">
-				<node id="FYPage" label="试验单数据" pageUrl="SYDPage"/>
-				<node id="dtcy" label="总成性能" pageUrl="ZCXNPage"/>
-				<node id="dtcy" label="风叶性能" pageUrl="FYXNPage"/>
+				<node id="SYDPage" label="试验单数据" pageUrl="SYDPage"/>
+				<node id="ZCXNPage" label="总成性能" pageUrl="ZCXNPage"/>
+				<node id="FYXNPage" label="风叶性能" pageUrl="FYXNPage"/>
 			</item>
 		</root>
 	</mx:XML>

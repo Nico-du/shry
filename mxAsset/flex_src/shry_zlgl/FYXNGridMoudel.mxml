@@ -54,9 +54,9 @@
 			//指定linkbutton选中后的颜色,仅供选择
 			public var tempPublicDefaultColor:uint=0xCCFFFF;
 			//默认操作实体名称
-			public var tempObjBeanName:String="SHRY_FY_DATA";
+			public var tempObjBeanName:String="SHRY_FYXN_DATA";
 			//默认操作视图名称
-			public var tempObjViewName:String="SHRY_FY_VIEW";
+			public var tempObjViewName:String="SHRY_FYXN_VIEW";
 			//页面初始化是否加载权限
 			public var pageIsLoadPoer:Boolean=true;
 			//页面初始化是否加载数据
@@ -195,7 +195,7 @@
 			
 			//导出数据
 			protected function exportActionClick():void{
-				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"FYID",tempObjViewName,"风叶数据信息","风叶数据信息");
+				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"FYXNID",tempObjViewName,"风叶数据信息","风叶数据信息");
 			}
 			
 			//下载模板事件
@@ -213,7 +213,7 @@
 				var tempWindow:FYFormMoudel=new FYFormMoudel();
 				var tempid:String="";
 				if(tempSelctedItem!=null){
-					tempid=tempSelctedItem.fyid;
+					tempid=tempSelctedItem.fyxnid;
 				}
 				tempWindow.dataId=tempid;
 				tempWindow.parentPage=this;
@@ -309,7 +309,7 @@
 				if(ASStringHelper.isNullOrEmpty(dataids)){
 					return;
 				}
-				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_FY_DATA","FYID","风叶"); 
+				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_FYXN_DATA","FYXNID","风叶"); 
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
 				this.deleteDataIds = dataids;
 			}
@@ -339,7 +339,7 @@
 				var dataids:String="";
 				for each(var dataobj:Object in this.dataArray){
 					if(dataobj.selected){
-						dataids+=dataobj.fyid+",";
+						dataids+=dataobj.fyxnid+",";
 					}
 				}
 				if(ASStringHelper.isNullOrEmpty(dataids)){
