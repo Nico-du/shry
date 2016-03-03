@@ -52,7 +52,7 @@
             height="100%">
 
         <mx:backgroundElements>
-            <mx:GridLines gridDirection="horizontal"
+            <mx:GridLines direction="horizontal"
                     horizontalChangeCount="{slider.value}">
                 <mx:horizontalStroke>
                     <mx:Stroke color="black" weight="0" alpha="0.2" />

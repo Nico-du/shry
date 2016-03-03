@@ -13,7 +13,7 @@ public class ShryFyxnData implements java.io.Serializable {
 
 	private Long fyxnid;
 	private Long fyid;
-	private Long sydid;
+	private Long lxdid;
 	private String zzs;
 	private String fzs;
 	private String zy;
@@ -37,13 +37,13 @@ public class ShryFyxnData implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public ShryFyxnData(Long fyid, Long sydid, String zzs,
+	public ShryFyxnData(Long fyid, Long lxdid, String zzs,
 			String fzs, String zy, String ll, String jyl, String fszs,
 			String nj, String yxgl, String zgl, String xl, String memo,
 			Date inputdate, String inputuser, Date updatedate,
 			String updateuser) {
 		this.fyid = fyid;
-		this.sydid = sydid;
+		this.lxdid = lxdid;
 		this.zzs = zzs;
 		this.fzs = fzs;
 		this.zy = zy;
@@ -79,12 +79,12 @@ public class ShryFyxnData implements java.io.Serializable {
 		this.fyid = fyid;
 	}
 
-	public Long getSydid() {
-		return this.sydid;
+	public Long getLxdid() {
+		return this.lxdid;
 	}
 
-	public void setSydid(Long sydid) {
-		this.sydid = sydid;
+	public void setLxdid(Long lxdid) {
+		this.lxdid = lxdid;
 	}
 
 	public String getZzs() {

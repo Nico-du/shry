@@ -63,7 +63,7 @@ package flex.util
 		 * dwCbx 物品单位Combobox;
 		 * 部门Vo会存储在TextInput.data中和deptIDInput.text中;
 		 **/
-		public static function getAssetBH(currentWd:Object,chooseType:String,mcInput:TextInput):void{
+		public static function getAssetBH(currentWd:Object,chooseType:String,mcInput:TextInput,xhInput:TextInput=null,fyInput:TextInput=null):void{
 			//var ast:SelectAssetBH= pageCacheObj.getAssetBHPage;
 			//if(ast == null){ 
 			var ast:SelectAssetBH = new SelectAssetBH(); 
@@ -71,6 +71,8 @@ package flex.util
 			//	ast.labelName = "mc";
 			//	ast.isIdOrVo = isSetVo;
 			ast.mcInput = mcInput;
+			ast.xhInput = xhInput;
+			ast.fyInput = fyInput;
 			ast.chooseType = chooseType;
 			ast.changeWdVsb();
 			PopUpManager.addPopUp(ast,currentWd.parentApplication as DisplayObject,true);

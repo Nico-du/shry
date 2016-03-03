@@ -1,0 +1,241 @@
+<?xml version="1.0"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   creationComplete="init(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.charts.chartClasses.Series;
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			//原始数据
+			private var _myData:ArrayCollection = new ArrayCollection( [
+				{time: "10:00", value1: 34, value2: 54},
+				{time: "10:05", value1: 35, value2: 65},
+				{time: "10:10", value1: 25, value2: 34},
+				{time: "10:15", value1: 36, value2: 56},
+				{time: "10:20", value1: 54, value2: 45},
+				{time: "10:25", value1: 63, value2: 66},
+				{time: "10:30", value1: 23, value2: 34},
+				{time: "10:35", value1: 55, value2: 73},
+				{time: "10:40", value1: 64, value2: 44},
+				{time: "10:45", value1: 75, value2: 23},
+				{time: "10:50", value1: 31, value2: 56},
+				{time: "10:55", value1: 33, value2: 43},
+				{time: "11:00", value1: 34, value2: 55},
+				{time: "11:05", value1: 23, value2: 23},
+				{time: "11:10", value1: 25, value2: 34},
+				{time: "11:15", value1: 23, value2: 56},
+				{time: "11:20", value1: 54, value2: 45},
+				{time: "11:25", value1: 63, value2: 43},
+				{time: "11:30", value1: 34, value2: 32},
+				{time: "11:35", value1: 33, value2: 43},
+				{time: "11:40", value1: 54, value2: 15},
+				{time: "11:45", value1: 75, value2: 23},
+				{time: "11:50", value1: 13, value2: 43},
+				{time: "11:55", value1: 33, value2: 32},
+				{time: "12:00", value1: 34, value2: 54},
+				{time: "12:05", value1: 35, value2: 65},
+				{time: "12:10", value1: 25, value2: 34},
+				{time: "12:15", value1: 32, value2: 56},
+				{time: "12:20", value1: 54, value2: 45},
+				{time: "12:25", value1: 63, value2: 66},
+				{time: "12:30", value1: 53, value2: 34},
+				{time: "12:35", value1: 55, value2: 43},
+				{time: "12:40", value1: 64, value2: 33},
+				{time: "12:45", value1: 75, value2: 23},
+				{time: "12:50", value1: 31, value2: 56},
+				{time: "12:55", value1: 23, value2: 43},
+				{time: "13:00", value1: 45, value2: 52},
+				{time: "13:05", value1: 34, value2: 34},
+				{time: "13:10", value1: 25, value2: 34},
+				{time: "13:15", value1: 23, value2: 56},
+				{time: "13:20", value1: 54, value2: 43},
+				{time: "13:25", value1: 63, value2: 43},
+				{time: "13:30", value1: 44, value2: 55},
+				{time: "13:35", value1: 33, value2: 43},
+				{time: "13:40", value1: 54, value2: 23},
+				{time: "13:45", value1: 75, value2: 23},
+				{time: "13:50", value1: 13, value2: 55},
+				{time: "13:55", value1: 33, value2: 32}
+			]);
+			
+			//放大区域的开始时间
+			private var _zoomStartTime:String="";
+			//放大区域的结束时间
+			private var _zoomEndTime:String="";
+			//放大区域的开始索引
+			private var _zoomStartIndex:int=-1;
+			//放大区域的结束索引
+			private var _zoomEndIndex:int=-1;
+			
+			//页面初始化
+			protected function init(event:FlexEvent):void
+			{
+				vAxis.maximum = 100;
+				loadData();
+			}
+			
+			//数据加载
+			private function loadData():void{
+				linechart.dataProvider = _myData;
+				zoomOutBtn.visible = false;
+			}
+			
+			//鼠标按下
+			protected function linechart_mouseDownHandler(event:MouseEvent):void
+			{
+				//记下鼠标按下时的时间和位置
+				_zoomStartTime = getTimeNearMouse();
+				for(var index:int = 0;index<linechart.dataProvider.length;index++){
+					if(linechart.dataProvider.getItemAt(index).time == _zoomStartTime){
+						_zoomStartIndex = index;
+						break;
+					}
+				}
+			}
+			
+			//鼠标移动
+			private function linechart_mouseMoveHandler(event:MouseEvent):void {
+				if(_zoomStartTime != ""){
+					//记下鼠标移动时的时间和位置
+					_zoomEndTime = getTimeNearMouse();
+					for(var index:int = 0;index<linechart.dataProvider.length;index++){
+						if(linechart.dataProvider.getItemAt(index).time == _zoomEndTime){
+							_zoomEndIndex = index;
+							break;
+						}
+					}
+					
+					//绘制 选中区域背景
+					var startX:Number = linechart.series[0].items[_zoomStartIndex]["x"];
+					var endX:Number = linechart.series[0].items[_zoomEndIndex]["x"];;
+					zoomArea.graphics.clear();
+					zoomArea.graphics.beginFill(0x65EEFC,0.4);
+					zoomArea.graphics.drawRect(startX,0,endX-startX,chartBg.height);
+					zoomArea.graphics.endFill();
+				}
+			}
+			
+			//鼠标弹起
+			protected function linechart_mouseUpHandler(event:MouseEvent):void
+			{
+				if(_zoomStartTime!=""){
+					zoomIn()
+				}
+				
+				_zoomStartTime = "";
+			}
+			
+			//开始缩放
+			private function zoomIn():void{
+				zoomArea.graphics.clear();
+				
+				//避免单击也放大
+				if(_zoomStartTime == _zoomEndTime){
+					return;
+				}
+				
+				zoomOutBtn.visible = true;
+				
+				//保证开始索引小于结束索引（不管鼠标从左向右拖 还是从右向左拖）
+				if(_zoomStartIndex>_zoomEndIndex){
+					var t:int = _zoomStartIndex;
+					_zoomStartIndex = _zoomEndIndex;
+					_zoomEndIndex = t;
+				}
+				
+				//只加载选中区域的数据
+				var zoomData:ArrayCollection = new ArrayCollection();
+				for(var index:int = 0;index<linechart.dataProvider.length;index++){
+					if(index<=_zoomEndIndex && index >=_zoomStartIndex){
+						zoomData.addItem(linechart.dataProvider.getItemAt(index));
+					}
+				}
+				linechart.dataProvider = zoomData;
+			}
+			
+			//获取最接近鼠标位置的时间
+			private function getTimeNearMouse():String{
+				if(linechart.series[0]!=null){
+					var series:Series = linechart.series[0];
+					var leftPoint:Point = new Point(series.mouseX,0);
+					var leftArr:Array = series.localToData(leftPoint); 
+					return leftArr[0];
+				}else{
+					return "";
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 轴线样式 (暂时不需要，改成背景上绘制)-->
+		<mx:SolidColorStroke id = "axisS1" color="0xE3E3E3" weight="1" alpha="0"/>
+	</fx:Declarations>
+	
+	<s:Group id="chartGroup" width="60%" height="60%" verticalCenter="0" horizontalCenter="0">   
+		<mx:LineChart id="linechart" top="10" bottom="0" width="100%" seriesFilters="[]"
+					  fontSize="12" color="0x707070" showDataTips="true"
+					  mouseMove="linechart_mouseMoveHandler(event)"
+					  mouseDown="linechart_mouseDownHandler(event)"
+					  mouseUp="linechart_mouseUpHandler(event)"
+					  rollOut="linechart_mouseUpHandler(event)">
+			<mx:backgroundElements>
+				<s:Group width="100%" height="100%" id="chartBg">
+					<s:Rect left="0" right="1" top="0" bottom="0">
+						<s:fill>
+							<s:SolidColor alpha="1" color="#F5F5F5"/>
+						</s:fill> 
+						<s:stroke>
+							<s:SolidColorStroke color="0xE3E3E3" weight="1"/>
+						</s:stroke>
+					</s:Rect>  
+					<s:Group  width="100%" height="100%" id="zoomArea">
+						<!-- 在此绘制选中区域 -->
+					</s:Group>   
+				</s:Group>
+				<mx:GridLines gridDirection="both" >
+					<mx:horizontalStroke>
+						<mx:SolidColorStroke  color="0xE3E3E3" weight="1"/>
+					</mx:horizontalStroke>
+					<mx:verticalStroke>
+						<mx:SolidColorStroke  color="0xEAEAEA" weight="1"/>
+					</mx:verticalStroke>
+				</mx:GridLines>   
+				<s:Group width="100%" height="100%">
+					<s:Button id="zoomOutBtn" label="还原" right="0" click="loadData()"
+							  visible="false"/>
+				</s:Group>
+			</mx:backgroundElements>
+			<mx:horizontalAxis>
+				<mx:CategoryAxis id="hAxis" categoryField="time"/>
+			</mx:horizontalAxis>
+			<mx:horizontalAxisRenderers>
+				<mx:AxisRenderer axis="{hAxis}" tickPlacement="none" minorTickPlacement="none"
+								 axisStroke="{axisS1}" canDropLabels="true"/>
+			</mx:horizontalAxisRenderers>
+			<mx:verticalAxis>
+				<mx:LinearAxis id="vAxis"/>
+			</mx:verticalAxis>
+			<mx:verticalAxisRenderers>
+				<mx:AxisRenderer axis="{vAxis}" tickPlacement="none" minorTickPlacement="none"
+								 axisStroke="{axisS1}"/>
+			</mx:verticalAxisRenderers>
+			<mx:series>
+				<mx:LineSeries  id="line1" yField="value1" form="segment" displayName="数量1">
+					<mx:lineStroke>
+						<mx:SolidColorStroke color="0x008EFF" weight="2"/>
+					</mx:lineStroke>
+				</mx:LineSeries>
+				<mx:LineSeries  id="line2" yField="value2" form="segment" displayName="数量2">
+					<mx:lineStroke>
+						<mx:SolidColorStroke color="0x1ACE4D" weight="2"/>
+					</mx:lineStroke>
+				</mx:LineSeries>
+			</mx:series>
+		</mx:LineChart>
+	</s:Group>
+</s:Application>

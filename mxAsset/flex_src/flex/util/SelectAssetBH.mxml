@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()" updateComplete="updateComplete()" showCloseButton="true" close="closeHandler()"
-	title="选择耗材"	 width="100%" height="100%"  fontSize="12" xmlns:ns="shry_zlgl.*" layout="vertical">
+	title="{pageTitle}"	 width="100%" height="100%"  fontSize="12" xmlns:ns="shry_zlgl.*" layout="vertical">
 	<mx:RemoteObject id="userSerice" destination="UserService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
@@ -26,6 +26,9 @@
 			import mx.rpc.http.HTTPService;
 			import mx.utils.StringUtil;
 			
+			[Bindable]
+			private var pageTitle:String = "选择数据";
+			
 			//初始化页面信息
 			public function initPage():void{
 				if(true){
@@ -48,13 +51,24 @@
 			public function changeWdVsb(){
 				switch(chooseType){
 					case "ZC":
-						vsb1 = true; vsb2 = false; vsb3 = false;
+						vsb1 = true; vsb2 = false; vsb3 = false;vsb4 = false;
+						pageTitle = "选择总成型号";
 						break;
 					case "FY": 
-						vsb1 = false; vsb2 = true; vsb3 = false;
+						vsb1 = false; vsb2 = true; vsb3 = false;vsb4 = false;
+						pageTitle = "选择总成型号";
 						break;
 					case "DJ": 
-						vsb1 = false; vsb2 = false; vsb3 = true;
+						vsb1 = false; vsb2 = false; vsb3 = true;vsb4 = false;
+						pageTitle = "选择总成型号";
+						break;
+					case "FYLXD": 
+						pageTitle = "选择风叶联系单号";
+						vsb1 = false; vsb2 = false; vsb3 = false;vsb4 = true;
+						break;
+					case "ZCLXD": 
+						pageTitle = "选择总成联系单号";
+						vsb1 = false; vsb2 = false; vsb3 = false;vsb4 = true;
 						break;
 				}
 			}
@@ -74,6 +88,20 @@
 					case "DJ": 
 						chooseTypeName="电机"; 
 						idColumnName = "djid";
+						break;
+					case "FYLXD": 
+						chooseTypeName="风叶联系单"; 
+						idColumnName = "lxdid";
+						xhColumnName = "fyxh";
+						xhidColumnName = "fyid";
+						curTypeMd = lxdWd;
+						break;
+					case "ZCLXD": 
+						chooseTypeName="总成联系单"; 
+						idColumnName = "lxdid";
+						xhColumnName = "zcxh";
+						xhidColumnName =  "zcid";
+						curTypeMd = lxdWd;
 						break;
 				}
 				
@@ -131,18 +159,36 @@
 			}
 			
 			public var mcInput:TextInput = null;
+			public var xhInput:TextInput = null;
+			public var fyInput:TextInput = null;
 			public var chooseType:String = null;
 			public var idColumnName:String = null;
+			public var xhColumnName:String = null;
+			public var xhidColumnName:String = null;
 			private var curTypeMd:Object;
 			[Bindable]
 			private var chooseTypeName:String = null;
 			private var vsb1:Boolean = false;
 			private var vsb2:Boolean = false;
 			private var vsb3:Boolean = false;
+			private var vsb4:Boolean = false;
 		//	public var dwCbx:ComboBox = null;
 			
 			public function setInputValue(selectData:Object):void{
-				if(mcInput != null){mcInput.text = selectData.xh;  mcInput.data = selectData[idColumnName];  }
+				if((chooseType == "ZCLXD" || chooseType=="FYLXD") && xhInput != null){
+					xhInput.text = selectData[xhColumnName];  xhInput.data = selectData[xhidColumnName];  
+					mcInput.text = selectData.lxdh;  mcInput.data = selectData[idColumnName];  
+					if(fyInput != null){
+						fyInput.text = selectData.fyxh;  fyInput.data = selectData.fyid;  
+					}
+				}else{
+	             if(mcInput != null){
+					if(chooseType == "ZC" && xhInput != null){
+						xhInput.text = selectData.fyxh; xhInput.data = selectData.fyid;
+					}
+						mcInput.text = selectData.xh;  mcInput.data = selectData[idColumnName];  
+					}
+				}
 		//		if(lxCbx != null){lxCbx.selectedIndex = CommonMethod.getCbxItemIndex(selectData.ryhcbh,lxCbx,null,"value");}
 		//		if(dwCbx != null){dwCbx.selectedIndex = CommonMethod.getCbxItemIndex(selectData.dw,dwCbx,"label");}
 			}
@@ -175,6 +221,8 @@
 		</mx:VBox>
 		<ns:ZCGridMoudel id="zcWd"  width="100%" height="100%"  visible="{vsb1}" includeInLayout="{vsb1}"/>
 		<ns:FYGridMoudel id="fyWd"  width="100%" height="100%"  visible="{vsb2}" includeInLayout="{vsb2}"/>
+		
+		<ns:SYDGridMoudel id="lxdWd"  width="100%" height="100%"  visible="{vsb4}" includeInLayout="{vsb4}"/>
 	</mx:VBox>
 	<mx:HBox horizontalGap="180" width="100%" horizontalAlign="center">
 		<mx:Button label="确认" click="selectHandler()" width="80" x="491"/>

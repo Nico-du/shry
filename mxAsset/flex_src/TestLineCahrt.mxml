@@ -39,7 +39,7 @@
             showDataTips="true" dataProvider="{expensesAC}">
                 
             <mx:horizontalAxis>
-                <mx:CategoryAxis categoryField="Month"/>
+                <mx:CategoryAxis padding="2" categoryField="Month"/>
             </mx:horizontalAxis>
 
             <mx:series>

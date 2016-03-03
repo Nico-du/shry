@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()"
 		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
-		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoudel.common.*">
+		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemodel.common.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
@@ -195,7 +195,7 @@
 			
 			//导出数据
 			protected function exportActionClick():void{
-				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"SYDID",tempObjViewName,"试验单数据信息","试验单数据信息");
+				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"LXDID",tempObjViewName,"试验单数据信息","试验单数据信息");
 			}
 			
 			//下载模板事件
@@ -213,7 +213,7 @@
 				var tempWindow:SYDFormMoudel=new SYDFormMoudel();
 				var tempid:String="";
 				if(tempSelctedItem!=null){
-					tempid=tempSelctedItem.sydid;
+					tempid=tempSelctedItem.lxdid;
 				}
 				tempWindow.dataId=tempid;
 				tempWindow.parentPage=this;
@@ -309,7 +309,7 @@
 				if(ASStringHelper.isNullOrEmpty(dataids)){
 					return;
 				}
-				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_FY_DATA","SYDID","试验单"); 
+				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_FY_DATA","LXDID","试验单"); 
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
 				this.deleteDataIds = dataids;
 			}
@@ -339,7 +339,7 @@
 				var dataids:String="";
 				for each(var dataobj:Object in this.dataArray){
 					if(dataobj.selected){
-						dataids+=dataobj.sydid+",";
+						dataids+=dataobj.lxdid+",";
 					}
 				}
 				if(ASStringHelper.isNullOrEmpty(dataids)){
@@ -520,10 +520,11 @@
 							</mx:itemRenderer> 
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="联系单号" width="120" dataField="lxdh" sortable="true"/>
-						<mx:DataGridColumn headerText="总成型号" width="110" dataField="zcxh" sortable="true"/>
-						<mx:DataGridColumn headerText="风叶型号" width="110" dataField="fyxh" sortable="true"/>
+						<mx:DataGridColumn headerText="试验对象" width="80" dataField="sydx" sortable="true"/>
+						<mx:DataGridColumn headerText="总成型号" width="110" dataField="szcxh" sortable="true"/>
+						<mx:DataGridColumn headerText="风叶型号" width="110" dataField="sfyxh" sortable="true"/>
 						<mx:DataGridColumn headerText="风叶直径(m)" width="110" dataField="fyzj" sortable="true"/>
-						<mx:DataGridColumn headerText="风叶数" width="110" dataField="fys" sortable="true"/>
+						<mx:DataGridColumn headerText="叶片数" width="110" dataField="yps" sortable="true"/>
 						<mx:DataGridColumn headerText="试品来源" width="110" dataField="sply" sortable="true"/>
 						<mx:DataGridColumn headerText="试验人员" width="110" dataField="syry" sortable="true"/>
 						<mx:DataGridColumn headerText="试验状态" width="110" dataField="syzt" sortable="true"/>

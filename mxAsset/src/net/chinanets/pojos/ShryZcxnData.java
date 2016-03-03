@@ -13,11 +13,12 @@ public class ShryZcxnData implements java.io.Serializable {
 
 	private Long zcxnid;
 	private Long zcid;
-	private Long sydid;
+	private Long fyid;
+	private Long lxdid;
 	private String ll;
 	private String jyl;
-	private String zfszs;
-	private String ffszs;
+	private String zzs;
+	private String fzs;
 	private String dy;
 	private String dl;
 	private String srgl;
@@ -35,16 +36,16 @@ public class ShryZcxnData implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public ShryZcxnData(Long zcid, Long sydid, String ll,
-			String jyl, String zfszs, String ffszs, String dy, String dl,
+	public ShryZcxnData(Long zcid, Long lxdid, String ll,
+			String jyl, String zzs, String fzs, String dy, String dl,
 			String srgl, String xl, String memo, Date inputdate,
 			String inputuser, Date updatedate, String updateuser) {
 		this.zcid = zcid;
-		this.sydid = sydid;
+		this.lxdid = lxdid;
 		this.ll = ll;
 		this.jyl = jyl;
-		this.zfszs = zfszs;
-		this.ffszs = ffszs;
+		this.zzs = zzs;
+		this.fzs = fzs;
 		this.dy = dy;
 		this.dl = dl;
 		this.srgl = srgl;
@@ -74,12 +75,20 @@ public class ShryZcxnData implements java.io.Serializable {
 		this.zcid = zcid;
 	}
 
-	public Long getSydid() {
-		return this.sydid;
+	public Long getFyid() {
+		return fyid;
 	}
 
-	public void setSydid(Long sydid) {
-		this.sydid = sydid;
+	public void setFyid(Long fyid) {
+		this.fyid = fyid;
+	}
+
+	public Long getLxdid() {
+		return this.lxdid;
+	}
+
+	public void setLxdid(Long lxdid) {
+		this.lxdid = lxdid;
 	}
 
 	public String getLl() {
@@ -96,22 +105,22 @@ public class ShryZcxnData implements java.io.Serializable {
 
 	public void setJyl(String jyl) {
 		this.jyl = jyl;
+	} 
+
+	public String getZzs() {
+		return this.zzs;
 	}
 
-	public String getZfszs() {
-		return this.zfszs;
+	public void setZzs(String zzs) {
+		this.zzs = zzs;
 	}
 
-	public void setZfszs(String zfszs) {
-		this.zfszs = zfszs;
+	public String getFzs() {
+		return this.fzs;
 	}
 
-	public String getFfszs() {
-		return this.ffszs;
-	}
-
-	public void setFfszs(String ffszs) {
-		this.ffszs = ffszs;
+	public void setFzs(String fzs) {
+		this.fzs = fzs;
 	}
 
 	public String getDy() {

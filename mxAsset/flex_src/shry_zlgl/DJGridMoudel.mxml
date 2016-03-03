@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()"
 		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
-		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoudel.common.*">
+		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemodel.common.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
@@ -239,7 +239,6 @@
 			//加载相关信息回调方法
 			protected function dataSearchActionBack(rmtResult:ResultEvent):void{
 				this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
-				if(this.isDeleteDateComplete){this.removeAssetLSJL(); this.isDeleteDateComplete = false;}
 				var objResult:Object=rmtResult.result;
 				var strresult:String=objResult.toString();
 				var jsonObj:Object=JSON.decode(strresult,true);
@@ -322,16 +321,7 @@
 					return;
 				}else{
 					//	Alert.show("数据删除成功");
-					this.isDeleteDateComplete = true;
 					this.loadData();
-				}
-			}
-			private var isDeleteDateComplete:Boolean = false;
-			private var deleteDataIds:String = "";
-			public function removeAssetLSJL():void{
-				if(!CommonMethod.isNullOrWhitespace(deleteDataIds)){
-					AllAssetServiceRmt.RemoveObject(deleteDataIds,"CNST_ASSETBGJL_DATA","SQDID","报废登记");
-					this.deleteDataIds = "";
 				}
 			}
 			//得到要删除的数据
@@ -399,7 +389,7 @@
 			<!--快捷搜索-->
 			<mx:HBox id="qukilySearchBox" width="100%" height="{aboutheight}" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
 				<mx:HBox id="qukilySearchBar" width="80%" height="{aboutheight}" horizontalGap="1" horizontalAlign="left" borderStyle="none">
-					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="型号" textAlign="right"/>
+					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="联系单号" textAlign="right"/>
 					<mx:TextInput id="qukilySearchTxt" enter="searchClickAction()" width="150" height="{aboutheight}"/>
 					<mx:Button id="qukilySearchBtn" click="searchClickAction()" height="{aboutheight}" label="搜索" icon="@Embed(source='images/find.gif')"/>
 				</mx:HBox>

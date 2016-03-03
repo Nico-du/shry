@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:dataPick="cn.cnspagemodel.date.*"
+				title="编辑信息" layout="absolute" width="100%" height="600" showCloseButton="true" fontSize="12" 
+				creationComplete="initPage()" close="closePage()">
+	<mx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			import mx.managers.PopUpManager;
+			//所有按钮高度，工具栏
+			[Bindable]
+			protected var aboutheight:Number=20;
+			
+			//页面标题
+			[Bindable]
+			public var pageTitle:String="采购单";
+			
+			//数据标题
+			[Bindable]
+			public var dataTitle:String="";
+			
+			//数据ID
+			[Bindable]
+			public var dataId:String="";
+			
+			//数据表名称
+			[Bindable]
+			public var dataTable:String="";
+			
+			public var parentPage:UIComponent=null;
+			
+			//页面初始化调用
+			public function initPage():void{
+				if(true){
+					beforeInitPage();
+				}
+			}
+			
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				//初始化权限
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				
+			}
+			
+			//页面关闭时调用
+			public function closePage():void{
+				if(true){
+					beforeClosePage();
+				}
+				PopUpManager.removePopUp(this);
+				if(true){
+					afterClosePage();
+				}
+			}
+			
+			//关闭页面之前调用
+			public function beforeClosePage():void{
+				
+			}
+			
+			//关闭页面之后调用
+			public function afterClosePage():void{
+				
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox id="editForm" borderStyle="none" width="100%" height="100%" horizontalGap="0" verticalGap="0">
+		<mx:HBox id="formToolBar" borderStyle="none" width="100%" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" backgroundColor="#99CCFF">
+			<mx:LinkButton id="saveAction" height="{aboutheight}" label="保存" toolTip="保存" icon="@Embed(source='images/formtoolbar/form_save.gif')"/>
+			<mx:LinkButton id="saveAndNewAction" height="{aboutheight}" label="保存并新建" toolTip="保存并新建" icon="@Embed(source='images/formtoolbar/form_saveandnew.gif')"/>
+			<mx:LinkButton id="newAction" height="{aboutheight}" label="新建" toolTip="新建" icon="@Embed(source='images/formtoolbar/form_new.gif')"/>
+			<mx:LinkButton id="saveAndCloseAction" height="{aboutheight}" label="保存并关闭" toolTip="保存并关闭" icon="@Embed(source='images/formtoolbar/form_saveandclose.gif')"/>
+			<mx:LinkButton id="removeAndCloseAction"  height="{aboutheight}" label="删除并关闭" toolTip="删除并关闭" icon="@Embed(source='images/formtoolbar/form_removeandclose.gif')"/>
+			<mx:LinkButton id="closeAction" height="{aboutheight}" label="关闭" toolTip="关闭" icon="@Embed(source='images/formtoolbar/close.gif')"/>
+			<mx:LinkButton id="refreshAction" height="{aboutheight}" label="刷新" toolTip="刷新" icon="@Embed(source='images/formtoolbar/refresh.png')"/>
+		</mx:HBox>
+		<mx:HBox id="dataTitle" borderStyle="none" width="100%" height="30" verticalAlign="middle">
+			<mx:Label text="{pageTitle}" textIndent="15" textAlign="center" fontSize="15" fontWeight="bold"/>
+			<mx:Label text="{dataTitle}" textAlign="center" fontSize="12" fontWeight="bold"/>
+		</mx:HBox>
+		<mx:VBox id="dataFormBox" borderStyle="none" width="100%" height="100%" horizontalGap="0" verticalGap="0">
+			<mx:Form id="dataForm1" width="100%" height="100%" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" horizontalGap="0" verticalGap="0" indicatorGap="0">
+				<mx:TabNavigator id="datumFormTabNV" width="100%" height="100%" borderStyle="solid" verticalGap="0" 
+								 paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2">
+					<mx:Panel id="nvPage1" label="资料信息" width="100%" height="100%" borderStyle="none" headerHeight="0" 
+							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
+						<mx:VBox id="nvPage1Group1" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="solid" borderColor="#99CCFF">
+							<mx:HBox width="100%" height="20" horizontalGap="0" verticalGap="0" backgroundColor="#99CCFF" borderStyle="none">
+								<mx:Label text="基本信息" width="100%" height="20" textAlign="left"/>
+								<mx:LinkButton label="" width="20" height="20" icon="@Embed(source='images/pg_next1.gif')"/>
+							</mx:HBox>
+							<mx:Grid id="nvPage1Grid1" width="100%" horizontalGap="0" 
+									 verticalGap="3" paddingBottom="3" paddingLeft="3" paddingRight="3">
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" width="16%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right">
+											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+											<mx:Label text="采购编号" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="16%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
+											<mx:TextInput id="purchaseNum" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" width="16%">
+										<mx:Label text="采购人" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="16%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:HBox width="100%" height="{aboutheight}" horizontalGap="0" verticalGap="0" borderStyle="none">
+												<mx:TextInput width="100%" height="{aboutheight}"/>
+												<mx:LinkButton id="cgManChooseAction" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
+												<mx:LinkButton id="cgManCheckAction" fontWeight="normal" width="20" height="{aboutheight}" toolTip="查看信息" icon="@Embed(source='images/ico_checkdate_01.gif')"/>
+											</mx:HBox>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" width="16%">
+										<mx:Label text="供应商" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="16%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:HBox width="100%" height="{aboutheight}" horizontalGap="0" verticalGap="0" borderStyle="none">
+												<mx:TextInput width="100%" height="{aboutheight}"/>
+												<mx:LinkButton id="gysChooseAction" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
+												<mx:LinkButton id="gysCheckAction" fontWeight="normal" width="20" height="{aboutheight}" toolTip="查看信息" icon="@Embed(source='images/ico_checkdate_01.gif')"/>
+											</mx:HBox>
+										</mx:FormItem>
+									</mx:GridItem>
+								</mx:GridRow>
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" width="16%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right">
+											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>										
+											<mx:Label text="采购时间" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="16%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<dataPick:DateSecondPick isShowToday="true" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" width="16%">
+										<mx:HBox width="100%" height="25" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right">
+											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>										
+											<mx:Label text="价格" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="16%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" height="{aboutheight}">
+											<mx:TextInput id="price" width="100%" restrict="0-9" maxChars="10"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" width="16%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right">
+											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>										
+											<mx:Label text="申请部门" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="16%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:HBox width="100%" height="{aboutheight}" horizontalGap="0" verticalGap="0" borderStyle="none">
+												<mx:TextInput width="100%" height="{aboutheight}"/>
+												<mx:LinkButton id="sqbmChooseAction" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
+												<mx:LinkButton id="sqbmCheckAction" fontWeight="normal" width="20" height="{aboutheight}" toolTip="查看信息" icon="@Embed(source='images/ico_checkdate_01.gif')"/>
+											</mx:HBox>
+										</mx:FormItem>
+									</mx:GridItem>
+								</mx:GridRow>
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" width="16%">
+										<mx:Label text="采购方式" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="16%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" height="{aboutheight}">
+											<mx:ComboBox width="160" labelField="typeName" id="buyStatus"></mx:ComboBox>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" width="16%">
+										<mx:Label text="资产类型" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="16%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" height="{aboutheight}">
+											<mx:ComboBox width="160" labelField="typeName" id="tbMark"></mx:ComboBox>
+										</mx:FormItem>
+									</mx:GridItem>
+								</mx:GridRow>
+								<mx:GridRow width="100%" height="{aboutheight*3}">
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="15%">
+										<mx:Label text="备注" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="85%" colSpan="5">
+										<mx:TextArea id="pdesc" width="100%" height="100%"></mx:TextArea>
+									</mx:GridItem>
+								</mx:GridRow>
+							</mx:Grid>
+						</mx:VBox>
+					</mx:Panel>
+					<mx:Panel id="nvPage2" label="其他信息" width="100%" height="100%" borderStyle="none" headerHeight="0" 
+							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
+						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none">
+							<mx:Grid id="nvPage1Grid2" width="100%" horizontalGap="0" 
+									 verticalGap="3" paddingBottom="3" paddingLeft="3" paddingRight="3">
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" width="25%">
+										<mx:Label text="更新人:" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="25%">
+										<mx:Label id="UUSER" text="" width="100%" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" width="25%">
+										<mx:Label text="更新时间:" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="25%">
+										<mx:Label id="UTIME" text="" width="100%" height="{aboutheight}"/>
+									</mx:GridItem>
+								</mx:GridRow>
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" width="25%">
+										<mx:Label text="创建人:" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="25%">
+										<mx:Label id="CUSER" text="" width="100%" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" width="25%">
+										<mx:Label text="创建时间" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" width="25%">
+										<mx:Label id="CTIME" text="" width="100%" height="{aboutheight}"/>
+									</mx:GridItem>
+								</mx:GridRow>
+							</mx:Grid>	
+						</mx:VBox>		
+					</mx:Panel>
+				</mx:TabNavigator>
+			</mx:Form>
+		</mx:VBox>
+	</mx:VBox>
+</mx:TitleWindow>

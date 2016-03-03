@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" updateComplete="afterInitPage()" 
 				title="选择物品批次/数量(选择完成后请点击[保存]以保存已选择数据)" showCloseButton="true" close="closeHandler()"
-				fontSize="12"   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoudel.common.*"
-				xmlns:cnscombox="cn.cnspagemoudel.combox.*" xmlns:textinput="cn.cnspagemoudel.textinput.*">
+				fontSize="12"   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemodel.common.*"
+				xmlns:cnscombox="cn.cnspagemodel.combox.*" xmlns:textinput="cn.cnspagemodel.textinput.*">
 	<mx:RemoteObject id="CodeListServiceRmt" destination="codeListService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[

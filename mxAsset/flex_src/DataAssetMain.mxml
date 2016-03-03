@@ -20,8 +20,10 @@
 			import mx.managers.PopUpManager;
 			
 			import shry_zlgl.FYGridMoudel;
+			import shry_zlgl.FYXNGridMoudel;
 			import shry_zlgl.SYDGridMoudel;
 			import shry_zlgl.ZCGridMoudel;
+			import shry_zlgl.ZCXNGridMoudel;
 			
 			
 			//菜单数据
@@ -139,13 +141,11 @@
 					tempMoudel=new ZCGridMoudel();
 				} else if(ASStringHelper.stringCompare(this.SYD,strpageurl,true)==0){
 					tempMoudel=new SYDGridMoudel();
-				}/*else if(ASStringHelper.stringCompare(this.PEOPLE,strpageurl,true)==0){
-					tempMoudel=new ServiceList();
-					tempMoudel.pageType="运维人员";
-				}else if(ASStringHelper.stringCompare(this.COMPACT,strpageurl,true)==0){
-						tempMoudel=new ServiceList();
-						tempMoudel.pageType="合同";
-				}else if(ASStringHelper.stringCompare(XJDJ,strpageurl,true)==0){
+				}else if(ASStringHelper.stringCompare(this.FYXN,strpageurl,true)==0){
+					tempMoudel=new FYXNGridMoudel();
+				}else if(ASStringHelper.stringCompare(this.ZCXN,strpageurl,true)==0){
+						tempMoudel=new ZCXNGridMoudel();
+				}/*else if(ASStringHelper.stringCompare(XJDJ,strpageurl,true)==0){
 					tempMoudel=new XjjlList();
 				}else if(ASStringHelper.stringCompare(XJCX,strpageurl,true)==0){
 					tempMoudel=new XjjlList();

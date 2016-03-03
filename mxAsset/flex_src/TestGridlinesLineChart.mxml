@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- http://blog.flexexamples.com/2007/11/15/displaying-grid-lines-in-a-flex-linechart-control/ -->
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
         layout="vertical"
         verticalAlign="middle"
         backgroundColor="white">
@@ -46,15 +46,20 @@
             </mx:FormItem>
         </mx:Form>
     </mx:ApplicationControlBar>
-
-    <mx:LineChart id="lineChart"
-            showDataTips="true"
-            dataProvider="{dp}"
+	
+		<mx:Stroke id="stokedft" color="black" weight="0" alpha="0.2" />
+	   <mx:SolidColorStroke id = "s1" color="blue" weight="1"/>
+    
+	<mx:LineChart id="lineChart"
+            showDataTips="true" 
+            dataProvider="{dp}" 
             width="100%"
             height="100%">
-
         <mx:backgroundElements>
-            <mx:GridLines  gridDirection="{toggleButtonBar.dataProvider.getItemAt(toggleButtonBar.selectedIndex)}" />
+            <mx:GridLines horizontalStroke="{stokedft}" verticalStroke="{stokedft}" 
+						  horizontalChangeCount="1" verticalChangeCount="1" gridDirection="both" >
+					
+		  </mx:GridLines>
         </mx:backgroundElements>
 
         <!-- vertical axis -->
@@ -64,7 +69,7 @@
 
         <!-- horizontal axis -->
         <mx:horizontalAxis>
-            <mx:CategoryAxis id="ca" categoryField="@date" title="Date" />
+            <mx:CategoryAxis id="ca" categoryField="@date" title="Date"  />
         </mx:horizontalAxis>
 
         <!-- horizontal axis renderer -->
@@ -74,7 +79,7 @@
 
         <!-- series -->
         <mx:series>
-            <mx:LineSeries yField="@open" form="curve" displayName="Open" />
+            <mx:LineSeries interpolateValues="true" yField="@open" form="curve" displayName="Open" lineStroke="{s1}"  />
         </mx:series>
     </mx:LineChart>
 

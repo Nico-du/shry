@@ -11,8 +11,11 @@ public class ShrySydData implements java.io.Serializable {
 
 	// Fields
 
-	private Long sydid;
+	private Long lxdid;
 	private Long zcid;
+	private Long fyid;
+	private Long djid;
+	private String sydx;
 	private Date syrq;
 	private String lxdh;
 	private String fjxs;
@@ -78,12 +81,12 @@ public class ShrySydData implements java.io.Serializable {
 
 	// Property accessors
 
-	public Long getSydid() {
-		return this.sydid;
+	public Long getLxdid() {
+		return this.lxdid;
 	}
 
-	public void setSydid(Long sydid) {
-		this.sydid = sydid;
+	public void setLxdid(Long lxdid) {
+		this.lxdid = lxdid;
 	}
 
 	public Long getZcid() {
@@ -92,6 +95,30 @@ public class ShrySydData implements java.io.Serializable {
 
 	public void setZcid(Long zcid) {
 		this.zcid = zcid;
+	}
+
+	public Long getFyid() {
+		return fyid;
+	}
+
+	public void setFyid(Long fyid) {
+		this.fyid = fyid;
+	}
+
+	public Long getDjid() {
+		return djid;
+	}
+
+	public void setDjid(Long djid) {
+		this.djid = djid;
+	}
+
+	public String getSydx() {
+		return sydx;
+	}
+
+	public void setSydx(String sydx) {
+		this.sydx = sydx;
 	}
 
 	public Date getSyrq() {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()"
 		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
-		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoudel.common.*">
+		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemodel.common.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
@@ -210,7 +210,7 @@
 			
 			//查看详细数据
 			protected function lookDataAction(tempSelctedItem:Object=null):void{
-				var tempWindow:FYFormMoudel=new FYFormMoudel();
+				var tempWindow:FYXNFormMoudel=new FYXNFormMoudel();
 				var tempid:String="";
 				if(tempSelctedItem!=null){
 					tempid=tempSelctedItem.fyxnid;
@@ -239,7 +239,6 @@
 			//加载相关信息回调方法
 			protected function dataSearchActionBack(rmtResult:ResultEvent):void{
 				this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
-				if(this.isDeleteDateComplete){this.removeAssetLSJL(); this.isDeleteDateComplete = false;}
 				var objResult:Object=rmtResult.result;
 				var strresult:String=objResult.toString();
 				var jsonObj:Object=JSON.decode(strresult,true);
@@ -261,38 +260,42 @@
 			protected function getDataSeacrchCondition():String{
 				var condition:Object=new Object();
 				if(!searchFormIsOpen){
-					var xh:String=this.xh.text;
-					var ypsm:String=this.ypsm.text;
-					var zj:String=this.zj.text;
-					var fbzj:String=this.fbzj.text;
-					var dlhzj:String=this.dlhzj.text;
-					var zl:String=this.zl.text;
-					var qj:String=this.qj.text;
-					if(!ASStringHelper.isNullOrEmpty(xh)){
-						condition.s_xh_string_like=xh;
+					var lxdh:String=this.lxdh.text;
+					var fyxh:String=this.fyxh.text;
+					var ll:String=this.ll.text;
+					var jy:String=this.jy.text;
+					var zzs:String=this.zzs.text;
+					var fzs:String=this.fzs.text;
+					var nj:String=this.nj.text;
+					var xl:String=this.xl.text;
+					if(!ASStringHelper.isNullOrEmpty(lxdh)){
+						condition.s_lxdh_string_like=lxdh;
 					}
-					if(!ASStringHelper.isNullOrEmpty(ypsm)){
-						condition.s_ypsm_string_like=ypsm;
+					if(!ASStringHelper.isNullOrEmpty(fyxh)){
+						condition.s_fyxh_string_like=fyxh;
 					}
-					if(!ASStringHelper.isNullOrEmpty(zj)){
-						condition.s_zj_string_like=zj;
+					if(!ASStringHelper.isNullOrEmpty(ll)){
+						condition.s_ll_string_like=ll;
 					}
-					if(!ASStringHelper.isNullOrEmpty(fbzj)){
-						condition.s_fbzj_string_like=fbzj;
+					if(!ASStringHelper.isNullOrEmpty(jy)){
+						condition.s_jyl_string_like=jy;
 					}
-					if(!ASStringHelper.isNullOrEmpty(dlhzj)){
-						condition.s_dlhzj_string_like=dlhzj;
+					if(!ASStringHelper.isNullOrEmpty(zzs)){
+						condition.s_zzs_string_like=zzs;
 					}
-					if(!ASStringHelper.isNullOrEmpty(zl)){
-						condition.s_zl_string_like=zl;
+					if(!ASStringHelper.isNullOrEmpty(fzs)){
+						condition.s_fzs_string_like=fzs;
 					}
-					if(!ASStringHelper.isNullOrEmpty(qj)){
-						condition.s_qj_string_like=qj;
+					if(!ASStringHelper.isNullOrEmpty(nj)){
+						condition.s_nj_string_like=nj;
+					}
+					if(!ASStringHelper.isNullOrEmpty(xl)){
+						condition.s_xl_string_like=xl;
 					}
 				}else{
 					var quklytext:String=this.qukilySearchTxt.text;
 					if(!ASStringHelper.isNullOrEmpty(quklytext)){
-						condition.s_xh_string_like=quklytext;
+						condition.s_lxdh_string_like=quklytext;
 					}
 				}
 		//		condition.s_bfdid_string_eq=bfdid;
@@ -311,7 +314,6 @@
 				}
 				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_FYXN_DATA","FYXNID","风叶"); 
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
-				this.deleteDataIds = dataids;
 			}
 			//删除数据回调方法
 			protected function removeDataActionBack(rmtResult:ResultEvent):void{
@@ -322,16 +324,7 @@
 					return;
 				}else{
 					//	Alert.show("数据删除成功");
-					this.isDeleteDateComplete = true;
 					this.loadData();
-				}
-			}
-			private var isDeleteDateComplete:Boolean = false;
-			private var deleteDataIds:String = "";
-			public function removeAssetLSJL():void{
-				if(!CommonMethod.isNullOrWhitespace(deleteDataIds)){
-					AllAssetServiceRmt.RemoveObject(deleteDataIds,"CNST_ASSETBGJL_DATA","SQDID","报废登记");
-					this.deleteDataIds = "";
 				}
 			}
 			//得到要删除的数据
@@ -371,13 +364,14 @@
 			
 			//搜索重置
 			protected function dataSearchResetAction():void{
-				this.xh.text = "";
-				this.ypsm.text = "";
-				this.zj.text = "";
-				this.fbzj.text = "";
-				this.dlhzj.text = "";
-				this.zl.text = "";
-				this.qj.text = "";
+				this.lxdh.text = "";
+				this.fyxh.text = "";
+				this.ll.text = "";
+				this.jy.text = "";
+				this.zzs.text = "";
+				this.fzs.text = "";
+				this.nj.text = "";
+				this.xl.text = "";
 			}
 			
 			//得到title的ICON
@@ -399,7 +393,7 @@
 			<!--快捷搜索-->
 			<mx:HBox id="qukilySearchBox" width="100%" height="{aboutheight}" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
 				<mx:HBox id="qukilySearchBar" width="80%" height="{aboutheight}" horizontalGap="1" horizontalAlign="left" borderStyle="none">
-					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="型号" textAlign="right"/>
+					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="风叶型号" textAlign="right"/>
 					<mx:TextInput id="qukilySearchTxt" enter="searchClickAction()" width="150" height="{aboutheight}"/>
 					<mx:Button id="qukilySearchBtn" click="searchClickAction()" height="{aboutheight}" label="搜索" icon="@Embed(source='images/find.gif')"/>
 				</mx:HBox>
@@ -413,67 +407,69 @@
 					<mx:Grid width="100%" horizontalGap="0" verticalGap="4" borderStyle="none">
 						<mx:GridRow width="100%" height="{aboutheight}">
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="型号:" height="{aboutheight}"/>
+								<mx:Label text="联系单号:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="xh" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="lxdh" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="叶片数目:" height="{aboutheight}"/>
+								<mx:Label text="风叶型号:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="ypsm" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="fyxh" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="直径(毫米):" height="{aboutheight}"/>
+								<mx:Label text="流量(m^3/h):" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="zj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="ll" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="翻边直径(毫米):" height="{aboutheight}"/>
+								<mx:Label text="静压(pa):" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="fbzj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="jy" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 						</mx:GridRow>
 						<mx:GridRow width="100%" height="{aboutheight}">
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="导流环直径(毫米):" height="{aboutheight}"/>
+								<mx:Label text="主风扇转速(rpm):" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="dlhzj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="zzs" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="重量(克):" height="{aboutheight}"/>
+								<mx:Label text="辅风扇转速(rpm):" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="zl" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="fzs" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="嵌件:" height="{aboutheight}"/>
+								<mx:Label text="扭矩(N.M):" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="qj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="nj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="效率(%):" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
+									<mx:TextInput id="xl" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 						</mx:GridRow>
@@ -519,15 +515,16 @@
 								</mx:Component>
 							</mx:itemRenderer> 
 						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="型号" width="120" dataField="xh" sortable="true"/>
-						<mx:DataGridColumn headerText="叶片数目" width="80" dataField="ypsm" sortable="true"/>
-						<mx:DataGridColumn headerText="直径(毫米)" width="80" dataField="zj" sortable="true"/>
-						<mx:DataGridColumn headerText="翻边直径(毫米)" width="110" dataField="fbzj" sortable="true"/>
-						<mx:DataGridColumn headerText="导流环直径(毫米)" width="110" dataField="dlhzj" sortable="true"/>
-						<mx:DataGridColumn headerText="轮毂直径(毫米)" width="110" dataField="lgzj" sortable="true"/>
-						<mx:DataGridColumn headerText="重量(克)" width="80" dataField="zl" sortable="true"/>
-						<mx:DataGridColumn headerText="叶片分布" width="80" dataField="ypfb" sortable="true"/>				
-						<mx:DataGridColumn headerText="状态" width="80" dataField="syzt" sortable="true"/>				
+						<mx:DataGridColumn headerText="联系单号" width="120" dataField="lxdh" sortable="true"/>
+						<mx:DataGridColumn headerText="风叶型号" width="120" dataField="fyxh" sortable="true"/>
+						<mx:DataGridColumn headerText="流量(m^3/h)" width="120" dataField="ll" sortable="true"/>
+						<mx:DataGridColumn headerText="静压(Pa)" width="80" dataField="jyl" sortable="true"/>
+						<mx:DataGridColumn headerText="主风扇转速(rpm)" width="130" dataField="zzs" sortable="true"/>
+						<mx:DataGridColumn headerText="辅风扇转速(rpm)" width="130" dataField="fzs" sortable="true"/>
+						<mx:DataGridColumn headerText="噪声(dB)" width="80" dataField="fszs" sortable="true"/>
+						<mx:DataGridColumn headerText="扭矩(N.M)" width="80" dataField="nj" sortable="true"/>				
+						<mx:DataGridColumn headerText="轴功率(W)" width="100" dataField="zgl" sortable="true"/>				
+						<mx:DataGridColumn headerText="效率(%)" width="80" dataField="xl" sortable="true"/>
 						<mx:DataGridColumn headerText="更新人" width="100" dataField="updateusername" sortable="true"/>
 						<mx:DataGridColumn headerText="更新时间" width="155" dataField="updatedate" sortable="true"/>
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
