@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
-		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemodel.common.*" xmlns:cnslb="cn.cnsasfram.button.*" xmlns:ns1="kmzc/formanserver.*">
+		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoduel.common.*" xmlns:cnslb="cn.cnsasfram.button.*" xmlns:ns1="kmzc/formanserver.*">
 	<mx:RemoteObject id="DatumServiceRmt" destination="datumService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script source="../utils/utils.as"/>
 	<mx:Script>

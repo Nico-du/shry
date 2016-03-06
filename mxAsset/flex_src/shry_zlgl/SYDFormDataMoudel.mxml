@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:dataPick="cn.cnspagemoduel.date.*"  creationPolicy="all" horizontalScrollPolicy="off" verticalScrollPolicy="off"
-				title="风叶性能数据信息" layout="absolute" width="1024"  showCloseButton="true" fontSize="12" 
-				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()" xmlns:numberInput="cn.cnspagemoduel.textinput.*" xmlns:ns="shry_zlgl.*">
+				layout="absolute"  fontSize="12" 
+				initialize="initPage()" creationComplete="afterInitPage()"  xmlns:numberInput="cn.cnspagemoduel.textinput.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
-	<mx:Script source="../flex/util/InitBGDJForms.as"/>
 	<mx:Script>
 		<![CDATA[
 			import asset_bfdj.ProcessMethods;
@@ -35,7 +34,7 @@
 			
 			//页面标题
 			[Bindable]
-			public var pageTitle:String="风叶性能数据";
+			public var pageTitle:String="试验单数据";
 			
 			//数据标题
 			[Bindable]
@@ -44,9 +43,9 @@
 			//数据ID
 			public var dataId:String="";
 			//默认操作实体名称
-			public var tempObjBeanName:String="SHRY_FYXN_DATA";
+			public var tempObjBeanName:String="SHRY_SYD_DATA";
 			//视图名称
-			public var tempObjViewName:String="SHRY_FYXN_VIEW";
+			public var tempObjViewName:String="SHRY_SYD_VIEW";
 			//保存数据
 			public var dataArray:ArrayCollection=null;
 			//页面是否加载权限控制
@@ -54,10 +53,15 @@
 			//页面初始化是否加载数据
 			public var pageIsLoadData:Boolean=true;
 			//父窗口
-			public var parentPage:FYXNGridMoudel=null;
+			public var parentPage:SYDGridMoudel=null;
 			//临时存储方法
 			public var tempFunction:Function=null;
-			
+			//是否只读页面
+			public var isReadOnly:Boolean = false;
+			//性能数据是否可见
+			public var xnsjVisible:Boolean = true;
+			//当前数据库中存储的试验对象
+			private var currentSydx:String = "";
 			//页面初始化调用
 			public function initPage():void{
 				if(true){
@@ -67,8 +71,8 @@
 			
 			//初始化页面之前调用
 			public function beforeInitPage():void{
-				this.width = Application.application.width * 0.8;
-				this.height = Application.application.height * 0.8;
+		//		this.width = Application.application.width * 0.8;
+		//		this.height = Application.application.height * 0.8;
 				
 				if(pageIsLoadPoer){
 					loadUserPower();
@@ -91,7 +95,11 @@
 					sjbfsl.enabled = true; sjbfsl.editable = true;
 					lggd.enabled = true; lggd.editable = true;
 				} */
-				ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible,parentPage.editAction.visible ,parentPage.removeAction.visible);
+				if(parentPage != null){
+					ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible && !isReadOnly,parentPage.editAction.visible && !isReadOnly ,parentPage.removeAction.visible && !isReadOnly);
+				}else{
+					ProcessMethods.changeCNSTModuelState(this,false,false,false);
+				}
 			}
 			
 			//初始化页面之后调用
@@ -178,19 +186,17 @@
 			
 			//重置数据
 			protected function resetData():void{
-				this.title = "新建风叶性能数据";
 				this.dataId="";
 				this.dataArray=new ArrayCollection();
 				this.dataArray.addItem(new Object());
 				this.afterLoadData();
-				this.errormsgbox.removeAllChildren();
 				
 			}
 			
 			//加载搜索条件
 			protected function getDataSeacrchCondition():String{
 				var condition:Object=new Object();
-				condition.s_fyxnid_string_eq=this.dataId;
+				condition.s_lxdid_string_eq=this.dataId;
 				var conditionJson:String=JSON.encode(condition);
 				return conditionJson;
 			}
@@ -200,7 +206,6 @@
 					this.resetData();
 					return;
 				}
-				this.title = "编辑风叶性能数据";
 				var strcondition:String=getDataSeacrchCondition();
 				if(ASStringHelper.isNullOrEmpty(strcondition)){
 					return;
@@ -218,10 +223,6 @@
 				var othermsg:Object=jsonObj.othermsg;
 				var items:Object=jsonObj.items;
 				if(items==null){
-					this.resultmsg.text="未请求到相关数据"
-					this.resultmsg.alpha=1;
-					this.fadeEffect.stop();
-					this.fadeEffect.play(null,false);
 					return;
 				}
 				this.dataArray=new ArrayCollection(items as Array);
@@ -234,23 +235,32 @@
 					return;
 				}
 				var tempObj:Object=this.dataArray.getItemAt(0);
-				this.dataTitles=tempObj["fyxh"];
+				this.dataTitles=tempObj["lxdh"];
 				this.lxdh.text=tempObj["lxdh"];
-				this.lxdh.data=tempObj["lxdid"];
+				this.syry.text=tempObj["syry"];
+				this.fjxs.text=tempObj["fjxs"];
+				this.syfd.text=tempObj["syfd"];
+				this.ckmj.text=tempObj["ckmj"];
+				this.syfs.text=tempObj["syfs"];
+				
+				this.fyzj.text=tempObj["fyzj"];
+				this.zcxh.text=tempObj["zcxh"];
+				this.zcxh.data=tempObj["zcid"];
+				//	this.RKRQ.setText(tempObj[this.RKRQ.id.toLowerCase()]);
+				this.yps.text=tempObj["yps"];
 				this.fyxh.text=tempObj["fyxh"];
 				this.fyxh.data=tempObj["fyid"];
+				this.dqy.text=tempObj["dqy"];
+				this.symd.text=tempObj["symd"];
+				this.kqwd.text=tempObj["kqwd"];
 				
-				this.ll.text=tempObj["ll"];
-				this.jy.text=tempObj["jyl"];
-				
-				this.zzs.text=tempObj["zzs"];
-				this.fzs.text=tempObj["fzs"];
-				this.zs.text=tempObj["fszs"];
-
-				this.nj.text=tempObj["nj"];
-				this.yxgl.text=tempObj["yxgl"];
-				this.zgl.text=tempObj["zgl"];
-				this.xl.text=tempObj["xl"];
+				this.sply.text=tempObj["sply"];
+				this.xdsd.text=tempObj["xdsd"];
+				this.syry.text=tempObj["syry"];
+				this.skqbz.text=tempObj["skqbz"];
+				this.syzt.text=tempObj["syzt"];
+				this.sydx.selectedIndex= CommonMethod.getCbxItemIndex(tempObj["sydx"],sydx,"itemname");
+				this.currentSydx = tempObj["sydx"];
 				
 				this.memo.text=tempObj["memo"];
 				
@@ -259,19 +269,24 @@
 				ypfb.data=tempObj["assetid"]; */
 				
 				if(!CommonMethod.isNullOrWhitespace(this.memo.text) && memolkb.visible){	setMemoVisable();}
-				this.UPDATEDATE.text=tempObj[this.UPDATEDATE.id.toLowerCase()];
-				this.UPDATEUSER.text=tempObj[this.UPDATEUSER.id.toLowerCase()+"name"];
-				this.INPUTDATE.text=tempObj[this.INPUTDATE.id.toLowerCase()];
-				this.INPUTUSER.text=tempObj[this.INPUTUSER.id.toLowerCase()+"name"];
 			}
 			
 			//保存数据之前验证数据
 			protected function beforeSaveData():Boolean{
-				this.errormsgbox.removeAllChildren();
 				var errorMsg:String="";
 				var isCheckSuccess:Boolean=true;
 				if(ASStringHelper.isNullOrEmpty(this.lxdh.text)){
 					errorMsg="[联系单号]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				if(this.sydx.selectedIndex < 1){
+					errorMsg="[试验对象]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.zcxh.text)){
+					errorMsg="[总成型号]不允许为空";
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
 				}
@@ -280,19 +295,9 @@
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
 				}
-				if(ASStringHelper.isNullOrEmpty(this.ll.text)){
-					errorMsg="[流量]不允许为空";
-					showCheckErrors(errorMsg);
-					isCheckSuccess=false;
-				}
-				if(ASStringHelper.isNullOrEmpty(this.jy.text)){
-					errorMsg="[静压]不允许为空";
-					showCheckErrors(errorMsg);
-					isCheckSuccess=false;
-				}
 				//执行编号重复验证
 				if(isCheckSuccess){
-					CommonMethod.validateWFBH(this.lxdh.text,"FYXNID","LXDID",this.tempObjBeanName,this.dataId,this,beforeSaveDataBack);
+					CommonMethod.validateWFBH(this.lxdh.text,"LXDID","lxdh",this.tempObjBeanName,this.dataId,this,beforeSaveDataBack);
 					return false;
 				}
 				return isCheckSuccess;
@@ -301,7 +306,7 @@
 			//验证编号重复的回调函数 
 			public function beforeSaveDataBack(isbhcf:Boolean = false):void{
 				if(isbhcf){
-					var errorMsg:String="[风叶型号]重复,请重新输入";
+					var errorMsg:String="[试验单型号]重复,请重新输入";
 					showCheckErrors(errorMsg);
 				//	xh.text = CommonMethod.genernateIncreaseWFBH(xh.text);
 					return;
@@ -321,7 +326,6 @@
 				tempTextInput.setStyle("borderColor","red");
 				tempTextInput.setStyle("color","red");
 				tempTextInput.text=errorMsg;
-				this.errormsgbox.addChild(tempTextInput);
 			}
 			//得到保存数据
 			protected function getSaveOrUpdatetData():String{
@@ -330,20 +334,30 @@
 				if(ASStringHelper.isNullOrEmpty(this.dataId)){
 					dataJson.INPUTUSER=userid;
 				}
-				dataJson.fyxnid=this.dataId;
-				dataJson.lxdid=this.lxdh.data;
+				dataJson.lxdid=this.dataId;
+				dataJson.lxdh=this.lxdh.text;
+				dataJson.syrq=this.syrq.getText();
+				dataJson.fjxs=this.fjxs.text;
+				dataJson.syfd=this.syfd.text;
+				dataJson.ckmj=this.ckmj.text;
+				dataJson.syfs=this.syfs.text;
+				
+				dataJson.fyzj=this.fyzj.text;
+				dataJson.zcxh=this.zcxh.text;
+				dataJson.zcid=this.zcxh.data;
+				dataJson.yps=this.yps.text;
+				dataJson.fyxh=this.fyxh.text;
 				dataJson.fyid=this.fyxh.data;
-				dataJson.ll=this.ll.text;
-				dataJson.jyl=this.jy.text;
+				dataJson.dqy=this.dqy.text;
 				
-				dataJson.zzs=this.zzs.text;
-				dataJson.fzs=this.fzs.text;
-				dataJson.fszs=this.zs.text;
-				
-				dataJson.nj=this.nj.text;
-				dataJson.yxgl=this.yxgl.text;
-				dataJson.zgl=this.zgl.text;
-				dataJson.xl=this.xl.text;
+				dataJson.symd=this.symd.text;
+				dataJson.kqwd=this.kqwd.text;
+				dataJson.sply=this.sply.text;
+				dataJson.xdsd=this.xdsd.text;
+				dataJson.syry=this.syry.text;
+				dataJson.skqbz=this.skqbz.text;
+				dataJson.syzt=this.syzt.text;
+				dataJson.sydx=this.sydx.selectedItem.itemname;
 				
 				dataJson.memo=this.memo.text;
 				dataJson.UPDATEUSER=userid;
@@ -363,7 +377,7 @@
 			
 			public function dataSaveOrUpdate():void{
 				var submitjson:String=getSaveOrUpdatetData();
-				AllAssetServiceRmt.SaveOrUpdateObject(submitjson,"net.chinanets.pojos.ShryFyxnData","fyxnid","风叶性能数据");
+				AllAssetServiceRmt.SaveOrUpdateObject(submitjson,"net.chinanets.pojos.ShrySydData","lxdid","试验单数据");
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataSaveOrUpdateActionBack);
 			}
 			//保存数据回调方法
@@ -371,15 +385,10 @@
 				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSaveOrUpdateActionBack);
 				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
 				if(doResult!=null && doResult.nRetCode!=Errors.OK){
-					this.resultmsg.text=doResult.strErrorInfo;
 				}else{
-					this.resultmsg.text="数据操作成功";
 					this.dataId=doResult.strErrorInfo;
 					this.afterDoAction();
 				}
-				this.resultmsg.alpha=1;
-				this.fadeEffect.stop();
-				this.fadeEffect.play(null,false);
 			}
 			
 			//删除当前数据
@@ -387,7 +396,7 @@
 				if(doEvent.detail==Alert.CANCEL){
 					return;
 				}
-				AllAssetServiceRmt.RemoveObject(this.dataId,"SHRY_FYXN_DATA","FYXN","已选择数据记录");
+				AllAssetServiceRmt.RemoveObject(this.dataId,"SHRY_SYD_DATA","LXDID","已选择数据记录");
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataRemoveActionBack);
 			}
 			//删除当前数据回调方法
@@ -395,10 +404,8 @@
 				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataRemoveActionBack);
 				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
 				if(doResult!=null && doResult.nRetCode!=Errors.OK){
-					this.resultmsg.text=doResult.strErrorInfo;
 					return;
 				}else{
-					this.resultmsg.text="数据删除成功";
 					this.afterDoAction();
 				}
 			}
@@ -414,66 +421,16 @@
 				memolbl.visible=true;
 				memolbl.includeInLayout=true;
 				MEMOROW.height = memo.height=(aboutheight*3);
-				datumFormTabNV.height += aboutheight;
 			}
-			private var datumFormTabNVPHeight:Number = -1;
-			protected function datumFormTabNV_tabIndexChangeHandler(event:Event):void
-			{
-				if(datumFormTabNVPHeight == -1){
-					datumFormTabNVPHeight = datumFormTabNV.height;
-				}
-				if(datumFormTabNV.selectedIndex == 1){
-					datumFormTabNV.height = (this.height - 80);
-					nvPage1Group2.removeAllChildren();
-					//FYXNForm_lxdForm
-					var lxdForm:SYDFormDataMoudel = CommonMethod.pageCacheObj.FYXNForm_lxdForm;
-					if(lxdForm == null ){
-						lxdForm = new SYDFormDataMoudel();
-						lxdForm.dataId = this.lxdh.data+"";
-				//		lxdForm.height = (this.height - 110);
-						lxdForm.width = this.width - 30;
-						lxdForm.height = (this.height - 130);
-						CommonMethod.pageCacheObj.FYXNForm_lxdForm = lxdForm;
-						nvPage1Group2.addChild(lxdForm);
-					}else{
-						nvPage1Group2.addChild(lxdForm);
-						lxdForm.loadData();
-					}
-					
-				}else{
-					datumFormTabNV.height = datumFormTabNVPHeight;
-				}
-			}
+			
+			
 			
 		]]>
 	</mx:Script>
-	<mx:Fade id="fadeEffect" target="{resultmsg}" alphaFrom="1"  alphaTo="0" duration="10000"/>
-	<mx:VBox id="editForm" borderStyle="none" width="100%"  height="100%" horizontalAlign="center"
-			 horizontalGap="0" verticalGap="2" paddingTop="2" paddingLeft="2" paddingBottom="2" paddingRight="2">
-		<mx:HBox id="formToolBar" borderStyle="none" width="100%" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" backgroundColor="#99CCFF">
-			<mx:LinkButton id="saveAction" click="saveActionClick()" height="{aboutheight}" label="保存" toolTip="保存" icon="@Embed(source='images/formtoolbar/form_save.gif')"/>
-			<mx:LinkButton id="saveAndNewAction" click="saveAndNewActionClick()" height="{aboutheight}" label="保存并新建" toolTip="保存并新建" icon="@Embed(source='images/formtoolbar/form_saveandnew.gif')"/>
-			<mx:LinkButton id="newAction" click="newActionClick()" height="{aboutheight}" label="新建" toolTip="新建" icon="@Embed(source='images/formtoolbar/form_new.gif')"/>
-			<mx:LinkButton id="saveAndCloseAction" click="saveAndCloseActionClick()" height="{aboutheight}" label="保存并关闭" toolTip="保存并关闭" icon="@Embed(source='images/formtoolbar/form_saveandclose.gif')"/>
-			<mx:LinkButton id="removeAndCloseAction" click="removeAndCloseActionClick()"  height="{aboutheight}" label="删除并关闭" toolTip="删除并关闭" icon="@Embed(source='images/formtoolbar/form_removeandclose.gif')"/>
-			<mx:LinkButton id="closeAction" click="closeActionClick()" height="{aboutheight}" label="关闭" toolTip="关闭" icon="@Embed(source='images/formtoolbar/close.gif')"/>
-		</mx:HBox>
-		<mx:HBox id="dataTitle" borderStyle="none" width="100%" height="25" paddingLeft="5" horizontalAlign="left" verticalAlign="middle">
-			<mx:Image source="@Embed(source='images/kvm.gif')" width="23" height="23" verticalAlign="middle"/>
-			<mx:Label text="{pageTitle}" textIndent="10" textAlign="center" fontSize="15" fontWeight="bold"/>
-			<mx:Label text="{dataTitles}" textAlign="center" fontSize="12" fontWeight="bold"/>
-			<mx:HBox id="resultBox" borderStyle="none" width="100%" height="25" horizontalAlign="right" verticalAlign="middle">
-				<mx:TextInput id="resultmsg" editable="false" alpha="0" borderStyle="none" textAlign="center" paddingTop="3" height="25" fontSize="12" backgroundColor="#FFFACD"/>
-			</mx:HBox>
-		</mx:HBox>
-		<mx:VBox id="dataFormBox" borderStyle="none" width="100%" horizontalGap="0" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-			<mx:Form id="dataForm1" width="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" horizontalGap="0" verticalGap="0" indicatorGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-				<mx:TabNavigator id="datumFormTabNV" creationPolicy="all" width="100%" borderStyle="solid" verticalGap="0"  change="datumFormTabNV_tabIndexChangeHandler(event)" 
-								 paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2">
-					<mx:Canvas id="nvPage1" label="基本信息 " width="100%" borderStyle="none" >
+					<mx:Canvas id="nvPage1" label="联系单信息 " width="100%" borderStyle="none" >
 						<mx:VBox id="nvPage1Group1" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="solid" borderColor="#99CCFF">
 							<mx:HBox width="100%" height="20" horizontalGap="0" verticalGap="0" backgroundColor="#99CCFF" borderStyle="none">
-								<mx:Label text="基本信息" width="100%" height="20" textAlign="left"/>
+								<mx:Label text="联系单信息" width="100%" height="20" textAlign="left"/>
 								<mx:LinkButton label="" width="20" height="20" icon="@Embed(source='images/pg_next1.gif')"/>
 							</mx:HBox>
 							<mx:Grid id="nvPage1Grid1" width="100%" horizontalGap="0" verticalGap="5" paddingTop="5" paddingBottom="5" paddingLeft="3" paddingRight="3">
@@ -486,63 +443,74 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="left" verticalAlign="middle">
-												<mx:TextInput id="lxdh" editable="false" width="100%" height="{aboutheight}"/>
-												<mx:LinkButton id="CHLXDH" click="if(!this.saveAction.visible)return;CommonMethod.getAssetBH(this,'FYLXD',lxdh,fyxh);" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
-											</mx:HBox>
+											<mx:TextInput id="lxdh" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
-											<mx:Label fontWeight="bold" height="{aboutheight}"  text="风叶型号:"/>
-										</mx:HBox>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
-										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<mx:TextInput  id="fyxh" editable="false"  width="100%" height="{aboutheight}"/>
-										</mx:FormItem>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
-											<mx:Label text="流量(m^3/h):" fontWeight="bold" height="{aboutheight}"/>
+											<mx:Label text="试验日期:" fontWeight="bold" height="{aboutheight}"/>
 										</mx:HBox>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
 											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="left" verticalAlign="middle">
-												<numberInput:NumberTextInput  id="ll" width="100%" height="{aboutheight}"/>
+												<dataPick:DateSecondPick id="syrq" isShowToday="true" width="100%" aboutheight="{aboutheight}"/>
 											</mx:HBox>
 										</mx:FormItem>
 									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+											<mx:Label text="试验风洞:" fontWeight="bold" height="{aboutheight}" />
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:TextInput width="100%" height="{aboutheight}" id="syfd"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									
 								</mx:GridRow>
 								<mx:GridRow width="100%" height="{aboutheight}">
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
 											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
-											<mx:Label fontWeight="bold" height="{aboutheight}"  text="静压(Pa):"/>
+											<mx:Label text="试验对象:" fontWeight="bold" height="{aboutheight}"/>
 										</mx:HBox>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="jy" width="100%" height="{aboutheight}"/>
+											<mx:ComboBox  id="sydx" dataProvider="{new ArrayCollection([  {itemno:-1  ,itemname:' - '  },{itemno:1  ,itemname:'风叶'  },
+														  {itemno:2,itemname:'总成'  }
+														  ])}" labelField="itemname" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
+									
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-										<mx:Label text="主风扇转速(rpm):"  fontWeight="normal" height="{aboutheight}"/>
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+										<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+										<mx:Label text="总成型号:" height="{aboutheight}" fontWeight="bold"/>
+										</mx:HBox>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="zzs" width="100%" height="{aboutheight}"/>
+											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="left" verticalAlign="middle">
+											<mx:TextInput id="zcxh" editable="false" width="100%" height="{aboutheight}"/>
+											<mx:LinkButton id="CHZCXH" click="if(isReadOnly)return;CommonMethod.getAssetBH(this,'ZC',zcxh,fyxh);" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
+											</mx:HBox>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-										<mx:Label text="辅风扇转速(rpm):" height="{aboutheight}"/>
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+											<mx:Label text="风叶型号" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
 									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="fzs" width="100%" height="{aboutheight}"/>
+											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="left" verticalAlign="middle">
+											<mx:TextInput width="100%" editable="false" height="{aboutheight}" id="fyxh"/>
+											<mx:LinkButton id="CHFYXH" click="if(isReadOnly)return;CommonMethod.getAssetBH(this,'FY',fyxh);" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
+											</mx:HBox>
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow>
@@ -550,52 +518,130 @@
 								<mx:GridRow width="100%" height="{aboutheight}">
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label text="噪声(dB):" fontWeight="normal" height="{aboutheight}"/>
-										</mx:HBox>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">
-										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="zs" width="100%" height="{aboutheight}"/>
-										</mx:FormItem>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label text="扭矩(N.M):" fontWeight="normal" height="{aboutheight}"/>
-										</mx:HBox>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">
-										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="nj" width="100%" height="{aboutheight}"/>
-										</mx:FormItem>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label text="轴功率(W):" fontWeight="normal" height="{aboutheight}"/>
+											<mx:Label text="试验目的:" fontWeight="normal" height="{aboutheight}"/>
 										</mx:HBox>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="zgl" width="100%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="symd" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="试品来源:"  height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<numberInput:NumberTextInput  id="sply"  width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="试验人员:"  height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<numberInput:NumberTextInput id="syry" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+								</mx:GridRow>
+								
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="风机型式:"  fontWeight="normal" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:TextInput id="fjxs" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="出口面积(m2):" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<numberInput:NumberTextInput id="ckmj" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+											<mx:Label text="风叶直径(m):" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<numberInput:NumberTextInput width="100%" height="{aboutheight}" id="fyzj"/>
+										</mx:FormItem>
+									</mx:GridItem>
+								</mx:GridRow>
+								
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+											<mx:Label text="叶片数:" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<numberInput:NumberTextInput  id="yps" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="大气压(KPa):"  height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<numberInput:NumberTextInput  id="dqy" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="空气温度(℃):"  height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<numberInput:NumberTextInput id="kqwd" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow>
 								<mx:GridRow width="100%" height="{aboutheight}">
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-										<mx:Label text="有效功率(W):"  height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
-										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="yxgl"  width="100%" height="{aboutheight}"/>
-										</mx:FormItem>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label text="效率(%):"  fontWeight="bold" height="{aboutheight}"/>
+											<mx:Label text="相对湿度(%RH):" fontWeight="normal" height="{aboutheight}"/>
 										</mx:HBox>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="xl" width="100%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="xdsd" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="湿空气比重(kg/m3):"  height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<numberInput:NumberTextInput  id="skqbz" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="试验状态:"  height="{aboutheight}" fontWeight="bold"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:TextInput width="100%" height="{aboutheight}" id="syzt"/>
+										</mx:FormItem>
+									</mx:GridItem>
+								</mx:GridRow>
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="试验方式:"  fontWeight="normal" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:TextInput id="syfs" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -617,50 +663,4 @@
 							</mx:Grid>
 						</mx:VBox>
 					</mx:Canvas>
-					<mx:Panel id="nvPage2" label="联系单信息" width="100%"  borderStyle="none" headerHeight="0" 
-							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none">
-
-						</mx:VBox>		
-					</mx:Panel>
-					<mx:Panel id="nvPage3" label="其他信息" width="100%"  borderStyle="none" headerHeight="0" 
-							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-						<mx:VBox id="nvPage1Group3" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none">
-							<mx:Grid id="nvPage1Grid3" width="100%" horizontalGap="0" verticalGap="5" paddingTop="5" paddingBottom="5" paddingLeft="3" paddingRight="3">
-								<mx:GridRow width="100%" height="{aboutheight}">
-									<mx:GridItem horizontalAlign="right" width="10%">
-										<mx:Label text="更新人:" fontWeight="bold" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="UPDATEUSER" width="100%" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="right" width="10%">
-										<mx:Label text="更新时间:" fontWeight="bold" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="UPDATEDATE" text="" width="100%" height="{aboutheight}"/>
-									</mx:GridItem>
-								</mx:GridRow>
-								<mx:GridRow width="100%" height="{aboutheight}">
-									<mx:GridItem horizontalAlign="right" width="10%">
-										<mx:Label text="创建人:" fontWeight="bold" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="INPUTUSER" text="" width="100%" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="right" width="10%">
-										<mx:Label text="创建时间:" fontWeight="bold" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="INPUTDATE" text="" width="100%" height="{aboutheight}"/>
-									</mx:GridItem>
-								</mx:GridRow>
-							</mx:Grid>	
-						</mx:VBox>		
-					</mx:Panel>
-				</mx:TabNavigator>
-			</mx:Form>
-			<mx:VBox id="errormsgbox" width="100%" borderStyle="none" paddingTop="2" paddingBottom="2" verticalGap="2"></mx:VBox>
-		</mx:VBox>
-	</mx:VBox>
-</mx:TitleWindow>
+</mx:Module>

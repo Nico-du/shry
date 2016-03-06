@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   minWidth="250" minHeight="180" 
+			    height="88" width="485">
+		<!--//	   creationComplete="init()"-->
+	
+	<s:layout>
+		
+		<s:BasicLayout/>
+		
+	</s:layout>
+	
+	<fx:Declarations>
+		
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		
+		<s:HTTPService id="httpService" resultFormat="e4x" />
+		
+	</fx:Declarations>
+	
+	
+	<fx:Script>
+
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			private var file:FileReference;
+			
+			private var filePath:String ="";
+			
+			
+			private function init():void{
+				
+				/* Security.allowDomain( "*" );
+				
+				file = new FileReference();
+				
+				file.addEventListener( ProgressEvent.PROGRESS, onProgress );
+				
+				file.addEventListener( Event.SELECT, onSelect );
+				
+				file.addEventListener( Event.COMPLETE, fileUploadCompleteHandler );
+				 */
+				
+				/**
+				 
+				 httpService.url = "";
+				 
+				 httpService.showBusyCursor = true;
+				 
+				 httpService.send();
+				 
+				 httpService.addEventListener(ResultEvent.RESULT, hsResultHandler);
+				 
+				 httpService.addEventListener(FaultEvent.FAULT, hsFaultHandler);
+				 
+				 */
+				
+			}
+			/* 
+			private function hsResultHandler( event:ResultEvent ):void{
+				
+				var xml:XML = event.result as XML;
+				
+				filePath = xml.filePath.@path;
+				
+			}
+			
+			private function hsFaultHandler( event:FaultEvent ):void{
+				
+				Alert.show( event.fault.toString(), 'http请求错误' );
+				
+			}
+			
+			private function fileUploadCompleteHandler( event:Event ):void{
+				
+				Alert.show("上传成功" );
+				
+				vBox.removeChild( bar );
+				
+			}
+			
+			private function onSelect( event:Event ):void{
+				
+				Alert.show( "上传"+file.name+"(共"+Math.round(file.size)+"字节)","确认上传",Alert.YES|Alert.NO,null,proceedWidthUpload );
+				
+			} */
+			
+			public function onProgress( event:ProgressEvent ):void{
+				
+				lbProgress.text = "已上传"+event.bytesLoaded+"字节，共"+event.bytesTotal+"字节";
+				
+				var proc:uint = (event.bytesLoaded/event.bytesTotal)*100;
+				
+				bar.setProgress( proc, 100 );
+				
+				bar.label="当前进度: " + " " + proc + "%";  
+				
+			}
+			/* 
+			private function proceedWidthUpload( e:CloseEvent ):void{
+				
+				if( e.detail ==Alert.YES ){
+					
+					var request:URLRequest = new URLRequest( 'http://127.0.0.1/flex/test/file.php' );
+					
+					try{
+						
+						file.upload( request );
+						
+					}catch(error:Error){
+						
+						trace("上传失败");
+					}
+					
+				}
+				
+			}
+			
+			
+			//初始化上传窗口
+			
+			private function upload2():void{
+				
+				var imageTypes:FileFilter = new FileFilter( "Image(*.jpg,*.gif,*.jpeg)", "*.jpg;*.gif;*.jpeg" );
+				
+				var docFilter:FileFilter = new FileFilter("Documents", "*.pdf;*.doc;*.txt")
+				
+				var allTypes:Array=new Array(imageTypes,docFilter);  
+				
+				file.browse(allTypes);
+				
+			} */
+			
+			
+		]]>
+		
+	</fx:Script>
+	
+	
+	<mx:Canvas x="0" y="0"
+			   
+			   width="100%" 
+			   
+			   height="100%"
+			   
+			   fontSize="15"
+			   
+			   >
+		
+		<mx:VBox id="vBox" 
+				 
+				 horizontalAlign="center" 
+				 
+				 width="100%"
+				 doubleClick="PopUpManager.removePopUp(this);"
+				  x="0" y="11">
+			
+			<mx:Label text="正在上传文件。。。" 
+					  id="lbProgress"
+					  />
+			
+			<mx:ProgressBar id="bar"
+							
+							labelPlacement="bottom"
+							
+							minimum="0" 
+							
+							visible="true" 
+							
+							maximum="100" 
+							
+							label="当前进度：0%" 
+							
+							direction="right" 
+							
+							mode="manual" 
+							
+							width="356"
+							
+							 x="143"/>
+			
+			<!--<mx:Button label="上传文件" click="upload2()" visible="false" includeInLayout="false"/>-->
+		</mx:VBox>
+		
+	</mx:Canvas>
+	
+</s:Application>

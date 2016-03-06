@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()"
 		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
-		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemodel.common.*">
+		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoduel.common.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
@@ -15,6 +15,7 @@
 			
 			import com.adobe.serialization.json.JSON;
 			import com.benstucki.utilities.IconUtility;
+			import com.commonpages.UploadWindow;
 			
 			import flex.util.CommonMethod;
 			
@@ -392,6 +393,15 @@
 			protected function getColumnIndex(item:Object,column:DataGridColumn):String{
 				return String(this.cns_dg.dataProvider.getItemIndex(item)+1);
 			}
+			
+			//导入数据
+			private function inData():void{
+				var upw:UploadWindow= new UploadWindow();
+				upw.url="/mxAsset/servlet/UploadServlet";
+				PopUpManager.addPopUp(upw,this.parentApplication as DisplayObject,true);
+				PopUpManager.centerPopUp(upw);
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:HDividedBox width="100%" height="100%" verticalAlign="middle" verticalGap="0" borderStyle="none" horizontalAlign="center" horizontalGap="3">
@@ -498,6 +508,7 @@
 				<mx:LinkButton id="editAction" click="editActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="编辑" toolTip="编辑" icon="@Embed(source='images/edit.gif')"/>
 				<mx:LinkButton id="removeAction" click="removeActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="删除" toolTip="删除" icon="@Embed(source='images/delete.gif')"/>
 				<mx:LinkButton id="exportAction" click="exportActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="导出" toolTip="导出" icon="@Embed(source='images/export.gif')"/>
+				<mx:LinkButton id="imp" label="导入" icon="@Embed(source='images/import.gif')" click="importData()"  visible="false" includeInLayout="false"/>
 				<mx:LinkButton id="refreshAction" click="searchClickAction()" height="{aboutheight}" label="刷新" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
 				<mx:ComboBox id="otherAction" cornerRadius="2" editable="false" width="90" height="{aboutheight}" blendMode="overlay">
 					<mx:Array id="cbotherchoose">

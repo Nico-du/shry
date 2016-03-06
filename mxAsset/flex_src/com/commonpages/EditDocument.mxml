@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="PopUpManager.removePopUp(this);setFileName();" 
+			initialize="initializeHandler(event)"	layout="absolute" width="460" height="340" showCloseButton="true" title="修改附件">
+	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" 
+					 showBusyCursor="true"/>
+	<mx:RemoteObject id="documentService" destination="documentService"  endpoint="/mxAsset/messagebroker/amf" 
+					 showBusyCursor="true"/>
+		<mx:Script>
+		<![CDATA[
+			import flash.net.FileFilter;
+			import flash.net.FileReference;
+			import flash.net.URLRequest;
+			import flash.net.URLRequestMethod;
+			import flash.net.URLVariables;
+			import flash.net.navigateToURL;
+			import flash.net.sendToURL;
+			import flash.utils.setTimeout;
+			
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import flex.pojos.XmDocumentVo;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			//public var uploadFile:FileReference=null;
+			[Bindable]
+            private var selectedFiles:ArrayCollection = new ArrayCollection();
+			[Bindable]
+            private var existedFiles:ArrayCollection = new ArrayCollection();
+			[Bindable] public var paretnId:int = -1;
+			[Bindable] public var parentTable:String = null;
+			[Bindable] public var fjColumnname:String = null;
+			 public var tableClassPath:String = null;
+			public var uploadFileList:FileReferenceList=null;
+			
+			public var parentWindow:Object;
+			protected function initializeHandler(event:FlexEvent):void
+			{
+				var xmdoc:XmDocumentVo = new XmDocumentVo();
+				xmdoc.docParentid = paretnId;
+				xmdoc.docParenttable = parentTable;
+				xmdoc.fjColumnname = fjColumnname;
+				commonService.getObjectList(xmdoc);
+				commonService.addEventListener(ResultEvent.RESULT,initBack);
+				
+			}
+			private function initBack(evt:ResultEvent):void{
+				existedFiles = evt.result as ArrayCollection;
+				commonService.removeEventListener(ResultEvent.RESULT,initBack);
+			}
+			
+			private function select():void
+			{   
+				// uploadFile= new FileReference();
+				uploadFileList = new FileReferenceList();
+				var imagesFilter:FileFilter = new FileFilter("图片类型(*.jpg;*.gif;*.png;*.bmp)", "*.jpg;*.gif;*.png;*.bmp");
+				var docFilter:FileFilter = new FileFilter("文档类型(*.pdf;*.doc;*.docx;*.txt;*.xls;*.xlsx;)", "*.pdf;*.doc;*.docx;*.txt;*.xls;*.xlsx;");
+				var fileFilter:FileFilter = new FileFilter("文件类型(*.*;)", "*.*;");
+				uploadFileList.addEventListener(Event.SELECT,selectHandler);
+				uploadFileList.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
+				try
+				{
+					uploadFileList.browse([docFilter,imagesFilter,fileFilter]);
+				}catch(error:Error)
+				{
+					trace(error);
+				}
+			}
+			
+			private function selectHandler(evt:Event):void
+			{
+				if(CommonMethod.validateFileUpload((existedFiles.length + uploadFileList.fileList.length  ),uploadFileList)){
+				var dateFormatter:DateFormatter = new DateFormatter();
+				dateFormatter.formatString = "YYYY-MM-DD";
+				var nowData:String= dateFormatter.format(new Date());
+				
+				for each(var file:FileReference in uploadFileList.fileList){
+					selectedFiles.addItem(file);
+				var xmdoc:XmDocumentVo = new XmDocumentVo();
+				xmdoc.docMc = file.name;
+				xmdoc.docRq = nowData;
+				xmdoc.docSize = file.size+"";
+				xmdoc.docType = file.type;
+				existedFiles.addItem(xmdoc);
+				}
+				}
+			}
+			private var fileCount:int;
+			private var uploadCount:int;
+			var progressBar:MyProgressBar = null;
+			private function uploadFile():void{
+				fileCount = selectedFiles.length;
+				uploadCount = 0;
+				if(fileCount > 0){
+				progressBar = new MyProgressBar();
+				PopUpManager.addPopUp(progressBar,this.parent as DisplayObject,true);
+				PopUpManager.centerPopUp(progressBar);
+				for each(var f: FileReference in selectedFiles){
+					try{
+						//为了防止request内的data丢失每次要new一个新的url
+						var data:URLVariables = new URLVariables();
+						data.parentID = paretnId;
+						data.parentTable = parentTable;
+						data.fjColumnname = fjColumnname;
+						var request:URLRequest= new URLRequest("/mxAsset/servlet/ClobServlet");
+						request.data=data;
+						
+						f.upload(request);//uploadCompleteData
+						f.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA,uploadCompleteDataBack);
+						f.addEventListener( ProgressEvent.PROGRESS, progressBar.onProgress );
+					}catch(error:Error)
+					{
+						Alert.show(error.message);
+					}
+				}
+				}
+			}
+			
+			private function uploadCompleteDataBack(evt:DataEvent):void
+			{
+				if(evt.text=="success"){
+					uploadCount ++　;
+					//	Alert.show("上传成功！","信息提示");
+					//	PopUpManager.removePopUp(this);
+					//	parentWindow.init();parentWindow.newDoc();
+				}
+				if(uploadCount==fileCount){
+					PopUpManager.removePopUp(progressBar);
+					PopUpManager.removePopUp(this);
+					Alert.show("附件修改成功!",CommonXMLData.Alert_Title);
+					setFileName();
+				}
+			}
+			
+			var alterVo:Object;
+			public var columnName:String;
+			var fileName:String = "";
+			private function setFileName():void{
+				for each(var f: Object in existedFiles){
+					fileName += "\""+f.docMc+"."+f.docType +"\" "; 
+				}
+				if(parentWindow.hasOwnProperty("sqfj"))
+				parentWindow.sqfj.text = fileName;
+				if(parentWindow.hasOwnProperty("fj"))
+				parentWindow.fj.text = fileName;
+				if(parentWindow.hasOwnProperty("xqdyb"))
+				parentWindow.xqdyb.text = fileName;
+				if(parentWindow.hasOwnProperty("yswj"))
+				parentWindow.yswj.text = fileName;
+				
+				var cls:Class = getDefinitionByName(tableClassPath) as Class;
+				alterVo = new cls();
+			/* 	switch(parentTable){
+					case "jzcg": 
+						alterVo = new XmJzcgVo();
+						columnName = "xqdyb";
+						break;
+					case "fscg": 
+						alterVo = new XmFscgVo();
+						columnName = "fj";
+						break;
+					case "ysdj": 
+						alterVo = new XmApplyVo();
+						columnName = "yswj";
+						break;
+					case "htdj": 
+						alterVo = new XmApplyVo();
+						columnName = "sqfj";
+						break;
+					default: 
+						alterVo = new XmApplyVo();
+						columnName = "sqfj";
+						break;
+					} */
+				if(paretnId == -1)return;
+				commonService.getObjectList(alterVo, " id="+ this.paretnId);
+				commonService.addEventListener(ResultEvent.RESULT,initbackAlter);
+			}
+			private function initbackAlter(evt:ResultEvent):void
+			{
+				commonService.removeEventListener(ResultEvent.RESULT,initbackAlter);
+				if(evt.result == null){
+					Alert.show(CommonXMLData.Alert_Alter_NotExistRecord,CommonXMLData.Alert_Title); return;
+				}
+				alterVo=evt.result[0];
+				alterVo[columnName] = fileName;
+				commonService.saveOrUpdateObject(alterVo);
+			}
+       
+        private function ioErrorHandler(ioEvent:IOErrorEvent):void {
+        }
+        
+        public function deleteFile(obj:Object):void{
+			objcurr = obj;
+			Alert.yesLabel="确定";
+			Alert.noLabel="取消";
+			Alert.show("确定删除\""+obj.docMc+"."+obj.docType+"\"吗 ？","消息提示框",(Alert.YES|Alert.NO),this,deleteData);
+        }
+			
+			private var index:int = -1;
+			private var indexSlt:int = -1;
+			private var objcurr:Object = new Object();
+			private function deleteBack(evt:ResultEvent):void{
+				documentService.removeEventListener(ResultEvent.RESULT,deleteBack);
+				if(index != -1){
+					existedFiles.removeItemAt(index);
+					existedFiles.refresh();
+					index= -1;
+				}
+				if(indexSlt != -1){
+					selectedFiles.removeItemAt(indexSlt);
+					selectedFiles.refresh();
+					indexSlt= -1;
+				}
+			}
+			
+			
+			private function deleteData(evt:CloseEvent):void
+			{
+					if (evt.detail == Alert.YES){	
+						index=existedFiles.getItemIndex(objcurr)
+						indexSlt=selectedFiles.getItemIndex(objcurr)
+						if(objcurr.docNr == null || objcurr.docNr==""){deleteBack(null); return;}
+						documentService.deleteDoc(Number(objcurr.id),objcurr.docNr);
+						documentService.addEventListener(ResultEvent.RESULT,deleteBack);
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:Button x="10" y="10" label="选择文件" width="98" click="select()"/>
+	<mx:DataGrid x="10" y="40" width="422" dataProvider="{existedFiles}" height="247">
+		<mx:columns>
+			<mx:DataGridColumn headerText="文件名称" dataField="docMc"/>
+			<mx:DataGridColumn headerText="类型" dataField="docType"/>
+			<mx:DataGridColumn headerText="大小(byte)" dataField="docSize"/>
+			<mx:DataGridColumn headerText="上传日期" dataField="docRq"/>
+			<mx:DataGridColumn headerText="删除" width="45">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:Button  icon="@Embed(source='images/delete.gif')" click="this.parentDocument.deleteFile(data)"/>
+					</mx:Component>
+				</mx:itemRenderer>
+				</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Button x="144" y="10" label="上传" enabled="{selectedFiles.length>0?true:false}" click="uploadFile()"/>
+	
+</mx:TitleWindow>

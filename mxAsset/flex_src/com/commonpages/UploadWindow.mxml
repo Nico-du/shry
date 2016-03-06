@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="PopUpManager.removePopUp(this);" layout="absolute" width="496" height="182" fontSize="12" title="信息框" showCloseButton="true">
+	<mx:Script source="../../flex/util/Upload.as">
+	</mx:Script>
+	<mx:Button x="13" y="99" label="导入文件" click="uploadExcel();inBtn.enabled=false;" id="inBtn"/>
+    <mx:Label x="10" y="10" text="导入excel文件" />
+    <mx:ProgressBar x="10" y="40" width="457" themeColor="#F20D7A" minimum="0" mode="manual" maximum="100" id="progress1" label="当前进度: 0%" fontWeight="normal"/>
+    <mx:Label x="155" y="101" width="311" id="lbProgress"  textAlign="right"/>
+    <mx:Button x="99" y="99" label="关闭" id="close" click="cancel()"/>
+    <mx:SWFLoader x="13" y="72" width="20" height="20" source="images/loading.swf" id="loading" visible="false"/>
+</mx:TitleWindow>

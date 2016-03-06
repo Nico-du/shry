@@ -19,6 +19,7 @@
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
 			
+			import shry_zlgl.DJGridMoudel;
 			import shry_zlgl.FYGridMoudel;
 			import shry_zlgl.FYXNGridMoudel;
 			import shry_zlgl.SYDGridMoudel;
@@ -145,9 +146,9 @@
 					tempMoudel=new FYXNGridMoudel();
 				}else if(ASStringHelper.stringCompare(this.ZCXN,strpageurl,true)==0){
 						tempMoudel=new ZCXNGridMoudel();
-				}/*else if(ASStringHelper.stringCompare(XJDJ,strpageurl,true)==0){
-					tempMoudel=new XjjlList();
-				}else if(ASStringHelper.stringCompare(XJCX,strpageurl,true)==0){
+				}else if(ASStringHelper.stringCompare(this.DJ,strpageurl,true)==0){
+					tempMoudel=new DJGridMoudel();
+				}/*else if(ASStringHelper.stringCompare(XJCX,strpageurl,true)==0){
 					tempMoudel=new XjjlList();
 				}else if(ASStringHelper.stringCompare(XJTJ,strpageurl,true)==0){
 					tempMoudel=new XjtjView();
@@ -280,7 +281,7 @@
 			<item id="jbfw" label="风扇参数">
 			    <node id="ZCPage" label="总成数据" pageUrl="ZCPage"/>
 				<node id="FYPage" label="风叶数据" pageUrl="FYPage"/>
-				<node id="FYPage" label="电机数据" pageUrl="DJPage"/>
+				<node id="DJPage" label="电机数据" pageUrl="DJPage"/>
 			</item>
 			<item id="bmfw" label="性能数据">
 				<node id="SYDPage" label="试验单数据" pageUrl="SYDPage"/>

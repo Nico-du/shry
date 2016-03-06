@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
-				xmlns:dataPick="cn.cnspagemodel.date.*"  creationPolicy="all" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+				xmlns:dataPick="cn.cnspagemoduel.date.*"  creationPolicy="all" horizontalScrollPolicy="off" verticalScrollPolicy="off"
 				title="报废明细信息" layout="absolute" width="1024"  showCloseButton="true" fontSize="12" 
-				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()" xmlns:numberInput="cn.cnspagemodel.textinput.*">
+				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()" xmlns:numberInput="cn.cnspagemoduel.textinput.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script source="../flex/util/InitBGDJForms.as"/>
 	<mx:Script>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
-				xmlns:dataPick="cn.cnspagemodel.date.*" xmlns:assetRYHCMX="asset_ryhc.*" creationPolicy="all" width="400" height="300"
+				xmlns:dataPick="cn.cnspagemoduel.date.*" xmlns:assetRYHCMX="asset_ryhc.*" creationPolicy="all" width="400" height="300"
 				title="编辑信息" layout="absolute" showCloseButton="true" fontSize="12" horizontalScrollPolicy="off" verticalScrollPolicy="off"
 				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>

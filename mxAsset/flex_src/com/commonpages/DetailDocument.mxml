@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="PopUpManager.removePopUp(this);" 
+			initialize="initializeHandler(event)"	layout="absolute" width="460" height="340" showCloseButton="true" title="附件详细信息">
+	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" 
+					 showBusyCursor="true"/>
+	<mx:RemoteObject id="documentService" destination="documentService"  endpoint="/mxAsset/messagebroker/amf" 
+					 showBusyCursor="true"/>
+		<mx:Script>
+		<![CDATA[
+			import flash.net.FileFilter;
+			import flash.net.FileReference;
+			import flash.net.URLRequest;
+			import flash.net.URLRequestMethod;
+			import flash.net.URLVariables;
+			import flash.net.navigateToURL;
+			import flash.net.sendToURL;
+			import flash.utils.setTimeout;
+			
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import flex.pojos.XmDocumentVo;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			//public var uploadFile:FileReference=null;
+			[Bindable]
+            private var selectedFiles:ArrayCollection = new ArrayCollection();
+			[Bindable]
+            private var existedFiles:ArrayCollection = new ArrayCollection();
+			[Bindable] public var paretnId:int = -1;
+			public var uploadFileList:FileReferenceList=null;
+			[Bindable] public var parentTable:String = null;
+			[Bindable] public var fjColumnname:String = null;
+			
+			public var parentWindow:Object;
+			protected function initializeHandler(event:FlexEvent):void
+			{
+				var xmdoc:XmDocumentVo = new XmDocumentVo();
+				xmdoc.docParentid = paretnId;
+				xmdoc.docParenttable = parentTable;
+				xmdoc.fjColumnname = fjColumnname;
+				
+				commonService.getObjectList(xmdoc);
+				commonService.addEventListener(ResultEvent.RESULT,initBack);
+			}
+			private function initBack(evt:ResultEvent):void{
+				existedFiles = evt.result as ArrayCollection;
+				commonService.removeEventListener(ResultEvent.RESULT,initBack);
+			}
+			private var objNr:String = "";
+        public function deleteFile(obj:Object):void{
+			objNr = obj.docNr;
+			documentService.isFileExist(obj.docNr);
+			documentService.addEventListener(ResultEvent.RESULT,getFileExist);
+        }
+	   private function getFileExist(evt:ResultEvent):void{
+		   documentService.removeEventListener(ResultEvent.RESULT,getFileExist);
+		   if(evt.result+"" == "true"){
+			   CommonMethod.downloadExcel(encodeURI("uploadFiles/"+objNr));
+		   }else{
+			   Alert.show(CommonXMLData.Alert_Alter_NotExistFile,CommonXMLData.Alert_Title);
+		   }
+	   }
+		
+		]]>
+	</mx:Script>
+	<mx:DataGrid x="10" y="10" width="422" dataProvider="{existedFiles}" height="277">
+		<mx:columns>
+			<mx:DataGridColumn headerText="文件名称" dataField="docMc"/>
+			<mx:DataGridColumn headerText="类型" dataField="docType"/>
+			<mx:DataGridColumn headerText="大小(byte)" dataField="docSize"/>
+			<mx:DataGridColumn headerText="上传日期" dataField="docRq"/>
+			<mx:DataGridColumn headerText="下载" width="45">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:Button  icon="@Embed(source='images/xia.png')" click="this.parentDocument.deleteFile(data)"/>
+					</mx:Component>
+				</mx:itemRenderer>
+				</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
+	
+</mx:TitleWindow>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
-				xmlns:dataPick="cn.cnspagemodel.date.*" xmlns:cnscombox="cn.cnspagemodel.combox.*" creationPolicy="all"
+				xmlns:dataPick="cn.cnspagemoduel.date.*" xmlns:cnscombox="cn.cnspagemoduel.combox.*" creationPolicy="all"
 				title="编辑信息" layout="absolute" showCloseButton="true" fontSize="12" horizontalScrollPolicy="off" verticalScrollPolicy="off" 
 				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()">
 	<mx:RemoteObject id="CodeListServiceRmt" destination="codeListService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>

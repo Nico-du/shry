@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()" updateComplete="initAddFoldBtn()"
 		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
-		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemodel.common.*" xmlns:tree="cn.cnspagemodel.tree.*">
+		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoduel.common.*" xmlns:tree="cn.cnspagemoduel.tree.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script source="../systemManage/initAllAssetRule.as"/> 
 	<mx:Script>
