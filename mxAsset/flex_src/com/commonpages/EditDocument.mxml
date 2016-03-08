@@ -143,7 +143,9 @@
 			var alterVo:Object;
 			public var columnName:String;
 			var fileName:String = "";
+			//选择文件后回显到选择框中文件名
 			private function setFileName():void{
+				return;
 				for each(var f: Object in existedFiles){
 					fileName += "\""+f.docMc+"."+f.docType +"\" "; 
 				}

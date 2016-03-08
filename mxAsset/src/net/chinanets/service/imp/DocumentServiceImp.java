@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.chinanets.pojos.XmDocument;
 import net.chinanets.service.DocumentService;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -87,7 +88,7 @@ public class DocumentServiceImp  extends CommonServiceImp implements DocumentSer
 	*//**
 	 * 删除文档
 	 * 文档List
-	 *//*
+	 */
 	public void deleteDoc(Long id ,String path) {
 		try{
 		XmDocument xoc = new XmDocument();
@@ -104,11 +105,11 @@ public class DocumentServiceImp  extends CommonServiceImp implements DocumentSer
 			e.printStackTrace();
 		}
 	}
-	*//**
+	/**
 	 * 删除文档
 	 * @param xmdocList
 	 * 文档List
-	 *//*
+	 */
 	public void deleteDocument(List<XmDocument> xmdocList){
 		if(xmdocList.isEmpty()) return;
 		try{
@@ -126,7 +127,7 @@ public class DocumentServiceImp  extends CommonServiceImp implements DocumentSer
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-	}*/
+	}
 	/**
 	 * 判断文件是否存在
 	 */
@@ -157,12 +158,6 @@ public List getOneProjectDoc(Long id) {
 
 @Override
 public void deleteDoc(Long id, String path) {
-	// TODO Auto-generated method stub
-	
-}
-
-@Override
-public void deleteDocument(List<Object> xmdocList) {
 	// TODO Auto-generated method stub
 	
 }

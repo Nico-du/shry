@@ -647,6 +647,7 @@
 									<mx:HBox id="fyts" width="100%" height="{aboutheight*5}" borderStyle="none" verticalAlign="middle" horizontalAlign="left">
 										<mx:Image id="image1" source="{imgFileNameT}"   height="{aboutheight*5}" width="{aboutheight*5}"/>
 										<mx:Image id="image2" source="{imgFileNameB}"    height="{aboutheight*5}" width="{aboutheight*5}"/>
+										<mx:Button label="上传图片" click="modifyUploadFile()"/>
 									</mx:HBox>
 								</mx:GridItem>
 							</mx:GridRow>
