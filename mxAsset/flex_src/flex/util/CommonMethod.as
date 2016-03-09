@@ -3,6 +3,8 @@ package flex.util
 	
 	import com.adobe.serialization.json.JSON;
 	import com.benstucki.utilities.IconUtility;
+	import com.commonpages.DetailDocument;
+	import com.commonpages.EditDocument;
 	
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
@@ -39,6 +41,7 @@ package flex.util
 	import mx.controls.TextInput;
 	import mx.controls.dataGridClasses.DataGridColumn;
 	import mx.core.Application;
+	import mx.core.IFlexDisplayObject;
 	import mx.events.FlexEvent;
 	import mx.formatters.DateFormatter;
 	import mx.managers.PopUpManager;
@@ -95,6 +98,24 @@ package flex.util
 			}
 			
 		}
+		
+		//上传图片 文件上传的公共方法
+		public static function modifyUploadFile(parentWd:DisplayObject,tablename:String,columnname:String,dataid:String,isDetailPage:Boolean=false ):void
+		{
+			var editDoc:Object;
+			if(isDetailPage){
+				editDoc = new DetailDocument();
+			}else{
+				editDoc = new EditDocument();
+			}
+			editDoc.columnname = columnname.toLowerCase();
+			editDoc.paretnId = dataid;
+			editDoc.tablename = tablename.toLowerCase();
+			editDoc.parentWindow = parentWd;
+			PopUpManager.addPopUp(editDoc as IFlexDisplayObject,parentWd as DisplayObject,true);
+			PopUpManager.centerPopUp(editDoc as IFlexDisplayObject); 
+		}
+		
 		
 		//读取XML文件
 		private static var ipCfgXml:XML;

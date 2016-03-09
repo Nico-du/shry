@@ -10,7 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import net.chinanets.pojos.XmDocument;
+import net.chinanets.pojos.ShryUploadfileData;
 import net.chinanets.service.CommonService;
 import net.chinanets.u.Hanzi2Pinyin;
 
@@ -47,7 +47,7 @@ public class ClobServlet extends HttpServlet {
 		try {
 			String pid = request.getParameter("docid");
 			String nr = request.getParameter("filePath");
-			String path = request.getRealPath("/")+"uploadFiles/"+nr;
+			String path = request.getRealPath("/")+"sysArgFiles/"+nr;
 			//获得dao对象
 			ServletContext servletContext = request.getSession()
 					.getServletContext();
@@ -59,8 +59,8 @@ public class ClobServlet extends HttpServlet {
 			 * 初始pojo对象并赋值
 			 */
 		
-			XmDocument doc = new XmDocument();
-			doc.setId(Long.parseLong(pid));
+			ShryUploadfileData doc = new ShryUploadfileData();
+			doc.setDocid(Long.parseLong(pid));
 			cs.deleteObject(doc);
 			// 删除上传文件
 			File file = new File(path);
@@ -124,9 +124,9 @@ public class ClobServlet extends HttpServlet {
 					String docNr=time+value;
 					//写入文件
 					//float l=item.getSize()/1024;
-					File fldir = new File(path+"/uploadFiles/"+docNr.substring(0,4));
+					File fldir = new File(path+"/sysArgFiles/"+docNr.substring(0,4));
 					fldir.mkdirs();
-					item.write(new File(path+"/uploadFiles/" + docNr.substring(0,4),docNr));
+					item.write(new File(path+"/sysArgFiles/" + docNr.substring(0,4),docNr));
 					
 					//获得dao对象
 					ServletContext servletContext = request.getSession()
@@ -140,19 +140,19 @@ public class ClobServlet extends HttpServlet {
 					 * 初始pojo对象并赋值
 					 */
 				
-					XmDocument doc = new XmDocument();
-					doc.setDocSize(fileSize);
-					doc.setDocMc(docName);
-					doc.setDocNr(docNr.substring(0,4)+"/"+docNr);
-					doc.setDocType(docType);
-	                doc.setDocParenttable(request.getParameter("parentTable"));
+					ShryUploadfileData doc = new ShryUploadfileData();
+					doc.setFilesize(fileSize);
+					doc.setFilename(docName);
+					doc.setFilepath(docNr.substring(0,4)+"/"+docNr);
+					doc.setFiletype(docType);
+	                doc.setTablename(request.getParameter("tablename"));
 	                String rq=new SimpleDateFormat("yyyy-MM-dd").format(date);
-	                doc.setDocRq(rq);
+	                doc.setUploaddate(rq);
 	                
-					String pid=request.getParameter("parentID");
-					if(pid != null && pid.length() > 0)doc.setDocParentid(pid);
-					String fjColumnname=request.getParameter("fjColumnname");
-					if(fjColumnname != null && fjColumnname.length() > 0)doc.setFjColumnname(fjColumnname);
+					String pid=request.getParameter("dataid");
+					if(pid != null && pid.length() > 0)doc.setDataid(pid);
+					String fjColumnname=request.getParameter("columnname");
+					if(fjColumnname != null && fjColumnname.length() > 0)doc.setColumnname(fjColumnname);
 					
 				//	System.out.println("pid="+pid);
 				//	System.out.println("xmid="+xmid);

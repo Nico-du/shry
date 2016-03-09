@@ -1,5 +1,5 @@
 #MyEclipse Hibernate Properties
-#Fri Jun 12 13:48:34 CST 2015
+#Wed Mar 09 23:34:28 CST 2016
 sessionFactoryName=
 genBasicCompId=false
 profile=
@@ -11,7 +11,7 @@ reStrategyClass=
 detectO2O=false
 springDaoFile=
 useJavaTypes=true
-keyGenerator=uuid
+keyGenerator=increment
 libInstallFolder=/WebRoot/WEB-INF/lib
 addLibs2Project=true
 genVersionTag=false

@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.chinanets.pojos.XmDocument;
+import net.chinanets.pojos.ShryUploadfileData;
 import net.chinanets.service.DocumentService;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -32,7 +32,7 @@ public class DocumentServiceImp  extends CommonServiceImp implements DocumentSer
 		 all.addAttribute("pro", "1");
 		  for(Iterator proTor=prossList.iterator();proTor.hasNext();){
 				XmProcess p=(XmProcess) proTor.next();
-				XmDocument xmdoc= new XmDocument();
+				ShryUploadfileData xmdoc= new ShryUploadfileData();
 				xmdoc.setDocParentid(p.getId()+"");
 				List docList=super.getObjectList(xmdoc);
 				
@@ -41,12 +41,12 @@ public class DocumentServiceImp  extends CommonServiceImp implements DocumentSer
 				lc.addAttribute("id", p.getId().toString());
 				lc.addAttribute("pro", "2");
 				for(Iterator docTor=docList.iterator();docTor.hasNext();){
-					XmDocument doc=(XmDocument)docTor.next();
+					ShryUploadfileData doc=(ShryUploadfileData)docTor.next();
 					//doc.getDocMc();doc.getId();
 					Element wd=lc.addElement("wd");
 					wd.addAttribute("name", doc.getDocMc()+"."+doc.getDocType());
 					wd.addAttribute("id", doc.getDocParentid().toString());
-					wd.addAttribute("nr", doc.getDocNr());
+					wd.addAttribute("nr", doc.getFilepath());
 					wd.addAttribute("icon", "pdf");
 				}
 		  }
@@ -78,7 +78,7 @@ public class DocumentServiceImp  extends CommonServiceImp implements DocumentSer
 		List prossList=super.getObjectList(obj, " 1=1 order by bzdesc asc");
 		for(Iterator proTor=prossList.iterator();proTor.hasNext();){
 			XmProcess p=(XmProcess) proTor.next();
-			XmDocument xmdoc= new XmDocument();
+			ShryUploadfileData xmdoc= new ShryUploadfileData();
 			xmdoc.setDocParentid(p.getId()+"");
 			List doc=super.getObjectList(xmdoc);
 			docList.addAll(doc);
@@ -91,12 +91,12 @@ public class DocumentServiceImp  extends CommonServiceImp implements DocumentSer
 	 */
 	public void deleteDoc(Long id ,String path) {
 		try{
-		XmDocument xoc = new XmDocument();
-		xoc.setId(id);
+		ShryUploadfileData xoc = new ShryUploadfileData();
+		xoc.setDocid(id);
 		super.deleteObject(xoc);
 		File file = new File("");
-		file = new File(file.getAbsolutePath()+"/../webapps/mxAsset/uploadFiles/"+path);
-		if(xoc.getDocNr() != null && xoc.getDocNr().length() > 0 && file.exists())
+		file = new File(file.getAbsolutePath()+"/../webapps/mxAsset/sysArgFiles/"+path);
+		if(xoc.getFilepath() != null && xoc.getFilepath().length() > 0 && file.exists())
 			file.delete();
 		else{
 			throw new Exception(file.getAbsolutePath()+",文件找不到!");
@@ -110,13 +110,13 @@ public class DocumentServiceImp  extends CommonServiceImp implements DocumentSer
 	 * @param xmdocList
 	 * 文档List
 	 */
-	public void deleteDocument(List<XmDocument> xmdocList){
+	public void deleteDocument(List<ShryUploadfileData> xmdocList){
 		if(xmdocList.isEmpty()) return;
 		try{
 		 File file;
-			for(XmDocument doc : xmdocList){
-				file = new File(new File("").getAbsolutePath()+"/../webapps/mxAsset/uploadFiles/"+doc.getDocNr());
-				if(doc.getDocNr() != null && doc.getDocNr().length() > 0 && file.exists() && file.isFile())
+			for(ShryUploadfileData doc : xmdocList){
+				file = new File(new File("").getAbsolutePath()+"/../webapps/mxAsset/sysArgFiles/"+doc.getFilepath());
+				if(doc.getFilepath() != null && doc.getFilepath().length() > 0 && file.exists() && file.isFile())
 					file.delete();
 				else{
 					Exception ex = new Exception(file.getAbsolutePath()+",文件找不到!");
@@ -133,7 +133,7 @@ public class DocumentServiceImp  extends CommonServiceImp implements DocumentSer
 	 */
 	public boolean isFileExist(String filePath){
 		File file = new File("");
-		file = new File(file.getAbsolutePath()+"/../webapps/mxAsset/uploadFiles/"+filePath);
+		file = new File(file.getAbsolutePath()+"/../webapps/mxAsset/sysArgFiles/"+filePath);
 		if(file.exists()) return true;
 		return false;
 	}
@@ -154,12 +154,6 @@ public List getDocTreeAndXm(Long id) {
 public List getOneProjectDoc(Long id) {
 	// TODO Auto-generated method stub
 	return null;
-}
-
-@Override
-public void deleteDoc(Long id, String path) {
-	// TODO Auto-generated method stub
-	
 }
 	
 	

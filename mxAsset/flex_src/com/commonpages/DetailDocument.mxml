@@ -19,7 +19,7 @@
 			import flex.util.CommonMethod;
 			import flex.util.CommonXMLData;
 			
-			import flex.pojos.XmDocumentVo;
+			import flex.pojos.FileUploadVo;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -35,7 +35,7 @@
             private var selectedFiles:ArrayCollection = new ArrayCollection();
 			[Bindable]
             private var existedFiles:ArrayCollection = new ArrayCollection();
-			[Bindable] public var paretnId:int = -1;
+			[Bindable] public var paretnId:String = "";
 			public var uploadFileList:FileReferenceList=null;
 			[Bindable] public var parentTable:String = null;
 			[Bindable] public var fjColumnname:String = null;
@@ -43,10 +43,10 @@
 			public var parentWindow:Object;
 			protected function initializeHandler(event:FlexEvent):void
 			{
-				var xmdoc:XmDocumentVo = new XmDocumentVo();
-				xmdoc.docParentid = paretnId;
-				xmdoc.docParenttable = parentTable;
-				xmdoc.fjColumnname = fjColumnname;
+				var xmdoc:FileUploadVo = new FileUploadVo();
+				xmdoc.dataid = paretnId;
+				xmdoc.tablename = parentTable;
+				xmdoc.columnname = fjColumnname;
 				
 				commonService.getObjectList(xmdoc);
 				commonService.addEventListener(ResultEvent.RESULT,initBack);
@@ -64,7 +64,7 @@
 	   private function getFileExist(evt:ResultEvent):void{
 		   documentService.removeEventListener(ResultEvent.RESULT,getFileExist);
 		   if(evt.result+"" == "true"){
-			   CommonMethod.downloadExcel(encodeURI("uploadFiles/"+objNr));
+			   CommonMethod.downloadExcel(encodeURI("sysArgFiles/"+objNr));
 		   }else{
 			   Alert.show(CommonXMLData.Alert_Alter_NotExistFile,CommonXMLData.Alert_Title);
 		   }

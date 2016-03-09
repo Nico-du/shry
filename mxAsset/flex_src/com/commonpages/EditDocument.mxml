@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="PopUpManager.removePopUp(this);setFileName();" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="PopUpManager.removePopUp(this);" 
 			initialize="initializeHandler(event)"	layout="absolute" width="460" height="340" showCloseButton="true" title="修改附件">
 	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" 
 					 showBusyCursor="true"/>
@@ -19,7 +19,7 @@
 			import flex.util.CommonMethod;
 			import flex.util.CommonXMLData;
 			
-			import flex.pojos.XmDocumentVo;
+			import flex.pojos.FileUploadVo;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -35,19 +35,18 @@
             private var selectedFiles:ArrayCollection = new ArrayCollection();
 			[Bindable]
             private var existedFiles:ArrayCollection = new ArrayCollection();
-			[Bindable] public var paretnId:int = -1;
-			[Bindable] public var parentTable:String = null;
-			[Bindable] public var fjColumnname:String = null;
-			 public var tableClassPath:String = null;
+			[Bindable] public var paretnId:String = "";
+			[Bindable] public var tablename:String = null;
+			[Bindable] public var columnname:String = null;
 			public var uploadFileList:FileReferenceList=null;
 			
 			public var parentWindow:Object;
 			protected function initializeHandler(event:FlexEvent):void
 			{
-				var xmdoc:XmDocumentVo = new XmDocumentVo();
-				xmdoc.docParentid = paretnId;
-				xmdoc.docParenttable = parentTable;
-				xmdoc.fjColumnname = fjColumnname;
+				var xmdoc:FileUploadVo = new FileUploadVo();
+				xmdoc.dataid = paretnId+"";
+				xmdoc.tablename = tablename;
+				xmdoc.columnname = columnname;
 				commonService.getObjectList(xmdoc);
 				commonService.addEventListener(ResultEvent.RESULT,initBack);
 				
@@ -68,7 +67,7 @@
 				uploadFileList.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
 				try
 				{
-					uploadFileList.browse([docFilter,imagesFilter,fileFilter]);
+					uploadFileList.browse([imagesFilter,docFilter,fileFilter]);
 				}catch(error:Error)
 				{
 					trace(error);
@@ -79,16 +78,16 @@
 			{
 				if(CommonMethod.validateFileUpload((existedFiles.length + uploadFileList.fileList.length  ),uploadFileList)){
 				var dateFormatter:DateFormatter = new DateFormatter();
-				dateFormatter.formatString = "YYYY-MM-DD";
+				dateFormatter.formatString = "YYYY-MM-DD JJ:NN:SS";
 				var nowData:String= dateFormatter.format(new Date());
 				
 				for each(var file:FileReference in uploadFileList.fileList){
 					selectedFiles.addItem(file);
-				var xmdoc:XmDocumentVo = new XmDocumentVo();
-				xmdoc.docMc = file.name;
-				xmdoc.docRq = nowData;
-				xmdoc.docSize = file.size+"";
-				xmdoc.docType = file.type;
+				var xmdoc:FileUploadVo = new FileUploadVo();
+				xmdoc.filename = file.name;
+				xmdoc.uploaddate = nowData;
+				xmdoc.filesize = file.size+"";
+				xmdoc.filetype = file.type;
 				existedFiles.addItem(xmdoc);
 				}
 				}
@@ -107,9 +106,9 @@
 					try{
 						//为了防止request内的data丢失每次要new一个新的url
 						var data:URLVariables = new URLVariables();
-						data.parentID = paretnId;
-						data.parentTable = parentTable;
-						data.fjColumnname = fjColumnname;
+						data.dataid = paretnId;
+						data.tablename = tablename;
+						data.columnname = columnname;
 						var request:URLRequest= new URLRequest("/mxAsset/servlet/ClobServlet");
 						request.data=data;
 						
@@ -135,68 +134,11 @@
 				if(uploadCount==fileCount){
 					PopUpManager.removePopUp(progressBar);
 					PopUpManager.removePopUp(this);
-					Alert.show("附件修改成功!",CommonXMLData.Alert_Title);
-					setFileName();
+					Alert.show("文件上传成功!",CommonXMLData.Alert_Title);
+				//	setFileName();
 				}
 			}
 			
-			var alterVo:Object;
-			public var columnName:String;
-			var fileName:String = "";
-			//选择文件后回显到选择框中文件名
-			private function setFileName():void{
-				return;
-				for each(var f: Object in existedFiles){
-					fileName += "\""+f.docMc+"."+f.docType +"\" "; 
-				}
-				if(parentWindow.hasOwnProperty("sqfj"))
-				parentWindow.sqfj.text = fileName;
-				if(parentWindow.hasOwnProperty("fj"))
-				parentWindow.fj.text = fileName;
-				if(parentWindow.hasOwnProperty("xqdyb"))
-				parentWindow.xqdyb.text = fileName;
-				if(parentWindow.hasOwnProperty("yswj"))
-				parentWindow.yswj.text = fileName;
-				
-				var cls:Class = getDefinitionByName(tableClassPath) as Class;
-				alterVo = new cls();
-			/* 	switch(parentTable){
-					case "jzcg": 
-						alterVo = new XmJzcgVo();
-						columnName = "xqdyb";
-						break;
-					case "fscg": 
-						alterVo = new XmFscgVo();
-						columnName = "fj";
-						break;
-					case "ysdj": 
-						alterVo = new XmApplyVo();
-						columnName = "yswj";
-						break;
-					case "htdj": 
-						alterVo = new XmApplyVo();
-						columnName = "sqfj";
-						break;
-					default: 
-						alterVo = new XmApplyVo();
-						columnName = "sqfj";
-						break;
-					} */
-				if(paretnId == -1)return;
-				commonService.getObjectList(alterVo, " id="+ this.paretnId);
-				commonService.addEventListener(ResultEvent.RESULT,initbackAlter);
-			}
-			private function initbackAlter(evt:ResultEvent):void
-			{
-				commonService.removeEventListener(ResultEvent.RESULT,initbackAlter);
-				if(evt.result == null){
-					Alert.show(CommonXMLData.Alert_Alter_NotExistRecord,CommonXMLData.Alert_Title); return;
-				}
-				alterVo=evt.result[0];
-				alterVo[columnName] = fileName;
-				commonService.saveOrUpdateObject(alterVo);
-			}
-       
         private function ioErrorHandler(ioEvent:IOErrorEvent):void {
         }
         
@@ -204,7 +146,7 @@
 			objcurr = obj;
 			Alert.yesLabel="确定";
 			Alert.noLabel="取消";
-			Alert.show("确定删除\""+obj.docMc+"."+obj.docType+"\"吗 ？","消息提示框",(Alert.YES|Alert.NO),this,deleteData);
+			Alert.show("确定删除\""+obj.filename+"."+obj.filetype+"\"吗 ？","消息提示框",(Alert.YES|Alert.NO),this,deleteData);
         }
 			
 			private var index:int = -1;
@@ -230,8 +172,8 @@
 					if (evt.detail == Alert.YES){	
 						index=existedFiles.getItemIndex(objcurr)
 						indexSlt=selectedFiles.getItemIndex(objcurr)
-						if(objcurr.docNr == null || objcurr.docNr==""){deleteBack(null); return;}
-						documentService.deleteDoc(Number(objcurr.id),objcurr.docNr);
+						if(objcurr.filepath == null || objcurr.filepath==""){deleteBack(null); return;}
+						documentService.deleteDoc(Number(objcurr.docid),objcurr.filepath);
 						documentService.addEventListener(ResultEvent.RESULT,deleteBack);
 				}
 			}
@@ -240,10 +182,10 @@
 	<mx:Button x="10" y="10" label="选择文件" width="98" click="select()"/>
 	<mx:DataGrid x="10" y="40" width="422" dataProvider="{existedFiles}" height="247">
 		<mx:columns>
-			<mx:DataGridColumn headerText="文件名称" dataField="docMc"/>
-			<mx:DataGridColumn headerText="类型" dataField="docType"/>
-			<mx:DataGridColumn headerText="大小(byte)" dataField="docSize"/>
-			<mx:DataGridColumn headerText="上传日期" dataField="docRq"/>
+			<mx:DataGridColumn headerText="文件名称" dataField="filename"/>
+			<mx:DataGridColumn headerText="类型" dataField="filetype"/>
+			<mx:DataGridColumn headerText="大小(byte)" dataField="filesize"/>
+			<mx:DataGridColumn headerText="上传日期" dataField="uploaddate"/>
 			<mx:DataGridColumn headerText="删除" width="45">
 				<mx:itemRenderer>
 					<mx:Component>

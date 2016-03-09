@@ -242,7 +242,7 @@
 		<mapping resource="net/chinanets/pojos/SvRepository.hbm.xml"></mapping>
 
 		<!--文档上传  -->
-		<mapping resource="net/chinanets/pojos/XmDocument.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/ShryUploadfileData.hbm.xml" />
 
 		<!--  -->
 		<mapping resource="net/chinanets/pojos/TbType.hbm.xml" />
@@ -316,5 +316,6 @@
 		<mapping resource="net/chinanets/pojos/ShrySydData.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/ShryFyData.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/ShryDjxnData.hbm.xml" />
+			
 	</session-factory>
 </hibernate-configuration>

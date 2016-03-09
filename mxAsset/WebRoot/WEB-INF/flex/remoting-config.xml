@@ -120,7 +120,13 @@
 			<scope>application</scope>
 		</properties>
 	</destination>
-	
+	<destination id="documentService">
+		<properties>
+			<factory>spring</factory>
+			<source>documentService</source>
+			<scope>application</scope>
+		</properties>
+	</destination>
 	
 	
 	<!--
@@ -273,14 +279,6 @@
 		<properties>
 			<factory>spring</factory>
 			<source>skglService</source>
-			<scope>application</scope>
-		</properties>
-	</destination>
-	
-	<destination id="documentService">
-		<properties>
-			<factory>spring</factory>
-			<source>documentService</source>
 			<scope>application</scope>
 		</properties>
 	</destination>

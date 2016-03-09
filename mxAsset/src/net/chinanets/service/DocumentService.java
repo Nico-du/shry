@@ -2,6 +2,8 @@ package net.chinanets.service;
 
 import java.util.List;
 
+import net.chinanets.pojos.ShryUploadfileData;
+
 public interface DocumentService {
 	/*
 	 * 获取所有的项目和所属文档(non-Javadoc)
@@ -26,7 +28,7 @@ public interface DocumentService {
 	 * @param xmdocList
 	 * 文档List
 	 */
-	public void deleteDocument(List<Object> xmdocList);
+	public void deleteDocument(List<ShryUploadfileData> xmdocList);
 	/**
 	 * 判断文件是否存在
 	 */

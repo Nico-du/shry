@@ -113,7 +113,7 @@ private function validateSubmit(id:int):void{
 	if(uploadCount!=fileCount){
 		//回滚 1. 删除文档表中xmid 为id的数据
 		//2.删除项目申请表中id 为id的数据 
-		//	commonService.deleteByHql("delete from XmDocument where xmid="+id);
+		//	commonService.deleteByHql("delete from FileUploadVo where xmid="+id);
 		Alert.show("validate ...");
 	}
 }
