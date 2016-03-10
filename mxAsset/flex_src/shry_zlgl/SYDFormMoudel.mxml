@@ -253,6 +253,8 @@
 				this.syfd.text=tempObj["syfd"];
 				this.ckmj.text=tempObj["ckmj"];
 				this.syfs.text=tempObj["syfs"];
+				this.xm.text=tempObj["xm"];
+				this.yhcx.text=tempObj["yhcx"];
 				
 				this.fyzj.text=tempObj["fyzj"];
 				this.zcxh.text=tempObj["zcxh"];
@@ -358,6 +360,8 @@
 				dataJson.syfd=this.syfd.text;
 				dataJson.ckmj=this.ckmj.text;
 				dataJson.syfs=this.syfs.text;
+				dataJson.xm=this.xm.text;
+				dataJson.yhcx=this.yhcx.text;
 				
 				dataJson.fyzj=this.fyzj.text;
 				dataJson.zcxh=this.zcxh.text;
@@ -734,15 +738,19 @@
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="项目:"  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:TextInput id="xm" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="用户车型:"  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:TextInput id="yhcx" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow>

@@ -24,6 +24,8 @@ public class ShryFyData implements java.io.Serializable {
 	private String ypsm;
 	private String jqfs;
 	private String ypfb;
+	private String cl;
+	private String clbz;
 	private String qj;
 	private String wxturl;
 	private String xnturl;
@@ -182,6 +184,22 @@ public class ShryFyData implements java.io.Serializable {
 
 	public void setQj(String qj) {
 		this.qj = qj;
+	}
+
+	public String getCl() {
+		return cl;
+	}
+
+	public void setCl(String cl) {
+		this.cl = cl;
+	}
+
+	public String getClbz() {
+		return clbz;
+	}
+
+	public void setClbz(String clbz) {
+		this.clbz = clbz;
 	}
 
 	public String getWxturl() {

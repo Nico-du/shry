@@ -240,8 +240,8 @@
 				
 				this.fyxh.text=tempObj["fyxh"];
 				this.fyxh.data=tempObj["fyid"];
-				this.djxh.text=tempObj["djxh"];
-				this.djxh.data=tempObj["djid"];
+				this.djxh.text=tempObj["djid"];
+		//		this.djxh.data=tempObj["djid"];
 				
 				this.jqfs.text=tempObj["jqfs"];
 				this.wxcc.text=tempObj["wxcc"];
@@ -500,7 +500,7 @@
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
 											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="left" verticalAlign="middle">
 												<mx:TextInput  id="djxh" width="100%" height="{aboutheight}"/>
-												<mx:LinkButton id="CHDJXH" click="if(!this.saveAction.visible)return;CommonMethod.getAssetBH(this,'ZC',djxh);" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
+												<!--<mx:LinkButton id="CHDJXH" click="if(!this.saveAction.visible)return;CommonMethod.getAssetBH(this,'ZC',djxh);" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>-->
 											</mx:HBox>
 										</mx:FormItem>
 									</mx:GridItem>

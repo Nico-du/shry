@@ -249,12 +249,12 @@
 	</mx:Script>
 	<mx:XML id="serviceMainXml">
 		<root>
-			<item id="bbtj" label="报表统计">
-				<node id="bmwply" label="部门物品使用状况" pageUrl="BmwplyPage"/>
+			<item id="bbtj" label="选型操作">
+				<node id="bmwply" label="风叶选型" pageUrl="BmwplyPage"/>
 			</item>	
-			<item id="xxhfw" label="信息化服务">
-				<node id="xgzl" label="相关资料" pageUrl="XgzlPage"/>
-				<node id="czsc" label="操作手册" pageUrl="CzscPage"/>
+			<item id="xxhfw" label="历史数据">
+				<node id="xgzl" label="选型历史" pageUrl="XgzlPage"/>
+				<node id="czsc" label="参数设置" pageUrl="CzscPage"/>
 			</item>	
 		</root>
 	</mx:XML>

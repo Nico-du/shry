@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="PopUpManager.removePopUp(this);" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="closePage()" 
 			initialize="initializeHandler(event)"	layout="absolute" width="460" height="340" showCloseButton="true" title="修改附件">
 	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" 
 					 showBusyCursor="true"/>
@@ -55,6 +55,14 @@
 				existedFiles = evt.result as ArrayCollection;
 				commonService.removeEventListener(ResultEvent.RESULT,initBack);
 			}
+			
+			private function closePage(){
+				PopUpManager.removePopUp(this);
+				if(parentWindow != null && parentWindow.hasOwnProperty("loadPictures")){
+					parentWindow.loadPictures();
+				}
+			}
+			
 			
 			private function select():void
 			{   
@@ -133,7 +141,7 @@
 				}
 				if(uploadCount==fileCount){
 					PopUpManager.removePopUp(progressBar);
-					PopUpManager.removePopUp(this);
+					closePage();
 					Alert.show("文件上传成功!",CommonXMLData.Alert_Title);
 				//	setFileName();
 				}

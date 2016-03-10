@@ -5,6 +5,7 @@
 				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()" 
 				xmlns:numberInput="cn.cnspagemoduel.textinput.*"  xmlns:shryChart="cn.cnspagemoduel.chartline.*" >
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script source="../flex/util/InitBGDJForms.as"/>
 	<mx:Script>
 		<![CDATA[
@@ -21,7 +22,9 @@
 			import com.commonpages.DetailDocument;
 			import com.commonpages.EditDocument;
 			
+			import flex.pojos.FileUploadVo;
 			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -108,30 +111,33 @@
 					loadData();
 				}
 		//		loadPics();
+				loadPictures();
+			}
+			//<mx:Image id="image1" source="{imgFileNameT}"   height="{aboutheight*5}" width="{aboutheight*5}"/>
+			//<mx:Button label="添加图片" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,'fyid',this.dataId)"/>
+			public function loadPictures():void{
+				CommonMethod.loadTablePictures(this.tempObjBeanName,"fyid",dataId,this,loadPicturesBack);
+				}
+			private function loadPicturesBack(result:Object):void{
+					fyts.removeAllChildren();
+					var existedFiles:ArrayCollection = result as ArrayCollection;
+					if(existedFiles == null || existedFiles.length < 1){ return; }
+					for each(var eachObj in existedFiles){
+						var eachImg:Image = new Image();
+						eachImg.source= CommonXMLData.UploadFile_BasePath + eachObj.filepath;
+						eachImg.width = aboutheight*5;
+						eachImg.height = aboutheight*5;
+						fyts.addChild(eachImg);
+					}
+					var addMoreBtn:Button = new Button();
+					addMoreBtn.label="添加图片";
+					addMoreBtn.addEventListener(MouseEvent.CLICK,addMoreBtnClick);
+					fyts.addChild(addMoreBtn);
+			 }
+			private function addMoreBtnClick(evt:Event):void{
+				CommonMethod.modifyUploadFile(this,tempObjBeanName,'fyid',this.dataId);
 			}
 			
-			public function loadPics():void{
-				loadPic1(imgFileNameT);
-				loadPic2(imgFileNameB);
-				
-			}
-			
-			public function loadPic1(picPath:String):void{
-				var loader:Loader = new Loader();  
-				loader.contentLoaderInfo.addEventListener(Event.COMPLETE,afterLoad1);  
-				loader.load(new URLRequest(picPath));  
-			}
-			public function afterLoad1(event:Event):void {  
-				image1.source = event.currentTarget.content  
-			}  
-			public function loadPic2(picPath:String):void{
-				var loader:Loader = new Loader();  
-				loader.contentLoaderInfo.addEventListener(Event.COMPLETE,afterLoad2);  
-				loader.load(new URLRequest(picPath));  
-			}
-			public function afterLoad2(event:Event):void {  
-				image2.source = event.currentTarget.content  
-			} 
 			//页面关闭时调用
 			public function closePage():void{
 				if(true){
@@ -280,6 +286,11 @@
 				this.lgzj.text=tempObj["lgzj"];
 				this.lggd.text=tempObj["lggd"];
 				this.ypzj.text=tempObj["ypzj"];
+				
+				this.jqfs.text=tempObj["jqfs"];
+				this.cl.text=tempObj["cl"];
+				this.clbz.text=tempObj["clbz"];
+				
 				this.memo.text=tempObj["memo"];
 				
 				/* syzt.data=tempObj["assettablename"];
@@ -368,6 +379,10 @@
 				dataJson.lggd=this.lggd.text;
 				dataJson.ypzj=this.ypzj.text;
 				
+				dataJson.jqfs=this.jqfs.text;
+				dataJson.cl=this.cl.text;
+				dataJson.clbz=this.clbz.text;
+				
 				dataJson.memo=this.memo.text;
 				dataJson.UPDATEUSER=userid;
 				
@@ -453,12 +468,6 @@
 				}
 			}
 			
-			
-			
-			
-			
-			
-			
 		]]>
 	</mx:Script>
 	<mx:Fade id="fadeEffect" target="{resultmsg}" alphaFrom="1"  alphaTo="0" duration="10000"/>
@@ -531,19 +540,21 @@
 								</mx:GridRow>
 								<mx:GridRow width="100%" height="{aboutheight}">
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+											<mx:Label text="风叶型式:" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:TextInput width="100%" height="{aboutheight}" id="jqfs"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:Label text="嵌件:"  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
 											<mx:TextInput id="qj" width="100%" height="{aboutheight}"/>
-										</mx:FormItem>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-										<mx:Label text="重量(克):" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
-										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="zl" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -554,6 +565,33 @@
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
 											<mx:TextInput width="100%" height="{aboutheight}" id="syzt"/>
+										</mx:FormItem>
+									</mx:GridItem>
+								</mx:GridRow>
+								
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="材料:"  fontWeight="normal" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:TextInput id="cl" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="材料标准:" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<numberInput:NumberTextInput id="clbz" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="重量(克):" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<numberInput:NumberTextInput id="zl" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow>
@@ -629,8 +667,8 @@
 								</mx:GridItem>
 								<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="90%" colSpan="5">
 									<mx:HBox id="fyts" width="100%" height="{aboutheight*5}" borderStyle="none" verticalAlign="middle" horizontalAlign="left">
-										<mx:Image id="image1" source="{imgFileNameT}"   height="{aboutheight*5}" width="{aboutheight*5}"/>
-										<mx:Image id="image2" source="{imgFileNameB}"    height="{aboutheight*5}" width="{aboutheight*5}"/>
+										<!--<mx:Image id="image1" source="{imgFileNameT}"   height="{aboutheight*5}" width="{aboutheight*5}"/>
+										<mx:Image id="image2" source="{imgFileNameB}"    height="{aboutheight*5}" width="{aboutheight*5}"/>-->
 										<mx:Button label="添加图片" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,'fyid',this.dataId)"/>
 									</mx:HBox>
 								</mx:GridItem>

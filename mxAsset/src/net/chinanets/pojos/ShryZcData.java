@@ -13,7 +13,7 @@ public class ShryZcData implements java.io.Serializable {
 
 	private Long zcid;
 	private Long fyid;
-	private Long djid;
+	private String djid;
 	private String xh;
 	private String pp;
 	private String jqfs;
@@ -35,7 +35,7 @@ public class ShryZcData implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public ShryZcData(Long fyid, Long djid, String xh, String pp,
+	public ShryZcData(Long fyid, String djid, String xh, String pp,
 			String jqfs, String wxcc, String zl, String fslx, String sycx,
 			String memo, Date inputdate, String inputuser,
 			Date updatedate, String updateuser) {
@@ -73,11 +73,11 @@ public class ShryZcData implements java.io.Serializable {
 		this.fyid = fyid;
 	}
 
-	public Long getDjid() {
+	public String getDjid() {
 		return this.djid;
 	}
 
-	public void setDjid(Long djid) {
+	public void setDjid(String djid) {
 		this.djid = djid;
 	}
 

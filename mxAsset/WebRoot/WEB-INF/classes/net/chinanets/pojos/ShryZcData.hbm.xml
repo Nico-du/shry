@@ -15,8 +15,8 @@
                 <comment>风叶ID</comment>
             </column>
         </property>
-        <property name="djid" type="java.lang.Long">
-            <column name="djid" precision="22" scale="0">
+        <property name="djid" type="java.lang.String">
+            <column name="djid" length="50">
                 <comment>电机ID</comment>
             </column>
         </property>

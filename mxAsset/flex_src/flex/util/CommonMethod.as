@@ -20,6 +20,7 @@ package flex.util
 	
 	import flex.pojos.ComputerVo;
 	import flex.pojos.DeptVo;
+	import flex.pojos.FileUploadVo;
 	import flex.pojos.NetVo;
 	import flex.pojos.ServerVo;
 	import flex.pojos.StorageVo;
@@ -116,6 +117,29 @@ package flex.util
 			PopUpManager.centerPopUp(editDoc as IFlexDisplayObject); 
 		}
 		
+		
+		public static function loadTablePictures(tablename:String,columnname:String,dataid:String,parentPage:Object,callBackFunc:Function,args:Array=null):void{
+			var docRem:RemoteObject = new RemoteObject();
+			docRem.destination = "commonService";
+			docRem.endpoint = "/mxAsset/messagebroker/amf";
+			docRem.showBusyCursor = true;
+			var xmdoc:FileUploadVo = new FileUploadVo();
+			xmdoc.dataid = dataid;
+			xmdoc.tablename = tablename;
+			xmdoc.columnname = columnname;
+			docRem.getObjectList(xmdoc);
+			docRem.addEventListener(ResultEvent.RESULT,doLoadTablePictures(parentPage,callBackFunc,args));
+		}
+		private static function doLoadTablePictures(parentPage:Object,callBackFunc:Function,args:Array=null):Function{
+			return function(event:ResultEvent){
+				loadTablePicturesBack(event,parentPage,callBackFunc,args);
+			}
+		}
+		
+		private static function loadTablePicturesBack(event:ResultEvent,parentPage:Object,callBackFunc:Function,args:Array=null):void{
+			if(parentPage == null || callBackFunc == undefined || callBackFunc==null){return;}
+			callBackFunc.call(parentPage,event.result);
+		}
 		
 		//读取XML文件
 		private static var ipCfgXml:XML;

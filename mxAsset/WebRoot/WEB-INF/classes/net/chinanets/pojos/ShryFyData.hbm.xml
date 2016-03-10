@@ -62,7 +62,17 @@
         </property>
         <property name="jqfs" type="java.lang.String">
             <column name="jqfs" length="20">
-                <comment>进气方式</comment>
+                <comment>风叶型式</comment>
+            </column>
+        </property>
+        <property name="cl" type="java.lang.String">
+            <column name="cl" length="20">
+                <comment>材料</comment>
+            </column>
+        </property>
+        <property name="clbz" type="java.lang.String">
+            <column name="clbz" length="20">
+                <comment>材料标准</comment>
             </column>
         </property>
         <property name="ypfb" type="java.lang.String">
