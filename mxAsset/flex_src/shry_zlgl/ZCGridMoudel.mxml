@@ -503,7 +503,7 @@
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="型号" width="120" dataField="xh" sortable="true"/>
 						<mx:DataGridColumn headerText="风叶型号" width="120" dataField="fyxh" sortable="true"/>
-						<mx:DataGridColumn headerText="电机型号" width="120" dataField="djxh" sortable="true"/>
+						<mx:DataGridColumn headerText="电机型号" width="120" dataField="djid" sortable="true"/>
 						<mx:DataGridColumn headerText="外形尺寸(毫米)" width="150" dataField="wxcc" sortable="true"/>
 						<mx:DataGridColumn headerText="重量(克)" width="110" dataField="zl" sortable="true"/>
 						<mx:DataGridColumn headerText="适用车型" width="110" dataField="sycx" sortable="true"/>
@@ -512,7 +512,7 @@
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
 					</mx:columns>
 				</mx:DataGrid>
-				<cnspg:PagingMoudel id="cns_dg_pg" width="100%" height="{aboutheight}" datacount="{dg_pg_datacount}" othermsg="{dg_pg_othermsg}" funReqData="dataSearchAction"/>
+				<cnspg:PagingMoudel id="cns_dg_pg" isValidateSecondLine="false" width="100%" height="{aboutheight}" datacount="{dg_pg_datacount}" othermsg="{dg_pg_othermsg}" funReqData="dataSearchAction"/>
 			</mx:VBox>
 		</mx:Panel>
 	</mx:HDividedBox>

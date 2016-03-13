@@ -4,22 +4,12 @@
 		   fontSize="12" backgroundColor="white" >
 	<mx:Script>
 		<![CDATA[
-			/*import asset_report.ReportBmhclyzk;
-			import asset_report.XgzlGridModule;
-			import upGrade.XjjlList;
-			import upGrade.XjtjView;
-			import asset_service.MetroMap;
-			import asset_service.ServiceList;
-			import flex.pojos.SvSupplierVo;
-			
-			import kmzc.formanserver.aboutdatum;*/
-			
-			import flex.util.CommonMethod;
-			import flex.util.CommonXMLData;
 			import cn.cnsasfram.helper.ASStringHelper;
 			
 			import com.benstucki.utilities.IconUtility;
 			
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
 			
 			import mx.containers.VBox;
 			import mx.controls.Tree;
@@ -28,35 +18,19 @@
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
 			
+			import shry_xxgl.FYXXFormMoudel;
+			
 			
 			//菜单数据
 			public var menuTreeDate:XML=null;
 			//保存实例化的对象
 			private var modelMap:Dictionary=null;
 			//相关资料
-			private var ABOUTDATUM:String="ABOUTDATUM";
+			private var FYXX:String="FYXXPage";
 			//供应商
-			private var SUPPLIER:String="SupplierPage";
+			private var LSJL:String="LSJLPage";
 			//运维人员
 			private var PEOPLE:String="PeoplePage";
-			//合同管理
-			private var COMPACT:String="CompactPage";
-			//巡检登记
-			private var XJDJ:String="XjdjPage";
-			//巡检查询
-			private var XJCX:String="XjcxPage";
-			//巡检查询
-			private var XJTJ:String="XjtjPage";
-			//巡检查询
-			private var REPORT_BMLY:String="BmwplyPage";
-			//巡检查询
-			private var DTCY:String="DtcyPage";
-			//相关资料下载
-			private var XGZL:String="XgzlPage";
-			//操作手册下载
-			private var CZSC:String="CzscPage";
-			//部门物品使用状况报表
-			private var BMBB:String="BmbbPage";
 			
 			
 			//初始化页面
@@ -122,9 +96,6 @@
 					return;
 				}
 				this.managerStack.selectedChild=tempContent as INavigatorContent;
-					if((event != null) && (selectItem.@pageUrl == XJDJ)){
-						tempContent.addXjjl();
-					}
 			}
 			
 			//判断树节点是否选择项
@@ -150,9 +121,9 @@
 					return targetModel;
 				}
 				var tempMoudel:*=null;
-				/*if(ASStringHelper.stringCompare(this.ABOUTDATUM,strpageurl,true)==0){
-					tempMoudel=new aboutdatum();
-				}else if(ASStringHelper.stringCompare(this.SUPPLIER,strpageurl,true)==0){
+				if(ASStringHelper.stringCompare(this.FYXX,strpageurl,true)==0){
+					tempMoudel=new FYXXFormMoudel();
+				}/*else if(ASStringHelper.stringCompare(this.SUPPLIER,strpageurl,true)==0){
 					tempMoudel=new ServiceList();
 					tempMoudel.pageType="供应商";
 				}else if(ASStringHelper.stringCompare(this.PEOPLE,strpageurl,true)==0){
@@ -250,11 +221,11 @@
 	<mx:XML id="serviceMainXml">
 		<root>
 			<item id="bbtj" label="选型操作">
-				<node id="bmwply" label="风叶选型" pageUrl="BmwplyPage"/>
+				<node id="FYXX" label="风叶选型" pageUrl="FYXXPage"/>
 			</item>	
 			<item id="xxhfw" label="历史数据">
-				<node id="xgzl" label="选型历史" pageUrl="XgzlPage"/>
-				<node id="czsc" label="参数设置" pageUrl="CzscPage"/>
+				<node id="LSJL" label="选型历史" pageUrl="LSJLPage"/>
+				<node id="CSSZ" label="参数设置" pageUrl="CSSZPage"/>
 			</item>	
 		</root>
 	</mx:XML>

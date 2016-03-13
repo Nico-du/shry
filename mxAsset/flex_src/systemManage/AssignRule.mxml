@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="620" height="500" showCloseButton="true" 
+				close="closeWin()" title="帐号信息" titleIcon="@Embed(source='images/edit.gif')" 
+				paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" initialize="assignInit()" xmlns:controls="it.sephiroth.controls.*" xmlns:systemManage="systemManage.*">
+	<mx:RemoteObject id="ruleService" destination="RuleService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="userSerice" destination="UserService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="deptService" destination="deptService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import flash.events.Event;
+			
+			import flex.pojos.RuleMenuVo;
+			import flex.pojos.RuleVo;
+			import flex.pojos.UserMenuVo;
+			import flex.pojos.UserSessionVo;
+			import flex.util.CommonMethod;
+			
+			import it.sephiroth.renderers.TreecheckboxItemRenderer;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.HierarchicalData;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.controls.CheckBox;
+			import mx.controls.LinkButton;
+			import mx.events.AdvancedDataGridEvent;
+			import mx.events.ItemClickEvent;
+			import mx.events.ListEvent;
+			import mx.events.TreeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import systemManage.Rule;
+			[Bindable]
+			public var ruleVo:RuleVo = null;
+			
+			// ActionScript file
+			
+			
+			//	public var ruleVo:RuleVo;
+			public var userVo:UserSessionVo;
+			public var ruleList:Rule;
+			[Bindable]	
+			private var xml:XMLList ;
+			[Bindable]				
+			private var newXml:XML ;
+			private var deptName:String;
+			private var deptId:String;
+			
+			
+			private function closeWin():void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			public function assignInit():void {
+				if(ruleVo==null){closeWin(); return;}
+				if(  ruleVo.userId == 0){closeWin(); Alert.show("角色对应的用户尚未定义！"); return;}
+				userSerice.getUserVoById(ruleVo.userId);
+				userSerice.addEventListener(ResultEvent.RESULT,ruleBack);
+			}
+			private function ruleBack(event:ResultEvent):void {
+				userVo = event.result as UserSessionVo;
+				this.title = "分配角色权限-"+ruleVo.mc;
+				userSerice.removeEventListener(ResultEvent.RESULT,ruleBack);
+				ruleService.getUserMenuTree(ruleVo.userId);                      //查询角色权限
+				ruleService.addEventListener(ResultEvent.RESULT,menuBack);
+			}
+			
+			private function menuBack(event:ResultEvent):void {
+				xml = new XMLList(event.result);
+				ruleService.removeEventListener(ResultEvent.RESULT,menuBack);
+				menuTree.dataProvider = xml;
+				//	deptService.getSyBm();
+				deptService.getBmzz();                                   //获取部门组织XML树
+				deptService.addEventListener(ResultEvent.RESULT,deptBack);
+			}
+			private var mydeptCbx:CheckBox;
+			private function deptBack(event:ResultEvent):void {
+				deptService.removeEventListener(ResultEvent.RESULT,deptBack);
+				/* var treeCbx:TreeCheckBox = new TreeCheckBox();
+				treeCbx.dragEnabled=false;
+				treeCbx.percentWidth=100;
+				treeCbx.percentHeight=100;
+				treeCbx.labelField="@label";
+				treeCbx.checkField="@isSelect" ;
+				treeCbx.showRoot=false;
+				//	treeCbx.addEventListener(ItemClickEvent.ITEM_CLICK,onItemCheck);
+				treeCbx.dataProvider = event.result;
+				deptBox.removeAllChildren();
+				deptBox.addChild(selectReselect);
+				deptBox.addChild(treeCbx); */
+				//	deptTree.dataProvider = event.result;
+				
+				var deptXml:XMLList = new XMLList(event.result);
+				var cdnStr:String = xml.children()[0].node.(@isSelect="1").@searchCondition;
+				for(var i:int = 0; i < deptXml.children().length(); i++) {
+					var checkBox:CheckBox = new CheckBox();
+					checkBox.label = deptXml.node[i].@label;
+					checkBox.id = deptXml.node[i].@id;
+					if((checkBox.id+"") == userVo.deptId){
+						mydeptCbx = checkBox;
+					}
+					if(userVo.bmid != null && userVo.bmid.indexOf(deptXml.node[i].@id) > -1) {
+						checkBox.selected = true;
+					}
+					deptCbxs.addChild(checkBox);
+				} 
+				
+			}
+			
+			
+			private function selectAll(event:Event):void {
+				var childArr:Array = deptCbxs.getChildren();
+				for(var i:int = 0; i < childArr.length; i++) {
+					if(childArr[i] is CheckBox && event.target.selected) {
+						childArr[i].selected = true;
+					}
+					if(childArr[i] is CheckBox && !event.target.selected) {
+						childArr[i].selected = false;
+					}
+				}
+			}
+			
+			private function reverseAll(event:Event):void {
+				var childArr:Array = deptCbxs.getChildren();
+				for(var i:int = 0; i < childArr.length; i++) {
+					if(childArr[i] is CheckBox) {
+						childArr[i].selected = !childArr[i].selected;
+					}
+				}
+			}
+			
+			
+			//下一步  的操作
+			private function next():void {
+				deptText.text = "允许查看的部门有：";
+				deptName = "";
+				deptId = "";
+				
+					var childArr:Array = deptCbxs.getChildren();
+					for(var i:int = 0; i < childArr.length; i++) {
+						if(childArr[i] is CheckBox && childArr[i].selected) {
+							deptText.text += "[" + childArr[i].label + "]";
+							deptName += childArr[i].label + ",";
+							deptId += childArr[i].id + ",";
+						}
+					} 
+					
+					if(searchCdnCbx.selectedItem.@id == "all"){
+						var isAllSelected:Boolean = true;
+						for(var i:int = 0; i < childArr.length; i++) {
+							if(!childArr[i].selected) {
+								isAllSelected = false;
+								break;
+							}
+						}
+						if(isAllSelected){
+							deptId = "";
+						}
+					}
+					
+				if(CommonMethod.isNullOrWhitespace(deptId) && searchCdnCbx.selectedItem.@id != "selectDept"){
+					deptId = searchCdnCbx.selectedItem.@id;
+					deptText.text = "允许查看的部门有：[" + searchCdnCbx.selectedItem.@label + "]";
+				}
+				myViewStack.selectedChild = canvasSelectedMenu;
+				getNewXml(xml);
+			}
+			
+			private function getNewXml(xml:XMLList):void {
+				newXml = CommonMethod.getConvertedXml(xml);
+				advanceDg.dataProvider = new HierarchicalData(newXml);
+			}
+			
+			private function onEditBeginning(event:AdvancedDataGridEvent):void {
+				var dataField:String = event.dataField;
+				if(advanceDg.selectedItems.length > 1){event.preventDefault(); return;}
+				var isRule:String = advanceDg.selectedItem.@isRule;
+				if(isRule != "1") {
+					event.preventDefault();
+				}else{
+					if(advanceDg.selectedItem.@sfSearch != "否"){
+						advanceDg.selectedItem.@sfSearch = "是";
+					}
+				}
+			}
+			
+			//添加角色权限
+			private function insertRuleMenu():void
+			{
+				var arr:Array = new Array();
+				for(var i:int = 0; i < newXml.node.length(); i++) {
+					var firstRmVo:UserMenuVo = new UserMenuVo();
+					firstRmVo.menuID = newXml.node[i].@id;
+					firstRmVo.ruleID = Number(userVo.ruleId);
+					
+					var secondNode:XMLList = newXml.node[i].node;
+					for(var j:int = 0; j < secondNode.length(); j++) {
+						var secondRmVo:UserMenuVo = new UserMenuVo();
+						secondRmVo.menuID = secondNode[j].@id;
+						secondRmVo.ruleID = Number(userVo.ruleId);
+						secondRmVo.sfAdd = secondNode[j].@sfAdd;
+						secondRmVo.sfDelete = secondNode[j].@sfDelete;
+						secondRmVo.sfModify = secondNode[j].@sfModify;
+						secondRmVo.sfExport = secondNode[j].@sfExport;
+						secondRmVo.sfImport = secondNode[j].@sfImport;
+						secondRmVo.sfSearch = secondNode[j].@sfSearch;
+						secondRmVo.searchCondition = secondNode[j].@searchCondition;
+						secondRmVo.sfOther = secondNode[j].@sfOther;
+						var thirdNode:XMLList = secondNode[j].node;
+						for(var k:int = 0; k < thirdNode.length(); k++) {
+							var thirdRmVo:UserMenuVo = new UserMenuVo();
+							thirdRmVo.menuID = thirdNode[k].@id;
+							thirdRmVo.ruleID = Number(userVo.ruleId);
+							thirdRmVo.sfAdd = thirdNode[k].@sfAdd;
+							thirdRmVo.sfDelete = thirdNode[k].@sfDelete;
+							thirdRmVo.sfModify = thirdNode[k].@sfModify;
+							thirdRmVo.sfExport = thirdNode[k].@sfExport;
+							thirdRmVo.sfSearch = thirdNode[k].@sfSearch;
+							thirdRmVo.sfImport = thirdNode[k].@sfImport;
+							thirdRmVo.searchCondition = thirdNode[k].@searchCondition;
+							thirdRmVo.sfOther = thirdNode[k].@sfOther;
+							
+							var fourthNode:XMLList = thirdNode[k].node;
+							for(var m:int = 0; m < fourthNode.length(); m++) {
+								var fourthRmVo:UserMenuVo = new UserMenuVo();
+								fourthRmVo.menuID = fourthNode[m].@id;
+								fourthRmVo.ruleID = Number(userVo.ruleId);
+								fourthRmVo.sfAdd = fourthNode[m].@sfAdd;
+								fourthRmVo.sfDelete = fourthNode[m].@sfDelete;
+								fourthRmVo.sfModify = fourthNode[m].@sfModify;
+								fourthRmVo.sfExport = fourthNode[m].@sfExport;
+								fourthRmVo.sfSearch = fourthNode[m].@sfSearch;
+								fourthRmVo.sfImport = fourthNode[m].@sfImport;
+								fourthRmVo.searchCondition = fourthNode[m].@searchCondition;
+								fourthRmVo.sfOther = fourthNode[m].@sfOther;
+								
+								var fifthNode:XMLList = fourthNode[m].node;
+								for(var n:int = 0; n < fifthNode.length(); n++) {
+									var fifthRmVo:UserMenuVo = new UserMenuVo();
+									fifthRmVo.menuID = fifthNode[n].@id;
+									fifthRmVo.ruleID = Number(userVo.ruleId);
+									fifthRmVo.sfAdd = fifthNode[n].@sfAdd;
+									fifthRmVo.sfDelete = fifthNode[n].@sfDelete;
+									fifthRmVo.sfModify = fifthNode[n].@sfModify;
+									fifthRmVo.sfExport = fifthNode[n].@sfExport;
+									fifthRmVo.sfSearch = fifthNode[n].@sfSearch;
+									fifthRmVo.sfImport = fifthNode[n].@sfInport;
+									fifthRmVo.searchCondition = fifthNode[n].@searchCondition;
+									fifthRmVo.sfOther = fifthNode[n].@sfOther;
+									arr.push(fifthRmVo);
+									if(!CommonMethod.isNullOrWhitespace(fifthRmVo.sfAdd)||  !CommonMethod.isNullOrWhitespace(fifthRmVo.sfDelete ) ||  !CommonMethod.isNullOrWhitespace(fifthRmVo.sfModify ) 
+										||  !CommonMethod.isNullOrWhitespace(fifthRmVo.sfExport ) ||  !CommonMethod.isNullOrWhitespace(fifthRmVo.sfImport ) ||  !CommonMethod.isNullOrWhitespace(fifthRmVo.sfOther ) 
+										||  !CommonMethod.isNullOrWhitespace(fifthRmVo.searchCondition ) ||  !CommonMethod.isNullOrWhitespace(fifthRmVo.sfSearch )){
+										fourthRmVo.sfOther = "是";}
+								}
+								arr.push(fourthRmVo);
+								if(!CommonMethod.isNullOrWhitespace(fourthRmVo.sfAdd)||  !CommonMethod.isNullOrWhitespace(fourthRmVo.sfDelete ) ||  !CommonMethod.isNullOrWhitespace(fourthRmVo.sfModify ) 
+									||  !CommonMethod.isNullOrWhitespace(fourthRmVo.sfExport ) ||  !CommonMethod.isNullOrWhitespace(fourthRmVo.sfImport ) ||  !CommonMethod.isNullOrWhitespace(fourthRmVo.sfOther ) 
+									||  !CommonMethod.isNullOrWhitespace(fourthRmVo.searchCondition ) ||  !CommonMethod.isNullOrWhitespace(fourthRmVo.sfSearch )){
+									thirdRmVo.sfOther = "是";}//如果子节点有不为空的菜单则修改父节点为可查看
+							}
+							arr.push(thirdRmVo);
+							if(!CommonMethod.isNullOrWhitespace(thirdRmVo.sfAdd)||  !CommonMethod.isNullOrWhitespace(thirdRmVo.sfDelete ) ||  !CommonMethod.isNullOrWhitespace(thirdRmVo.sfModify ) 
+								||  !CommonMethod.isNullOrWhitespace(thirdRmVo.sfExport ) ||  !CommonMethod.isNullOrWhitespace(thirdRmVo.sfImport ) ||  !CommonMethod.isNullOrWhitespace(thirdRmVo.sfOther ) 
+								||  !CommonMethod.isNullOrWhitespace(thirdRmVo.searchCondition ) ||  !CommonMethod.isNullOrWhitespace(thirdRmVo.sfSearch )){
+								secondRmVo.sfOther = "是";}//如果子节点有不为空的菜单则修改父节点为可查看
+						}
+						arr.push(secondRmVo);
+						if(!CommonMethod.isNullOrWhitespace(secondRmVo.sfAdd ) ||  !CommonMethod.isNullOrWhitespace(secondRmVo.sfDelete ) ||  !CommonMethod.isNullOrWhitespace(secondRmVo.sfModify ) 
+							||  !CommonMethod.isNullOrWhitespace(secondRmVo.sfExport ) ||  !CommonMethod.isNullOrWhitespace(secondRmVo.sfImport ) ||  !CommonMethod.isNullOrWhitespace(secondRmVo.sfOther ) 
+							||  !CommonMethod.isNullOrWhitespace(secondRmVo.searchCondition ) ||  !CommonMethod.isNullOrWhitespace(secondRmVo.sfSearch )){
+							firstRmVo.sfOther = "是";}//如果子节点有不为空的菜单则修改父节点为可查看
+					}
+					arr.push(firstRmVo);
+				}
+				
+				ruleService.saveRuleUserMenu(arr,ruleVo.id,deptId,deptName);
+				ruleService.addEventListener(ResultEvent.RESULT,insertRuleMenuBack);
+			}
+			
+			private function insertRuleMenuBack(evt:ResultEvent):void
+			{
+				ruleService.removeEventListener(ResultEvent.RESULT,insertRuleMenuBack);
+				Alert.show("角色: " + ruleVo.mc + " 的权限已成功保存","提示",Alert.OK,this.parentApplication as Sprite);
+				//ruleList.searchRule();
+			}
+			
+			
+			
+			private	var btnValue:String = "";
+			private function radChange(event:Event):void {
+				if(advanceDg.selectedItems.length < 1) {
+					Alert.show("请先选取表格的行!","提示",Alert.OK,this.parentApplication as Sprite);
+					return;
+				}
+				switch(event.target.id){
+					case "yes": btnValue="是";break;
+					case "no": btnValue="否";break;
+					case "none":btnValue=""; break;
+				} 
+				
+				var itemi:Object;
+				for(var i:int=0;i<advanceDg.selectedItems.length;i++){
+					itemi = advanceDg.selectedItems[i];
+					convertXML(itemi);
+					//添加选择 父节点 自动勾选所有子节点的功能
+				}
+			}
+			
+			private function convertXML(currentXML:Object):void{
+				if(currentXML.hasComplexContent()){
+					if(currentXML is XML){
+						for(var i:int=0;i<(currentXML as XML).children().length();i++){
+							if((currentXML as XML).children()[i].hasComplexContent()){
+								convertXML((currentXML as XML).children()[i]);
+							}else{
+								executeConvert((currentXML as XML).children()[i]);
+							}
+						}
+					}else if(currentXML is XMLList){
+						for(var i:int=0;i<currentXML.length();i++){
+							if(currentXML[i].hasComplexContent()){
+								convertXML(currentXML[i]);
+							}else{
+								executeConvert(currentXML[i]);
+							}
+						}
+					}
+				}else{
+					executeConvert(currentXML);
+				}
+				
+			}
+			
+			private function executeConvert(ctXML:Object):void{
+				if(ctXML is XML){
+					if(ctXML.@isRule == "1") {
+						ctXML.@sfAdd = btnValue;
+						ctXML.@sfDelete = btnValue;
+						ctXML.@sfModify = btnValue;
+						ctXML.@sfOther = btnValue;
+						ctXML.@sfExport = btnValue;
+						ctXML.@sfSearch = btnValue;
+					}
+					//	xmlIds.addItem(ctXML.@id);
+				}else{
+					Alert.show("解析XML递归方法错误!--convertXML ");
+				}
+			}
+			
+			
+			
+			private function clikcBtn(evt:Event):void{
+				var b:Button= evt.target as Button;
+				var id:int= int(b.data);
+				this.assignInit();
+				//				PopUpManager.addPopUp(ar,this.parentApplication as DisplayObject,true);
+				//				PopUpManager.centerPopUp(ar);
+			}
+			
+			private function clikcBtn2(str:String):void{
+				var id:int= int(str);
+				this.assignInit();
+				//				PopUpManager.addPopUp(ar,this.parentApplication as DisplayObject,true);
+				//				PopUpManager.centerPopUp(ar);
+			}
+			
+			private function unselectAll(){
+				var childArr:Array = deptCbxs.getChildren();
+				for(var i:int = 0; i < childArr.length; i++) {
+					if(childArr[i] is CheckBox) {
+						childArr[i].selected = false;
+					}
+				}
+			}
+			
+			protected function searchCondition_changeHandler(event:ListEvent):void
+			{
+			   deptId = "";
+				   
+			   if(searchCdnCbx.selectedItem.@id == "one" ){
+					deptCbxs.visible = false;
+					unselectAll();
+					deptId = searchCdnCbx.selectedItem.@id;
+				}else if(searchCdnCbx.selectedItem.@id == "all"){
+					deptCbxs.visible = true;
+					var childArr:Array = deptCbxs.getChildren();
+					for(var i:int = 0; i < childArr.length; i++) {
+						if(childArr[i] is CheckBox) {
+							childArr[i].selected = true;
+						}
+					}
+				}else if(searchCdnCbx.selectedItem.@id == "myDept"){
+					deptCbxs.visible = false;
+					unselectAll();
+					deptId = "本部门";
+				}else if(searchCdnCbx.selectedItem.@id == "selectDept"){
+					unselectAll();
+					deptCbxs.visible = true;
+				}
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:XMLList id="selectedMenu">
+		<root label="所有功能菜单" id="0" isSelect="2">
+			<node id="7" label="常规属性设置" isSelect="1">
+				<node id="187" label="下拉列表" isSelect="1"/>
+				<node id="188" label="计算机组件" isSelect="1"/>
+				<node id="189" label="系统配置" isSelect="1"/>
+				<node id="190" label="文件类型" isSelect="1"/>
+			</node>
+		</root>
+	</mx:XMLList>
+	
+	<mx:XML id="searchConditonXML">
+		<items>
+			<item label="个人" id="one"/>
+			<item label="本部门" id="myDept"/>
+			<item label="选择部门" id="selectDept"/>
+			<item label="全院" id="all"/>
+		</items>
+	</mx:XML>
+	
+	<mx:Component id="inlineEditor">
+		<mx:ComboBox>
+			<mx:dataProvider>
+				<mx:String></mx:String>
+				<mx:String>是</mx:String>
+				<mx:String>否</mx:String>
+			</mx:dataProvider>
+		</mx:ComboBox>
+	</mx:Component>
+	<mx:VBox height="100%" width="600" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" x="10" y="0" id="vrm">
+		
+		<mx:ViewStack width="100%" id="myViewStack" creationPolicy="all" height="100%">
+			<mx:Canvas id="canvasAllMenu" width="100%" height="100%" >
+				<mx:VBox height="100%" width="100%">
+					<mx:HDividedBox width="100%" height="100%">
+						<mx:VBox  width="50%" height="100%">
+							<mx:HBox width="100%">
+								<mx:Label text="允许查看哪些菜单：" paddingTop="5"/>
+								<mx:CheckBox label="全选" change="selectAll(event)" visible="false"/>
+								<mx:CheckBox label="反选" change="reverseAll(event)" visible="false"/>
+							</mx:HBox><!--itemCheck="{onItemCheck( event )}"-->
+							<controls:TreeCheckBox width="100%" height="100%" id="menuTree" labelField="@label" checkField="@isSelect" 
+												   showRoot="false"/>
+						</mx:VBox>
+						<mx:VBox width="50%" height="100%">
+							<mx:VBox width="100%" height="100%" id="deptBox">
+								<mx:HBox width="100%">
+									<mx:Label text="允许查看哪些部门的资产：" paddingTop="5"/>
+									<mx:ComboBox id="searchCdnCbx" dataProvider="{searchConditonXML.children()}" labelField="@label"
+												 change="searchCondition_changeHandler(event)" selectedIndex="2"/>
+								</mx:HBox>
+								<mx:VBox width="100%" height="{menuTree.height}" id="selectReselect" visible="{deptCbxs.visible}" borderStyle="solid">
+									<mx:HBox width="100%" paddingLeft="20">
+										<mx:CheckBox label="全选" change="selectAll(event)"/>
+										<mx:CheckBox label="反选" change="reverseAll(event)"/>
+									</mx:HBox>
+									<mx:VBox  width="100%" height="100%" id="deptCbxs" visible="true"  paddingLeft="20"/>
+								</mx:VBox>
+							</mx:VBox>
+						</mx:VBox>						
+					</mx:HDividedBox>
+					<mx:FormItem width="100%" horizontalAlign="center" direction="horizontal">
+						<mx:Button label="下一步为选择的功能菜单分配增、删、改等权限" click="next()"/>  
+						<mx:Button label="关闭"  click="closeWin()"/>     		
+					</mx:FormItem>	
+				</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas id="canvasSelectedMenu" width="100%" height="100%" >
+				<mx:VBox width="100%" height="100%" verticalGap="2">
+					<mx:HBox width="100%">
+						<mx:Label text="注: ' '表示不可见，'是'表示可用，'否'表示不可用。" color="red"/>
+					</mx:HBox>
+					<mx:RadioButtonGroup id="radSf"/>
+					<systemManage:MyAdvancedDataGrid width="100%" itemEditBeginning="onEditBeginning(event)" id="advanceDg" height="100%" editable="true" displayItemsExpanded="true">
+						<systemManage:columns>
+							<mx:AdvancedDataGridColumn headerText="功能菜单" dataField="@label" width="150" editable="false"/>
+							<mx:AdvancedDataGridColumn headerText="查看" dataField="@sfSearch" width="80" editorDataField="selectedItem" itemEditor="{inlineEditor}"/>
+							<mx:AdvancedDataGridColumn headerText="添加" dataField="@sfAdd" width="80" editorDataField="selectedItem" itemEditor="{inlineEditor}"/>										
+							<mx:AdvancedDataGridColumn headerText="删除" dataField="@sfDelete" width="80" editorDataField="selectedItem" itemEditor="{inlineEditor}"/>										
+							<mx:AdvancedDataGridColumn headerText="修改" dataField="@sfModify" width="80" editorDataField="selectedItem" itemEditor="{inlineEditor}"/>										
+							<mx:AdvancedDataGridColumn headerText="导出" dataField="@sfExport" width="80" editorDataField="selectedItem" itemEditor="{inlineEditor}"/>
+							<mx:AdvancedDataGridColumn headerText="其他" dataField="@sfOther" width="80" editorDataField="selectedItem" itemEditor="{inlineEditor}"/>									
+						</systemManage:columns>
+					</systemManage:MyAdvancedDataGrid>
+					<mx:HBox width="100%">
+						<mx:Button label="选中行全部选是" id="yes" fontWeight="normal" click="radChange(event)"/>
+						<mx:Button label="选中行全部选否" id="no" fontWeight="normal" click="radChange(event)"/>
+						<mx:Button label="选中行全部选空" id="none" fontWeight="normal"  click="radChange(event)"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Text id="deptText" width="100%"/>
+					</mx:HBox>
+					<mx:FormItem width="100%" horizontalAlign="center" direction="horizontal">
+						<mx:Button label="上一步重新分配角色的功能菜单" click="myViewStack.selectedChild=canvasAllMenu;"/>
+						<mx:Button label="保存"  click="insertRuleMenu()"/>
+						<mx:Button label="关闭"  click="closeWin()"/>        		
+					</mx:FormItem>
+				</mx:VBox>
+			</mx:Canvas>
+		</mx:ViewStack>
+	</mx:VBox>
+</mx:TitleWindow>

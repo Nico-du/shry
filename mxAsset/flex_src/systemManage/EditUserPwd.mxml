@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="300" showCloseButton="true" 
+				close="closeWin()" title="用户登录密码更改" titleIcon="@Embed(source='images/edit.gif')" creationComplete="initEdituser();" 
+				paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" xmlns:s="library://ns.adobe.com/flex/spark">
+	<mx:RemoteObject id="deptService" destination="deptService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="ruleService" destination="RuleService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="userSerice" destination="UserService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import flex.pojos.UserSessionVo;
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.CheckBox;
+			import mx.core.Application;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.managers.SystemManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			import mx.validators.Validator;
+			
+			
+			private var userVo:UserSessionVo = null;
+			[Bindable] private var isShowPwd:Boolean = true;
+			private function closeWin():void {
+				pwd.text = "";
+				newpwd1.text = "";
+				newpwd2.text = "";
+				
+				PopUpManager.removePopUp(this);
+			}
+			
+			public function initEdituser():void {
+				userSerice.findUserById(Application.application.userVo.id);
+				userSerice.addEventListener(ResultEvent.RESULT,userBack);
+			}
+			
+			private function userBack(event:ResultEvent):void {
+				userSerice.removeEventListener(ResultEvent.RESULT,userBack);
+				userVo = event.result as UserSessionVo;
+				
+		//		pwd.addEventListener(FocusEvent.FOCUS_OUT,validateAllEvent);
+		//		newpwd1.addEventListener(FocusEvent.FOCUS_OUT,validateAllEvent);
+		//		newpwd2.addEventListener(FocusEvent.FOCUS_OUT,validateAllEvent);
+			}
+			private function validateAllEvent(event:Event):void {
+				switch(event.currentTarget.id){
+					case "pwd": validateAll(1);break;
+					case "newpwd1":validateAll(2); break;
+					case "newpwd2":validateAll(3); break;
+				} 
+			}
+			private function validateAll(step:int):void{
+				if(alertInput.text != "输入正确")alertInput.text="提示:密码必须为6至15位,可包含'字母','数字','下划线'.";
+				validateAllVal(step);
+				if(alertInput.text != "输入正确" && alertInput.text.indexOf("提示")< 0){
+					fader.play();
+				}
+			}
+			private function validateAllVal(step:int):void{
+				oldpwdValid.validate(pwd.text);
+				if(CommonMethod.isNullOrWhitespace(pwd.text)){alertInput.text="原始密码不能为空";pwd.setFocus(); return;}
+				if(pwd.text != userVo.mm){alertInput.text="原始密码错误";pwd.setFocus(); return;}
+				
+				var addValidators:Array = new Array();
+				if(step > 2)addValidators.push(pwd1Valid);
+				if(step >= 3)addValidators.push(pwd2Valid);
+				var error:Array = Validator.validateAll(addValidators);
+				if(error.length > 0) {
+					if(error[0].target.source != null)error[0].target.source.setFocus();
+					alertInput.text = "密码必须为6至15位,可包含'字母','数字','下划线'.";
+					return;
+				}
+				var pattern:RegExp = /^[A-Za-z0-9_]*$/g;
+				if(!pattern.test(newpwd1.text)){
+				alertInput.text="密码必须为6至15位,可包含'字母','数字','下划线'.";
+				newpwd1.setFocus();
+				return;
+				}
+				if(step < 3) return;
+				if(newpwd1.text != newpwd2.text){
+					alertInput.text="两次密码输入不一致";
+					newpwd2.setFocus();
+					return;
+				}
+				alertInput.text ="输入正确";
+			}
+			
+			private function editUser():void {
+				if(alertInput.text !="输入正确")return;
+				userSerice.modifyPw(newpwd1.text,userVo.id);
+				userSerice.addEventListener(ResultEvent.RESULT,editBack);
+			}
+			
+			private function editBack(event:ResultEvent):void {
+				Alert.show(userVo.userName + " 的密码修改成功!","提示",Alert.OK,this.parentApplication as Sprite);
+				userSerice.removeEventListener(ResultEvent.RESULT,editBack);
+				initEdituser();
+			}
+
+			protected function showpwd_clickHandler(event:MouseEvent):void
+			{
+				isShowPwd = !isShowPwd;
+				this.showpwd.label = (isShowPwd ? "明文显示" : "密文显示");
+			}
+
+		]]>
+	</mx:Script>
+	<s:Animate id="fader" duration="400" repeatBehavior="loop" repeatCount="3" target="{alertInput}">
+	<s:SimpleMotionPath property="alpha" valueFrom="0.0" valueTo="1.0"/>
+    </s:Animate>
+		<mx:VBox width="100%" height="100%">
+			<mx:TextInput id="alertInput" borderStyle="none" editable="false" paddingTop="2" backgroundColor="#FFFACD" text="提示:密码必须为6至15位,可包含'字母','数字','下划线'." width="100%"  height="22" textAlign="center"/>
+			<mx:Grid  width="100%" paddingTop="10">
+				<mx:GridRow width="100%" height="40">
+					<mx:GridItem width="100%" height="100%" verticalAlign="middle"  paddingLeft="70" horizontalAlign="left">
+						<mx:FormItem label="原始密码:" required="true">
+							<mx:TextInput enabled="true" id="pwd"  displayAsPassword="{isShowPwd}" focusOut="validateAll(1)"/>
+						</mx:FormItem>
+					</mx:GridItem>
+				</mx:GridRow>
+				<mx:GridRow width="100%" height="40">
+					<mx:GridItem width="100%" height="100%" verticalAlign="middle"  paddingLeft="70" horizontalAlign="left">
+						<mx:FormItem label="新 密 码:" required="true">
+							<mx:TextInput enabled="true" id="newpwd1"  displayAsPassword="{isShowPwd}" focusOut="validateAll(2)"/>
+						</mx:FormItem>
+					</mx:GridItem>
+				</mx:GridRow>
+				<mx:GridRow width="100%" height="40">
+					<mx:GridItem width="100%" height="100%" verticalAlign="middle"  paddingLeft="70" horizontalAlign="left">
+						<mx:FormItem label="确认密码:" required="true">
+							<mx:TextInput enabled="true" id="newpwd2"  displayAsPassword="{isShowPwd}" focusOut="validateAll(3)"/>
+						</mx:FormItem>
+					</mx:GridItem>
+				</mx:GridRow>
+				<mx:GridRow width="100%" paddingTop="30">
+					<mx:GridItem width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+						<mx:Button label="明文显示" id="showpwd" click="showpwd_clickHandler(event)"/>
+						<mx:Button label="修改" id="save"  click="validateAll(3);editUser();" />
+						<mx:Button label="关闭" id="cancel" click="closeWin()"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+		</mx:VBox>
+	
+	<mx:StringValidator id="oldpwdValid" requiredFieldError="不能为空" 
+						source="{pwd}"  property="text" trigger="{pwd}" triggerEvent="focusOut" />
+	<mx:StringValidator id="pwd1Valid" maxLength="15" minLength="6" required="true" 
+						tooShortError="不少于6个字符" tooLongError="不超过15个字符" requiredFieldError="不能为空" 
+						source="{newpwd1}"  property="text" trigger="{newpwd1}" triggerEvent="focusOut" />
+	<mx:StringValidator id="pwd2Valid" maxLength="15" minLength="6" required="true" 
+						tooShortError="不少于6个字符" tooLongError="不超过15个字符" requiredFieldError="不能为空" 
+						source="{newpwd2}"  property="text" trigger="{newpwd2}" triggerEvent="focusOut" />
+</mx:TitleWindow>

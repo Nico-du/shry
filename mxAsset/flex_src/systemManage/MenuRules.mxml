@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="100%" height="100%" fontSize="12" showCloseButton="true">
+	<mx:Script>
+	<![CDATA[
+		import mx.events.ListEvent;
+		
+		private function show(evt:ListEvent):void
+		{
+		    var tree:XML=evt.target.selectedItem as XML;
+		    var name:String=tree.@label;
+		    if (name != null && name != "")
+		    {
+		    	showMsg.text=name;
+		    }
+		}
+	]]>
+</mx:Script>
+			<mx:Canvas label="菜单权限分配" width="100%" height="100%">
+						<mx:Tree x="10" y="10" dataProvider="{treeData}" labelField="@label" width="300" height="100%" itemClick="show(event)">		
+						</mx:Tree>
+		<mx:Canvas x="338" y="21" width="396" height="135" backgroundColor="#BCDABA" backgroundAlpha="0.72">
+			<mx:CheckBox x="138.5" y="47" label="查询"/>
+			<mx:Label x="10" y="10" text="菜单名称"/>
+			<mx:Label x="10" y="48" id="showMsg"  fontSize="16"/>
+			<mx:CheckBox x="205" y="47" label="添加"/>
+			<mx:CheckBox x="262" y="47" label="修改"/>
+			<mx:CheckBox x="319" y="47" label="删除"/>
+			<mx:Button x="138.5" y="101" label="确定"/>
+		</mx:Canvas>
+		</mx:Canvas>
+		<mx:XMLList id="treeData">
+	       <node label="设备清单">
+	    	<node label="终端设备">
+	        	<node label="PC机" app="PC机"/>
+	            <node label="PC机配件" app="PC机配件" />
+	            <node label="笔记本"  app="笔记本"/>
+	            <node label="笔记本配件" app="笔记本配件"/>
+	            <node label="打印机" app="打印机"/>
+	            <node label="扫描仪" app="扫描仪"/>
+	            <node label="传真机" app="扫描仪"/>
+	            <node label="绘图仪" app="绘图仪"/>
+	        </node>
+	        <node label="介质">
+	            <node label="介质" app="介质"/>
+	        </node>
+	        <node label="主机">
+	            <node label="小型机" app="小型机"/>
+	            <node label="PC服务器" app="PC服务器"/>
+	            <node label="工控机" app="工控机"/>
+	            <node label="刀片服务器" app="刀片服务器"/>
+	        </node>
+	        <node label="存储设备">
+	            <node label="磁盘阵列" app="磁盘阵列"/>
+	            <node label="磁带库" app="磁带库"/>
+	            <node label="磁盘" app="磁盘"/>
+	            <node label="磁带" app="磁带"/>
+	            <node label="磁盘扩展柜" app="磁盘扩展柜"/>
+	        </node>
+	        <node label="网络设备">
+	        	<node label="交换机" app="交换机"/>
+	            <node label="路由器" app="路由器"/>
+	            <node label="安全设备" app="安全设备"/>
+	        </node>
+	        <node label="动力设备">
+	        	<node label="UPS" app="UPS"/>
+	            <node label="发动机" app="发动机"/>
+	        </node>
+	        <node label="机房建设">
+	        	<node label="精密空调" app="精密空调"/>
+	            <node label="门禁" app="门禁"/>
+	            <node label="消防" app="消防"/>
+	            <node label="监控" app="监控"/>
+	            <node label="防静电地板" app="防静电地板"/>
+	            <node label="机架" app="机架"/>
+	            <node label="地板" app="地板"/>
+	        </node>
+	        <node label="综合布线">
+	        	<node label="线缆"/>
+	            <node label="模块"/>
+	        </node>
+	        <node label="视频会议">
+	        	<node label="录像设备"/>
+	            <node label="摄像设备"/>
+	            <node label="投影机"/>
+	            <node label="显示屏"/>
+	            <node label="音响设备"/>
+	        </node>
+	         </node>
+      	
+    </mx:XMLList>
+	
+</mx:TitleWindow>

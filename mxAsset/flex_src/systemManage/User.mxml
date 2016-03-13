@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" showEffect="WipeRight" hideEffect="WipeLeft" 
+		  creationComplete="userInit()" title="用户管理" paddingBottom="2" paddingLeft="2" 
+		  paddingRight="2" paddingTop="2" xmlns:systemManage="systemManage.*">
+	<mx:RemoteObject id="userSericeRmt" destination="UserService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="addDBRmt" destination="addDB"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script source="../systemManage/initAllAssetRule.as"/>
+	<mx:Script source="../flex/util/InitAdvancedSearchHbx.as"/>
+	<mx:Script>
+		<![CDATA[
+			import cn.cnsasfram.helper.ASCommonHelper;
+			
+			import flex.util.HanZi2PinYin;			
+			import flash.display.DisplayObject;
+			import flash.events.Event;
+			import flash.net.URLRequest;
+			
+			import flex.pojos.UserSessionVo;
+			import flex.util.CommonUIMethod;
+			import flex.util.ExportExcel2;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.messaging.channels.StreamingAMFChannel;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			import systemManage.AddUser;
+			import systemManage.EditUser;
+			import systemManage.LoaderCanvas;
+			import systemManage.UserPopedom;
+			
+			public var condition:String = " (1=1) and  this_.id <> 1 and this_.zsxm is not null order by this_.id asc   ";//" (1=1) order by deptId asc ";
+			
+			[Bindable]
+			private var userItem:ArrayCollection = new ArrayCollection();
+			//searchCh dataXmlPath mbExcelPath是高级查询必须变量
+			private var searchCh:Array = new Array(0,1,2,3);//高级查询中要显示的字段 xml文件中字段的索引
+			private var dataXmlPath:String = "xml/user.xml";
+			private var mbExcelPath:String = "excelDownLoad/pc.xls";
+			//是否选择流程人员
+			public var isListPage:Boolean = false;
+			public var doubleSelectFunc:Function = null;
+			public function userInit():void {
+				if(isListPage){//选择流程人员界面
+					this.title = "用户列表";
+					btnBox.visible = false;
+					btnBox.includeInLayout = false;
+					usermc.visible=false;
+					this.setStyle("headerHeight",0);
+				}
+				loadUserPower();
+				searchUserList();
+				var loader:URLLoader = new URLLoader(new URLRequest("xml/user.xml"));
+				loader.addEventListener(Event.COMPLETE,completeBack);
+			}
+			
+			//分析权限
+			public function loadUserPower():void{
+				ASCommonHelper.controlVisible(this.newAction,this.isAddUsable);
+				ASCommonHelper.controlVisible(this.removeAction,this.isDelUsable);
+				ASCommonHelper.controlVisible(this.editAction,this.isEditUsable);
+				ASCommonHelper.controlVisible(this.exportAction,this.isExportUsable);
+				ASCommonHelper.controlVisible(this.assignAction,this.isEditUsable);
+			}
+			
+			private function dbcUserInfo(evt:Object):void{
+				if(evt.itemRenderer.data != null && doubleSelectFunc != null){
+					doubleSelectFunc.call(null,evt.itemRenderer.data);
+				}
+			}
+			
+			private function completeBack(event:Event):void {
+				var cobXml:XMLList = new XMLList(event.target.data);
+				searchCob.dataProvider = cobXml.children();
+			}
+			public function searchUserList():void {
+				var ps:Number = pagination.pageSize;
+				if(ps==0){
+					ps=20;
+				}
+				pagination.dg = dataGrid;
+				pagination.condition = condition;
+				pagination.getPage(ps,pagination.currentPage);
+			}
+			//查询
+			protected function searchUser():void {
+				var column:String = searchCob.selectedItem.@name;
+				var value:String = searchText.text;
+				var ps:Number = pagination.pageSize;
+				
+				if(column == "js") {//如果是按角色查询
+					pagination.condition = "js=" + value;
+					pagination.getPage(ps,1);
+				}else if(value != ""){
+					pagination.condition = column + " like '%" + value + "%' and " + condition;
+					pagination.getPage(ps,1);
+				}else {
+					pagination.condition = column + " like '%" + value + "%' and " + condition;
+					//		pagination.condition = condition;
+					pagination.getPage(ps,1);
+				}
+			}
+			//删除列
+			private function deleteColumn(event:CloseEvent):void {
+				if(event.detail == Alert.YES) {
+					var idArray:Array = new Array();
+					for (var i:int = 0; i < dataGrid.dataProvider.length; i++) {   
+						if ( i < 0 ) {
+							break;
+						}   
+						if (dataGrid.dataProvider.getItemAt(i).selected) {
+							var id:int = int(dataGrid.dataProvider.getItemAt(i).id);
+							idArray.push(id);
+							dataGrid.dataProvider.removeItemAt(i);   
+							dataGrid.dataProvider.refresh();   
+							i--;   
+						}   
+					} 
+					userSericeRmt.deleteUser(idArray);
+					userSericeRmt.addEventListener(ResultEvent.RESULT,deleteBack);
+				}
+			}
+			//删除回调
+			private function deleteBack(event:ResultEvent):void {
+				var ps:Number = pagination.nsPageNu.value;
+				pagination.condition = condition;
+				pagination.getPage(ps,pagination.currentPage);
+				userSericeRmt.removeEventListener(ResultEvent.RESULT,deleteBack);
+			}
+			private function delUser():void {
+				Alert.yesLabel = "是";
+				Alert.noLabel = "否";
+				if(validSelected()) {
+					Alert.show("是否删除选中的用户？","提示",(Alert.YES|Alert.NO),this.parentApplication as Sprite,deleteColumn);
+				}else {
+					Alert.show("请选择需要删除的用户!","提示",Alert.OK,this.parentApplication as Sprite);
+				}
+			}
+			//选择datagrid行
+			private function selectCheckBox(event:ListEvent):void {
+				event.currentTarget.selectedItem.selected = !event.currentTarget.selectedItem.selected;
+			}
+			private function validSelected():Boolean {
+				for(var i:int = 0; i < dataGrid.dataProvider.length;i++) {
+					if(dataGrid.dataProvider[i].selected) {
+						return true;
+					}
+				}
+				return false;
+			}
+			//全选
+			protected function selectAll():void {
+				fxCheckBox.selected = false;
+				if(qxCheckBox.selected) {
+					for(var i:int = 0; i < dataGrid.dataProvider.length; i++) {
+						dataGrid.dataProvider.getItemAt(i).selected = true;
+					}
+				}else {
+					for(var j:int = 0; j < dataGrid.dataProvider.length; j++) {
+						dataGrid.dataProvider.getItemAt(j).selected = false;
+					}
+				}
+			} 
+			//反选
+			protected function selectReverse():void {
+				qxCheckBox.selected = false;
+				for(var i:int = 0; i < dataGrid.dataProvider.length; i++) {
+					dataGrid.dataProvider.getItemAt(i).selected = !dataGrid.dataProvider.getItemAt(i).selected;
+				}
+			}
+			
+			private function addUser():void {
+				var addUser:AddUser = new AddUser();
+				PopUpManager.addPopUp(addUser,this.parentApplication as DisplayObject,true);
+				PopUpManager.centerPopUp(addUser);
+				addUser.userList = this;
+			}
+			private function editUserInfo(evt:Object):void{
+				if(isListPage){
+					dbcUserInfo(evt);
+					return;
+				}
+				if(!(evt.itemRenderer.data is UserSessionVo))return;
+				var editUser:EditUser = new EditUser();
+				editUser.title = "用户帐号信息";
+				editUser.userList = this;
+				editUser.isDetailPage = true;
+				editUser.initEdituser(evt.itemRenderer.data.id);
+				PopUpManager.addPopUp(editUser,this.parentApplication as DisplayObject,true);
+				PopUpManager.centerPopUp(editUser);
+			
+			}
+			private function editUser():void {
+				Alert.yesLabel = "是";
+				Alert.noLabel = "否";
+				if(!validSelected()) {
+					Alert.show("请选择需要修改的用户!","提示",Alert.OK,this.parentApplication as Sprite);
+				}else {
+					var userArrayColl:ArrayCollection = dataGrid.dataProvider as ArrayCollection;
+					var i:int = 0;
+					for each(var userVo:UserSessionVo in userArrayColl) {
+						if(userVo.selected) {
+							i++;
+						}
+					}
+					for each(var userVo2:UserSessionVo in userArrayColl) {
+						if(userVo2.selected) {
+							var editUser:EditUser = new EditUser();
+							PopUpManager.addPopUp(editUser,this.parentApplication as DisplayObject,true);
+							PopUpManager.centerPopUp(editUser);
+							if(i > 1){
+								editUser.title = "用户帐号信息更改（勾选了" + i + "条用户帐号更新，默认选择第一条记录）";
+							}else {
+								editUser.title = "用户帐号信息更改";
+							}
+							editUser.userList = this;
+							editUser.initEdituser(userVo2.id);
+							break;
+						}
+					}
+				}
+			}
+			
+			private function deptLabelFunction(item:Object, column:DataGridColumn):String {
+				if(item.isLeader == "1") {
+					return item.deptName + "(部门负责人)";
+				}else {
+					return item.deptName;
+				}
+			}
+			//同步部门
+			private var load:LoaderCanvas;
+			private function updateDB():void
+			{
+				load = new LoaderCanvas();
+				PopUpManager.addPopUp(load,this.parentApplication as DisplayObject,true);
+				PopUpManager.centerPopUp(load);
+				
+				addDBRmt.addOrUpdateDept();
+				addDBRmt.addEventListener(ResultEvent.RESULT,DeptBack);
+				addDBRmt.addEventListener(FaultEvent.FAULT,DeptFault);
+			}
+			
+			private function DeptBack(evt:ResultEvent):void{
+				addDBRmt.removeEventListener(ResultEvent.RESULT,DeptBack);
+				addDBRmt.addOrUpdateEmployee();
+				addDBRmt.addEventListener(ResultEvent.RESULT,EmployeeBack);
+			}
+			
+			private function DeptFault(evt:FaultEvent):void{
+				addDBRmt.removeEventListener(FaultEvent.FAULT,DeptFault);
+				PopUpManager.removePopUp(load);
+				Alert.show("连接数据库失败！","提示");
+			}
+			//更新员工
+			private function EmployeeBack(evt:ResultEvent):void{
+				addDBRmt.removeEventListener(ResultEvent.RESULT,EmployeeBack);
+				PopUpManager.removePopUp(load);
+				Alert.show("更新部门组织结构成功","提示");
+			}
+			
+			private function showPopedom(evt:ListEvent):void{
+				var popedom:UserPopedom = new UserPopedom();
+				if(evt.itemRenderer.data.ruleId == null || evt.itemRenderer.data.ruleId.length < 1){
+					Alert.show("当前用户未授予角色，请设置用户角色后再修改权限!",CommonXMLData.Alert_Title);
+					return;
+				}
+				popedom.user=evt.itemRenderer.data as UserSessionVo;
+				PopUpManager.addPopUp(popedom,this.parentApplication as DisplayObject,true);
+				PopUpManager.centerPopUp(popedom);
+			}
+			
+			private function sortuserName(obj1:Object, obj2:Object):int{ 
+				var deptName1:String=obj1.userName;
+				if(deptName1.indexOf("栾")!=-1){
+					deptName1=deptName1.replace("栾","luan");
+				}
+				if(deptName1.indexOf("楣")!=-1){
+					deptName1=deptName1.replace("楣","mei");
+				}
+				var deptName2:String=obj2.userName;
+				if(deptName2.indexOf("栾")!=-1){
+					deptName2=deptName2.replace("栾","luan");
+				}
+				if(deptName2.indexOf("楣")!=-1){
+					deptName2=deptName2.replace("楣","mei");
+				}
+				var han2pinyin:HanZi2PinYin = new HanZi2PinYin();   
+				var p1:String=han2pinyin.toPinyin(deptName1);
+				var p2:String=han2pinyin.toPinyin(deptName2);
+				var result:int=0;
+				for(var i:int=0;i<p1.length;i++){
+					if(result==0){
+						if(p2.charAt(i)==null){
+							result=-1;
+						}else{
+							result=ObjectUtil.compare(p1.charAt(i),p2.charAt(i));
+						}
+					}else{
+						break;
+					}
+				}
+				return result;
+			}
+			private function srotdeptName(obj1:Object, obj2:Object):int{ 
+				var deptName1:String=obj1.deptName;
+				var deptName2:String=obj2.deptName;
+				var han2pinyin:HanZi2PinYin = new HanZi2PinYin();   
+				var p1:String=han2pinyin.toPinyin(deptName1);
+				var p2:String=han2pinyin.toPinyin(deptName2);
+				var result:int=0;
+				for(var i:int=0;i<p1.length;i++){
+					if(result==0){
+						if(p2.charAt(i)==null){
+							result=-1;
+						}else{
+							result=ObjectUtil.compare(p1.charAt(i),p2.charAt(i));
+						}
+					}else{
+						break;
+					}
+				}
+				return result;
+			}
+			private function srotruleName(obj1:Object, obj2:Object):int{ 
+				var deptName1:String=obj1.ruleName;
+				var deptName2:String=obj2.ruleName;
+				var han2pinyin:HanZi2PinYin = new HanZi2PinYin();   
+				var p1:String=han2pinyin.toPinyin(deptName1);
+				var p2:String=han2pinyin.toPinyin(deptName2);
+				var result:int=0;
+				for(var i:int=0;i<p1.length;i++){
+					if(result==0){
+						if(p2.charAt(i)==null){
+							result=-1;
+						}else{
+							result=ObjectUtil.compare(p1.charAt(i),p2.charAt(i));
+						}
+					}else{
+						break;
+					}
+				}
+				return result;
+			}
+			
+			//导出当前dataGrid数据
+			public function outExcelData():void
+			{
+				var item:ArrayCollection=dataGrid.dataProvider as ArrayCollection;
+				var arry:Array=new Array();//用来保存需要导出数据的id
+				var idStr:String = "(";
+				if(item!=null){
+					for(var i:int=0;i<item.length;i++)
+					{
+						if(item.getItemAt(i).selected)
+						{
+							arry.push(item.getItemAt(i).id);
+							idStr += (item.getItemAt(i).id + ", ")
+						}
+					} 
+				}
+				idStr = idStr.substr(0, idStr.lastIndexOf(","));
+				idStr += ")";
+				
+				
+				
+				
+				var sql:String = "";
+				var name:String="用户信息列表.xls";
+				var exportExcel:ExportExcel2 = new ExportExcel2();
+				var ary:Array = dataGrid.columns;
+				ary.shift();
+				//    	    if(searchText.text != "")
+				//    	    {
+				//    	    	var col:String=searchCob.selectedItem.@name;
+				//			    var txt:String=StringUtil.trim(searchText.text);
+				//    	    	sql = "from " + col + "=" + txt;
+				//    	    }
+				if(arry.length > 0) {
+					sql = "idSt" + idStr;
+				}else {
+					var col:String=searchCob.selectedItem.@name;
+					var txt:String=StringUtil.trim(searchText.text);
+					sql = "from " + col + "=" + txt;
+				}
+				exportExcel.ExportDGToExcel2(ary,"users",name,"",sql);
+			}
+			public function inData():void{
+				
+			}
+			private function indexFunction(item:Object, column:DataGridColumn):String{
+				return String(dataGrid.dataProvider.getItemIndex(item)+1);
+			}
+			
+			
+			private function assignUser():void {
+				Alert.yesLabel = "是";
+				Alert.noLabel = "否";
+				if(!validSelected()) {
+					Alert.show("请选择需要分配权限的用户!","提示",Alert.OK,this.parentApplication as Sprite);
+				}else {
+					var ruleArrayColl:ArrayCollection = dataGrid.dataProvider as ArrayCollection;
+					var i:int = 0;
+					for each(var ruleVo:UserSessionVo in ruleArrayColl) {
+						if(ruleVo.selected) {
+							i++;
+						}
+					}
+					for each(var userVo2:UserSessionVo in ruleArrayColl) {
+						if(userVo2.selected) {
+							if(userVo2.ruleId == null || userVo2.ruleId.length < 1){
+								Alert.show("当前用户未授予角色，请设置用户角色后再修改权限!",CommonXMLData.Alert_Title);
+								return;
+							}
+							var ar:UserPopedom = new UserPopedom();
+							
+							if(i > 1){
+								ar.title = "分配权限（勾选了" + i + "条角色信息更新，默认选择第一条记录）";
+							}else {
+								ar.title = "分配权限";
+							}
+							//	ar.assignInit(ruleVo2.id);
+							ar.user=userVo2 as UserSessionVo;
+							//	ar.ruleList = this;
+							PopUpManager.addPopUp(ar,this.parentApplication as DisplayObject,true);
+							PopUpManager.centerPopUp(ar);
+							break;
+						}
+					}
+				}	
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" verticalGap="2">
+		<mx:HBox id="normalSearchHbx" width="100%" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
+			<mx:HBox id="qukilySearchInput" width="80%" horizontalGap="1" horizontalAlign="left" borderStyle="none">
+				<mx:Label  text="在"/>
+				<mx:ComboBox labelField="@column" id="searchCob"></mx:ComboBox>
+				<mx:Label  text="查找"/>
+				<mx:TextInput width="100" id="searchText" enter="searchUser()"/>
+				<mx:Button label="搜索" icon="@Embed(source='images/find.gif')" click="searchUser()"/>
+				<mx:Button label="同步部门组织结构" icon="@Embed(source='images/import.gif')" click="updateDB()" visible="false" includeInLayout="false"/>
+			</mx:HBox>	
+			<mx:HBox width="20%" horizontalGap="1" horizontalAlign="right" borderStyle="none">
+				<mx:Button id="advancedSearch" width="55" label="高级"  click="CommonUIMethod.ui_advancedSearchChange(advancedSearch,advancedSearchVbx,normalSearchHbx)" visible="false"/>
+			</mx:HBox>
+		</mx:HBox>
+		<mx:VBox width="100%" id="advancedSearchVbx" borderStyle="solid" horizontalGap="0" verticalGap="0" paddingBottom="2">
+			<mx:HBox width="100%">
+				<mx:Tile direction="horizontal" horizontalAlign="right" borderStyle="none" id="inputTile" initialize="initNewArr();" creationComplete="resetFboxSize(inputTile,dateTile,advancedSearchVbx)"
+						 horizontalGap="8" verticalGap="4" paddingLeft="2" paddingTop="5" paddingBottom="0" paddingRight="10" width="100%">
+				</mx:Tile>
+				<mx:HBox borderStyle="none" verticalGap="5" horizontalAlign="center" verticalAlign="top">
+					<mx:Button id="btnsearchdata" click="submitQuery(new UserSessionVo());" width="55"   label="搜索" />
+					<mx:Button id="btnresetdata" click="resetQuery()" width="55"  label="重置" />
+				</mx:HBox>
+			</mx:HBox>
+			<mx:HBox width="100%" paddingLeft="2" id="slctCndTm">
+				<mx:Tile direction="horizontal" horizontalAlign="right" borderStyle="none" id="dateTile" 
+						 horizontalGap="50" verticalGap="4" visible="false" includeInLayout="false"
+						 paddingLeft="10" paddingTop="0" paddingBottom="0" paddingRight="10"  width="100%">
+				</mx:Tile>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:HBox width="100%" id="btnBox" backgroundColor="#99CCFF">
+			<mx:ComboBox id="selectAllReverse" width="70" blendMode="overlay" dataProvider="{CommonXMLData.Asset_SelectAll_ReverseXML.children()}" labelField="@mc"
+						 close="CommonUIMethod.ui_SelectAll_Reverse(dataGrid,selectAllReverse.selectedItem.@name)" />
+			<!--<mx:LinkButton id="chooseCloum" label="选择列" toolTip="选择显示列" icon="@Embed(source='images/tools_min.png')" click="selectColumn()"/>-->
+			<mx:LinkButton id="newAction" label="新建" icon="@Embed(source='images/add.gif')" click="addUser()"   />
+			<mx:LinkButton id="editAction" label="编辑" icon="@Embed(source='images/edit.gif')" click="editUser()"  />
+			<mx:LinkButton id="removeAction" label="删除" icon="@Embed(source='images/delete.gif')" click="delUser()"  />
+			<mx:LinkButton id="refeshAction" label="刷新" icon="@Embed(source='images/icon_refresh.png')"  click="searchUser();" />
+			<mx:LinkButton id="exportAction" label="导出" icon="@Embed(source='images/export.gif')" click="searchUser();outExcelData()"  />
+			<mx:LinkButton id="assignAction" label="分配用户权限" icon="@Embed(source='images/export.gif')" click="assignUser();"  />
+			<!--<mx:ComboBox id="otherAction" width="90" dataProvider="{otherchooseFunction}" labelField="@mc" blendMode="overlay"/>-->
+		</mx:HBox>
+	</mx:VBox>
+	<mx:DataGrid width="100%" height="100%" rowHeight="33.6" itemClick="selectCheckBox(event)" verticalAlign="middle"
+				 id="dataGrid" doubleClickEnabled="true" itemDoubleClick="editUserInfo(event)">
+		<mx:columns>
+			<mx:DataGridColumn width="50" headerText="选择项" textAlign="center" labelFunction="indexFunction" draggable="false" sortable="false">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:CheckBox selected="{data.selected}"/>
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="用户帐号" dataField="mc" id="usermc"/>
+			<mx:DataGridColumn headerText="姓名" dataField="userName" sortable="true" sortCompareFunction="sortuserName" />
+			<mx:DataGridColumn headerText="部门" dataField="deptName" labelFunction="deptLabelFunction"  sortable="true" sortCompareFunction="srotdeptName" />
+			<mx:DataGridColumn headerText="职位" dataField="zwmc"  sortable="true" />
+			<mx:DataGridColumn headerText="所属角色" dataField="ruleName" sortable="true" sortCompareFunction="srotruleName"  />
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:HBox width="100%" backgroundColor="#E5F2E8" visible="false" includeInLayout="false">
+		<mx:CheckBox label="全选" id="qxCheckBox" click="selectAll()"/>
+		<mx:CheckBox label="反选" id="fxCheckBox" click="selectReverse()"/>
+	</mx:HBox>
+	<systemManage:UserPage right="5" id="pagination" width="100%" backgroundColor="#E5F2E8"/>
+</mx:Panel>

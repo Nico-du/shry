@@ -49,7 +49,7 @@
 	</fx:Declarations>
 	<!--color="0x707070"-->
 	<mx:LineChart id="linechart" height="60%" width="60%" seriesFilters="[]"
-				  verticalCenter="0" horizontalCenter="0" fontSize="12" 
+				  verticalCenter="-55" horizontalCenter="-54" fontSize="12" 
 				  showDataTips="true" dataProvider="{myData}"
 				  dataTipFunction="dataTips">
 		<mx:backgroundElements>

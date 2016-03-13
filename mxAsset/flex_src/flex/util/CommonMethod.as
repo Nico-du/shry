@@ -51,6 +51,8 @@ package flex.util
 	import mx.rpc.remoting.RemoteObject;
 	import mx.utils.StringUtil;
 	
+	import shry_tpgl.PICZoomModuel;
+	
 	/**
 	 *静态公共方法类 
 	 **/
@@ -140,6 +142,47 @@ package flex.util
 			if(parentPage == null || callBackFunc == undefined || callBackFunc==null){return;}
 			callBackFunc.call(parentPage,event.result);
 		}
+		
+		//显示放大图片
+		public static function doshowZoomSelectedPic(tablename:String,columnname:String,dataid:String,parentPage:Object):Function{
+			return function(event:Event){
+				showZoomSelectedPic(event,tablename,columnname,dataid,parentPage);
+			}
+		}
+		//显示放大图片
+		public static function showZoomSelectedPic(evt:Event,tablename:String,columnname:String,dataid:String,parentPage:Object):void{
+			//Alert.show("");
+			if(evt.currentTarget.data == null || Number(evt.currentTarget.data) ==NaN){ return ;}
+			var picMd:PICZoomModuel = new PICZoomModuel();
+			picMd.tablename = tablename;
+			picMd.columnname = columnname;
+			picMd.paretnId = dataid;
+			picMd.defaultImgIndex = int(evt.currentTarget.data);
+			PopUpManager.addPopUp(picMd, parentPage as DisplayObject,true);
+			PopUpManager.centerPopUp(picMd);
+		}
+		
+		/**
+		 *选择部门的公共页面
+		 * currentWd 当前页面 (传 this);
+		 * deptInput 显示供应商名称的TextInput ;
+		 * deptIDInput 隐藏的TextInput 存储部门ID的TextInput 可不传;
+		 * 部门Vo会存储在TextInput.data中和deptIDInput.text中;
+		 **/
+		public static function getDept(currentWd:Object,deptInput:TextInput,isSetVo:Boolean=true,isAddAnotherDept:Boolean=true,deptIDInput:TextInput=null):void{
+			var ast:SelectGYS= pageCacheObj.bmPage;
+			if(ast == null){ ast = new SelectGYS(); pageCacheObj.bmPage = ast;}
+			ast.title = "选择部门";
+			ast.isAddAnotherDept = isAddAnotherDept;
+			ast.voType = new DeptVo();
+			ast.labelName = "mc";
+			ast.isIdOrVo = isSetVo;
+			ast.syrInput = deptInput;
+			ast.syrIDInput = deptIDInput;
+			PopUpManager.addPopUp(ast,currentWd.parentApplication as DisplayObject,true);
+			PopUpManager.centerPopUp(ast);
+		}
+		
 		
 		//读取XML文件
 		private static var ipCfgXml:XML;

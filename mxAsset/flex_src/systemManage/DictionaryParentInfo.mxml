@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="240" height="360" showCloseButton="true" fontSize="12" backgroundColor="#FCFDFD" close="PopUpManager.removePopUp(this);"  xmlns:ns1="asset_Computer.*" title="父名称信息" creationComplete="initApp()">
+	<mx:RemoteObject id="dictionaryRemote" destination="dictionaryService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import flex.pojos.FurnitureVo;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			public var dictionaryInfo:DictionaryInfo;
+			
+			private function initApp():void{
+				dictionaryRemote.getDictionartList();
+				dictionaryRemote.addEventListener(ResultEvent.RESULT,initDictionaryInfo);
+			}
+			
+			private var listData:ArrayCollection;
+			private function initDictionaryInfo(evt:ResultEvent):void{
+				dictionaryRemote.removeEventListener(ResultEvent.RESULT,initDictionaryInfo);
+				listData = evt.result as ArrayCollection;
+				asl.dataProvider = listData;
+			}
+			
+			protected function asl_itemClickHandler(evt:ListEvent):void
+			{
+				var t:List = evt.currentTarget as List;
+				dictionaryInfo.pId.text = t.selectedItem["id"];
+				dictionaryInfo.pName.text = t.selectedItem["name"];
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</mx:Script>
+	<mx:List id="asl" width="200" color="blue" labelField="name" wordWrap="true" itemClick="asl_itemClickHandler(event)" x="10" y="10" height="298"/>
+</mx:TitleWindow>

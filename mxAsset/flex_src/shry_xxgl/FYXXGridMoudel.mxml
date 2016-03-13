@@ -30,6 +30,8 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectProxy;
+			
+			import shry_zlgl.FYFormMoudel;
 			//页面标题icon路径
 			[Bindable]
 			protected var pagetitleIcon:String="";
@@ -67,7 +69,7 @@
 			//风叶ID
 			public var bfdid:String="";
 			//父窗口
-			public var parentPage:Object = null;
+			public var parentPage:FYXXFormMoudel = null;
 			//初始调用方法
 			public function initPage():void{
 				this.highSearchChange();
@@ -102,7 +104,7 @@
 				ASCommonHelper.controlVisible(this.otherAction,otherAction.visible);
 				ASCommonHelper.controlVisible(this.exportAction,exportAction.visible);
 				
-				ProcessMethods.changeCNSTModuelState(this,newAction.visible,editAction.visible,removeAction.visible);
+			//	ProcessMethods.changeCNSTModuelState(this,newAction.visible,editAction.visible,removeAction.visible);
 			}
 			
 			//加载数据
@@ -222,7 +224,7 @@
 					tempid=tempSelctedItem.fyid;
 				}
 				tempWindow.dataId=tempid;
-				tempWindow.parentPage=this;
+		//		tempWindow.parentPage=this;
 				this.cns_dg_pg.openEditPage(tempWindow);
 			}
 			//检测表格是否存在选中数据
@@ -266,7 +268,7 @@
 			//得到搜索条件
 			protected function getDataSeacrchCondition():String{
 				var condition:Object=new Object();
-				if(!searchFormIsOpen){
+				/* if(!searchFormIsOpen){
 					var xh:String=this.xh.text;
 					var ypsm:String=this.ypsm.text;
 					var zj:String=this.zj.text;
@@ -300,7 +302,7 @@
 					if(!ASStringHelper.isNullOrEmpty(quklytext)){
 						condition.s_xh_string_like=quklytext;
 					}
-				}
+				} */
 		//		condition.s_bfdid_string_eq=bfdid;
 				var conditionJson:String=JSON.encode(condition);
 				return conditionJson;
@@ -363,7 +365,7 @@
 			
 			//选择高级搜索切换
 			protected function highSearchChange():void{
-				if(searchFormIsOpen){
+				/* if(searchFormIsOpen){
 					this.qukilySearchBar.enabled=false;
 					ASCommonHelper.controlVisible(this.highSearchBox,true);
 					this.highSearch.label="隐藏";
@@ -371,128 +373,80 @@
 					this.qukilySearchBar.enabled=true;
 					ASCommonHelper.controlVisible(this.highSearchBox,false);
 					this.highSearch.label="高级";
-				}
+				} */
 				searchFormIsOpen=!searchFormIsOpen;
 			}
 			
 			//搜索重置
 			protected function dataSearchResetAction():void{
-				this.xh.text = "";
+				/* this.xh.text = "";
 				this.ypsm.text = "";
 				this.zj.text = "";
 				this.fbzj.text = "";
 				this.dlhzj.text = "";
 				this.zl.text = "";
-				this.qj.text = "";
+				this.qj.text = ""; */
 			}
 			
-			//得到title的ICON
-			protected function getTitleIcon(iconPath:String):Class{
-				if(ASStringHelper.isNullOrEmpty(iconPath)){
-					return null;
-				}
-				return IconUtility.getClass(this.pagePanel,iconPath,20,20);
-			}
 			
 			//得到表格行号
 			protected function getColumnIndex(item:Object,column:DataGridColumn):String{
 				return String(this.cns_dg.dataProvider.getItemIndex(item)+1);
 			}
 			
+
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				parentPage.pageTitle= "风叶选型 》输入选型参数";
+				parentPage.pagePanel.removeAllChildren();
+				parentPage.pagePanel.addChild(CommonMethod.pageCacheObj.FYXX_selectionStartBox as DisplayObject);
+			}
+
 		]]>
 	</mx:Script>
-	<mx:HDividedBox width="100%" height="100%" verticalAlign="middle" verticalGap="0" borderStyle="none" horizontalAlign="center" horizontalGap="3">
-		<mx:Panel id="pagePanel" title="{pagetitle}" titleIcon="{getTitleIcon(pagetitleIcon)}" width="100" height="100%" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" verticalGap="2" horizontalGap="0">
-			<!--快捷搜索-->
-			<mx:HBox id="qukilySearchBox" width="100%" height="{aboutheight}" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
-				<mx:HBox id="qukilySearchBar" width="80%" height="{aboutheight}" horizontalGap="1" horizontalAlign="left" borderStyle="none">
-					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="型号" textAlign="right"/>
-					<mx:TextInput id="qukilySearchTxt" enter="searchClickAction()" width="150" height="{aboutheight}"/>
-					<mx:Button id="qukilySearchBtn" click="searchClickAction()" height="{aboutheight}" label="搜索" icon="@Embed(source='images/find.gif')"/>
-				</mx:HBox>
-				<mx:HBox width="20%" horizontalGap="1" horizontalAlign="right" borderStyle="none">
-					<mx:Button id="highSearch" click="highSearchChange()" width="55" height="{aboutheight}" label="高级"/>
-				</mx:HBox>
-			</mx:HBox>
-			<!--搜索表单-->
-			<mx:HBox id="highSearchBox" width="100%" borderStyle="solid" verticalGap="0" horizontalGap="0">
-				<mx:Form id="highSearchForm" width="100%" horizontalGap="0" verticalGap="0" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" indicatorGap="0" borderStyle="none">
-					<mx:Grid width="100%" horizontalGap="0" verticalGap="4" borderStyle="none">
-						<mx:GridRow width="100%" height="{aboutheight}">
-							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="型号:" height="{aboutheight}"/>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="left" width="15%">
-								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="xh" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
-								</mx:FormItem>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="叶片数目:" height="{aboutheight}"/>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="left" width="15%">
-								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="ypsm" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
-								</mx:FormItem>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="直径(毫米):" height="{aboutheight}"/>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="left" width="15%">
-								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="zj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
-								</mx:FormItem>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="翻边直径(毫米):" height="{aboutheight}"/>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="left" width="15%">
-								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="fbzj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
-								</mx:FormItem>
-							</mx:GridItem>
-						</mx:GridRow>
-						<mx:GridRow width="100%" height="{aboutheight}">
-							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="导流环直径(毫米):" height="{aboutheight}"/>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="left" width="15%">
-								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="dlhzj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
-								</mx:FormItem>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="重量(克):" height="{aboutheight}"/>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="left" width="15%">
-								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="zl" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
-								</mx:FormItem>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="嵌件:" height="{aboutheight}"/>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="left" width="15%">
-								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="qj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
-								</mx:FormItem>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="right" width="10%">
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="left" width="15%">
-								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-								</mx:FormItem>
-							</mx:GridItem>
-						</mx:GridRow>
-					</mx:Grid>
-				</mx:Form>
-				<mx:VBox width="60" height="100%" borderStyle="none" verticalGap="2" paddingTop="2" paddingBottom="2" horizontalAlign="center" verticalAlign="middle">
-					<mx:Button id="btnsearchdata" click="searchClickAction()" width="55" height="{aboutheight}" label="搜索"/>
-					<mx:Button id="btnresetdata" click="dataSearchResetAction()" width="55" height="{aboutheight}" label="重置"/>
+	<mx:HBox id="XXDataBox" width="100%" height="{aboutheight*2}" verticalGap="0"  horizontalAlign="center" paddingTop="3" verticalAlign="middle" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+		<mx:Label text="选型参数：" fontWeight="bold"/>
+		<mx:TextArea id="xxDataTextArea" editable="false" borderStyle="solid" borderColor="#99CCFF" width="100%" height="{aboutheight*1.8}"  text="噪音:4dB   流量:500   电流:2A "/>
+		<mx:Button  click="button1_clickHandler(event)" label="返回"
+				   icon="@Embed(source='images/icon_return.png')"/>
+	</mx:HBox>
+			<mx:VDividedBox width="100%" height="100%" verticalAlign="middle"  horizontalAlign="center" horizontalGap="3">
+				<!--性能数据-->
+				<mx:VBox width="100%" height="40%" verticalGap="2" borderStyle="none">
+					<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#99CCFF" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+						<mx:Label text="性能数据" textIndent="10" width="100%" height="20" fontWeight="normal" fontSize="13"/>
+					</mx:HBox>
+					<mx:DataGrid id="cns_dg01" dataProvider="{dataArray}" itemClick="gridItemDataClick(event)" 
+								 itemDoubleClick="gridItemDataDoubleClick(event)" doubleClickEnabled="true" width="100%" height="100%">
+						<mx:columns>
+							<mx:DataGridColumn headerText="联系单号" width="120" dataField="lxdh" sortable="true"/>
+							<mx:DataGridColumn headerText="风叶型号" width="120" dataField="fyxh" sortable="true"/>
+							<mx:DataGridColumn headerText="流量(m^3/h)" width="120" dataField="ll" sortable="true"/>
+							<mx:DataGridColumn headerText="静压(Pa)" width="80" dataField="jyl" sortable="true"/>
+							<mx:DataGridColumn headerText="主风扇转速(rpm)" width="130" dataField="zzs" sortable="true"/>
+							<mx:DataGridColumn headerText="辅风扇转速(rpm)" width="130" dataField="fzs" sortable="true"/>
+							<mx:DataGridColumn headerText="噪声(dB)" width="80" dataField="fszs" sortable="true"/>
+							<mx:DataGridColumn headerText="扭矩(N.M)" width="80" dataField="nj" sortable="true"/>				
+							<mx:DataGridColumn headerText="轴功率(W)" width="100" dataField="zgl" sortable="true"/>				
+							<mx:DataGridColumn headerText="效率(%)" width="80" dataField="xl" sortable="true"/>
+							<mx:DataGridColumn headerText="更新人" width="100" dataField="updateusername" sortable="true"/>
+							<mx:DataGridColumn headerText="更新时间" width="155" dataField="updatedate" sortable="true"/>
+							<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
+						</mx:columns>
+					</mx:DataGrid>
 				</mx:VBox>
-			</mx:HBox>
+				
+				<!--匹配到的风叶列表数据  #B14C6B-->
+			<mx:VBox width="100%" height="60%" verticalGap="2" borderStyle="solid" borderColor="#B14C6B">
+				<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#B14C6B" 
+						 horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+					<mx:Label text="选型结果" textIndent="10" width="200" height="20" fontWeight="bold" fontSize="13" />
+					<mx:RadioButtonGroup id="showType" />
+					<mx:RadioButton label="性能数据显示" groupName="showType" />
+					<mx:RadioButton label="曲线图显示" groupName="showType" />
+				</mx:HBox>
 			<!--工具栏-->
-			<mx:HBox id="toolBar" width="100%" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" borderStyle="none" backgroundColor="#99CCFF">
+			<mx:HBox id="toolBar" width="100%" visible="false" includeInLayout="false" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" borderStyle="none" backgroundColor="#99CCFF">
 				<mx:ComboBox id="dataChooseAction" labelField="label" change="dataChooseActionClick(event)" editable="false" width="67" height="{aboutheight}" blendMode="overlay">
 					<mx:Array id="cbChooseArray">
 						<mx:Object label="选择" value="-1"/>
@@ -501,9 +455,6 @@
 					</mx:Array>
 				</mx:ComboBox>
 				<mx:LinkButton id="selectAction" click="selectActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="查看" toolTip="查看" icon="@Embed(source='images/icon_choosedate.gif')"/>
-				<mx:LinkButton id="newAction" click="newActionClick()" enabled="true" height="{aboutheight}" label="新建" toolTip="新建" icon="@Embed(source='images/add.gif')"/>
-				<mx:LinkButton id="editAction" click="editActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="编辑" toolTip="编辑" icon="@Embed(source='images/edit.gif')"/>
-				<mx:LinkButton id="removeAction" click="removeActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="删除" toolTip="删除" icon="@Embed(source='images/delete.gif')"/>
 				<mx:LinkButton id="exportAction" click="exportActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="导出" toolTip="导出" icon="@Embed(source='images/export.gif')"/>
 				<mx:LinkButton id="importDataAction" label="导入" icon="@Embed(source='images/import.gif')" click="importDataActionClick()"  visible="false" includeInLayout="false"/>
 				<mx:LinkButton id="refreshAction" click="searchClickAction()" height="{aboutheight}" label="刷新" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
@@ -541,8 +492,8 @@
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
 					</mx:columns>
 				</mx:DataGrid>
-				<cnspg:PagingMoudel id="cns_dg_pg" width="100%" height="{aboutheight}" datacount="{dg_pg_datacount}" othermsg="{dg_pg_othermsg}" funReqData="dataSearchAction"/>
-			</mx:VBox>
-		</mx:Panel>
-	</mx:HDividedBox>
+				<cnspg:PagingMoudel id="cns_dg_pg"  visible="true" includeInLayout="true" width="100%" height="{aboutheight}" datacount="{dg_pg_datacount}" othermsg="{dg_pg_othermsg}" funReqData="dataSearchAction"/>
+			      </mx:VBox>
+				</mx:VBox>
+	         </mx:VDividedBox>
 </mx:Module>

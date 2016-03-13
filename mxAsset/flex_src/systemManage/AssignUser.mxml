@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="816" height="400" showCloseButton="true" 
+	close="closeWin()" title="帐号信息" titleIcon="@Embed(source='images/edit.gif')" 
+	paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" initialize="init()" xmlns:controls="it.sephiroth.controls.*" xmlns:systemManage="systemManage.*">
+<mx:RemoteObject id="ruleService" destination="RuleService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+<mx:RemoteObject id="userSerice" destination="UserService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+<mx:RemoteObject id="deptService" destination="deptService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import flash.events.Event;
+			
+			import flex.pojos.RuleMenuVo;
+			import flex.pojos.RuleVo;
+			import flex.pojos.UserSessionVo;
+			import flex.util.CommonMethod;
+			
+			import it.sephiroth.renderers.TreecheckboxItemRenderer;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.HierarchicalData;
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.controls.CheckBox;
+			import mx.controls.LinkButton;
+			import mx.events.AdvancedDataGridEvent;
+			import mx.events.TreeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import systemManage.Rule;
+		   [Bindable]
+		   public var user:UserSessionVo;
+		   
+		   
+		   
+		   			// ActionScript file
+
+
+public var ruleVo:RuleVo;
+public var ruleList:Rule;
+[Bindable]	
+private var xml:XMLList ;
+[Bindable]				
+private var newXml:XML ;
+private var deptName:String;
+private var deptId:String;
+
+
+private function closeWin():void {
+	PopUpManager.removePopUp(this);
+}
+
+public function assignInit(id:Number):void {
+	ruleService.findRuleById(id);
+	ruleService.addEventListener(ResultEvent.RESULT,ruleBack);
+	
+}
+private function ruleBack(event:ResultEvent):void {
+	ruleVo = event.result as RuleVo;
+	this.title = "分配权限-角色名称-" + ruleVo.mc;
+	ruleService.removeEventListener(ResultEvent.RESULT,ruleBack);
+	ruleService.getMenuTree(ruleVo.id);
+	ruleService.addEventListener(ResultEvent.RESULT,menuBack);
+}
+
+private function menuBack(event:ResultEvent):void {
+	xml = new XMLList(event.result);
+	ruleService.removeEventListener(ResultEvent.RESULT,menuBack);
+	menuTree.dataProvider = xml;
+	deptService.getSyBm();
+	deptService.addEventListener(ResultEvent.RESULT,deptBack);
+}
+private function deptBack(event:ResultEvent):void {
+	var deptXml:XMLList = new XMLList(event.result);
+	for(var i:int = 0; i < deptXml.children().length(); i++) {
+		var checkBox:CheckBox = new CheckBox();
+		checkBox.label = deptXml.dept[i].@label;
+		checkBox.id = deptXml.dept[i].@id;
+		if(ruleVo.bmid != null && ruleVo.bmid.indexOf(deptXml.dept[i].@id) > -1) {
+			checkBox.selected = true;
+		}
+		deptBox.addChild(checkBox);
+	}
+}
+/**
+	 * Called on checkbox click
+	 * check and update for both parents and child nodes
+	 * according to the checkbox status
+	 */
+private function onItemCheck( event:TreeEvent ): void
+{
+	updateParents( event.item as XML, ( event.itemRenderer as TreecheckboxItemRenderer).checkBox.checkState );
+	updateChilds( event.item as XML, ( event.itemRenderer as TreecheckboxItemRenderer ).checkBox.checkState );
+}
+
+/**
+ * @see it.sephiroth.controls.CheckBoxExtended#checkState
+ * 
+ */
+private function updateChilds( item:XML, value: uint ):void
+{
+    var middle: Boolean = ( value & 2 << 1 ) == ( 2 << 1 );
+    var selected: Boolean = ( value & 1 << 1 ) == ( 1 << 1 );
+
+    if( item.children( ).length( ) > 0 && !middle )
+    {
+        for each(var x: XML in item.node )
+        {
+            x.@isSelect = value == ( 1 << 1 | 2 << 1 ) ? "2" : value == ( 1 << 1 ) ? "1" : "0";
+            updateChilds( x, value );
+        }
+    }
+}
+
+private function updateParents( item: XML, value: uint ): void
+{
+	var checkValue: String = ( value == ( 1 << 1 | 2 << 1 ) ? "2" : value == ( 1 << 1 ) ? "1" : "0" );
+    var parentNode: XML = item.parent( );
+    if( parentNode )
+    {
+        for each(var x: XML in parentNode.node )
+        {
+            if( x.@isSelect != checkValue )
+            {
+                checkValue = "2"
+            }
+        }
+        parentNode.@isSelect = checkValue;
+        updateParents( parentNode, value );
+    }
+}
+
+private function selectAll(event:Event):void {
+	var childArr:Array = deptBox.getChildren();
+	for(var i:int = 0; i < childArr.length; i++) {
+		if(childArr[i] is CheckBox && event.target.selected) {
+			childArr[i].selected = true;
+		}
+		if(childArr[i] is CheckBox && !event.target.selected) {
+			childArr[i].selected = false;
+		}
+	}
+}
+
+private function reverseAll(event:Event):void {
+	var childArr:Array = deptBox.getChildren();
+	for(var i:int = 0; i < childArr.length; i++) {
+		if(childArr[i] is CheckBox) {
+			childArr[i].selected = !childArr[i].selected;
+		}
+	}
+}
+
+private function next():void {
+	deptText.text = "允许查看的部门设备有：";
+	deptName = "";
+	deptId = "";
+	var childArr:Array = deptBox.getChildren();
+	for(var i:int = 0; i < childArr.length; i++) {
+		if(childArr[i] is CheckBox && childArr[i].selected) {
+			deptText.text += "[" + childArr[i].label + "]";
+			deptName += childArr[i].label + ",";
+			deptId += childArr[i].id + ",";
+		}
+	}
+	myViewStack.selectedChild = canvasSelectedMenu;
+	getNewXml(xml);
+}
+
+private function getNewXml(xml:XMLList):void {
+	newXml = CommonMethod.getConvertedXml(xml);
+	advanceDg.dataProvider = new HierarchicalData(newXml);
+}
+
+private function onEditBeginning(event:AdvancedDataGridEvent):void {
+	var dataField:String = event.dataField;
+	var isRule:String = advanceDg.selectedItem.@isRule;
+	if(isRule != "1") {
+		event.preventDefault();
+		
+	}
+}
+
+ //添加角色权限
+ private function insertRuleMenu():void
+ {
+ 	var arr:Array = new Array();
+	for(var i:int = 0; i < newXml.node.length(); i++) {
+		var firstRmVo:RuleMenuVo = new RuleMenuVo();
+		firstRmVo.menuID = newXml.node[i].@id;
+		firstRmVo.ruleID = ruleVo.id;
+		arr.push(firstRmVo);
+		var secondNode:XMLList = newXml.node[i].node;
+		for(var j:int = 0; j < secondNode.length(); j++) {
+			var secondRmVo:RuleMenuVo = new RuleMenuVo();
+			secondRmVo.menuID = secondNode[j].@id;
+			secondRmVo.ruleID = ruleVo.id;
+			secondRmVo.sfAdd = secondNode[j].@sfAdd;
+			secondRmVo.sfDelete = secondNode[j].@sfDelete;
+			secondRmVo.sfModify = secondNode[j].@sfModify;
+			secondRmVo.sfExport = secondNode[j].@sfExport;
+			secondRmVo.sfImport = secondNode[j].@sfImport;
+			arr.push(secondRmVo);
+			var thirdNode:XMLList = secondNode[j].node;
+			for(var k:int = 0; k < thirdNode.length(); k++) {
+				var thirdRmVo:RuleMenuVo = new RuleMenuVo();
+				thirdRmVo.menuID = thirdNode[k].@id;
+				thirdRmVo.ruleID = ruleVo.id;
+				thirdRmVo.sfAdd = thirdNode[k].@sfAdd;
+				thirdRmVo.sfDelete = thirdNode[k].@sfDelete;
+				thirdRmVo.sfModify = thirdNode[k].@sfModify;
+				thirdRmVo.sfExport = thirdNode[k].@sfExport;
+				thirdRmVo.sfImport = thirdNode[k].@sfImport;
+				arr.push(thirdRmVo);
+			}
+		}
+	}
+	ruleService.saveRuleMenu(arr,ruleVo.id,deptId,deptName);
+	ruleService.addEventListener(ResultEvent.RESULT,insertRuleMenuBack);
+ }
+ 
+ private function insertRuleMenuBack(evt:ResultEvent):void
+ {
+ 	ruleService.removeEventListener(ResultEvent.RESULT,insertRuleMenuBack);
+ 	Alert.show("角色: " + ruleVo.mc + " 的权限已成功保存","提示",Alert.OK,this.parentApplication as Sprite);
+ 	//ruleList.searchRule();
+ }
+ 
+
+
+ private function radChange(event:Event):void {
+ 	if(advanceDg.selectedItem == null) {
+ 		Alert.show("请先选取表格的行!","提示",Alert.OK,this.parentApplication as Sprite);
+ 		return;
+ 	}
+ 	if(advanceDg.selectedItem != null && advanceDg.selectedItem.@isRule == "1") {
+ 		advanceDg.selectedItem.@sfAdd = event.target.value;
+ 		advanceDg.selectedItem.@sfDelete = event.target.value;
+ 		advanceDg.selectedItem.@sfModify = event.target.value;
+ 		advanceDg.selectedItem.@sfExport = event.target.value;
+ 		advanceDg.selectedItem.@sfImport = event.target.value;
+ 	}
+ }
+		   
+		   
+		   
+		   
+		   private function init():void{
+		   	    var ruleMc:Array = user.ruleName.split(",");
+		   	    
+		   		var ruleId:Array = user.ruleId.split(",");
+				for(var i:int = 0; i < ruleMc.length; i++) {
+					var btn:LinkButton = new LinkButton();
+					btn.label=ruleMc[i];
+					btn.data=ruleId[i];
+					btn.addEventListener(MouseEvent.CLICK,clikcBtn);
+					fiRule.addChild(btn);
+					if(i==0){
+						clikcBtn2(btn.data+"");
+					}
+				}
+				
+		   }
+ 
+	
+		   private function clikcBtn(evt:Event):void{
+		   	    var b:Button= evt.target as Button;
+		   	    var id:int= int(b.data);
+		   		this.assignInit(id);
+//				PopUpManager.addPopUp(ar,this.parentApplication as DisplayObject,true);
+//				PopUpManager.centerPopUp(ar);
+		   }
+		   
+		   private function clikcBtn2(str:String):void{
+		   	    var id:int= int(str);
+		   		this.assignInit(id);
+//				PopUpManager.addPopUp(ar,this.parentApplication as DisplayObject,true);
+//				PopUpManager.centerPopUp(ar);
+		   }
+
+		]]>
+	</mx:Script>
+	<mx:HDividedBox x="0" y="0" width="249" height="100%">
+	
+	<mx:Canvas width="229" height="100%">
+	<mx:FormItem label="姓名:" x="10" y="7">
+	<mx:TextInput enabled="true" id="xm" editable="false" text="{user.userName}"/>
+	</mx:FormItem>
+	<mx:FormItem label="帐号:" required="true" x="10" y="37">
+	<mx:TextInput id="mc" maxChars="10" width="160" editable="false" text="{user.mc}"/>
+	</mx:FormItem>
+	<mx:FormItem label="部门:" x="10" y="68">
+	<mx:TextInput enabled="true" id="bmmc" editable="false" text="{user.bmmc}"/>
+	</mx:FormItem>
+	<mx:FormItem label="部门设备查看:" direction="horizontal" width="204" x="10" y="102">
+	<mx:Text text="{user.isLeader=='1'?'是':'否'}"/>
+	</mx:FormItem>
+	<mx:Panel x="5" y="128" width="219" height="100%"  layout="absolute" title="角色列表">
+		<mx:FormItem id="fiRule" x="10" y="10">
+		</mx:FormItem>
+	</mx:Panel>
+	</mx:Canvas>
+	</mx:HDividedBox>
+	
+	
+	<mx:XMLList id="selectedMenu">
+		<root label="所有功能菜单" id="0" isSelect="2">
+			<node id="7" label="常规属性设置" isSelect="1">
+		    <node id="187" label="下拉列表" isSelect="1"/>
+		    <node id="188" label="计算机组件" isSelect="1"/>
+		    <node id="189" label="系统配置" isSelect="1"/>
+		    <node id="190" label="文件类型" isSelect="1"/>
+		  </node>
+		</root>
+	</mx:XMLList>
+	<mx:Component id="inlineEditor">
+		<mx:ComboBox>
+			<mx:dataProvider>
+				<mx:String></mx:String>
+				<mx:String>是</mx:String>
+				<mx:String>否</mx:String>
+			</mx:dataProvider>
+		</mx:ComboBox>
+	</mx:Component>
+	<mx:VBox height="100%" width="580" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" x="230" y="0" id="vrm">
+		
+		<mx:ViewStack width="100%" id="myViewStack" creationPolicy="all" height="100%">
+			<mx:Canvas id="canvasAllMenu" width="100%" height="100%" >
+				<mx:VBox height="100%" width="100%">
+					<mx:HDividedBox width="100%" height="100%">
+						<controls:TreeCheckBox width="50%" height="100%" id="menuTree" labelField="@label" checkField="@isSelect" 
+		         		 		itemCheck="{onItemCheck( event )}" showRoot="false"/>
+		         		 <mx:Canvas width="50%" height="100%" left="10">
+		         		 	<mx:VBox width="100%" height="100%" id="deptBox">
+		         		 		<mx:HBox width="100%">
+		         		 			<mx:Label text="允许查看哪些部门的设备："/>
+		         		 			<mx:CheckBox label="全选" change="selectAll(event)"/>
+		         		 			<mx:CheckBox label="反选" change="reverseAll(event)"/>
+		         		 		</mx:HBox>
+		         		 	</mx:VBox>
+		         		 </mx:Canvas>						
+					</mx:HDividedBox>
+			      	<mx:FormItem width="100%" horizontalAlign="center" direction="horizontal">
+						<mx:Button label="下一步为选择的功能菜单分配增、删、改等权限" click="next()"/>  
+						<mx:Button label="关闭"  click="closeWin()"/>     		
+			      	</mx:FormItem>	
+		      	</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas id="canvasSelectedMenu" width="100%" height="100%" >
+				<mx:VBox width="100%" height="100%">
+					<mx:HBox width="100%">
+						<mx:Label text="注: ' '表示不可见，'是'表示可用，'否'表示不可用。" color="red"/>
+					</mx:HBox>
+					<mx:RadioButtonGroup id="radSf"/>
+					<systemManage:MyAdvancedDataGrid width="100%" itemEditBeginning="onEditBeginning(event)" id="advanceDg" height="100%" editable="true" displayItemsExpanded="true">
+						<systemManage:columns>
+							<mx:AdvancedDataGridColumn headerText="功能菜单" dataField="@label" width="150" editable="false"/>
+							<mx:AdvancedDataGridColumn headerText="添加" dataField="@sfAdd" width="80" editorDataField="selectedItem" itemEditor="{inlineEditor}"/>										
+							<mx:AdvancedDataGridColumn headerText="删除" dataField="@sfDelete" width="80" editorDataField="selectedItem" itemEditor="{inlineEditor}"/>										
+							<mx:AdvancedDataGridColumn headerText="修改" dataField="@sfModify" width="80" editorDataField="selectedItem" itemEditor="{inlineEditor}"/>										
+							<mx:AdvancedDataGridColumn headerText="导入" dataField="@sfImport" width="80" editorDataField="selectedItem" itemEditor="{inlineEditor}"/>									
+							<mx:AdvancedDataGridColumn headerText="导出" dataField="@sfExport" width="80" editorDataField="selectedItem" itemEditor="{inlineEditor}"/>
+						</systemManage:columns>
+					</systemManage:MyAdvancedDataGrid>
+					<mx:HBox width="100%">
+						<mx:RadioButton label="选中行全部选是" value="是" groupName="radSf" click="radChange(event)"/>
+						<mx:RadioButton label="选中行全部选否" value="否" groupName="radSf" click="radChange(event)"/>
+						<mx:RadioButton label="选中行全部选空" value="" groupName="radSf" click="radChange(event)"/>
+					</mx:HBox>
+					<mx:HBox width="100%">
+						<mx:Text id="deptText" width="100%"/>
+					</mx:HBox>
+					<mx:FormItem width="100%" horizontalAlign="center" direction="horizontal">
+						<mx:Button label="上一步从新分配角色的功能菜单" click="myViewStack.selectedChild=canvasAllMenu;"/>
+						<mx:Button label="保存"  click="insertRuleMenu()"/>
+						<mx:Button label="关闭"  click="closeWin()"/>        		
+			      	</mx:FormItem>
+				</mx:VBox>
+			</mx:Canvas>
+      	</mx:ViewStack>
+	</mx:VBox>
+</mx:TitleWindow>

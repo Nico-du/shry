@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:ns1="asset_Computer.*" creationComplete="init(new DictionaryVo())" xmlns:ns2="asset_Jz.*">
+	<mx:RemoteObject id="dictionaryRemote" destination="dictionaryService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import flex.pojos.DictionaryVo;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.DateField;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.formatters.DateFormatter;
+			import mx.rpc.events.ResultEvent;
+			private var dictionary:DictionaryInfo;
+			
+			public var canshu:String;
+			public function init(o:DictionaryVo):void
+			{
+				canshu = "name";
+				pagination.dg=dataGrid;
+				pagination.obj=o;
+				pagination.condition = " 1 = 1 order by this_.ID desc ";
+				pagination.getPage(pagination.pageSize,pagination.currentPage);
+			}
+			
+			[Bindable]
+			public var cbData:ArrayCollection = new ArrayCollection(
+				[ {label:"名称", data:"name"},{label:"父名称", data:"pName"}]);
+			
+			private var cxtj:String;
+			private function closeDictionaryComboxHandler(event:Event):void{
+				canshu = ComboBox(event.target).selectedItem.data;
+				if(canshu=="name"){
+					cbtj.visible=false;
+					cbtj.includeInLayout=false;
+					tiaojian.visible = true;
+					tiaojian.includeInLayout = true;
+				}else if(canshu=="pName"){
+					cbtj.visible=true;
+					cbtj.includeInLayout=true;
+					tiaojian.visible = false;
+					tiaojian.includeInLayout = false;
+					dictionaryRemote.getDictionartList();
+					dictionaryRemote.addEventListener(ResultEvent.RESULT,initCbCallBack);
+				}
+			}
+			private function initCbCallBack(evt:ResultEvent):void{
+				dictionaryRemote.removeEventListener(ResultEvent.RESULT,initCbCallBack);
+				var comboBoxData = evt.result as ArrayCollection;
+				cbtj.dataProvider = comboBoxData;
+				if((cxtj==null||cxtj=="")&&comboBoxData.length>0){
+					var obj:Object = comboBoxData.getItemAt(0);
+					cxtj = obj["name"];
+				}
+			}
+			
+			private function closeComboBoxHandler(event:Event):void{
+				cxtj = ComboBox(event.target).selectedItem.name;
+			}
+			//条件查询
+			private function query():void
+			{
+				if(canshu=="name"){
+					if(tiaojian.text!=""&&tiaojian.text!=null){
+						cxtj = tiaojian.text;
+						pagination.condition = canshu + " like '" + cxtj + "%'";
+					}else{
+						pagination.condition = "";
+					}
+				}else if(canshu=="pName"){
+					if(cxtj!=""){
+						pagination.condition = canshu + " = '" + cxtj + "'";
+					}else{
+						pagination.condition = "";
+					}
+				}
+				pagination.dg=dataGrid;
+				pagination.obj=new DictionaryVo();
+				pagination.getPage(pagination.pageSize,pagination.currentPage);
+			}
+			
+			
+			//弹出添加家电页面
+			private function showAddDictionary():void
+			{
+				dictionary = new DictionaryInfo();
+				dictionary.dictionaryList=this;
+				dictionary.windowtitle="添加数据字典信息";
+				pagination.mypopUpWindow(dictionary);
+			}
+			
+			//自定义显示列
+			private function selectColumn():void
+			{
+				
+			}
+			
+			//删除数据
+			private function deleteWindow():void
+			{
+				var item:ArrayCollection=dataGrid.dataProvider as ArrayCollection;
+				if(item != null){
+					var flag:Boolean=false;
+					for(var i:int=0;i<item.length;i++)
+					{
+						if(item.getItemAt(i).selected)
+						{
+							flag=true;
+						}
+					}
+					if(flag)
+					{
+						Alert.yesLabel="确定";
+						Alert.noLabel="取消";
+						Alert.show("确定删除吗 ？","消息提示框",(Alert.YES|Alert.NO),this,deleteData);
+					}else
+					{
+						Alert.show("请选择需要删除的信息!","提示");
+					}
+				}
+			}
+			private function deleteData(evt:CloseEvent):void
+			{
+				var item:ArrayCollection=dataGrid.dataProvider as ArrayCollection;
+				if(item!=null){
+					if (evt.detail == Alert.YES){	
+						var ary:Array=new Array();
+						var dic:DictionaryVo;
+						for(var i:int=0;i<item.length;i++)
+						{
+							dic = item.getItemAt(i) as DictionaryVo;
+							if(item.getItemAt(i).selected)
+							{
+								//图书类型  家具用具品牌  日用耗材分类  家具用具分类  日用耗材品牌 不可以被删除
+								if(dic.id!=23&&dic.id!=3378&&dic.id!=3379&&dic.id!=3306&&dic.id!=3380){
+									ary.push(dic);
+								}
+							}
+						} 
+						
+						if(item.length==ary.length)
+						{
+							if(pagination.currentPage>1)
+							{pagination.currentPage--;}
+						}
+						
+						dictionaryRemote.deleteDictionaryItem(ary);
+						dictionaryRemote.addEventListener(ResultEvent.RESULT,delBack);
+					}
+				}
+			}
+			private function delBack(evt:ResultEvent):void
+			{
+				dictionaryRemote.removeEventListener(ResultEvent.RESULT,delBack);
+				init(new DictionaryVo());
+			}
+			
+			//修改选中的数据
+			private function updataData():void
+			{
+				var dictionaryItem:ArrayCollection=dataGrid.dataProvider as ArrayCollection;
+				if(dictionaryItem!=null){
+					var id:String;
+					var flag:Boolean=false;
+					for(var i:int=0;i<dictionaryItem.length;i++)
+					{
+						if (dictionaryItem.getItemAt(i).selected)
+						{
+							id=dictionaryItem.getItemAt(i).id;
+							flag=true;
+							break;
+						}
+					}
+					
+					if(flag){ 
+						popDictionaryDamage(id);  
+					}else{
+						Alert.show("请选择需要修改的信息!","提示");
+					}
+				}
+			}
+			
+			private function popDictionaryDamage(id:String):void
+			{
+				dictionary = new DictionaryInfo();
+				dictionary.dictionaryList=this;
+				dictionary.dicId = id;
+				dictionary.isEditable = true;
+				dictionary.windowtitle="数据字典信息修改";
+				pagination.mypopUpWindow(dictionary);
+			}
+			//双击DateGrid调用事件
+			private function doubleComputer(evt:ListEvent):void
+			{
+				var id:String= evt.itemRenderer.data.id;  
+				dictionary = new DictionaryInfo();
+				dictionary.dictionaryList=this;
+				dictionary.dicId = id;
+				dictionary.isEditable = false;
+				dictionary.windowtitle="数据字典信息";
+				pagination.mypopUpWindow(dictionary);
+			}
+			
+			
+			//初始化查询列数
+			private function initColumn():void
+			{
+				
+			}
+			//回调方法
+			private function addColumns(evt:Event):void{
+				
+			}
+			private function selectCheckBox(event:ListEvent):void {
+				event.currentTarget.selectedItem.selected = !event.currentTarget.selectedItem.selected;
+			}
+			
+			//如果查询条件是日期类型的，就显示出日期控件
+			private function closeCombox():void {
+				
+			}
+			
+			//全选
+			protected function selectAll():void {
+				fxCheckBox.selected = false;
+				if(qxCheckBox.selected) {
+					for(var i:int = 0; i < dataGrid.dataProvider.length; i++) {
+						dataGrid.dataProvider.getItemAt(i).selected = true;
+					}
+				}else {
+					for(var j:int = 0; j < dataGrid.dataProvider.length; j++) {
+						dataGrid.dataProvider.getItemAt(j).selected = false;
+					}
+				}
+			} 
+			//反选
+			protected function selectReverse():void {
+				qxCheckBox.selected = false;
+				for(var i:int = 0; i < dataGrid.dataProvider.length; i++) {
+					dataGrid.dataProvider.getItemAt(i).selected = !dataGrid.dataProvider.getItemAt(i).selected;
+				}
+			}
+			private function index(item:Object, column:DataGridColumn):String
+			{
+				return String(dataGrid.dataProvider.getItemIndex(item)+1);
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Panel title="数据字典信息" width="100%" height="100%" paddingTop="5" paddingLeft="2">
+		<mx:HBox width="100%" id="btnBox">
+			<mx:Button id="add"  label="添加" icon="@Embed(source='images/add.gif')" click="showAddDictionary()"   />
+			<mx:Button id="modify" label="修改" icon="@Embed(source='images/edit.gif')" click="updataData()"  />
+			<mx:Button id="del" label="删除" icon="@Embed(source='images/delete.gif')" click="deleteWindow()"  />
+			<mx:Label text="在"/>
+			<mx:ComboBox id="cb" editable="false" dataProvider="{cbData}" close="closeDictionaryComboxHandler(event);"></mx:ComboBox>
+			<mx:Label text="查找"/>
+			<mx:ComboBox id="cbtj" width="160" labelField="name" visible="false" includeInLayout="false" editable="false" close="closeComboBoxHandler(event);"></mx:ComboBox>
+			<mx:TextInput id="tiaojian"/>
+			<mx:Button  label="查询" icon="@Embed(source='images/find.gif')" click="query()" id="searchBtn" />
+		</mx:HBox>
+		<mx:DataGrid x="10" y="64" width="100%" height="100%" id="dataGrid" itemClick="selectCheckBox(event)" 
+					 itemDoubleClick="doubleComputer(event)" doubleClickEnabled="true"  rowHeight="31">
+			<mx:columns>
+				<mx:DataGridColumn width="50" textAlign="center" headerText="选择项"  labelFunction="index" draggable="false" sortable="false"  dataField="id">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:CheckBox selected="{data.selected}" textAlign="center"/>
+						</mx:Component>
+					</mx:itemRenderer> 
+				</mx:DataGridColumn>
+				<mx:DataGridColumn width="150" headerText="名称" dataField="name" sortable="false" textAlign="center"/>
+				<mx:DataGridColumn width="150" headerText="父级" dataField="pName" sortable="false" textAlign="center"/>
+				<mx:DataGridColumn width="500" headerText="备注" dataField="remarks" sortable="false" textAlign="center"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:HBox width="100%" id="btnBox2">
+			<mx:CheckBox label="全选" id="qxCheckBox" click="selectAll()"/>
+			<mx:CheckBox label="反选" id="fxCheckBox" click="selectReverse()"/>
+		</mx:HBox>
+		<ns2:Pagination right="5" id="pagination" width="100%" backgroundColor="#E5F2E8" />
+	</mx:Panel>
+</mx:Canvas>

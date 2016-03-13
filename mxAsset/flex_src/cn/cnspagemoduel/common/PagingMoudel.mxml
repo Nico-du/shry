@@ -41,6 +41,10 @@
 			public var funReqData:Function=null;
 			
 			/**
+			 *是否自动判断宽度不够 分页工具条自动换行 
+			 **/
+			public var isValidateSecondLine:Boolean = true;
+			/**
 			 *初始化信息 
 			 */
 			public function initPage():void{
@@ -101,10 +105,12 @@
 				PopUpManager.addPopUp(window,this.parentApplication as DisplayObject,true);
 				PopUpManager.centerPopUp(window);
 			}
+			
 			/** 
 			 * 检测是否需要换行
 			 **/
 			public function setSecondLine():void{
+				if(!isValidateSecondLine){ return;}
 				var wth:Number = this.parent.width;
 				this.hasSecondLine = (wth <= 740);
 			}

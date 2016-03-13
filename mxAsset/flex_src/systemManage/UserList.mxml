@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"  close="PopUpManager.removePopUp(this);" layout="absolute" width="504" height="334" showCloseButton="true">
+	<mx:RemoteObject id="commonService" destination="commonService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import flex.util.HanZi2PinYin;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			[Bindable]
+			public var item:ArrayCollection=new ArrayCollection();
+			public var objid:String = "";
+			public function initDeptUsers():void
+			{
+				commonService.RunSelectClassBySql("select * from users us inner join users_depts ud on ud.user_id = us.id and ud.dept_id = '"+objid+"' order by zwid asc","net.chinanets.pojos.Users");
+				commonService.addEventListener(ResultEvent.RESULT,deptBack);
+			}
+			public function initRuleUsers():void
+			{
+				commonService.RunSelectClassBySql("select * from users us inner join users_rules uss on uss.user_id = us.id and uss.rule_id = '"+objid+"' order by zwid asc","net.chinanets.pojos.Users");
+				commonService.addEventListener(ResultEvent.RESULT,deptBack);
+			}
+			private function deptBack(event:ResultEvent):void {
+				commonService.removeEventListener(ResultEvent.RESULT,deptBack);
+				item = event.result as ArrayCollection;
+			}
+			
+			private function sortuserName(obj1:Object, obj2:Object):int{ 
+				var deptName1:String=obj1.zsxm;
+				var deptName2:String=obj2.zsxm;
+				var han2pinyin:HanZi2PinYin = new HanZi2PinYin();   
+				var p1:String=han2pinyin.toPinyin(deptName1);
+				var p2:String=han2pinyin.toPinyin(deptName2);
+				var result:int=0;
+				for(var i:int=0;i<p1.length;i++){
+					if(result==0){
+						if(p2.charAt(i)==null){
+							result=-1;
+						}else{
+							result=ObjectUtil.compare(p1.charAt(i),p2.charAt(i));
+						}
+					}else{
+						break;
+					}
+				}
+				return result;
+			}
+			private function sortbmmc(obj1:Object, obj2:Object):int{ 
+				var deptName1:String=obj1.bmmc;
+				var deptName2:String=obj2.bmmc;
+				var han2pinyin:HanZi2PinYin = new HanZi2PinYin();   
+				var p1:String=han2pinyin.toPinyin(deptName1);
+				var p2:String=han2pinyin.toPinyin(deptName2);
+				var result:int=0;
+				for(var i:int=0;i<p1.length;i++){
+					if(result==0){
+						if(p2.charAt(i)==null){
+							result=-1;
+						}else{
+							result=ObjectUtil.compare(p1.charAt(i),p2.charAt(i));
+						}
+					}else{
+						break;
+					}
+				}
+				return result;
+			}
+			
+			private function sortmc(obj1:Object, obj2:Object):int{ 
+				var deptName1:String=obj1.mc;
+				var deptName2:String=obj2.mc;
+				var han2pinyin:HanZi2PinYin = new HanZi2PinYin();   
+				var p1:String=han2pinyin.toPinyin(deptName1);
+				var p2:String=han2pinyin.toPinyin(deptName2);
+				var result:int=0;
+				for(var i:int=0;i<p1.length;i++){
+					if(result==0){
+						if(p2.charAt(i)==null){
+							result=-1;
+						}else{
+							result=ObjectUtil.compare(p1.charAt(i),p2.charAt(i));
+						}
+					}else{
+						break;
+					}
+				}
+				return result;
+			}
+			
+			
+		]]>
+	</mx:Script>
+	<mx:DataGrid width="100%" height="100%" dataProvider="{item}">
+		<mx:columns>
+			<mx:DataGridColumn headerText="姓名" dataField="zsxm" sortable="true" sortCompareFunction="sortuserName" />
+			<mx:DataGridColumn headerText="部门" dataField="bmmc" sortable="true" sortCompareFunction="sortbmmc" />
+			<mx:DataGridColumn headerText="账号" sortable="true" sortCompareFunction="sortmc" >
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:Text text="{data.mc}" />
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
+	
+</mx:TitleWindow>

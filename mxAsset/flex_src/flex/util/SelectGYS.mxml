@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" creationComplete="initBm()" title="选择供应商"
+				showCloseButton="true" close="PopUpManager.removePopUp(this);" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" 
+					 showBusyCursor="true"/>
+	<mx:Script>
+	<![CDATA[
+		import flex.pojos.DeptVo;
+		import flex.pojos.SvSupplierVo;
+		import flex.pojos.UsersVo;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.LinkButton;
+		import mx.controls.TextInput;
+		import mx.events.FlexEvent;
+		import mx.events.ListEvent;
+		import mx.formatters.DateFormatter;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+        public var computerItem:ArrayCollection;
+        private var ary:Array=null;
+        import mx.events.CloseEvent;
+        import mx.controls.Alert;
+		public var pWin:Object;
+		public var syrIDInput:TextInput;
+		public var syrInput:TextInput;
+		[Bindable]public var menuTree:ArrayCollection;
+		public var labelName:String="supplierName";
+		public var voType:Object = new SvSupplierVo();
+		public var isIdOrVo:Boolean = false; //true 返回Vo false 返回Id
+		public var isAddAnotherDept:Boolean = true;
+	       private function initBm():void{//order by show_order
+			   if(voType is DeptVo){
+				   commonService.RunSelectClassBySql("select * from dept order by SHOW_ORDER asc","net.chinanets.pojos.Dept");
+			   }else{
+			   commonService.getObjectList(voType);
+			   }
+			   commonService.addEventListener(ResultEvent.RESULT,getGysBack);
+		   }
+		/* private function getGys(dept:String):void {
+			commonService.getObjectById(new GysVo,Number(dept));
+			commonService.addEventListener(ResultEvent.RESULT,getGysBack);
+			commonService.addEventListener(FaultEvent.FAULT,deptBackFault);
+		} */
+		//动态添加 供应商列表
+		private function getGysBack(event:ResultEvent):void {
+			commonService.removeEventListener(ResultEvent.RESULT,getGysBack);
+			rep.removeAllChildren();
+			
+			menuTree = event.result as ArrayCollection;
+			if((voType is DeptVo) && isAddAnotherDept){
+				var dftObj:DeptVo = new DeptVo();
+				dftObj.mc = "直属部门";
+				menuTree.addItemAt(dftObj,0);
+			}
+			/* var lbl1:mx.controls.LinkButton = new mx.controls.LinkButton();
+			lbl1.id = "lablel0";
+			lbl1.name = "lablel0";
+			lbl1.width = 104;
+			lbl1.buttonMode=true; 
+			lbl1.useHandCursor=true; 
+			lbl1.mouseChildren=false;
+			lbl1.setStyle("fontWeight","normal");
+			lbl1.setStyle("textAlign","center");
+			lbl1.label = menuTree.children()[0].@label+"公用";
+			lbl1.addEventListener("click",selectPP);
+		//	lbl1.addEventListener(MouseEvent.MOUSE_OVER,mouseOver);
+		//	lbl1.addEventListener(MouseEvent.MOUSE_OUT,mouseLeave);
+			rep.addChild(lbl1); */
+			for (var i:int=0;i<menuTree.length;i++){
+				var lbl:mx.controls.LinkButton = new mx.controls.LinkButton();
+				lbl.id = "lablel"+i+1;
+				lbl.name = "lablel"+i+1;
+				lbl.width = 104;
+				lbl.buttonMode=true; 
+				lbl.useHandCursor=true; 
+				lbl.mouseChildren=false;
+				lbl.setStyle("fontWeight","normal");
+				lbl.setStyle("textAlign","center");
+				lbl.label = menuTree.getItemAt(i)[labelName];
+				lbl.data = menuTree.getItemAt(i);
+				lbl.addEventListener("click",selectPP);
+		//		lbl.addEventListener(MouseEvent.MOUSE_OVER,mouseOver);
+		//		lbl.addEventListener(MouseEvent.MOUSE_OUT,mouseLeave);
+				rep.addChild(lbl);
+			}
+		}
+		
+		//选中供应商
+		private function selectPP(evt:Event):void{
+			var st:String=evt.currentTarget.label;
+			var usid:String=evt.currentTarget.data.id;
+			if(syrInput != null){ syrInput.text = st; syrInput.data = isIdOrVo ? evt.currentTarget.data : usid;}
+			if(syrIDInput != null){ syrIDInput.text = usid;}
+			PopUpManager.removePopUp(this);
+		}
+		
+		
+		private function mouseOver(evt:Event):void{
+			var tgid:String = evt.currentTarget.id;
+			var lbl:mx.controls.Label = mx.controls.Label(rep.getChildByName(tgid));
+			if(lbl!=null){
+			lbl.setStyle("color","#ff0303");
+			lbl.drawRoundRect(0,-2,lbl.width,lbl.height+4,null,0xf1f1f1,1,null,null,null,null);
+			}
+		}
+		private function mouseLeave(evt:Event):void{
+			var tgid:String = evt.currentTarget.id;
+			var lbl:mx.controls.Label = mx.controls.Label(rep.getChildByName(tgid));
+			if(lbl!=null){
+			lbl.setStyle("color","#040404");
+			lbl.drawRoundRect(0,-2,lbl.width,lbl.height+4,null,0xffffff,1,null,null,null,null);
+			}
+		}
+
+		]]>
+</mx:Script>
+			<mx:Tile direction="horizontal" borderStyle="solid" id="rep" borderColor="#6699CC"
+					 horizontalGap="10" verticalGap="10"  borderThickness="2"
+					 paddingLeft="10" paddingTop="10" paddingBottom="10" paddingRight="10" width="100%" height="100%">
+				<!--<mx:Repeater width="451" height="286"  id="rep">
+				<mx:Label height="32" width="80"  text="{String(rep.currentItem)}"
+				click="selectPP(event)"/>
+				
+				</mx:Repeater>-->
+				
+			</mx:Tile>
+</mx:TitleWindow>

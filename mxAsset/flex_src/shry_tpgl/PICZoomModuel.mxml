@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="closeWd()" showCloseButton="true"  creationComplete="initializeHandler(event)"
+				title="查看图片"  horizontalScrollPolicy="off" verticalScrollPolicy="off"
+	layout="absolute" width="100%" height="100%"  xmlns:local="*" xmlns:ns="shry_tpgl.*" >
+	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import com.benstucki.utilities.IconUtility;
+			
+			import flex.pojos.FileUploadVo;
+			import flex.util.CommonXMLData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.CursorBookmark;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.events.FlexEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			private var downXY:Point=new Point();
+			private var   upXY:Point=new Point();
+			//放大倍数
+			private var zoomPercent:Number = 0.2;
+			//图片路径列表
+			private var imgList:ArrayCollection = new ArrayCollection();
+			//当前图片的索引
+			private var curImgIndex:int = 0;
+			//默认显示的图片的索引
+			public var defaultImgIndex:int = 0;
+			
+			//查询条件
+			[Bindable] public var paretnId:String = "";
+			[Bindable] public var tablename:String = null;
+			[Bindable] public var columnname:String = null;
+			
+			protected function initializeHandler(event:FlexEvent):void
+			{
+				
+				this.width = Application.application.width * 0.8;
+				this.height = Application.application.height * 0.8;
+				
+				initializeData();
+				initializeImgStyle();
+			}
+			
+			private function initializeData():void{
+				var xmdoc:FileUploadVo = new FileUploadVo();
+				xmdoc.dataid = paretnId+"";
+				xmdoc.tablename = tablename;
+				xmdoc.columnname = columnname;
+				commonService.getObjectList(xmdoc);
+				commonService.addEventListener(ResultEvent.RESULT,initBack);
+			}
+			private function initBack(evt:ResultEvent):void{
+				imgList = evt.result as ArrayCollection;
+				commonService.removeEventListener(ResultEvent.RESULT,initBack);
+				this.showImage(this.defaultImgIndex);
+			}
+			
+			private function initializeImgStyle():void{
+				
+				this.setChildIndex(toolBox,this.numChildren-1); 
+				//	this.setChildIndex(zoominBtn,this.numChildren-1); 
+				///	this.setChildIndex(zoomoutBtn,this.numChildren-1); 
+				//	this.setChildIndex(useMaginifier,this.numChildren-1); 
+				//source="images/ShanghaiMetroMap.png"
+				
+				mapImg.addEventListener(MouseEvent.MOUSE_UP,MouseEventFunc);      
+				mapImg.addEventListener(MouseEvent.MOUSE_DOWN,MouseEventFunc); 
+				
+				/* var whp:Number = mapImg.width / mapImg.height;
+				mapImg.width = this.width * 0.8;
+				mapImg.x = this.width * 0.1;
+				mapImg.height = mapImg.width/whp;   */
+				
+				/* var tempClass:Class = IconUtility.getClass(mapImg,"images/ShanghaiMetroMap.png",mapImg.width,mapImg.height);
+				mapImg.source=tempClass; */
+				
+			}
+			
+			
+			
+			
+			public function MouseEventFunc(evt:MouseEvent):void {
+				 
+				switch (evt.type) {
+					case "mouseDown" :
+						var globalLoc:Point = this.localToGlobal(new Point(mapImg.x,mapImg.y));
+						downXY=new Point(mouseX,mouseY);
+						evt.currentTarget.startDrag();
+						Mouse.cursor = MouseCursor.HAND;
+						break;
+					case "mouseUp" :
+						upXY=new Point(mouseX,mouseY);
+						evt.currentTarget.stopDrag();
+						Mouse.cursor = MouseCursor.AUTO;
+						break;
+					default:
+						break;
+				}
+			}
+			
+			private function closeWd():void{
+				PopUpManager.removePopUp(this);
+			} 
+			
+			private function zoomInImg():void{
+			//	useMaginifierCg(true);
+				zoomInEffectWidth.play();
+				zoomInEffectHeight.play();
+			}
+			
+			private function zoomOutImg():void{
+				zoomOutEffectWidth.play();
+				zoomOutEffectHeight.play();
+			}
+			
+			/* private function useMaginifierCg(isCloseMag:Boolean=false):void{
+				if(useMaginifier.label.indexOf("关闭") > -1 || isCloseMag){
+					useMaginifier.label = "打开放大镜";
+					mainCanvas.showbigGlass = false;
+				}else{
+					useMaginifier.label = "关闭放大镜";
+					mainCanvas.showbigGlass = true;
+				}
+			} */
+			
+			//根据索引获取图片路径
+			private function getImagePath(index:int):String{
+				if(index < 0 ){return "Error:已经是第一张图片了！";}
+				if(index >= imgList.length ){return "Error:已经是最后一张图片了！";}
+				this.curImgIndex = index;
+				this.title = "查看图片："+imgList.getItemAt(index).filename + "." +imgList.getItemAt(index).filetype;
+				return imgList.getItemAt(index).filepath;
+			}
+			
+			//展示下一张图片
+			private function showImage(addIndex:int):void{
+				var filePath:String= getImagePath(this.curImgIndex + addIndex);
+				if(filePath.indexOf("Error:") == 0){
+					Alert.show(filePath.split("Error:")[1],CommonXMLData.Alert_Title);
+						return;
+				}
+				mapImg.source  = CommonXMLData.UploadFile_BasePath + filePath;
+				mapImg.validateNow();
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:AnimateProperty id="zoomInEffectWidth" target="{mapImg}" property="width" fromValue="{mapImg.width}" toValue="{mapImg.width*(1+zoomPercent)}"/>
+	<mx:AnimateProperty id="zoomInEffectHeight" target="{mapImg}" property="height" fromValue="{mapImg.height}" toValue="{mapImg.height*(1+zoomPercent)}"/>
+	<mx:AnimateProperty id="zoomOutEffectWidth" target="{mapImg}" property="width" fromValue="{mapImg.width}" toValue="{mapImg.width*(1-zoomPercent)}"/>
+	<mx:AnimateProperty id="zoomOutEffectHeight" target="{mapImg}" property="height" fromValue="{mapImg.height}" toValue="{mapImg.height*(1-zoomPercent)}"/>
+	
+	<mx:HBox id="toolBox" horizontalGap="5" x="{(this.width - toolBox.width)/2 }" y="{(this.height - toolBox.height) -40}">
+	<!--<mx:LinkButton id="useMaginifier" icon="@Embed(source='images/icon_page.png')" label="关闭放大镜" click="useMaginifierCg()" visible="false"/>-->
+	<mx:LinkButton id="zoominBtn"  icon="@Embed(source='images/search_min.png')"  label="放大" click="zoomInImg()" />
+	<mx:LinkButton id="zoomoutBtn"  icon="@Embed(source='images/icon_return.png')"  label="缩小" click="zoomOutImg()"/>
+	<mx:LinkButton id="previousBtn"  icon="@Embed(source='images/pg_prev1.gif')"  label="上一张" click="showImage(-1)"/>
+	<mx:LinkButton id="nextOneBtn"  icon="@Embed(source='images/pg_next1.gif')"  label="下一张" click="showImage(1)"/>
+	<mx:LinkButton id="resetBtn" icon="@Embed(source='images/formtoolbar/close.gif')" label="关闭" click="closeWd()" />
+	</mx:HBox> 
+		<ns:ImgMagnifier id="mainCanvas" showbigGlass="false" width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+		<mx:Image id="mapImg"   mouseOver="{Mouse.cursor = MouseCursor.HAND;}" mouseOut="{Mouse.cursor = MouseCursor.AUTO;}" 
+				  x="{ (this.width - mapImg.width)/2 }" y="{(this.height-mapImg.height)/2 - 30}"/>
+		</ns:ImgMagnifier>
+	<!--	<mx:Image id="mapImg" source="@Embed(source='images/ShanghaiMetroMap.png')"  source="images/ShanghaiMetroMap.png"-->
+</mx:TitleWindow>

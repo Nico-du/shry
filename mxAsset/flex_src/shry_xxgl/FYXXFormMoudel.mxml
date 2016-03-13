@@ -1,36 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:dataPick="cn.cnspagemoduel.date.*"  creationPolicy="all" horizontalScrollPolicy="off" verticalScrollPolicy="off"
-				title="风叶数据信息" layout="absolute" width="1024"  showCloseButton="true" fontSize="12" 
-				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()" 
-				xmlns:numberInput="cn.cnspagemoduel.textinput.*"  xmlns:shryChart="cn.cnspagemoduel.chartline.*" >
+				 layout="absolute" width="100%" height="100%" fontSize="12" 
+				initialize="initPage()" creationComplete="afterInitPage()"  
+				xmlns:numberInput="cn.cnspagemoduel.textinput.*"  xmlns:shryChart="cn.cnspagemoduel.chartline.*" xmlns:commonpages="com.commonpages.*" >
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
-	<mx:Script source="../flex/util/InitBGDJForms.as"/>
-	<mx:Script source="../flex/util/LoadPagePics.as"/>
-	<mx:Style>
-		.LinkBarStyle01 {
-			fontWeight: bold;
-			
-			/* borderStyle: none;
-			
-			backgroundAlpha: 1;
-			
-			separatorColor: #000000;
-			
-			rollOverColor: #ff6699;
-			
-			selectionColor: #ff6600;
-			
-			color: #ffff33;
-			
-			textRollOverColor: #9999ff;
-			
-			disabledColor: #ffcccc;
-			
-			dropShadowEnabled: false; */
-		}
-	</mx:Style>
 	<mx:Script>
 		<![CDATA[
 			import asset_bfdj.ProcessMethods;
@@ -60,15 +35,13 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.validators.Validator;
-			
-			import shry_tpgl.PICZoomModuel;
 			//所有按钮高度，工具栏
 			[Bindable]
 			protected var aboutheight:Number=20;
 			
 			//页面标题
 			[Bindable]
-			public var pageTitle:String="风叶数据";
+			public var pageTitle:String="风叶选型 》输入选型参数";
 			
 			//数据标题
 			[Bindable]
@@ -80,8 +53,6 @@
 			public var tempObjBeanName:String="SHRY_FY_DATA";
 			//视图名称
 			public var tempObjViewName:String="SHRY_FY_VIEW";
-			//主键
-			public var idColumnName:String = "fyid";
 			//保存数据
 			public var dataArray:ArrayCollection=null;
 			//页面是否加载权限控制
@@ -89,7 +60,7 @@
 			//页面初始化是否加载数据
 			public var pageIsLoadData:Boolean=true;
 			//父窗口
-			public var parentPage:FYGridMoudel=null;
+			public var parentPage:Object=null;
 			//临时存储方法
 			public var tempFunction:Function=null;
 			//图片路径
@@ -106,8 +77,8 @@
 			
 			//初始化页面之前调用
 			public function beforeInitPage():void{
-				this.width = Application.application.width * 0.8;
-				this.height = Application.application.height * 0.8;
+			//	this.width = Application.application.width * 0.8;
+			//	this.height = Application.application.height * 0.8;
 				
 				if(pageIsLoadPoer){
 					loadUserPower();
@@ -130,7 +101,9 @@
 					sjbfsl.enabled = true; sjbfsl.editable = true;
 					lggd.enabled = true; lggd.editable = true;
 				} */
+				if(this.parentPage != null){
 				ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible,parentPage.editAction.visible ,parentPage.removeAction.visible);
+				}
 			}
 			
 			//初始化页面之后调用
@@ -138,7 +111,6 @@
 				if(pageIsLoadData){
 					loadData();
 				}
-				loadPictures();
 			}
 			
 			//页面关闭时调用
@@ -218,13 +190,10 @@
 			
 			//重置数据
 			protected function resetData():void{
-				this.title = "新建风叶数据";
 				this.dataId="";
 				this.dataArray=new ArrayCollection();
 				this.dataArray.addItem(new Object());
 				this.afterLoadData();
-				this.errormsgbox.removeAllChildren();
-				
 			}
 			
 			//加载搜索条件
@@ -240,7 +209,6 @@
 					this.resetData();
 					return;
 				}
-				this.title = "编辑风叶数据";
 				var strcondition:String=getDataSeacrchCondition();
 				if(ASStringHelper.isNullOrEmpty(strcondition)){
 					return;
@@ -258,10 +226,6 @@
 				var othermsg:Object=jsonObj.othermsg;
 				var items:Object=jsonObj.items;
 				if(items==null){
-					this.resultmsg.text="未请求到相关数据"
-					this.resultmsg.alpha=1;
-					this.fadeEffect.stop();
-					this.fadeEffect.play(null,false);
 					return;
 				}
 				this.dataArray=new ArrayCollection(items as Array);
@@ -294,22 +258,10 @@
 				this.cl.text=tempObj["cl"];
 				this.clbz.text=tempObj["clbz"];
 				
-				this.memo.text=tempObj["memo"];
-				
-				/* syzt.data=tempObj["assettablename"];
-				ypsm.data=tempObj["assetidcolumn"];
-				ypfb.data=tempObj["assetid"]; */
-				
-				if(!CommonMethod.isNullOrWhitespace(this.memo.text) && memolkb.visible){	setMemoVisable();}
-				this.UPDATEDATE.text=tempObj[this.UPDATEDATE.id.toLowerCase()];
-				this.UPDATEUSER.text=tempObj[this.UPDATEUSER.id.toLowerCase()+"name"];
-				this.INPUTDATE.text=tempObj[this.INPUTDATE.id.toLowerCase()];
-				this.INPUTUSER.text=tempObj[this.INPUTUSER.id.toLowerCase()+"name"];
 			}
 			
 			//保存数据之前验证数据
 			protected function beforeSaveData():Boolean{
-				this.errormsgbox.removeAllChildren();
 				var errorMsg:String="";
 				var isCheckSuccess:Boolean=true;
 				if(ASStringHelper.isNullOrEmpty(this.xh.text)){
@@ -351,14 +303,7 @@
 				if(ASStringHelper.isNullOrEmpty(errorMsg)){
 					return;
 				}
-				var tempTextInput:TextInput=new TextInput();
-				tempTextInput.percentWidth=100;
-				tempTextInput.height=aboutheight;
-				tempTextInput.editable=false;
-				tempTextInput.setStyle("borderColor","red");
-				tempTextInput.setStyle("color","red");
-				tempTextInput.text=errorMsg;
-				this.errormsgbox.addChild(tempTextInput);
+				Alert.show(errorMsg,CommonXMLData.Alert_Title);
 			}
 			//得到保存数据
 			protected function getSaveOrUpdatetData():String{
@@ -386,7 +331,6 @@
 				dataJson.cl=this.cl.text;
 				dataJson.clbz=this.clbz.text;
 				
-				dataJson.memo=this.memo.text;
 				dataJson.UPDATEUSER=userid;
 				
 				/* dataJson.assettablename = syzt.data;
@@ -412,15 +356,10 @@
 				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSaveOrUpdateActionBack);
 				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
 				if(doResult!=null && doResult.nRetCode!=Errors.OK){
-					this.resultmsg.text=doResult.strErrorInfo;
 				}else{
-					this.resultmsg.text="数据操作成功";
 					this.dataId=doResult.strErrorInfo;
 					this.afterDoAction();
 				}
-				this.resultmsg.alpha=1;
-				this.fadeEffect.stop();
-				this.fadeEffect.play(null,false);
 			}
 			
 			//删除当前数据
@@ -436,10 +375,8 @@
 				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataRemoveActionBack);
 				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
 				if(doResult!=null && doResult.nRetCode!=Errors.OK){
-					this.resultmsg.text=doResult.strErrorInfo;
 					return;
 				}else{
-					this.resultmsg.text="数据删除成功";
 					this.afterDoAction();
 				}
 			}
@@ -448,60 +385,42 @@
 				this.tempFunction.call(this);
 			}
 			
-			//显示备注
-			private function setMemoVisable():void{
-				memolkb.visible=false;
-				memolkb.includeInLayout=false;
-				memolbl.visible=true;
-				memolbl.includeInLayout=true;
-				MEMOROW.height = memo.height=(aboutheight*3);
-				datumFormTabNV.height += aboutheight;
-			}
 			
-			private var datumFormTabNVPHeight:Number = -1;
-			protected function datumFormTabNV_tabIndexChangeHandler(event:Event):void
+			/* public function onProgress( event:ProgressEvent ):void{
+				
+				lbProgress.text = "已上传"+event.bytesLoaded+"字节，共"+event.bytesTotal+"字节";
+				
+				var proc:uint = (event.bytesLoaded/event.bytesTotal)*100;
+				
+				bar.setProgress( proc, 100 );
+				
+				bar.label="当前进度: " + " " + proc + "%";  
+				
+			} */
+
+			//执行选型 selectionStart
+			protected function button1_clickHandler(event:MouseEvent):void
 			{
-				if(datumFormTabNVPHeight == -1){
-					datumFormTabNVPHeight = datumFormTabNV.height;
-				}
-				if(datumFormTabNV.selectedIndex == 1){
-					datumFormTabNV.height = (this.height - 80);
-				}else{
-					datumFormTabNV.height = datumFormTabNVPHeight;
-				}
+				CommonMethod.pageCacheObj.FYXX_selectionStartBox = this.selectionStartBox;
+				pagePanel.removeAllChildren();
+				
+			    var fyxxRst:FYXXGridMoudel = new FYXXGridMoudel();
+				fyxxRst.parentPage = this;
+				pagePanel.addChild(fyxxRst);
+				pageTitle= "风叶选型 》输入选型参数 》选型结果";
 			}
-			
+
 		]]>
 	</mx:Script>
-	<mx:Fade id="fadeEffect" target="{resultmsg}" alphaFrom="1"  alphaTo="0" duration="10000"/>
-	<mx:VBox id="editForm" borderStyle="none" width="100%"  height="100%" horizontalAlign="center"
-			 horizontalGap="0" verticalGap="2" paddingTop="2" paddingLeft="2" paddingBottom="2" paddingRight="2">
-		<mx:HBox id="formToolBar" borderStyle="none" width="100%" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" backgroundColor="#99CCFF">
-			<mx:LinkButton id="saveAction" click="saveActionClick()" height="{aboutheight}" label="保存" toolTip="保存" icon="@Embed(source='images/formtoolbar/form_save.gif')"/>
-			<mx:LinkButton id="saveAndNewAction" click="saveAndNewActionClick()" height="{aboutheight}" label="保存并新建" toolTip="保存并新建" icon="@Embed(source='images/formtoolbar/form_saveandnew.gif')"/>
-			<mx:LinkButton id="newAction" click="newActionClick()" height="{aboutheight}" label="新建" toolTip="新建" icon="@Embed(source='images/formtoolbar/form_new.gif')"/>
-			<mx:LinkButton id="saveAndCloseAction" click="saveAndCloseActionClick()" height="{aboutheight}" label="保存并关闭" toolTip="保存并关闭" icon="@Embed(source='images/formtoolbar/form_saveandclose.gif')"/>
-			<mx:LinkButton id="removeAndCloseAction" click="removeAndCloseActionClick()"  height="{aboutheight}" label="删除并关闭" toolTip="删除并关闭" icon="@Embed(source='images/formtoolbar/form_removeandclose.gif')"/>
-			<mx:LinkButton id="closeAction" click="closeActionClick()" height="{aboutheight}" label="关闭" toolTip="关闭" icon="@Embed(source='images/formtoolbar/close.gif')"/>
-		</mx:HBox>
-		<mx:HBox id="dataTitle" borderStyle="none" width="100%" height="25" paddingLeft="5" horizontalAlign="left" verticalAlign="middle">
-			<mx:Image source="@Embed(source='images/kvm.gif')" width="23" height="23" verticalAlign="middle"/>
-			<mx:Label text="{pageTitle}" textIndent="10" textAlign="center" fontSize="15" fontWeight="bold"/>
-			<mx:Label text="{dataTitles}" textAlign="center" fontSize="12" fontWeight="bold"/>
-			<mx:HBox id="resultBox" borderStyle="none" width="100%" height="25" horizontalAlign="right" verticalAlign="middle">
-				<mx:TextInput id="resultmsg" editable="false" alpha="0" borderStyle="none" textAlign="center" paddingTop="3" height="25" fontSize="12" backgroundColor="#FFFACD"/>
-			</mx:HBox>
-		</mx:HBox>
-		<mx:VBox id="dataFormBox" borderStyle="none" width="100%" horizontalGap="0" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<mx:Panel id="pagePanel" title="{pageTitle}"  width="100%" height="100%" horizontalAlign="center" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" verticalGap="2" horizontalGap="0">
+		
+	<mx:VBox id="selectionStartBox" borderStyle="none" width="100%" horizontalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+<mx:VBox id="dataFormBox" borderStyle="none" width="100%" horizontalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+				 verticalGap="2" paddingTop="2" paddingLeft="2" paddingBottom="2" paddingRight="2">
 			<mx:Form id="dataForm1" width="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" horizontalGap="0" verticalGap="0" indicatorGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-				<mx:TabNavigator id="datumFormTabNV" creationPolicy="all" width="100%" borderStyle="solid" verticalGap="0"  change="datumFormTabNV_tabIndexChangeHandler(event)"  
-								 paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2">
 					<mx:Canvas id="nvPage1" label="基本信息 " width="100%" borderStyle="none" >
-						<mx:VBox id="nvPage1Group1" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="solid" borderColor="#99CCFF">
-							<mx:HBox width="100%" height="20" horizontalGap="0" verticalGap="0" backgroundColor="#99CCFF" borderStyle="none">
-								<mx:Label text="基本信息" width="100%" height="20" textAlign="left"/>
-								<mx:LinkButton label="" width="20" height="20" icon="@Embed(source='images/pg_next1.gif')"/>
-							</mx:HBox>
+						<mx:VBox id="nvPage1Group1" width="100%" horizontalGap="0" verticalGap="0"  borderStyle="none" >
+							
 							<mx:Grid id="nvPage1Grid1" width="100%" horizontalGap="0" verticalGap="5" paddingTop="5" paddingBottom="5" paddingLeft="3" paddingRight="3">
 								<mx:GridRow width="100%" height="{aboutheight}">
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -655,90 +574,32 @@
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow>
-								<mx:GridRow id="MEMOROW" width="100%" height="{aboutheight}">
-									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-										<mx:Label text="备注:" id="memolbl" height="{aboutheight}" includeInLayout="false" visible="false"/>
-										<mx:LinkButton label="添加备注" id="memolkb" fontWeight="normal" icon="@Embed(source='images/add.gif')" click="setMemoVisable()"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="90%" colSpan="5">
-										<mx:TextArea id="memo"  visible="{memolbl.visible}"  width="100%" maxChars="500"  height="100%"></mx:TextArea>
-									</mx:GridItem>
-								</mx:GridRow>
-							<mx:GridRow id="PICROW" width="100%" height="{aboutheight*5}">
-								<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-									<mx:Label text="风叶图示:" id="piclbl" height="{aboutheight}" />
-								</mx:GridItem>
-								<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="90%" colSpan="5">
-									<mx:HBox id="fyts" width="100%" height="{aboutheight*5}" borderStyle="none" verticalAlign="middle" horizontalAlign="left">
-										<!--<mx:Image id="image1" source="{imgFileNameT}"   height="{aboutheight*5}" width="{aboutheight*5}"/>
-										<mx:Image id="image2" source="{imgFileNameB}"    height="{aboutheight*5}" width="{aboutheight*5}"/>-->
-										<mx:Button label="添加图片" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,'fyid',this.dataId)"/>
-									</mx:HBox>
-								</mx:GridItem>
-							</mx:GridRow>
 							</mx:Grid>
 						</mx:VBox>
 					</mx:Canvas>
-					<mx:Panel id="nvPage2" label="性能图" width="100%"  borderStyle="none" headerHeight="0" 
-							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none" horizontalAlign="left">
-							<mx:LinkBar dataProvider="{blogModel}"  styleName="LinkBarStyle01"/>
-							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 140}">
-								<mx:Panel label="多曲线性能图"  width="100%"  borderStyle="none" headerHeight="0" 
-										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-							<shryChart:LinueChartMultiModel modelTitle="风叶流量—静压/输入功率/主转速/效率曲线图"
-															xAxisTitle="流量(m^3/h)" xToolTipTiltle="流量" yAxisTitle="静压/输入功率/主转速/效率" yToolTipTiltle="Y"
-															serialLineName1="静压*(Pa)"  serialLineName2="输入*(W)"  serialLineName3="主转速*(r/min)"  serialLineName4="效率*(%)" 
-															height="{this.height - 140}" id="lineChart" />
-									</mx:Panel>
-								<mx:Panel label="单曲线线性能图" width="100%"  borderStyle="none" headerHeight="0" 
-										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-								<shryChart:LinueChartModel modelTitle="风叶流量—效率曲线图" height="{this.height - 140}" id="lineChart02" />
-								<shryChart:LinueChartModel modelTitle="风叶流量—主转速曲线图" height="{this.height - 140}" id="lineChart03" />
-								<shryChart:LinueChartModel modelTitle="风叶流量—输入功率曲线图" height="{this.height - 140}" id="lineChart04" />
-								<shryChart:LinueChartModel modelTitle="风叶流量—静压曲线图" height="{this.height - 140}" id="lineChart05" />
-									</mx:Panel>
-							</mx:ViewStack>
-						</mx:VBox>		
-					</mx:Panel>
-					<mx:Panel id="nvPage3" label="其他信息" width="100%"  borderStyle="none" headerHeight="0" 
-							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-						<mx:VBox id="nvPage1Group3" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none">
-							<mx:Grid id="nvPage1Grid3" width="100%" horizontalGap="0" verticalGap="5" paddingTop="5" paddingBottom="5" paddingLeft="3" paddingRight="3">
-								<mx:GridRow width="100%" height="{aboutheight}">
-									<mx:GridItem horizontalAlign="right" width="10%">
-										<mx:Label text="更新人:" fontWeight="bold" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="UPDATEUSER" width="100%" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="right" width="10%">
-										<mx:Label text="更新时间:" fontWeight="bold" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="UPDATEDATE" text="" width="100%" height="{aboutheight}"/>
-									</mx:GridItem>
-								</mx:GridRow>
-								<mx:GridRow width="100%" height="{aboutheight}">
-									<mx:GridItem horizontalAlign="right" width="10%">
-										<mx:Label text="创建人:" fontWeight="bold" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="INPUTUSER" text="" width="100%" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="right" width="10%">
-										<mx:Label text="创建时间:" fontWeight="bold" height="{aboutheight}"/>
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" width="15%">
-										<mx:Label id="INPUTDATE" text="" width="100%" height="{aboutheight}"/>
-									</mx:GridItem>
-								</mx:GridRow>
-							</mx:Grid>	
-						</mx:VBox>		
-					</mx:Panel>
-				</mx:TabNavigator>
 			</mx:Form>
-			<mx:VBox id="errormsgbox" width="100%" borderStyle="none" paddingTop="2" paddingBottom="2" verticalGap="2"></mx:VBox>
 		</mx:VBox>
-	</mx:VBox>
-</mx:TitleWindow>
+		<mx:VBox id="nvPage1Group2" width="100%" height="100%" horizontalGap="0" verticalGap="0"  horizontalAlign="center" borderStyle="none" >
+			<mx:HBox id="selectionStart" width="60%" height="{aboutheight*2.5}"  verticalAlign="bottom"  horizontalGap="0"
+					 borderStyle="solid" borderColor="#99CCFF" backgroundColor="#F7F7F7" >
+				<mx:ProgressBar id="bar"
+								labelPlacement="bottom"
+								top="20"
+								minimum="0" 
+								visible="true" 
+								maximum="100" 
+								label="当前进度：0%" 
+								direction="right" 
+								mode="manual" 
+								width="100%"
+								paddingLeft="10"
+								paddingRight="10"
+								x="143"/>
+				<mx:VBox height="100%" verticalAlign="middle">
+			<mx:Button label="开始选型" click="button1_clickHandler(event)" width="100" height="35" />	
+				</mx:VBox>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:VBox>	
+	</mx:Panel>
+</mx:Module>

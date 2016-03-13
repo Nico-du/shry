@@ -5,6 +5,7 @@
 				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()" xmlns:numberInput="cn.cnspagemoduel.textinput.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script source="../flex/util/InitBGDJForms.as"/>
+	<mx:Script source="../flex/util/LoadPagePics.as"/>
 	<mx:Script>
 		<![CDATA[
 			import asset_bfdj.ProcessMethods;
@@ -47,6 +48,8 @@
 			public var tempObjBeanName:String="SHRY_DJ_DATA";
 			//视图名称
 			public var tempObjViewName:String="SHRY_DJ_VIEW";
+			//主键
+			public var idColumnName:String = "djid";
 			//保存数据
 			public var dataArray:ArrayCollection=null;
 			//页面是否加载权限控制
@@ -98,6 +101,7 @@
 				if(pageIsLoadData){
 					loadData();
 				}
+				loadPictures();
 			}
 			
 			//页面关闭时调用
@@ -390,7 +394,7 @@
 				memolbl.visible=true;
 				memolbl.includeInLayout=true;
 				MEMOROW.height = memo.height=(aboutheight*3);
-				datumFormTabNV.height += aboutheight*2;
+				datumFormTabNV.height += aboutheight;
 			}
 			
 			
@@ -500,16 +504,18 @@
 										<mx:TextArea id="memo"  visible="{memolbl.visible}"  width="100%" maxChars="500"  height="100%"></mx:TextArea>
 									</mx:GridItem>
 								</mx:GridRow>
-							<mx:GridRow id="PICROW" width="100%" height="{aboutheight*5}">
-								<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-									<mx:Label text="电机图示:" id="piclbl" height="{aboutheight}" />
-								</mx:GridItem>
-								<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="90%" colSpan="5">
-									<mx:HBox id="djts" width="100%" height="{aboutheight*5}" borderStyle="none" verticalAlign="middle" horizontalAlign="left">
-										<mx:Image source=""   height="{aboutheight*5}"/>
+								<mx:GridRow id="PICROW" width="100%" height="{aboutheight*5}">
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="电机图示:" id="piclbl" height="{aboutheight}" />
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="90%" colSpan="5">
+										<mx:HBox id="fyts" width="100%" height="{aboutheight*5}" borderStyle="none" verticalAlign="middle" horizontalAlign="left">
+											<!--<mx:Image id="image1" source="{imgFileNameT}"   height="{aboutheight*5}" width="{aboutheight*5}"/>
+											<mx:Image id="image2" source="{imgFileNameB}"    height="{aboutheight*5}" width="{aboutheight*5}"/>-->
+											<mx:Button label="添加图片" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,this.idColumnName,this.dataId)"/>
 										</mx:HBox>
-								</mx:GridItem>
-							</mx:GridRow>
+									</mx:GridItem>
+								</mx:GridRow>
 							</mx:Grid>
 						</mx:VBox>
 					</mx:Canvas>

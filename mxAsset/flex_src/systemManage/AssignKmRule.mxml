@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="300" height="350" 
+	showCloseButton="true" title="分配权限" close="closeWin()" xmlns:controls="it.sephiroth.controls.*" xmlns:systemManage="systemManage.*">
+	<mx:RemoteObject id="ruleService" destination="RuleService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="deptService" destination="deptService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			// ActionScript file
+import flash.events.Event;
+
+import flex.pojos.RuleMenuVo;
+import flex.pojos.RuleVo;
+
+import it.sephiroth.renderers.TreecheckboxItemRenderer;
+
+import mx.collections.HierarchicalData;
+import mx.controls.Alert;
+import mx.controls.CheckBox;
+import mx.events.AdvancedDataGridEvent;
+import mx.events.TreeEvent;
+import mx.managers.PopUpManager;
+import mx.rpc.events.ResultEvent;
+
+import systemManage.Rule;
+
+public var ruleVo:RuleVo;
+public var ruleList:Rule;
+[Bindable]	
+private var xml:XMLList ;
+[Bindable]				
+private var newXml:XML ;
+private var deptName:String;
+private var deptId:String;
+
+
+private function closeWin():void {
+	for each(var ruleVo:RuleVo in ruleList.ruleArr) {
+		ruleVo.selected = false;
+	}
+	PopUpManager.removePopUp(this);
+}
+
+//根据userid查询权限
+public function assignInit(id:Number):void {
+	ruleService.findKmRuleById(id);
+	ruleService.addEventListener(ResultEvent.RESULT,kmRuleBack);
+	
+}
+
+//得到用户权限
+private function kmRuleBack(event:ResultEvent):void {
+	ruleService.removeEventListener(ResultEvent.RESULT,kmRuleBack);
+	ruleVo = event.result as RuleVo;
+	this.title = "分配权限-角色名称-" + ruleVo.mc;
+	var arr:Array = new Array();
+	if(ruleVo.kmcz != null) {
+		arr = ruleVo.kmcz.split(",");
+	}
+	var xml:XML = new XML(kmzjqx);
+	for(var i:int = 0; i < arr.length; i++) {
+		for(var j:int = 0; j < xml.children().length(); j++) {
+//			trace(arr[i]);
+//			trace(xml.paremt[j].@id);
+			if(xml.paremt[j].@id == arr[i]) {
+				xml.paremt[j].@isSelect = "true";
+			}
+		}
+	}
+	for(var i:int = 0; i < xml.children().length(); i++) {
+		var checkBox:CheckBox = new CheckBox();
+		checkBox.label = xml.paremt[i].@label;
+		checkBox.id = xml.paremt[i].@id;
+		
+		trace(xml.paremt[i].@isSelect);
+		var b:Boolean;
+		if(xml.paremt[i].@isSelect == "true") {
+			b = true;
+		}else if(xml.paremt[i].@isSelect == "false") {
+			b = false;
+		}
+		checkBox.selected = b;
+//		if(ruleVo.bmid != null && ruleVo.bmid.indexOf(xml.paremt[i].@id) > -1) {
+//			checkBox.selected = true;
+//		}
+		deptBox.addChild(checkBox);
+	}
+}
+
+private function onItemCheck( event:TreeEvent ): void
+{
+	updateParents( event.item as XML, ( event.itemRenderer as TreecheckboxItemRenderer).checkBox.checkState );
+	updateChilds( event.item as XML, ( event.itemRenderer as TreecheckboxItemRenderer ).checkBox.checkState );
+}
+
+private function updateChilds( item:XML, value: uint ):void
+{
+    var middle: Boolean = ( value & 2 << 1 ) == ( 2 << 1 );
+    var selected: Boolean = ( value & 1 << 1 ) == ( 1 << 1 );
+
+    if( item.children( ).length( ) > 0 && !middle )
+    {
+        for each(var x: XML in item.node )
+        {
+            x.@isSelect = value == ( 1 << 1 | 2 << 1 ) ? "2" : value == ( 1 << 1 ) ? "1" : "0";
+            updateChilds( x, value );
+        }
+    }
+}
+
+private function updateParents( item: XML, value: uint ): void
+{
+	var checkValue: String = ( value == ( 1 << 1 | 2 << 1 ) ? "2" : value == ( 1 << 1 ) ? "1" : "0" );
+    var parentNode: XML = item.parent( );
+    if( parentNode )
+    {
+        for each(var x: XML in parentNode.node )
+        {
+            if( x.@isSelect != checkValue )
+            {
+                checkValue = "2"
+            }
+        }
+        parentNode.@isSelect = checkValue;
+        updateParents( parentNode, value );
+    }
+}
+
+private function save():void {
+	var sb:String = "";
+	for each(var c:CheckBox in deptBox.getChildren()) {
+		if(c.selected) {
+			sb += c.id + ",";
+		}
+	}
+	ruleVo.kmcz = sb;
+	ruleService.updateRule(ruleVo);
+	ruleService.addEventListener(ResultEvent.RESULT, updateRuleSuccess);
+}
+
+private function updateRuleSuccess(event:ResultEvent):void {
+	ruleService.removeEventListener(ResultEvent.RESULT, updateRuleSuccess);
+	Alert.show("保存成功，重新登录后方能使用新权限！", "提示", 4, this.parentApplication as Sprite, closeWindow);
+}
+
+private function closeWindow(event:CloseEvent):void {
+	closeWin();
+}
+
+		]]>
+	</mx:Script>
+	<mx:XMLList id="selectedMenu">
+		<root label="所有功能菜单" id="0" isSelect="2">
+			<node id="7" label="常规属性设置" isSelect="1">
+		    <node id="187" label="下拉列表" isSelect="1"/>
+		    <node id="188" label="计算机组件" isSelect="1"/>
+		    <node id="189" label="系统配置" isSelect="1"/>
+		    <node id="190" label="文件类型" isSelect="1"/>
+		  </node>
+		</root>
+	</mx:XMLList>
+	
+	<mx:XMLList id="kmzjqx">
+		<root>
+			<paremt  id="xgqx" label="修改科目与资金权限" isSelect="false"/>
+			<paremt  id="selkm" label="查询科目" isSelect="false"/>
+			<paremt  id="addkm" label="添加科目" isSelect="false"/>
+			<paremt  id="upkm" label="修改科目" isSelect="false"/>
+			<paremt  id="delkm" label="删除科目" isSelect="false"/>
+			<paremt  id="shkm" label="审核科目" isSelect="false"/>
+			<paremt  id="zccx" label="支出查询" isSelect="false"/>
+			<paremt  id="zcsq" label="支出申请" isSelect="false"/>
+			<paremt  id="zcsp" label="支出审批" isSelect="false"/>
+			<paremt  id="cnbx" label="出纳报销" isSelect="false"/>
+			<paremt  id="scsb" label="删除申报" isSelect="false"/>
+		</root>
+	</mx:XMLList>
+	
+	<mx:Component id="inlineEditor">
+		<mx:ComboBox>
+			<mx:dataProvider>
+				<mx:String></mx:String>
+				<mx:String>是</mx:String>
+				<mx:String>否</mx:String>
+			</mx:dataProvider>
+		</mx:ComboBox>
+	</mx:Component>
+	<mx:VBox height="100%" width="100%" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+		
+		<mx:ViewStack width="100%" id="myViewStack" creationPolicy="all" height="100%">
+			<mx:Canvas id="canvasAllMenu" width="100%" height="100%" >
+				<mx:VBox height="100%" width="100%">
+					<mx:VBox height="100%" width="100%" id="deptBox">
+			      	</mx:VBox>
+			      	<mx:FormItem height="20%" width="100%" horizontalAlign="center" direction="horizontal">
+						<mx:Button label="保存" click="save()"/>  
+						<mx:Button label="关闭"  click="closeWin()"/>     		
+			      	</mx:FormItem>	
+		      	</mx:VBox>
+			</mx:Canvas>
+      	</mx:ViewStack>
+	</mx:VBox>
+</mx:TitleWindow>

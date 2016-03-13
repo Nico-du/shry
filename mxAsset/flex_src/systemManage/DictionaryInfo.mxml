@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="342" height="250"  showCloseButton="true" fontSize="12" backgroundColor="#FCFDFD" close="PopUpManager.removePopUp(this);"  xmlns:ns1="asset_Computer.*" title="{windowtitle}" creationComplete="initfurnitureDamage()" xmlns:s="library://ns.adobe.com/flex/spark">
+	<mx:RemoteObject id="dictionaryRemote" destination="dictionaryService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="commonRemote" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import flex.pojos.DictionaryVo;
+			import flex.pojos.FurnitureDamageVo;
+			import flex.pojos.FurnitureVo;
+			import flex.util.CommonXMLData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.DateField;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			[Bindable]
+			public var windowtitle:String;
+			public var dictionaryList:DictionaryList;
+			public var dicId:String;
+			public var isEditable:Boolean = true;
+			
+			//初始化方法
+			public function initfurnitureDamage():void
+			{
+				if(dicId!=""&&dicId!=null){
+					commonRemote.getObjectById(new DictionaryVo(),dicId);
+					commonRemote.addEventListener(ResultEvent.RESULT,initUpdateDictionary);
+				}
+			}
+			
+			
+			//初始化更新家电信息界面并赋值
+			internal var dictionary:DictionaryVo;
+			public function initUpdateDictionary(evt:ResultEvent):void
+			{
+				commonRemote.removeEventListener(ResultEvent.RESULT,initUpdateDictionary);
+				dictionary= evt.result as DictionaryVo;
+				this.dId.text = StringUtil.trim(dictionary.id.toString());
+				this.pId.text = StringUtil.trim(dictionary.pId.toString());
+				this.dName.text = StringUtil.trim(dictionary.name);
+				this.pName.text = StringUtil.trim(dictionary.pName);
+				this.remarks.text = StringUtil.trim(dictionary.remarks);
+				if(isEditable==false){
+					dName.editable = false;
+					pName.editable = false;
+					remarks.editable = false;
+					mySubmit.visible = false;
+					mySubmit.includeInLayout = false;
+					qxiao.visible = false;
+					qxiao.visible = false;
+				}
+			}
+			
+			private function submitDictionaryInfo():void
+			{
+				if(dName.text==""){dName.setFocus();Alert.show("名称不能为空！","提示");return;}
+				if(remarks.text!=""){
+					if(remarks.text.length>250){
+						remarks.setFocus();
+						Alert.show("备注信息的长度不能大于250！","提示");
+						return;
+					}
+				}
+				var dictionary:DictionaryVo = new DictionaryVo();
+				var dId:int = parseInt(this.dId.text);
+				dictionary.name = StringUtil.trim(this.dName.text);
+				dictionary.pId = parseInt(this.pId.text);
+				dictionary.pName = StringUtil.trim(this.pName.text);
+				dictionary.remarks =StringUtil.trim(this.remarks.text);
+				if(StringUtil.trim(this.dId.text)!=""){
+					dictionary.id = parseInt(this.dId.text);
+					commonRemote.updateObject(dictionary);
+				}else{
+					commonRemote.saveObject(dictionary);
+				}
+				commonRemote.addEventListener(ResultEvent.RESULT,dictionaryCallBack);
+			}
+			private function dictionaryCallBack(evt:ResultEvent){
+				commonRemote.removeEventListener(ResultEvent.RESULT,dictionaryCallBack);
+				Alert.okLabel = "确认";
+				Alert.show(CommonXMLData.Alert_Save_Suc,CommonXMLData.Alert_Title,Alert.OK,this.parent as Sprite);
+				PopUpManager.removePopUp(this);
+				dictionaryList.init(new DictionaryVo());
+			}
+			
+			private function showParent():void{
+				if(isEditable==true&&parseInt(this.dId.text)!=23&&parseInt(this.dId.text)!=3378&&parseInt(this.dId.text)!=3379&&parseInt(this.dId.text)!=3306&&parseInt(this.dId.text)!=3380){
+					var dictionaryParentInfo:DictionaryParentInfo = new DictionaryParentInfo();
+					dictionaryParentInfo.dictionaryInfo = this;
+					PopUpManager.addPopUp(dictionaryParentInfo,this);
+					PopUpManager.centerPopUp(dictionaryParentInfo);
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:FormItem width="60" x="5" y="10" label="名称" required="true">
+	</mx:FormItem>
+	<mx:FormItem width="60" x="5" y="48" label="父级" required="true">
+	</mx:FormItem>
+	<mx:Label x="10" y="80" text="备注"/>
+	<mx:TextInput id="dId" borderStyle="none" visible="false" includeInLayout="false"/>
+	<mx:TextInput id="pId" borderStyle="none" visible="false" includeInLayout="false"/>
+	<mx:TextInput x="77" y="10" id="dName" width="160"/>
+	<mx:TextInput x="77" y="48" id="pName" width="160" editable="false" click="showParent()"/>
+	<mx:TextArea x="77" y="80" id="remarks" height="85" maxChars="2000" width="231"/>
+	<mx:Button x="94" y="178" label="确定" id="mySubmit" click="submitDictionaryInfo()" height="23"/>
+	<mx:Button x="171" y="178" label="取消" id="qxiao"  click="PopUpManager.removePopUp(this)"/>
+</mx:TitleWindow>

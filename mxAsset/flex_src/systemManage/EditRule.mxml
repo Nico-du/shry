@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="500" height="300" 
+	showCloseButton="true" title="角色信息更改" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2"
+	titleIcon="@Embed(source='images/edit.gif')" close="closeWin()" xmlns:systemManage="systemManage.*" xmlns:controls="it.sephiroth.controls.*">
+	<mx:RemoteObject destination="RuleService" id="ruleService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			// ActionScript file
+import flex.pojos.RuleVo;
+
+import mx.collections.ArrayCollection;
+import mx.controls.Alert;
+import mx.managers.PopUpManager;
+import mx.rpc.events.ResultEvent;
+import mx.utils.StringUtil;
+
+import systemManage.Rule;
+
+public var ruleList:Rule;
+private var ruleVo:RuleVo
+[Bindable]
+private var yxjArr:ArrayCollection = new ArrayCollection();
+
+private function closeWin():void {
+	PopUpManager.removePopUp(this);
+}
+
+public function initRule(id:Number):void {
+	ruleService.findRuleById(id);
+	ruleService.addEventListener(ResultEvent.RESULT,initBack);
+}
+
+private function initBack(event:ResultEvent):void {
+	ruleVo = event.result as RuleVo;
+	mc.text = ruleVo.mc;
+	bz.text = ruleVo.bz;
+	ruleService.removeEventListener(ResultEvent.RESULT,initBack);
+	ruleService.getMaxYxj();
+	ruleService.addEventListener(ResultEvent.RESULT,yxjBack);
+}
+
+private function yxjBack(event:ResultEvent):void {
+	var yxjNum:Number = event.result as Number;
+	var selectedNum:Number = 0;
+	for(var i:int = 1; i <= yxjNum; i++) {
+		var obj:Object = new Object;
+		obj.label = i+"级";
+		obj.yxj = i;
+		if(i == Number(ruleVo.yxj)) {
+			selectedNum = i;
+		}
+		yxjArr.addItem(obj);
+	}
+	yxj.dataProvider = yxjArr;
+	yxj.selectedIndex = selectedNum - 1;
+	ruleService.removeEventListener(ResultEvent.RESULT,yxjBack);
+}
+
+private function validate():void {
+	var addValidators:Array = [mcReqValid];
+	var error:Array = Validator.validateAll(addValidators);
+	if(error.length > 0) {
+		focusManager.setFocus(error[0].target.source);
+		Alert.okLabel = "确认";
+		Alert.show(error[0].target.requiredFieldError,"提示",Alert.OK,this.parentApplication as Sprite);
+		return;
+	}
+	if(mc.text != ruleVo.mc) {
+		ruleService.validateRuleMc(StringUtil.trim(mc.text));
+		ruleService.addEventListener(ResultEvent.RESULT,mcBack);
+	}else {
+		editRule();
+	}
+	
+}
+
+private function mcBack(event:ResultEvent):void {
+	var flag:Boolean = event.result as Boolean;
+	ruleService.removeEventListener(ResultEvent.RESULT,mcBack);
+	if(flag) {
+		focusManager.setFocus(mc);
+		Alert.show("角色名称："+mc.text + " 已存在!","提示",Alert.OK,this.parentApplication as Sprite);
+	}else {
+		editRule();
+	}
+}
+
+private function editRule():void {
+	var rv:RuleVo = new RuleVo();
+	rv.id = ruleVo.id;
+	rv.mc = mc.text;
+	rv.bz = bz.text;
+	rv.yxj = yxj.selectedItem.yxj;
+	ruleService.updateRule(rv);
+	ruleService.addEventListener(ResultEvent.RESULT,editBack);
+}
+
+private function editBack(event:ResultEvent):void {
+	Alert.show("角色:" + mc.text + " 修改成功!","提示",Alert.OK,this.parentApplication as Sprite);
+	ruleList.searchRule();
+	ruleService.removeEventListener(ResultEvent.RESULT,editBack);
+}
+		]]>
+	</mx:Script>
+	<mx:VBox height="100%" width="100%" id="ruleBox" paddingBottom="10" paddingLeft="2" paddingRight="2" paddingTop="2">
+		<mx:Grid width="100%" >
+			<mx:GridRow width="100%">
+				<mx:GridItem width="100%" verticalAlign="middle" height="25" paddingLeft="2">
+					<mx:FormItem label="角色名称:" required="true">
+						<mx:TextInput id="mc" maxChars="50" width="160"/>
+					</mx:FormItem>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow width="100%">
+				<mx:GridItem width="100%" verticalAlign="middle" height="25" paddingLeft="2">
+					<mx:FormItem label="优 先 级:" required="true">
+						<mx:ComboBox id="yxj" labelField="label" width="160" />
+					</mx:FormItem>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow width="100%">
+				<mx:GridItem width="100%" verticalAlign="middle" height="60" paddingLeft="2" paddingRight="4">
+					<mx:FormItem label="备    注:" width="100%">
+						<mx:TextArea width="100%" height="60" id="bz"/>
+					</mx:FormItem>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow width="100%">
+				<mx:GridItem width="100%" verticalAlign="middle" height="60" paddingLeft="2" paddingRight="4">
+					<mx:FormItem width="100%">
+						<mx:Text width="100%" text="注：默认选择的优先级是还不存在的级别,如果选择默认级别以上的级别,那么默认的级别将与已有级别互换。" color="red"/>
+					</mx:FormItem>
+				</mx:GridItem>
+			</mx:GridRow>
+		</mx:Grid>
+		<mx:FormItem width="100%" direction="horizontal" horizontalAlign="center">
+			<mx:Button label="保存" id="save" click="validate()"/><mx:Button label="关闭" click="closeWin()"/>
+		</mx:FormItem>
+	</mx:VBox>
+	<mx:Validator id="mcReqValid" required="true" source="{mc}" property="text" trigger="{save}" 
+		triggerEvent="click" requiredFieldError="角色名称必填!"/>
+</mx:TitleWindow>

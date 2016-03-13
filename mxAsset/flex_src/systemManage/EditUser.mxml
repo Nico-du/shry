@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="720" height="540" showCloseButton="true" 
+	close="closeWin()" title="用户帐号信息更改" titleIcon="@Embed(source='images/edit.gif')" 
+	paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+	<mx:RemoteObject id="deptService" destination="deptService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="ruleService" destination="RuleService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="userSerice" destination="UserService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import flex.pojos.UserSessionVo;
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.CheckBox;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import systemManage.User;
+
+public var userList:User;
+public var isDetailPage:Boolean = false;
+private var userVo:UserSessionVo;
+			private var xml:XML;
+			
+private function closeWin():void {
+	PopUpManager.removePopUp(this);
+}
+
+public function initEdituser(id:Number):void {
+	userSerice.findUserById(id);
+	userSerice.addEventListener(ResultEvent.RESULT,userBack);
+}
+
+private function userBack(event:ResultEvent):void {
+	userSerice.removeEventListener(ResultEvent.RESULT,userBack);
+	userVo = event.result as UserSessionVo;
+	bmmc.text = userVo.deptName;
+	xm.text = userVo.userName;
+	mc.text = userVo.mc;
+	mc.editable = CommonMethod.isNullOrWhitespace(userVo.mc);
+	radLd.selectedValue = userVo.isLeader=="1"?"是":"否";
+	radShr.selectedValue = userVo.isShr=="1"?"是":"否";
+	if(CommonXMLData.RulesData == null){
+	ruleService.RunSelectClassBySql("select * from rules order by YXJ asc","net.chinanets.pojos.Rules");
+	ruleService.addEventListener(ResultEvent.RESULT,ruleBack);
+	}else{
+		ruleBack(null);
+	}
+}
+private function ruleBack(event:ResultEvent):void {
+	ruleService.removeEventListener(ResultEvent.RESULT,ruleBack);
+	var ruleArr:ArrayCollection = new ArrayCollection();
+	if(event == null){
+		ruleArr = CommonXMLData.RulesData;
+	}else{
+		ruleArr = event.result as ArrayCollection;
+		CommonXMLData.RulesData = ruleArr;
+	}
+	var ruleId:Array = userVo.ruleId.split(",");
+	for(var i:int = 0; i < ruleArr.length; i++) {
+		var chBox:CheckBox = new CheckBox();
+		chBox.label = ruleArr.getItemAt(i).mc + "(优先级：" + ruleArr.getItemAt(i).yxj + "级)";
+		chBox.id = ruleArr.getItemAt(i).id;
+		chBox.toolTip = ruleArr.getItemAt(i).bz;
+		for(var j:int = 0; j < ruleId.length; j++) {
+			if(ruleId[j] == ruleArr.getItemAt(i).id) {
+				chBox.selected = true;
+			}
+		}
+		fiRule.addChild(chBox);
+	}
+	
+	if(CommonXMLData.BmzzXml == null){
+	deptService.getBmzz();
+	deptService.addEventListener(ResultEvent.RESULT, initBmzzBack);
+	}else{
+		initBmzzBack(null);
+	}
+}
+			private function initBmzzBack(event:ResultEvent):void
+			{
+				if(event == null){
+				bmzzTree.dataProvider = CommonXMLData.BmzzXml;
+				}else{
+				xml=new XML(event.result);
+				bmzzTree.dataProvider=xml;
+				CommonXMLData.BmzzXml = xml;
+				}
+				bmzzTree.callLater(expandTree);
+				deptService.removeEventListener(ResultEvent.RESULT, initBmzzBack);
+			}
+			private function expandTree():void
+			{
+				bmzzTree.selectedIndex = 1;
+				bmzzTree.expandChildrenOf(bmzzTree.selectedItem,true);
+				//	bmzzTree.selectedIndex = 3;
+				//	bmzzTree.expandItem(xml, true);
+			}
+			private function treeChange(event:ListEvent):void
+			{
+				var  node:Object = event.target.selectedItem;
+				var currentTree:Object = event.target;
+				
+				if (!currentTree.dataDescriptor.isBranch(node)) {
+					bmmc.text = node.@label;
+					bmmc.data = node.@id;
+				}else{
+					bmmc.text = "";
+					bmmc.data = "";
+				}
+				return;
+				selectNode=event.target.selectedItem as XML;
+				if (selectNode.@emp == "true")
+				{
+					userVoId.text=selectNode.@id;
+					xm.text=selectNode.@label.split("(")[0];
+					var bmmcLabel:String = bmzzTree.getParentItem(selectNode).@label;//考虑合并的部门 eg:编研部(保护技术部)
+					if(bmmcLabel.split("(").length > 2){
+						bmmc.text = bmmcLabel.substr(0,bmmcLabel.lastIndexOf("("));
+					}else{
+						bmmc.text= bmmcLabel.split("(")[0];
+					}
+					mc.text=selectNode.@name;
+				}
+				else
+				{
+					userVoId.text="";
+					xm.text="";
+					bmmc.text="";
+					mc.text="";
+				}
+			}
+private function validate():void {
+	var isSelectedRole:Boolean = false;
+	for each(var childObj:Object in fiRule.getChildren()){
+		if(childObj is CheckBox){
+			if((childObj as CheckBox).selected){	isSelectedRole = true; break;}
+		}
+	}
+	if(!isSelectedRole){
+		Alert.show("必须给用户指定一个角色!",CommonXMLData.Alert_Title);
+		return;
+	}
+	
+	var addValidators:Array = [mcReqValid,xmReqValid,mmReqValid,bmmcReqValid];
+	var error:Array = Validator.validateAll(addValidators);
+	if(error.length > 0) {
+		focusManager.setFocus(error[0].target.source);
+		Alert.okLabel = "确认";
+		Alert.show(error[0].target.requiredFieldError,"提示",Alert.OK,this.parentApplication as Sprite);
+		return;
+	}
+	
+	if(mc.text != userVo.mc) {
+		userSerice.validateUserByMc(StringUtil.trim(mc.text));
+		userSerice.addEventListener(ResultEvent.RESULT,mcBack);
+	}else {
+		editUser();
+	}
+}
+
+private function mcBack(event:ResultEvent):void {
+	var flag:Boolean = event.result as Boolean;
+	userSerice.removeEventListener(ResultEvent.RESULT,mcBack);
+	if(flag) {
+		focusManager.setFocus(mc);
+		Alert.show("帐号："+mc.text + " 已存在!","提示",Alert.OK,this.parentApplication as Sprite);
+	}else {
+		editUser();
+	}
+}
+
+private function editUser():void {
+	var array:Array = fiRule.getChildren();
+	var selectedArray:Array = new Array();
+	var ruleId:String = "";
+	for(var i:int=0; i<array.length; i++) {
+		var ch:CheckBox = array[i] as CheckBox;
+		if(ch.selected) {
+			selectedArray.push(ch);
+		}
+	}
+	for(var j:int = 0; j < selectedArray.length; j++) {
+		if(j == selectedArray.length - 1) {
+			ruleId += selectedArray[j].id;
+		}else {
+			ruleId += selectedArray[j].id + ",";
+		}
+	}
+	userVo.mc=mc.text;
+	userVo.mm = mm.text;
+	userVo.ruleId=ruleId;
+	userVo.userName=xm.text;
+	if(!CommonMethod.isNullOrWhitespace(bmmc.data+"")){
+	userVo.deptName=bmmc.text;
+	userVo.deptId = bmmc.data+"";
+	}
+	userVo.isLeader = radLd.selectedValue.toString();
+	userVo.isShr = radShr.selectedValue.toString();
+	
+	userSerice.updateUser(userVo);
+	userSerice.addEventListener(ResultEvent.RESULT,editBack);
+}
+
+private function editBack(event:ResultEvent):void {
+	Alert.show(xm.text + " 的帐号修改成功!","提示",Alert.OK,this.parentApplication as Sprite);
+	userList.searchUserList();
+	userSerice.removeEventListener(ResultEvent.RESULT,editBack);
+}
+		]]>
+	</mx:Script>
+	<mx:HDividedBox width="100%" height="100%">
+		<mx:VBox width="200" height="100%">
+			<mx:Tree height="100%" width="100%" id="bmzzTree" labelField="@label" iconField="@icon" change="treeChange(event)" ></mx:Tree>
+		</mx:VBox>
+	<mx:VBox width="100%" height="100%">
+		<mx:Grid  width="100%" height="100%">
+			<mx:GridRow width="100%">
+				<mx:GridItem width="100%" height="100%" verticalAlign="middle"   horizontalAlign="left">
+					<mx:Text width="100%" height="60" paddingLeft="15" color="red" text="注：角色与角色之间可能存在功能菜单项的重复，如果给某个帐号赋予2个角色，如果2个角色存在功能菜单项重复，将优先以角色优先级别高的功能菜单项为准。角色都优先级别1级为最高，往下为次之。"/>
+				</mx:GridItem>
+			</mx:GridRow>
+			
+			<mx:GridRow width="100%" height="40">
+				<mx:GridItem width="100%" height="100%" verticalAlign="middle"  paddingLeft="50" horizontalAlign="left">
+					<mx:FormItem label="姓名:">
+						<mx:TextInput enabled="true" id="xm" editable="false"/>
+					</mx:FormItem>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow width="100%" height="40">
+				<mx:GridItem width="100%" height="100%" verticalAlign="middle"  paddingLeft="50" horizontalAlign="left">
+					<mx:FormItem label="部门:">
+						<mx:TextInput enabled="true" id="bmmc" editable="false"/>
+					</mx:FormItem>
+					<mx:Text color="red" text="请在左侧选择部门" />
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow width="100%" height="40">
+				<mx:GridItem width="100%" height="100%" verticalAlign="middle" paddingLeft="50" horizontalAlign="left">
+					<mx:FormItem label="帐号:" fontWeight="bold" required="true">
+						<mx:TextInput id="mc" maxChars="10" width="160" editable="false"/>
+					</mx:FormItem>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow width="100%" height="30">
+				<mx:GridItem width="100%" height="100%" id="gimm" verticalAlign="middle" paddingLeft="50" horizontalAlign="left">
+					<mx:FormItem label="密码:" fontWeight="bold" id="fimm" required="true">
+						<mx:TextInput id="mm" text="111111" />
+					</mx:FormItem>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:RadioButtonGroup id="radLd"/>
+			<mx:RadioButtonGroup id="radShr"/>
+				<mx:GridRow width="100%" height="30">
+					<mx:GridItem width="100%" height="100%" id="bmld" verticalAlign="middle" paddingLeft="50" horizontalAlign="left">
+						<mx:FormItem label="是否部门主管：" direction="horizontal" width="210">
+							<mx:RadioButton paddingLeft="13" label="是" value="1" groupName="radLd"/><mx:RadioButton label="否" groupName="radLd" value="0"/>
+						</mx:FormItem>
+					</mx:GridItem>
+				</mx:GridRow> 
+				<mx:GridRow width="100%" height="30">
+					<mx:GridItem width="100%" height="100%" id="shr" verticalAlign="middle" paddingLeft="50" horizontalAlign="left">
+						<mx:FormItem label="是否流程审核人：" direction="horizontal" width="210">
+							<mx:RadioButton label="是" value="1" groupName="radShr"/><mx:RadioButton label="否" groupName="radShr" value="0"/>
+						</mx:FormItem>
+					</mx:GridItem>
+				</mx:GridRow> 
+			<mx:GridRow width="100%" height="100%">
+				<mx:GridItem width="100%" height="100%" verticalAlign="middle"  paddingLeft="50" horizontalAlign="left">
+					<mx:FormItem label="角色:" id="fiRule">
+					</mx:FormItem>
+				</mx:GridItem>
+			</mx:GridRow>
+			<mx:GridRow width="100%" height="54">
+				<mx:GridItem width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
+					<mx:Button label="修改" id="save" click="validate()" visible="{!this.isDetailPage}" includeInLayout="{!this.isDetailPage}"/>
+					<mx:Button label="关闭" id="cancel" click="closeWin()"/>
+				</mx:GridItem>
+			</mx:GridRow>
+		</mx:Grid>
+	</mx:VBox>
+	</mx:HDividedBox>
+	<mx:Validator id="mcReqValid" required="true" source="{mc}" property="text" trigger="{save}" 
+				  triggerEvent="click" requiredFieldError="请输入用户帐号!"/>
+	<mx:Validator id="xmReqValid" required="true" source="{xm}" property="text" trigger="{save}" 
+				  triggerEvent="click" requiredFieldError="请输入用户姓名!"/>
+	<mx:Validator id="mmReqValid" required="true" source="{mm}" property="text" trigger="{save}" 
+				  triggerEvent="click" requiredFieldError="请输入登录密码!"/>
+	<mx:Validator id="bmmcReqValid" required="true" source="{bmmc}" property="text" trigger="{save}" 
+				  triggerEvent="click" requiredFieldError="请在左侧选择用户部门!"/>
+</mx:TitleWindow>

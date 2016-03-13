@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="350" height="362" initialize="initializeHandler(event)"
+				showCloseButton="true" title="新建部门" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2"
+				titleIcon="@Embed(source='images/add.gif')" close="closeWd()" creationComplete="" xmlns:systemManage="systemManage.*" xmlns:controls="it.sephiroth.controls.*">
+	<mx:RemoteObject id="commonService" destination="commonService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="deptService" destination="deptService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	
+	<mx:Script>
+		<![CDATA[
+			import flex.pojos.DeptVo;
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]private var yxjArr:ArrayCollection = new ArrayCollection();
+			public var deptList:DeptList = null;
+			[Bindable] public var deptVo:DeptVo = null;
+			protected function initializeHandler(event:FlexEvent):void
+			{
+				if(deptVo != null){
+					bmmc.text = deptVo.mc;
+					bz.text = deptVo.bz;
+					sjbm.text = deptVo.parentid == null ? "直属部门":deptVo.parentid.mc;
+				commonService.getAllObjectByHql("select max(dt.showOrder) from Dept dt");
+				commonService.addEventListener(ResultEvent.RESULT,getMaxYxjBack);
+				}else{
+					Alert.show("deptVo is null !");
+				}
+			}
+			private function getMaxYxjBack(event:ResultEvent):void {
+				commonService.removeEventListener(ResultEvent.RESULT,getMaxYxjBack);
+				 var yxjNum:Number = event.result[0] as Number;
+				for(var i:int = 1; i <= yxjNum+1; i++) {
+					var obj:Object = new Object;
+					obj.label = i+"级";
+					obj.yxj = i;
+					yxjArr.addItem(obj);
+				}
+				yxj.dataProvider = yxjArr;
+				yxj.selectedIndex = deptVo.showOrder - 1; 
+			}
+			
+			private function submit(){
+				if(!CommonMethod.setValidator(this))return;
+				deptVo.mc = bmmc.text;
+				if(sjbm.data != null){
+				if(sjbm.data.mc != "直属部门")deptVo.parentid = sjbm.data as DeptVo; else deptVo.parentid=null;
+				}
+				deptVo.bz = bz.text;
+				deptVo.showOrder = yxj.selectedItem.yxj;
+				deptService.updateDept(deptVo);
+				deptService.addEventListener(ResultEvent.RESULT,getDeptBack);
+				deptService.addEventListener(FaultEvent.FAULT,getDeptBackFault);
+			}
+			private function getDeptBack(event:ResultEvent):void {
+				deptService.removeEventListener(ResultEvent.RESULT,getDeptBack);
+				deptService.removeEventListener(FaultEvent.FAULT,getDeptBackFault);
+				Alert.show(CommonXMLData.Alert_Alter_Suc,CommonXMLData.Alert_Title);
+				if(deptList != null){
+					deptList.searchRule();
+				}
+			}
+			private function getDeptBackFault(event:FaultEvent):void {
+				deptService.removeEventListener(ResultEvent.RESULT,getDeptBack);
+				deptService.removeEventListener(FaultEvent.FAULT,getDeptBackFault);
+				Alert.show(CommonXMLData.Alert_Alter_Failed,CommonXMLData.Alert_Title);
+			}
+			private function closeWd(){
+				PopUpManager.removePopUp(this);
+			}
+
+		]]>
+	</mx:Script>
+	<mx:FormItem x="25" y="56" label="上级部门" required="true"/>
+	<mx:FormItem x="25" y="19" label="部门名称" required="true"/>
+	<mx:TextInput x="110" y="19" width="160" id="bmmc"/>
+	<mx:Button x="94" y="294" label="修改" click="submit()"/>
+	<mx:Button x="197" y="294" label="关闭" click="closeWd()"/>
+	<mx:TextInput x="110" y="54" width="160" id="sjbm" editable="false" click="CommonMethod.getDept(this,sjbm)"/>
+	<mx:FormItem x="25" y="126" label="备注"/>
+	<mx:TextArea x="110" y="124" width="160" id="bz" height="102"/>
+	<mx:FormItem label="优 先 级:" required="true" x="25" y="91">
+	</mx:FormItem>
+	<mx:ComboBox id="yxj" labelField="label" width="160"  x="110" y="89"/>
+	<mx:Text width="280" text="注：默认选择的优先级是尚未使用的级别,如果选择非默认的级别,那么新建部门将和已使用该级别的部门的级别将互换。" color="red" y="237" x="25"/>
+	
+	
+	
+</mx:TitleWindow>

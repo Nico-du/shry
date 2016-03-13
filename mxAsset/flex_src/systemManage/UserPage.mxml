@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%">
+<mx:RemoteObject id="userSerice" destination="UserService" endpoint="/mxAsset/messagebroker/amf" 
+			showBusyCursor="true"/>
+<mx:RemoteObject id="ruleService" destination="RuleService" endpoint="/mxAsset/messagebroker/amf" 
+			showBusyCursor="true"/>
+<mx:RemoteObject id="commonService" destination="commonService" endpoint="/mxAsset/messagebroker/amf" 
+			showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import flex.pojos.RuleVo;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.DataGrid;
+			import mx.effects.Rotate;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public  var currentPage:int = 1;    //当前第几页
+			[Bindable]
+    		private  var totalPage:int = 1;     //总页数
+    		[Bindable]
+    		private  var totalCount:int = 0;    //总记录行数
+    		[Bindable]
+    		public  var pageSize:int = 20;     //每页显示行
+    		[Bindable]
+    		public var objList:ArrayCollection = new ArrayCollection();
+    		
+    		public var dg:DataGrid;
+    		public var condition:String = "";
+    		public var obj:Object;
+    		
+    		[Bindable]
+//            private var cards:ArrayCollection = new ArrayCollection(
+//                [{label:"10"},{label:"20"},{label:"20"},{label:"25"},{label:"30"}]);
+    		
+    		public function getPage(ps:Number,cp:Number):void {
+    			currentPage = cp;
+    		//	pageSize = ps;
+    			userSerice.findUsers(ps,cp,condition);
+    			userSerice.addEventListener(ResultEvent.RESULT,pageListBack);
+    		}
+    		
+    		//根据角色名查询角色
+    		public function getRoleByMc(roleMc:String):void {
+    			var ruleVo:RuleVo = new RuleVo();
+    			ruleVo.mc = roleMc;
+    			ruleService.getRuleVoList(ruleVo);
+    			ruleService.addEventListener(ResultEvent.RESULT,getRoleBack);
+    		}
+    		
+    		//得到角色，再根据角色查询用户
+    		public function getRoleBack(event:ResultEvent):void {
+    			ruleService.removeEventListener(ResultEvent.RESULT, getRoleBack);
+    			
+    			var arrRuleVo:ArrayCollection = event.result as ArrayCollection;
+    			ruleService.getUserByRuleList(arrRuleVo);
+    			ruleService.addEventListener(ResultEvent.RESULT, pageListBack);
+    		}
+    		
+    		private function pageListBack(event:ResultEvent):void {
+    			objList = event.result as ArrayCollection;
+    			if(objList == null) {
+    				return;
+    			}
+    			if(objList.length == 0 && currentPage > 1) {
+    				getPage(nsPageNu.value,currentPage - 1);
+    			} else {
+	    			dg.dataProvider = objList;
+	    			dg.rowCount = objList.length > 20 ? 20 : objList.length;
+	    			userSerice.removeEventListener(ResultEvent.RESULT,pageListBack);
+	    			userSerice.getCountByUsers(condition);
+    				userSerice.addEventListener(ResultEvent.RESULT,pageCountBack);
+    			}
+    		}
+    		
+    		private function pageCountBack(event:ResultEvent):void {
+    			userSerice.removeEventListener(ResultEvent.RESULT,pageCountBack);
+    			totalCount = event.result as Number;
+    			if(totalCount < pageSize) {
+    				totalPage = 1;
+    			}if(totalCount % pageSize) {
+    				totalPage = totalCount/pageSize + 1;
+    			}else {
+    				totalPage = totalCount/pageSize;
+    			}
+    			nsPageNum.value = currentPage;
+    		}
+			public function downloadExcel(path:String){
+				
+			}
+		]]>
+	</mx:Script>
+	<mx:HBox height="25" >
+	
+		 <mx:Label height="22" text="第{currentPage}页/共{totalPage}页   共{totalCount}条记录   当前每页显示"/>
+		 
+		 <!--<mx:ComboBox editable="false"  enabled="{totalCount>10?true:false}" id="comboxValue" selectedIndex="0" dataProvider="{cards}" width="65" change="getPage(comboxValue.selectedItem.label,currentPage)"/>
+		 !-->
+		 <mx:NumericStepper id="nsPageNu"  minimum="{totalCount>20?20:totalCount}"  maximum="{totalCount}" enabled="{totalCount>20?true:false}" change="getPage(nsPageNu.value,currentPage)" />
+		 
+         <mx:LinkButton id="lbtnFirst" label="首页" click="getPage(pageSize,1)" enabled="{lbtnPrevious.enabled}" width="60"  icon="@Embed(source='../images/pg_home1.gif')"/> 
+          
+         <mx:LinkButton id="lbtnPrevious" label="上一页" click="getPage(pageSize,currentPage-1)" width="80" enabled="{currentPage!=1?true:false}"  icon="@Embed(source='../images/pg_prev1.gif')"/>  
+         
+         <mx:LinkButton id="lbtnNext" label="下一页" click="getPage(pageSize,currentPage+1)" width="80" enabled="{totalPage>=(currentPage+1)?true:false}"  icon="@Embed(source='../images/pg_next1.gif')" labelPlacement="left"/> 
+          
+         <mx:LinkButton id="lbtnLast" label="尾页" click="getPage(pageSize,totalPage)" width="60" enabled="{lbtnNext.enabled}"  icon="@Embed(source='../images/pg_end1.gif')" labelPlacement="left"/>  
+         
+         <mx:NumericStepper id="nsPageNum"  minimum="1" maximum="{totalPage}" enabled="{lbtnJump.enabled}"/>  
+         
+         <mx:LinkButton id="lbtnJump" label="跳转" click="getPage(pageSize,nsPageNum.value)" enabled="{totalPage>1?true:false}" /> 
+         
+	</mx:HBox>
+</mx:Canvas>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:ns1="*" creationComplete="initPage()" updateComplete="afterInitPage()"
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:ns1="*" initialize="initPage()" creationComplete="afterInitPage()" updateComplete="updatePage()"
 		   width="100%" height="100%" paddingTop="5" paddingLeft="5" paddingBottom="5" paddingRight="5"
 		   fontSize="12" backgroundColor="white" >
 	<mx:Script source="flex/util/DICCommonMethod.as"/> 
@@ -75,10 +75,13 @@
 			//初始化页面之后调用
 			public function afterInitPage():void{
 				treeSelectClick();
-				initAddFoldBtn();
+		//		initAddFoldBtn();
 				this.menutree.callLater(expandTree);
 			}
-			
+			//初始化页面之后调用
+			public function updatePage():void{
+				initAddFoldBtn();
+			}
 			//展开树节点
 			protected function expandTree():void{
 				this.menutree.expandChildrenOf(this.menuTreeDate,true);
