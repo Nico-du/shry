@@ -37,7 +37,7 @@
 			protected var pagetitleIcon:String="";
 			//页面默认标题名称
 			[Bindable]
-			protected var pagetitle:String="风叶数据";
+			protected var pagetitle:String="选型结果数据";
 			//分页中备注信息
 			[Bindable]
 			protected var dg_pg_othermsg:String="";
@@ -70,6 +70,9 @@
 			public var bfdid:String="";
 			//父窗口
 			public var parentPage:FYXXFormMoudel = null;
+			//选型 条件
+			public var selectionObject:Object = null;
+			
 			//初始调用方法
 			public function initPage():void{
 				this.highSearchChange();
