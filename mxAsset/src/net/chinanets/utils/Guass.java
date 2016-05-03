@@ -192,7 +192,7 @@ public class Guass {
 	  */
 	 public static double getGuassValue(double[] xAry,double[] yAry,double xIn){
 		 double[]a=new double[20];
-		  double[]pfx= PolyFit(xAry,  yAry,  16,a, 3);//获取结果为系数 
+		  double[]pfx= PolyFit(xAry,  yAry,  xAry.length,a, 3);//获取结果为系数 
 		  return getY(xIn,xAry,pfx,3);
 	 }
 	 

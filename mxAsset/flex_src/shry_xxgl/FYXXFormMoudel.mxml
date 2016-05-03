@@ -5,7 +5,7 @@
 				initialize="initPage()" creationComplete="afterInitPage()"  
 				xmlns:numberInput="cn.cnspagemoduel.textinput.*"  xmlns:shryChart="cn.cnspagemoduel.chartline.*" xmlns:commonpages="com.commonpages.*" >
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
-	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="chartService" destination="chartService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
 			import asset_bfdj.ProcessMethods;
@@ -224,21 +224,114 @@
 				
 			} */
 
+			private function validateXXCondition():Boolean{
+				var errorMsg = "";
+				if(ASStringHelper.isNullOrEmpty(this.fbzj.text) && ASStringHelper.isNullOrEmpty(this.dlhzj.text)){
+					errorMsg="[翻边直径]和[导流环直径]必须填写一个";
+					Alert.show(errorMsg,CommonXMLData.Alert_Title);
+					return false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.ll.text)){
+					errorMsg="[流量]不允许为空";
+					Alert.show(errorMsg,CommonXMLData.Alert_Title);
+					return false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.jy.text)){
+					errorMsg="[静压]不允许为空";
+					Alert.show(errorMsg,CommonXMLData.Alert_Title);
+					return false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.gl.text)){
+					errorMsg="[功率]不允许为空";
+					Alert.show(errorMsg,CommonXMLData.Alert_Title);
+					return false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.zs.text)){
+					errorMsg="[噪声]不允许为空";
+					Alert.show(errorMsg,CommonXMLData.Alert_Title);
+					return false;
+				}
+				
+				return true;
+			}
+			
+			
 			//执行选型 selectionStart
 			protected function button1_clickHandler(event:MouseEvent):void
 			{
+				if(xxbtn.label =="取      消"){ resetTimer(); xxbtn.label = "开始选型"; return;}
+				if(!validateXXCondition()){ return; }
+				var xxObj:Object = new Object();
+				xxObj.fbzj= fbzj.text;
+				xxObj.dlhzj= dlhzj.text;
+				xxObj.jy= jy.text;
+				xxObj.ll= ll.text;
+				xxObj.gl= gl.text;
+				xxObj.zs= zs.text;
+				chartService.selectFYAction(JSON.encode(xxObj));
+				this.chartService.addEventListener(ResultEvent.RESULT,selectFYActionBack);
+				InitTimer();
+				xxbtn.label = "取      消";
+				//xxbtn.enabled = false;
+			}
+			//加载相关信息回调方法
+			protected function selectFYActionBack(rmtResult:ResultEvent):void{
+				this.chartService.removeEventListener(ResultEvent.RESULT,selectFYActionBack);
 				CommonMethod.pageCacheObj.FYXX_selectionStartBox = this.selectionStartBox;
 				pagePanel.removeAllChildren();
+				resetTimer(); 
+				xxbtn.label = "开始选型";
 				
 			    var fyxxRst:FYXXGridMoudel = new FYXXGridMoudel();
 				fyxxRst.parentPage = this;
+				fyxxRst.rmtResult = rmtResult;
+				fyxxRst.tgY = jy.text;
+				fyxxRst.tgX = ll.text;
+				fyxxRst.xxtextData = (CommonMethod.isNullOrWhitespace(fbzj.text) ? "" : ("翻边直径："+fbzj.text)) +
+					(CommonMethod.isNullOrWhitespace(dlhzj.text) ? "" : ("导流环直径："+dlhzj.text))  + " \t流量："+ll.text + 
+					" \t静压："+jy.text +
+				 " \t功率："+gl.text + " \t噪声："+zs.text;
 				pagePanel.addChild(fyxxRst);
 				pageTitle= "风叶选型 》输入选型参数 》选型结果";
 			}
+			
+			
+			private var valueNum:Number = 0;  
+			//使用定时器处理progressBar 开始  
+			private var timer:Timer;  
+			protected function InitTimer():void{  
+				timer = new Timer(1);    
+				valueNum= 0;
+				timer.addEventListener(TimerEvent.TIMER, OnTimeEvent);  
+				timer.start();  
+			}  
+			
+			private function resetTimer():void{
+				timer.stop();
+				valueNum= 0;
+				timer.removeEventListener(TimerEvent.TIMER, OnTimeEvent);  
+				progressBar.setProgress(0, 1000);  
+				progressBar.label = "输入选型参数";  
+			}
+			
+			private function OnTimeEvent(evt:TimerEvent):void{  
+				valueNum = valueNum + 10;  
+				progressBar.setProgress(valueNum, 1000);  
+				if(valueNum >= 1000)  
+				{  
+					valueNum = 0;
+			//		progressBar.setProgress(valueNum, 10000);  
+			//		progressBar.label = "download completed";  
+					return;  
+				}  
+				progressBar.label = "正在选型中。。。";  
+		//		progressBar.label = vaPercent + "% has been downloaded"     
+			}  
+			
 
 		]]>
 	</mx:Script>
-	<mx:Panel id="pagePanel" title="{pageTitle}"  width="100%" height="100%" horizontalAlign="center" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" verticalGap="2" horizontalGap="0">
+	<mx:Panel id="pagePanel" title="{pageTitle}"  width="100%" height="100%" horizontalAlign="center" paddingTop="2" paddingLeft="2" paddingRight="2" paddingBottom="2" verticalGap="0" horizontalGap="2">
 		
 	<mx:VBox id="selectionStartBox" borderStyle="none" width="100%" horizontalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 <mx:VBox id="dataFormBox" borderStyle="none" width="100%" horizontalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off"
@@ -269,7 +362,10 @@
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-										<mx:Label text="静压(pa):"  fontWeight="bold"  height="{aboutheight}"/>
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+										     <mx:Label text="静压(pa):"  fontWeight="bold"  height="{aboutheight}"/>
+											</mx:HBox>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
@@ -280,7 +376,10 @@
 								<mx:GridRow width="100%" height="{aboutheight}">
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label text="流量(m³/h):" fontWeight="bold" height="{aboutheight}"/>
+											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+												<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+												<mx:Label text="流量(m³/h):" fontWeight="bold" height="{aboutheight}"/>
+												</mx:HBox>
 										</mx:HBox>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
@@ -289,9 +388,10 @@
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label text="功率(W):" fontWeight="bold" height="{aboutheight}"/>
-										</mx:HBox>
+											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+												<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+												<mx:Label text="功率(W):" fontWeight="bold" height="{aboutheight}"/>
+												</mx:HBox>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
@@ -302,7 +402,10 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label fontWeight="bold" height="{aboutheight}"  text="噪声(dB):"/>
+											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+												<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+												<mx:Label fontWeight="bold" height="{aboutheight}"  text="噪声(dB):"/>
+												</mx:HBox>
 										</mx:HBox>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
@@ -320,13 +423,13 @@
 		<mx:VBox id="nvPage1Group2" width="100%" height="100%" horizontalGap="0" verticalGap="0"  horizontalAlign="center" borderStyle="none" >
 			<mx:HBox id="selectionStart" width="60%" height="{aboutheight*2.5}"  verticalAlign="bottom"  horizontalGap="0"
 					 borderStyle="solid" borderColor="#99CCFF" backgroundColor="#F7F7F7" >
-				<mx:ProgressBar id="bar"
+				<mx:ProgressBar id="progressBar"
 								labelPlacement="bottom"
 								top="20"
 								minimum="0" 
 								visible="true" 
 								maximum="100" 
-								label="当前进度：0%" 
+								label="输入选型参数" 
 								direction="right" 
 								mode="manual" 
 								width="100%"
@@ -334,7 +437,7 @@
 								paddingRight="10"
 								x="143"/>
 				<mx:VBox height="100%" verticalAlign="middle">
-			<mx:Button label="开始选型" click="button1_clickHandler(event)" width="100" height="35" />	
+			<mx:Button label="开始选型" id="xxbtn" click="button1_clickHandler(event)" width="100" height="35" />	
 				</mx:VBox>
 			</mx:HBox>
 		</mx:VBox>

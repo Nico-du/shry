@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:dataPick="cn.cnspagemoduel.date.*" xmlns:cnscombox="cn.cnspagemoduel.combox.*" creationPolicy="all"
 				title="编辑信息" layout="absolute" showCloseButton="true" fontSize="12" horizontalScrollPolicy="off" verticalScrollPolicy="off" 
-				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()">
+				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()" xmlns:textinput="cn.cnspagemoduel.textinput.*">
 	<mx:RemoteObject id="CodeListServiceRmt" destination="codeListService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
@@ -262,12 +262,15 @@
 				if(ASStringHelper.isNullOrEmpty(strcondition)){
 					return;
 				}
-				this.CodeListServiceRmt.GetCodeList(tempObjViewName,20,1,strcondition);
-				this.CodeListServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
+				/* this.CodeListServiceRmt.GetCodeList(tempObjViewName,20,1,strcondition);
+				this.CodeListServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack); */
+				this.AllAssetServiceRmt.GetAllAsset(tempObjViewName,20,1,strcondition);
+				this.AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataSearchActionBack);
 			}
 			//加载相关信息回调方法
 			protected function dataSearchActionBack(rmtResult:ResultEvent):void{
-				this.CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
+			//	this.CodeListServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
+				this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
 				var objResult:Object=rmtResult.result;
 				var strresult:String=objResult.toString();
 				var jsonObj:Object=JSON.decode(strresult,true);
@@ -295,6 +298,7 @@
 				this.CODEBS.text=tempObj[this.CODEBS.id.toLowerCase()];
 				this.CODENAME.text=tempObj[this.CODENAME.id.toLowerCase()];
 				this.CODEMEMO.text=tempObj[this.CODEMEMO.id.toLowerCase()];
+				this.ATTRIBUTE1.text=tempObj[this.ATTRIBUTE1.id.toLowerCase()];
 				
 				if(!CommonMethod.isNullOrWhitespace(codetypeStr)){
 					CODETYPE.setValue(codetypeStr);
@@ -347,6 +351,7 @@
 				dataJson.codebs=this.CODEBS.text;
 				dataJson.codename=this.CODENAME.text;
 				dataJson.codememo=this.CODEMEMO.text;
+				dataJson.attribute1=this.ATTRIBUTE1.text;
 				return JSON.encode(dataJson);
 			}
 			//保存数据
@@ -512,12 +517,22 @@
 										<mx:TextInput id="CODENAME" width="100%" height="{aboutheight}"/>
 									</mx:FormItem>
 								</mx:GridItem>
+								<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+									<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+										<mx:Label text="值:" fontWeight="bold" height="{aboutheight}"/>
+									</mx:HBox>
+								</mx:GridItem>
+								<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">
+									<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+										<textinput:NumberTextInput id="ATTRIBUTE1" width="100%" height="{aboutheight}"/>
+									</mx:FormItem>
+								</mx:GridItem>
 							</mx:GridRow>
 							<mx:GridRow width="100%" height="{aboutheight*3}">
 								<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 									<mx:Label text="备注:" height="{aboutheight}"/>
 								</mx:GridItem>
-								<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="90%" colSpan="5">
+								<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="90%" colSpan="7">
 									<mx:TextArea id="CODEMEMO" width="100%" height="100%"></mx:TextArea>
 								</mx:GridItem>
 							</mx:GridRow>

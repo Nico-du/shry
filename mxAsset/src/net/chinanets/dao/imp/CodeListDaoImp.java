@@ -22,7 +22,8 @@ public class CodeListDaoImp extends CommonDaoImp implements CodeListDao {
 		}
 		
 		String selectResultCount=StringHelper.Format("SELECT COUNT(0) %1$s",strSQL);
-		String selectResultHql=StringHelper.Format("SELECT ROWNUM AS RN,TMPT.* %1$s",strSQL);
+	//	String selectResultHql=StringHelper.Format("SELECT ROWNUM AS RN,TMPT.* %1$s",strSQL);
+		String selectResultHql=StringHelper.Format("SELECT TMPT.* %1$s",strSQL);
 		JSONArray tempJson=this.RunSelectJSONArrayBySql(selectResultHql, tempPageSize, tempPageCurrent);
 		String total=this.RunSelectCountBySql(selectResultCount, null)+"";
 		String items="";

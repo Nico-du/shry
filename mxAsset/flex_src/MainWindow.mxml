@@ -261,10 +261,10 @@
 		<node menuid="WZGL" menuname="资料管理" pageurl="DataAsset" menuicon="images/kvm.png"/>
 		<node menuid="HWGL" menuname="选型管理" pageurl="SelectionMain" menuicon="images/icon_officpark_01.png"/>
 		<node menuid="CLGL" menuname="" pageurl="" menuicon="images/car.png"/>
-		<node menuid="RCFW" menuname="图表管理" pageurl="ServiceMain" menuicon="images/info.png"/>
 		<node menuid="XTFW" menuname="系统服务" pageurl="SystemMain" menuicon="images/system.png"/>
 	</mx:XMLList>
 	<!--<node menuid="CYGL" menuname="餐饮管理" pageurl="" menuicon="images/reset.png"/>
+		<node menuid="RCFW" menuname="图表管理" pageurl="ServiceMain" menuicon="images/info.png"/>
 		<node menuid="BBGL" menuname="报表管理" pageurl="" menuicon="images/icon_report_01.png"/>
 		<node menuid="TJFX" menuname="统计分析" pageurl="" menuicon="images/icon_sysansy_01.png"/>
 	-->

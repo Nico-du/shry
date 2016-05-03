@@ -7,6 +7,14 @@ import net.chinanets.vo.UserVo;
 import net.sf.json.JSONArray;
 @SuppressWarnings("unchecked")
 public interface ChartService {
+	/**
+	 * 风叶选型的方法
+	 * @param selectionJson
+	 * @return
+	 */
+	public String selectFYAction(String selectionJson);
+	
+	
 	
 	///主页homeModel的方法
 	/**

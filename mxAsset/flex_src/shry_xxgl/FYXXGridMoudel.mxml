@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()"
-		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" updateComplete="afterInitPage()"
+		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" verticalGap="2"
 		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoduel.common.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
@@ -12,6 +12,7 @@
 			import cn.cnsasfram.helper.ASCommonHelper;
 			import cn.cnsasfram.helper.ASJsonHelper;
 			import cn.cnsasfram.helper.ASStringHelper;
+			import cn.cnspagemoduel.chartline.LinueChartModel;
 			
 			import com.adobe.serialization.json.JSON;
 			import com.benstucki.utilities.IconUtility;
@@ -86,16 +87,21 @@
 				
 			}
 			
+			public var rmtResult:ResultEvent = null;
 			//初始化页面之后调用
 			public function afterInitPage():void{
-				//加载权限
-				if(pageIsLoadPoer){
+			/* 	//加载权限
+				 if(pageIsLoadPoer){
 					loadUserPower();
-				}
+				} 
 				//加载数据
-				if(pageIsLoadData){
+			 	if(pageIsLoadData){
 					loadData();
-				}
+				}  */
+				
+				dataSearchActionBack(rmtResult);
+				cns_dg.selectedIndex = 0;
+				reInitLineChart(null);
 			}
 			
 			//分析权限
@@ -404,19 +410,59 @@
 				parentPage.pagePanel.removeAllChildren();
 				parentPage.pagePanel.addChild(CommonMethod.pageCacheObj.FYXX_selectionStartBox as DisplayObject);
 			}
-
+			
+			public var tgX:String = "-1";
+			public var tgY:String = "-1";
+			[Bindable]
+			public var xxtextData:String = "";
+			public function reInitLineChart(event:Event){
+				
+				var tempSelectItem:Object=this.cns_dg.selectedItem;;
+				/* for each(var dataobj:Object in this.dataArray){
+					if(dataobj.selected){
+						tempSelectItem=dataobj;
+						break;
+					}
+				} */
+				if(tempSelectItem==null){
+					return;
+				}
+				
+				var sFyid:String = tempSelectItem.fyid;
+				var sSql:String = "select * from SHRY_FYXN_DATA where fyid = '"+sFyid+"' order by (ll+0) asc";
+				
+				AllAssetServiceRmt.RunSelectClassBySql(sSql,"net.chinanets.pojos.ShryFyxnData");
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,resultBack);
+			}
+			private function resultBack(event:ResultEvent):void {
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,resultBack);
+				if(event.result == null)return;
+				//添加多曲线
+				var objList:ArrayCollection = event.result as ArrayCollection;
+				var lineChart4:LinueChartModel = new LinueChartModel();
+				lineChart4.modelTitle="风叶流量—静压曲线图"; lineChart4.height=this.height - 140;
+				lineChart4.xToolTipTiltle = lineChart4.xAxisTitle= "流量";lineChart4.yToolTipTiltle= lineChart4.yAxisTitle= "静压";
+				lineChart4._xField = "ll"; lineChart4._yField = "jyl";
+				lineChart4.dpArray = objList;
+				lineChart4.percentHeight = 100;
+				lineChart4.tgX = this.tgX;
+				lineChart4.tgY = this.tgY;
+				lineChartBox.removeAllChildren();
+				lineChartBox.addChild(lineChart4);
+			}
 		]]>
 	</mx:Script>
-	<mx:HBox id="XXDataBox" width="100%" height="{aboutheight*2}" verticalGap="0"  horizontalAlign="center" paddingTop="3" verticalAlign="middle" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+	<mx:HBox id="XXDataBox" width="100%" height="{aboutheight*2}" verticalGap="0"  horizontalAlign="center" paddingTop="0" verticalAlign="middle" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
 		<mx:Label text="选型参数：" fontWeight="bold"/>
-		<mx:TextArea id="xxDataTextArea" editable="false" borderStyle="solid" borderColor="#99CCFF" width="100%" height="{aboutheight*1.8}"  text="噪音:4dB   流量:500   电流:2A "/>
+		<mx:TextArea id="xxDataTextArea" editable="false" borderStyle="solid" borderColor="#99CCFF" width="100%" height="{aboutheight}"  text="{xxtextData}"/>
 		<mx:Button  click="button1_clickHandler(event)" label="返回"
 				   icon="@Embed(source='images/icon_return.png')"/>
 	</mx:HBox>
-			<mx:VDividedBox width="100%" height="100%" verticalAlign="middle"  horizontalAlign="center" horizontalGap="3">
+			<mx:VDividedBox width="100%" height="100%" verticalAlign="middle"  horizontalAlign="center" horizontalGap="0">
 				<!--性能数据-->
-				<mx:VBox width="100%" height="40%" verticalGap="2" borderStyle="none">
-					<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#99CCFF" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+				<mx:VBox id="lineChartBox" width="100%" height="70%" verticalGap="2" borderStyle="none">
+					<!--<shryChart:LinueChartModel modelTitle="总成流量—静压曲线图" height="{this.height - 140}" id="lineChart05" />-->
+					<!--<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#99CCFF" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
 						<mx:Label text="性能数据" textIndent="10" width="100%" height="20" fontWeight="normal" fontSize="13"/>
 					</mx:HBox>
 					<mx:DataGrid id="cns_dg01" dataProvider="{dataArray}" itemClick="gridItemDataClick(event)" 
@@ -436,17 +482,17 @@
 							<mx:DataGridColumn headerText="更新时间" width="155" dataField="updatedate" sortable="true"/>
 							<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
 						</mx:columns>
-					</mx:DataGrid>
+					</mx:DataGrid>-->
 				</mx:VBox>
 				
 				<!--匹配到的风叶列表数据  #B14C6B-->
-			<mx:VBox width="100%" height="60%" verticalGap="2" borderStyle="solid" borderColor="#B14C6B">
+			<mx:VBox width="100%" height="30%" verticalGap="2" borderStyle="solid" borderColor="#B14C6B">
 				<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#B14C6B" 
 						 horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
 					<mx:Label text="选型结果" textIndent="10" width="200" height="20" fontWeight="bold" fontSize="13" />
-					<mx:RadioButtonGroup id="showType" />
+					<!--<mx:RadioButtonGroup id="showType" />
 					<mx:RadioButton label="性能数据显示" groupName="showType" />
-					<mx:RadioButton label="曲线图显示" groupName="showType" />
+					<mx:RadioButton label="曲线图显示" groupName="showType" />-->
 				</mx:HBox>
 			<!--工具栏-->
 			<mx:HBox id="toolBar" width="100%" visible="false" includeInLayout="false" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" borderStyle="none" backgroundColor="#99CCFF">
@@ -471,8 +517,9 @@
 			</mx:HBox>
 			<!--表格数据-->
 			<mx:VBox width="100%" height="100%" verticalGap="2" borderStyle="none">
-				<mx:DataGrid id="cns_dg" dataProvider="{dataArray}" itemClick="gridItemDataClick(event)" 
-							 itemDoubleClick="CommonMethod.switchGridDoubleClickHandle(this,event)" doubleClickEnabled="true" width="100%" height="100%">
+				<!--itemClick="gridItemDataClick(event)" -->
+				<mx:DataGrid id="cns_dg" dataProvider="{dataArray}" rowHeight="{aboutheight}"
+							 itemClick="reInitLineChart(event)" doubleClickEnabled="false" width="100%" height="100%">
 					<mx:columns>
 						<mx:DataGridColumn headerText="" minWidth="43" width="43" draggable="false" sortable="false" labelFunction="getColumnIndex" textAlign="center">
 							<mx:itemRenderer>
@@ -495,7 +542,7 @@
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
 					</mx:columns>
 				</mx:DataGrid>
-				<cnspg:PagingMoudel id="cns_dg_pg"  visible="true" includeInLayout="true" width="100%" height="{aboutheight}" datacount="{dg_pg_datacount}" othermsg="{dg_pg_othermsg}" funReqData="dataSearchAction"/>
+				<cnspg:PagingMoudel id="cns_dg_pg"  visible="false" includeInLayout="false" width="100%" height="{aboutheight}" datacount="{dg_pg_datacount}" othermsg="{dg_pg_othermsg}" funReqData="dataSearchAction"/>
 			      </mx:VBox>
 				</mx:VBox>
 	         </mx:VDividedBox>

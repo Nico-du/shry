@@ -15,6 +15,15 @@
         <property name="codename" type="java.lang.String">
             <column name="CODENAME" length="100" not-null="true" />
         </property>
+        <property name="attribute1" type="java.lang.String">
+            <column name="ATTRIBUTE1" length="100" />
+        </property>
+        <property name="attribute2" type="java.lang.String">
+            <column name="ATTRIBUTE2" length="100"  />
+        </property>
+        <property name="attribute3" type="java.lang.String">
+            <column name="ATTRIBUTE3" length="100" />
+        </property>
         <property name="codememo" type="java.lang.String">
             <column name="CODEMEMO" length="1000" />
         </property>

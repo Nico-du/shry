@@ -5,20 +5,25 @@
 	<mx:RemoteObject id="ChartService" destination="chartService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.graphics.SolidColorStroke;
 			import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			protected var strokeffect:SolidColorStroke=null;
 			
-			
+			public var tableName:String = "";
+			public var dataId:String = "";
 			public var modelTitle:String = "模块标题";
 			/**
 			 * 垂直虚线是否可见
 			 * */
 			public var xdashLineVisible:Boolean = false;
-			public var serialLineName:String = "曲线名";
+			public var serialLineName:String = "";
 			public var _xField:String = "ll";
 			public var _yField:String = "xl";
 			/**
@@ -49,30 +54,42 @@
 			private var _yMinorInterval:Number = NaN;
 			[Bindable]
 			private var _yInterval:Number = NaN;
+			[Bindable]
+			private var _xInterval:Number = NaN;
 			/**
 			 *曲线数据源 
 			 **/
 			[Bindable]
-			protected var dpArray:ArrayCollection = new ArrayCollection([  
-				{ll:0.0   ,jy:374.3 ,zzs:2796 ,dy:15.2 ,dl:36.8 ,srgl:559.4 ,xl:0.00  },
-				{ll:309.2 ,jy:279.6 ,zzs:2796 ,dy:13.8 ,dl:27.4 ,srgl:378.1 ,xl:6.35  },
-				{ll:692.8 ,jy:230.7 ,zzs:2796 ,dy:13.1 ,dl:22.8 ,srgl:298.7 ,xl:14.86 },
-				{ll:1365.0,jy:199.5 ,zzs:2795 ,dy:12.8 ,dl:20.4 ,srgl:261.1 ,xl:28.97 },
-				{ll:1505.3,jy:180.3 ,zzs:2795 ,dy:12.7 ,dl:19.5 ,srgl:247.7 ,xl:30.44 },
+			public var dpArray:ArrayCollection = new ArrayCollection([  
+				{ll:0.0   ,jyl:374.3 ,zzs:2796 ,dy:15.2 ,dl:36.8 ,zgl:559.4 ,xl:0.00  },
+				{ll:309.2 ,jyl:279.6 ,zzs:2796 ,dy:13.8 ,dl:27.4 ,zgl:378.1 ,xl:6.35  },
+				{ll:692.8 ,jyl:230.7 ,zzs:2796 ,dy:13.1 ,dl:22.8 ,zgl:298.7 ,xl:14.86 },
+				{ll:1365.0,jyl:199.5 ,zzs:2795 ,dy:12.8 ,dl:20.4 ,zgl:261.1 ,xl:28.97 },
+				{ll:1505.3,jyl:180.3 ,zzs:2795 ,dy:12.7 ,dl:19.5 ,zgl:247.7 ,xl:30.44 },
 				
-				{ll:1634.7,jy:150.2 ,zzs:2794 ,dy:12.4 ,dl:18.0 ,srgl:223.2 ,xl:30.56 },
-				{ll:1829.6,jy:119.8 ,zzs:2798 ,dy:12.3 ,dl:17.0 ,srgl:209.1 ,xl:29.12 },
-				{ll:1949.1,jy:100.3 ,zzs:2795 ,dy:12.2 ,dl:16.3 ,srgl:198.9 ,xl:27.31 },
-				{ll:2284.0,jy:51.1  ,zzs:2795 ,dy:11.9 ,dl:14.7 ,srgl:174.9 ,xl:18.53 },
-				{ll:2603.2,jy:0.6   ,zzs:2797 ,dy:11.7 ,dl:13.1 ,srgl:153.3 ,xl:0.28  },
+				{ll:1634.7,jyl:150.2 ,zzs:2794 ,dy:12.4 ,dl:18.0 ,zgl:223.2 ,xl:30.56 },
+				{ll:1829.6,jyl:119.8 ,zzs:2798 ,dy:12.3 ,dl:17.0 ,zgl:209.1 ,xl:29.12 },
+				{ll:1949.1,jyl:100.3 ,zzs:2795 ,dy:12.2 ,dl:16.3 ,zgl:198.9 ,xl:27.31 },
+				{ll:2284.0,jyl:51.1  ,zzs:2795 ,dy:11.9 ,dl:14.7 ,zgl:174.9 ,xl:18.53 },
+				{ll:2603.2,jyl:0.6   ,zzs:2797 ,dy:11.7 ,dl:13.1 ,zgl:153.3 ,xl:0.28  },
 			]);
-			
+			public var tgX:String = "-1";
+			public var tgY:String = "-1";
+			var targetObject:Object = new Object();
+			var tgPonitVisible:Boolean = true;
 			//初始化页面
 			public function initPage():void{
+				if(tgX == "-1" || tgY == "-1"){
+					tgPonitVisible = false;
+				}else{
+					targetObject.tgX = tgX;
+					targetObject.tgY = tgY;
+				}
+			
 				if(false){
 					beforeInitPage();
 				}
-				this.initPageStyle();
+			this.initPageStyle();
 			}
 			
 			/**
@@ -80,6 +97,47 @@
 			 **/
 			private function initPageStyle():void{
 				this.calculateAxisData();	
+			}
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				strokeffect=new SolidColorStroke();
+				strokeffect.color=0xFFFFFF;
+				strokeffect.weight=1;
+				var sClassPath:String = "";
+				var idColumn:String = "";
+				if(tableName.toUpperCase() == "SHRY_FYXN_DATA"){
+					sClassPath = "net.chinanets.pojos.ShryFyxnData";
+					idColumn = "fyid";
+				}else if(tableName.toUpperCase() == "SHRY_ZCXN_DATA"){
+					sClassPath = "net.chinanets.pojos.ShryZcxnData";
+					idColumn = "zcid";
+				}
+				if(CommonMethod.isNullOrWhitespace(tableName) || CommonMethod.isNullOrWhitespace(dataId) 
+					|| CommonMethod.isNullOrWhitespace(idColumn) || CommonMethod.isNullOrWhitespace(sClassPath)){
+					Alert.show("曲线表关联的表字段数据为空！",CommonXMLData.Alert_Title);
+					return;
+				}
+				var sSql:String = "select * from "+tableName+" where "+idColumn+" = '"+dataId+"' order by (ll+0) asc";
+				
+				
+				ChartService.RunSelectClassBySql(sSql,sClassPath);
+				ChartService.addEventListener(ResultEvent.RESULT,resultBack);
+			}
+			private function resultBack(event:ResultEvent):void {
+				ChartService.removeEventListener(ResultEvent.RESULT,resultBack);
+				if(event.result == null)return;
+				var objList:ArrayCollection = event.result as ArrayCollection;
+				var objCell:Object;
+				dpArray.removeAll();
+				for(var i:int=0;i<objList.length;i++){
+					objCell = objList.getItemAt(i);
+					var arrItem:Object = new Object();
+					arrItem.year = objCell[0];
+					arrItem.buycount = objCell[1];
+					dpArray.addItem(arrItem);
+				}
+				
+				this.initPageStyle();
 			}
 			
 			/**
@@ -106,6 +164,7 @@
 					
 					var vLength:int = (Math.floor(maxXValue) + "").length;
 					_xMaximum = Math.ceil( maxXValue/Math.pow(10,vLength-1) ) *  Math.pow(10,vLength-1);
+					_xInterval = _xMaximum/(2*_xMaximum/Math.pow(10,vLength-1));
 					
 					vLength = (Math.floor(maxYValue) + "").length;
 					_yMaximum = Math.ceil( maxYValue/Math.pow(10,vLength-1) ) *  Math.pow(10,vLength-1);
@@ -118,34 +177,14 @@
 				}
 			}
 			
-			//初始化页面之前调用
-			public function beforeInitPage():void{
-				strokeffect=new SolidColorStroke();
-				strokeffect.color=0xFFFFFF;
-				strokeffect.weight=1;
-				
-				ChartService.getXXSBInfo();
-				ChartService.addEventListener(ResultEvent.RESULT,resultBack);
-			}
-			private function resultBack(event:ResultEvent):void {
-				ChartService.removeEventListener(ResultEvent.RESULT,resultBack);
-				if(event.result == null)return;
-				var objList:ArrayCollection = event.result as ArrayCollection;
-				var objCell:Object;
-				dpArray.removeAll();
-				for(var i:int=0;i<objList.length;i++){
-					objCell = objList.getItemAt(i);
-					var arrItem:Object = new Object();
-					arrItem.year = objCell[0];
-					arrItem.buycount = objCell[1];
-					dpArray.addItem(arrItem);
-				}
-			}
 			
 			//初始化页面之后调用
 			public function afterInitPage():void{
 				
 			}
+			
+			
+			
 		]]>
 	</mx:Script>
 	
@@ -177,7 +216,7 @@
 						<mx:LinearAxis  minimum="0" maximum="{_xMaximum}"
 									   displayName="{xToolTipTiltle}" title="{xAxisTitle}" 
 					                	baseAtZero="false"
-								 
+								 interval="{_xInterval}"
 									   />
 						<!--<mx:CategoryAxis categoryField="{_xField}" baseAtzero
 										 displayName="{xToolTipTiltle}" title="{xAxisTitle}" 
@@ -204,6 +243,7 @@
 									   xField="{_xField}" yField="{_yField}" 
 									   itemRenderer="mx.charts.renderers.DiamondItemRenderer"
 									   form="curve"/>
+						<mx:LineSeries id="targetPoint" visible="{tgPonitVisible}" dataProvider="{targetObject}" xField="tgX" yField="tgY" displayName="*目标点" form="segment"  itemRenderer="mx.charts.renderers.CircleItemRenderer" />
 					</mx:series>
 				</mx:LineChart>
 			</mx:Canvas>

@@ -93,7 +93,12 @@ public class SelectionFYServiceImp extends CommonServiceImp{
 	
 	
 	/**
- --结构参数：1.翻边直径  2.导流环直径
+	 * @param fyxnList
+	 * @return
+	 */
+	private List<String> doFySelection(List<ShryFyxnData> fyxnList,double dJy,double dLl,double dGl,double dZs,Double dlhzjIn,Double fbzjIn) {
+		/**
+ --结构参数：1.翻边直径  2.导流环直径 差值正负10
 一般情况下选型时可能以上两个参数只会2选1输入
 
 --性能参数：1.静压  2.流量  3.功率 4.噪声
@@ -102,10 +107,7 @@ public class SelectionFYServiceImp extends CommonServiceImp{
 1.同静压点流量值大于输入值（120pa 2600m³/h）或者同流量点静压大于输入值（2500m³/h 130pa）；
 2.目标功率、噪声比输入值小
 3.优先找最接近的实验值
-	 * @param fyxnList
-	 * @return
-	 */
-	private List<String> doFySelection(List<ShryFyxnData> fyxnList,double dJy,double dLl,double dGl,double dZs,Double dlhzjIn,Double fbzjIn) {
+		 */
 		List<String> fylist = new ArrayList<String>();
 		int stepRange = 50;
 		double dZj = 0;
@@ -132,8 +134,8 @@ public class SelectionFYServiceImp extends CommonServiceImp{
 				xnListGroup.add(eachFyxnList);
 		}
 		
-		//通过增大/减小转速 实现选型， 转速步长50+-
-		//TODO 读取 转速1-50时不满主流量和静压都大于输入值的点 转速1为最佳转速 
+		//[不使用这种方式]   通过增大/减小转速 实现选型， 转速步长50+-
+		// 读取 转速1-50时不满主流量和静压都大于输入值的点 转速1为最佳转速 
 		//结果返回该结果转速
 		
 		/*
@@ -141,7 +143,6 @@ public class SelectionFYServiceImp extends CommonServiceImp{
 	1.同静压时流量值大于输入值（120pa 2600m³/h）或者同流量时静压大于输入值（2500m³/h 130pa）；
 	2.同时满足目标功率、噪声比输入值小
 	
-[不使用这种方式] 
 	实现方式:
 	1.通过目标流量获取[转速1]  在通过转速1推出其他值做对比 
 	2.通过目标静压获取[转速2]  在通过转速2推出其他值做对比
@@ -179,7 +180,7 @@ public class SelectionFYServiceImp extends CommonServiceImp{
 			ShryFyxnData startFyxhData = null;
 			double minJyRange,minLlRange;
 			minJyRange = minLlRange = 100000000;
-			//假定 一定 满足 同静压时流量值大于输入值或者同流量时静压大于输入值
+			//一定 满足 同静压时流量值大于输入值或者同流量时静压大于输入值,套公式改转速
 			//取两个值同时大于且最接近于 目标 的值 为起始值
 			for(ShryFyxnData each : eachXnList){
 				eachJy = each.getJyl();
@@ -192,7 +193,7 @@ public class SelectionFYServiceImp extends CommonServiceImp{
 				}
 			}
 			if(startFyxhData == null){ continue; }
-			//使用最小二乘法 拟合曲线并求值
+			//获取风叶 流量-静压 数据
 			List<ShryFyZsData> fyzsList = commonDao.getObjectBySql("select fyzs.* from shry_fy_zs_data fyzs where fyzs.fyid='"+eachXnList.get(0).getFyid()+"' ");
 			double x[] = new double[fyzsList.size()];
 			double y[] = new double[fyzsList.size()];
@@ -216,6 +217,7 @@ public class SelectionFYServiceImp extends CommonServiceImp{
 			double zsAry[] = {reversePressure(Double.parseDouble(dlhzj), startZs, Double.parseDouble(startFyxhData.getZgl()), dGl, Double.parseDouble(dlhzj)),
 					                    reverseQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getZgl()), dGl)  };
 			int ict = 0;
+			//获取较小的功率
 			double dEachGl1 = 0;
 			String sStr1 = "";
 			for(double zs : zsAry ){
@@ -223,6 +225,7 @@ public class SelectionFYServiceImp extends CommonServiceImp{
 				dEachLl = translateQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getLl()), zs, Double.parseDouble(dlhzj));
 				dEachGl = translatePower(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getZgl()), zs, Double.parseDouble(dlhzj));
 
+				//使用最小二乘法 拟合曲线并求值
 				double dCurZs = Guass.getGuassValue(x,y,zs);
 					if(dCurZs < dZs && dEachGl < dGl ){
 						if(ict == 0 && dEachLl > dLl){ //同静压时流量值大于输入值 或者同流量时静压大于输入值 
@@ -239,6 +242,7 @@ public class SelectionFYServiceImp extends CommonServiceImp{
 					ict++;
 				}
 			}
+			
 		/*	for(double zs = startZs ; zs > 0 ; zs -= 50 ){
 				dEachJy = translatePressure(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getJyl()), zs, Double.parseDouble(dlhzj));
 				dEachLl = translateQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getLl()), zs, Double.parseDouble(dlhzj));
