@@ -3,6 +3,7 @@ package net.chinanets.service;
 import java.util.List;
 import java.util.Map;
 
+import net.chinanets.pojos.ShryFyxnData;
 import net.chinanets.vo.UserVo;
 import net.sf.json.JSONArray;
 @SuppressWarnings("unchecked")
@@ -14,8 +15,16 @@ public interface ChartService {
 	 */
 	public String selectFYAction(String selectionJson);
 	
+	/**
+	 * 数据换算
+	 * @param jsonArrayStrIn
+	 * @param type
+	 * @return
+	 */
+	public String translateData(String jsonArrayStrIn,String jsonObjectIn,String type);
 	
 	
+	public List<ShryFyxnData> getXXJGChartList(String sSql,String jsonObjectIn);
 	///主页homeModel的方法
 	/**
 	 * 获取我的任务

@@ -1,13 +1,11 @@
 package net.chinanets.service.imp;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -116,7 +114,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		JSONObject result=new JSONObject();
 		result.put("itemtotal", xxjgObjList.size());
 		result.put("othermsg", "");
-		result.put("items", xxjgObjList+"");
+		result.put("items", xxjgObjList.toString());
 		return result.toString();
 		
 /*		String selectResultHql=StringHelper.Format("SELECT ROWNUM AS RN,TMPT.* %1$s",strHQL);
@@ -288,10 +286,10 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 						if(ict == 0 && dEachLl > dLl){ //同静压时流量值大于输入值
 							dEachGl1 = dEachGl;
 //							sStr1 = "fyid="+eachXnList.get(0).getFyid()+";zzs="+zs+";jy="+dEachJy+";ll="+dEachLl+";gl="+dEachGl+";zs="+dCurZs+";";
-							fylist.add(eachXnList.get(0).getFyid().intValue() +";"+zs);
+							fylist.add(eachXnList.get(0).getFyid().intValue() +";"+(float)(zs));
 					//		fylist.add("fyid="+eachXnList.get(0).getFyid()+";zzs="+zs+";jy="+dEachJy+";ll="+dEachLl+";gl="+dEachGl+";zs="+dCurZs+";");
 						}else if(ict == 1 && dEachJy > dJy){// 同流量时静压大于输入值 
-							fylist.add(eachXnList.get(0).getFyid().intValue() +";"+zs);
+							fylist.add(eachXnList.get(0).getFyid().intValue() +";"+(float)(zs));
 							//fylist.add("fyid="+eachXnList.get(0).getFyid()+";zzs="+zs+";jy="+dEachJy+";ll="+dEachLl+";gl="+dEachGl+";zs="+dCurZs+";");
 							/*if(dEachGl1 < dEachGl){//较小功率对比
 								fylist.add(sStr1);
@@ -319,29 +317,62 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		return fylist;
 	}
 
-
+	
+	/**
+	 * 获取选型结果曲线数据列表
+	 * @param sSql
+	 * @param jsonObjectIn
+	 * @param type
+	 * @return
+	 */
+	public List<ShryFyxnData> getXXJGChartList(String sSql,String jsonObjectIn){
+		List<ShryFyxnData> rstList = (List<ShryFyxnData>) commonDao.RunSelectClassBySql(sSql,"net.chinanets.pojos.ShryFyxnData");	
+		List<ShryFyxnData> listOut = new ArrayList<ShryFyxnData>();
+		JSONObject jsonObjIn = JSONObject.fromObject(jsonObjectIn);
+		String stdzs = jsonObjIn.getString("stdzs");
+		for(ShryFyxnData each : rstList){
+			each.setJyl(translatePressure(Double.parseDouble(each.getZzs()), Double.parseDouble(jsonObjIn.getString("dlhzj")), 
+					Double.parseDouble(each.getJyl()), Double.parseDouble(stdzs), 
+					Double.parseDouble(jsonObjIn.getString("dlhzj")) )+"");
+			double eachLl = translateQuantity(Double.parseDouble(each.getZzs()), Double.parseDouble(jsonObjIn.getString("dlhzj")),
+					Double.parseDouble(each.getLl()), Double.parseDouble(stdzs),
+					Double.parseDouble(jsonObjIn.getString("dlhzj")));
+			each.setLl(eachLl<0 ? "0" :  (eachLl+"") );
+			listOut.add(each);
+		}
+		return listOut;
+	}
+	
 /**
  * 数据换算
  * @param jsonArrayStrIn
  * @param  type 转换类型 JL：静压/流量转换
  * @return
  */
-public String translateData(String jsonArrayStrIn,String type){
+public String translateData(String jsonArrayStrIn,String jsonObjectIn,String type){
 	if(StringUtils.isBlank(jsonArrayStrIn)){return "";}
 	JSONArray jsonAryIn = JSONArray.fromObject(jsonArrayStrIn);
+	JSONObject jsonObjIn = JSONObject.fromObject(jsonObjectIn);
 	JSONArray jsonAryOut = new JSONArray();
 	JSONObject eachJson;
-	String stdzs;//对比标准转速
-	for(int i=0;i<jsonAryIn.size();i++){
-		
-		eachJson = jsonAryIn.getJSONObject(i);
-		if(eachJson == null || eachJson.isEmpty()){ continue; }
-		stdzs = eachJson.getString("stdzs");
-		eachJson.put("", value);
-		jsonAryOut = stdzs
+	String stdzs,zzs;//对比标准转速
+	stdzs = jsonObjIn.getString("stdzs");
+	if("JL".equals(type)){
+		for(int i=0;i<jsonAryIn.size();i++){
+			eachJson = jsonAryIn.getJSONObject(i);
+			if(eachJson == null || eachJson.isEmpty()){ continue; }
+//			stdzs = eachJson.getString("stdzs");
+			zzs = eachJson.getString("zzs");
+			
+			eachJson.put("jy", translatePressure(Double.parseDouble(zzs), Double.parseDouble(jsonObjIn.getString("dlhzj")), 
+					Double.parseDouble(eachJson.getString("jyl")), Double.parseDouble(stdzs), 
+					Double.parseDouble(jsonObjIn.getString("dlhzj")) ));
+			eachJson.put("ll", translateQuantity(Double.parseDouble(zzs), Double.parseDouble(jsonObjIn.getString("dlhzj")),
+					Double.parseDouble(eachJson.getString("ll")), Double.parseDouble(stdzs), Double.parseDouble(jsonObjIn.getString("dlhzj"))));
+			jsonAryOut.add(eachJson);
+		}
 	}
-	
-	return null;
+	return jsonAryOut.toString();
 }
 
 
@@ -381,6 +412,10 @@ public String translateData(String jsonArrayStrIn,String type){
 	
 	/**
 	 * 压力换算
+	 * D-导流环直径
+	 * n-转速
+	 * N-功率/轴功率
+	 * P-静压
 	 * @param dN
 	 * @param dD
 	 * @return 结果压力
@@ -393,6 +428,10 @@ public String translateData(String jsonArrayStrIn,String type){
 	}
 	/**
 	 * 流量换算
+	 * D-导流环直径
+	 * n-转速
+	 * N-功率/轴功率
+	 * P-静压
 	 * @param dN
 	 * @param dD
 	 * @return 结果流量
@@ -406,6 +445,10 @@ public String translateData(String jsonArrayStrIn,String type){
 	
 	/**
 	 * 功率换算
+	 * D-导流环直径
+	 * n-转速
+	 * N-功率/轴功率
+	 * P-静压
 	 * @param dN
 	 * @param dD
 	 * @return 结果功率

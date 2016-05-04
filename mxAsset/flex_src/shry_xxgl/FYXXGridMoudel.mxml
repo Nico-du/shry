@@ -3,6 +3,7 @@
 		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" verticalGap="2"
 		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoduel.common.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="chartService" destination="chartService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
 			import asset_bfdj.ProcessMethods;
@@ -417,7 +418,7 @@
 			public var xxtextData:String = "";
 			public function reInitLineChart(event:Event){
 				
-				var tempSelectItem:Object=this.cns_dg.selectedItem;;
+				var tempSelectItem:Object=this.cns_dg.selectedItem;
 				/* for each(var dataobj:Object in this.dataArray){
 					if(dataobj.selected){
 						tempSelectItem=dataobj;
@@ -431,14 +432,23 @@
 				var sFyid:String = tempSelectItem.fyid;
 				var sSql:String = "select * from SHRY_FYXN_DATA where fyid = '"+sFyid+"' order by (ll+0) asc";
 				
-				AllAssetServiceRmt.RunSelectClassBySql(sSql,"net.chinanets.pojos.ShryFyxnData");
-				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,resultBack);
+				chartService.getXXJGChartList(sSql,JSON.encode(tempSelectItem));
+				chartService.addEventListener(ResultEvent.RESULT,resultBack);
 			}
 			private function resultBack(event:ResultEvent):void {
-				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,resultBack);
+				chartService.removeEventListener(ResultEvent.RESULT,resultBack);
+				if(event.result == null)return;
+				/* var tempSelectItem:Object=this.cns_dg.selectedItem;
+				chartService.translateData(JSON.encode(event.result.list.source),JSON.encode(tempSelectItem),"JL");
+				chartService.addEventListener(ResultEvent.RESULT,resultBack1);
+			}
+			private function resultBack1(event:ResultEvent):void {
+				chartService.removeEventListener(ResultEvent.RESULT,resultBack1);
 				if(event.result == null)return;
 				//添加多曲线
+				var objList:ArrayCollection = new ArrayCollection(event.result as Array); */
 				var objList:ArrayCollection = event.result as ArrayCollection;
+				
 				var lineChart4:LinueChartModel = new LinueChartModel();
 				lineChart4.modelTitle="风叶流量—静压曲线图"; lineChart4.height=this.height - 140;
 				lineChart4.xToolTipTiltle = lineChart4.xAxisTitle= "流量";lineChart4.yToolTipTiltle= lineChart4.yAxisTitle= "静压";
@@ -536,7 +546,8 @@
 						<mx:DataGridColumn headerText="轮毂直径(毫米)" width="110" dataField="lgzj" sortable="true"/>
 						<mx:DataGridColumn headerText="重量(克)" width="80" dataField="zl" sortable="true"/>
 						<mx:DataGridColumn headerText="叶片分布" width="80" dataField="ypfb" sortable="true"/>				
-						<mx:DataGridColumn headerText="状态" width="80" dataField="syzt" sortable="true"/>				
+						<mx:DataGridColumn headerText="状态" width="80" dataField="syzt" sortable="true"/>	
+						<mx:DataGridColumn headerText="选型所取转速" width="100" dataField="stdzs" sortable="true"/>			
 						<mx:DataGridColumn headerText="更新人" width="100" dataField="updateusername" sortable="true"/>
 						<mx:DataGridColumn headerText="更新时间" width="155" dataField="updatedate" sortable="true"/>
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
