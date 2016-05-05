@@ -52,8 +52,8 @@
 			public var pageIsLoadPoer:Boolean=true;
 			//页面初始化是否加载数据
 			public var pageIsLoadData:Boolean=true;
-			//父窗口
-			public var parentPage:CodeListGridMoudel=null;
+			//父窗口  CodeListGridMoudel
+			public var parentPage:Object=null; 
 			//临时存储方法
 			public var tempFunction:Function=null;
 			//已知代码类型
@@ -86,8 +86,10 @@
 			//分析权限
 			public function loadUserPower():void{
 				//判断读取权限
-				
 				//判断写入权限
+				ASCommonHelper.controlVisible(this.saveAndNewAction,parentPage.newAction.visible);  
+				 ASCommonHelper.controlVisible(this.newAction,parentPage.newAction.visible);
+				ASCommonHelper.controlVisible(this.removeAndCloseAction,parentPage.removeAction.visible);
 			}
 			
 			//初始化页面之后调用

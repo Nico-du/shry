@@ -59,7 +59,7 @@ public class RuleServiceImp extends CommonServiceImp implements RuleService {
 		Users ruleUser = new Users();
 		ruleUser.setMc(ruleVo.getMc());
 		ruleUser.setMm("111111");
-		Long userId = super.saveObject(ruleUser);
+		Long userId = (Long) super.saveObject(ruleUser);
 		Rules rule = new Rules();
 		rule.setYxj(ruleVo.getYxj());
 		List ruleList = super.getObjectList(rule);
@@ -73,7 +73,7 @@ public class RuleServiceImp extends CommonServiceImp implements RuleService {
 		rule.setUserId(userId);
 		rule.setMc(ruleVo.getMc());
 		rule.setBz(ruleVo.getBz());
-		return super.saveObject(rule);
+		return (Long) super.saveObject(rule);
 
 	}
 

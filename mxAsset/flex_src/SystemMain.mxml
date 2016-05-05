@@ -215,11 +215,11 @@
 			<node id="zzgl" label="组织管理" pageUrl="zzgl"/>
 			<node id="jsgl" label="角色管理" pageUrl="rule"/>
 			<node id="dmbgl" label="代码表管理" pageUrl="codelist"/>	
-			<node id="sjtb" label="数据同步" pageUrl="sjtb"/>		
 		</node>
 		</Root>
 	</mx:XML>
 			<!--<node id="lcgl" label="流程管理" pageUrl="lcgl"/>
+			<node id="sjtb" label="数据同步" pageUrl="sjtb"/>		
 			<node id="sjzd" label="固定资产国标" pageUrl="dictionarylist"/>-->
 	
 	<mx:Move id="moveEffect" target="{imgFold}"  xFrom="{menuLeft.width + 5}" xTo="{5}" effectStart="{menuLeft.visible = true;}" effectEnd="moveEffect_effectEndHandler(event)"/>

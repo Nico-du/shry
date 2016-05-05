@@ -319,6 +319,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 
 	
 	/**
+	 *  风叶选型结果的 数据换算
 	 * 获取选型结果曲线数据列表
 	 * @param sSql
 	 * @param jsonObjectIn
@@ -343,8 +344,49 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		return listOut;
 	}
 	
+	/**
+	 * 风叶性能数据图 换算
+	 * 等比利换算
+	 * 根据转速变换 取其他性能参数
+	 * @param sSql
+	 * @param hsbl 换算比利，%数
+	 * @return
+	 */
+	public List<ShryFyxnData> getFYXNChartList(String sSql,String fyid,Double hsbl){
+		ShryFyData fyObj =  (ShryFyData) commonDao.getObjectByExample(new ShryFyData(), " fyid = '"+fyid+"'").get(0);
+		List<ShryFyxnData> rstList = (List<ShryFyxnData>) commonDao.RunSelectClassBySql(sSql,"net.chinanets.pojos.ShryFyxnData");	
+		List<ShryFyxnData> listOut = new ArrayList<ShryFyxnData>();
+		
+		double dhsbl = hsbl/100;
+		if(dhsbl == 1){return rstList;}
+		String djy,dll,dzs,dgl;
+		djy = dll = dzs = dgl = "";
+		for(ShryFyxnData each : rstList){
+			dzs = (Double.parseDouble(each.getZzs())*dhsbl)+"";
+			
+			djy = translatePressure(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()), 
+					Double.parseDouble(each.getJyl()), Double.parseDouble(each.getZzs())*dhsbl, 
+					Double.parseDouble(fyObj.getDlhzj()) ) +"";
+			
+			double eachLl = translateQuantity(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()),
+					Double.parseDouble(each.getLl()), Double.parseDouble(each.getZzs())*dhsbl,
+					Double.parseDouble(fyObj.getDlhzj()));
+			dll = eachLl<0 ? "0" :  (eachLl+"") ;
+			
+			dgl = translatePower(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()), 
+					Double.parseDouble(each.getZgl()), Double.parseDouble(each.getZzs())*dhsbl, 
+					Double.parseDouble(fyObj.getDlhzj())) +"";
+			
+			each.setZzs(dzs); each.setJyl(djy); each.setLl(dll); each.setZgl(dgl);
+			
+			listOut.add(each);
+		}
+		return listOut;
+	}
+	
+	
 /**
- * 数据换算
+ *NOT USED
  * @param jsonArrayStrIn
  * @param  type 转换类型 JL：静压/流量转换
  * @return

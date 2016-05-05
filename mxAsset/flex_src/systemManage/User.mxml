@@ -90,11 +90,11 @@
 			}
 			//查询
 			protected function searchUser():void {
-				var column:String = searchCob.selectedItem.@name;
+				var column:String = "this_."+searchCob.selectedItem.@name;
 				var value:String = searchText.text;
 				var ps:Number = pagination.pageSize;
 				
-				if(column == "js") {//如果是按角色查询
+				if(column == "this_.js") {//如果是按角色查询
 					pagination.condition = "js=" + value;
 					pagination.getPage(ps,1);
 				}else if(value != ""){
@@ -115,7 +115,7 @@
 							break;
 						}   
 						if (dataGrid.dataProvider.getItemAt(i).selected) {
-							var id:int = int(dataGrid.dataProvider.getItemAt(i).id);
+							var id:Number = Number(dataGrid.dataProvider.getItemAt(i).id);
 							idArray.push(id);
 							dataGrid.dataProvider.removeItemAt(i);   
 							dataGrid.dataProvider.refresh();   
@@ -495,7 +495,7 @@
 			<mx:DataGridColumn headerText="用户帐号" dataField="mc" id="usermc"/>
 			<mx:DataGridColumn headerText="姓名" dataField="userName" sortable="true" sortCompareFunction="sortuserName" />
 			<mx:DataGridColumn headerText="部门" dataField="deptName" labelFunction="deptLabelFunction"  sortable="true" sortCompareFunction="srotdeptName" />
-			<mx:DataGridColumn headerText="职位" dataField="zwmc"  sortable="true" />
+			<mx:DataGridColumn headerText="职位" dataField="zwmc"  sortable="true" visible="false" />
 			<mx:DataGridColumn headerText="所属角色" dataField="ruleName" sortable="true" sortCompareFunction="srotruleName"  />
 		</mx:columns>
 	</mx:DataGrid>

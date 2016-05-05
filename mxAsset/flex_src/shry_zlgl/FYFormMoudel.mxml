@@ -6,6 +6,7 @@
 				xmlns:numberInput="cn.cnspagemoduel.textinput.*"  xmlns:shryChart="cn.cnspagemoduel.chartline.*" >
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="chartService" destination="chartService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script source="../flex/util/InitBGDJForms.as"/>
 	<mx:Script source="../flex/util/LoadPagePics.as"/>
 	<mx:Style>
@@ -464,16 +465,7 @@
 			/**
 			 * 获取图标信息
 			 * */
-			public function getChartDataAndAddChart():void{
-				/* var sClassPath = "";
-				var idColumn:String = "";
-				if(tempObjBeanName.toUpperCase() == "SHRY_FY_DATA"){
-					sClassPath = "net.chinanets.pojos.ShryFyxnData";
-					idColumn = "fyid";
-				}else if(tempObjBeanName.toUpperCase() == "SHRY_ZC_DATA"){
-					sClassPath = "net.chinanets.pojos.ShryZcxnData";
-					idColumn = "zcid";
-				} */
+			public function getChartDataAndAddChart(hsbl:Number=100):void{
 				if(CommonMethod.isNullOrWhitespace(dataId)){
 					Alert.show("曲线表关联的表字段数据为空！",CommonXMLData.Alert_Title);
 					return;
@@ -481,13 +473,14 @@
 				var sSql:String = "select * from SHRY_FYXN_DATA where fyid = '"+dataId+"' order by (ll+0) asc";
 				
 				
-				AllAssetServiceRmt.RunSelectClassBySql(sSql,"net.chinanets.pojos.ShryFyxnData");
-				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,resultBack);
+				chartService.getFYXNChartList(sSql,dataId,hsbl);  
+				chartService.addEventListener(ResultEvent.RESULT,resultBack);
 			}
 			private function resultBack(event:ResultEvent):void {
-				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,resultBack);
+				chartService.removeEventListener(ResultEvent.RESULT,resultBack);
 				if(event.result == null)return;
 				//添加多曲线
+				chartMultiPanel.removeAllChildren();
 				var objList:ArrayCollection = event.result as ArrayCollection;
 				var multiChart:LinueChartMultiModel = new LinueChartMultiModel();
 				multiChart.modelTitle="风叶流量—静压/输入功率/扭矩/效率曲线图";  multiChart.xAxisTitle="流量(m^3/h)"; multiChart.xToolTipTiltle="流量";
@@ -498,6 +491,7 @@
 				chartMultiPanel.addChild(multiChart);
 				
 				//添加单曲线
+				chartPanel.removeAllChildren();
 				var lineChart1:LinueChartModel = new LinueChartModel();
 				lineChart1.modelTitle="风叶流量—效率曲线图"; lineChart1.height=this.height - 140; 
 				lineChart1._xField = "ll"; lineChart1._yField = "xl";
@@ -547,19 +541,25 @@
 				}
 				if(datumFormTabNV.selectedIndex == 1){
 					datumFormTabNV.height = (this.height - 80);
-					if(chartMultiPanel.getChildren().length < 1){getChartDataAndAddChart();}
+					if(chartMultiPanel.getChildren().length < 1){
+						nvPage2.setChildIndex(hsHbox,0);
+						getChartDataAndAddChart();}
 				}else{
 					datumFormTabNV.height = datumFormTabNVPHeight;
 				}
 			}
 			
+
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				var shsbl:String = hsblinput.text;
+				if(Number(shsbl) > 1000 || Number(shsbl) < 0 ){ Alert.show("换算比例必须在0~1000之间！",CommonXMLData.Alert_Title); return; }
+				getChartDataAndAddChart(Number(shsbl));
+			}
+
 		]]>
 	</mx:Script>
-	<mx:HBox x="300" y="85" id="hsBox" visible="true">
-		<mx:Label text="换算比利(%):" paddingTop="2"/>
-		<numberInput:NumberTextInput width="80"/>
-		<mx:LinkButton label="换算"/>
-	</mx:HBox>
+	
 	<mx:Fade id="fadeEffect" target="{resultmsg}" alphaFrom="1"  alphaTo="0" duration="10000"/>
 	<mx:VBox id="editForm" borderStyle="none" width="100%"  height="100%" horizontalAlign="center"
 			 horizontalGap="0" verticalGap="2" paddingTop="2" paddingLeft="2" paddingBottom="2" paddingRight="2">
@@ -766,8 +766,19 @@
 							</mx:Grid>
 						</mx:VBox>
 					</mx:Canvas>
-					<mx:Panel id="nvPage2" label="性能图" width="100%"  borderStyle="none" headerHeight="0" 
+					<mx:Panel id="nvPage2" label="性能图" width="100%"  borderStyle="none" headerHeight="0" layout="absolute"
 							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
+						<!--<mx:HBox x="300" y="85" id="hsBox" visible="true">
+							<mx:Label paddingTop="2" text="当前转速"/><mx:TextInput width="50" id="dqzsinput" editable="false"/><mx:Label paddingTop="2" text="rpm"/>
+							<mx:Label paddingTop="2" paddingLeft="20" text="换算到"/><mx:TextInput width="50" id="hsinput"/><mx:Label paddingTop="2" text="rpm"/>
+							<mx:Button paddingLeft="5" label="转换" click="button1_clickHandler(event)"/>
+						</mx:HBox>-->
+						<mx:HBox horizontalGap="2" x="250" y="3" id="hsHbox">
+							<mx:Label text="换算比例(%):" paddingTop="2"/>
+							<numberInput:NumberTextInput width="60" id="hsblinput" text="100"/>
+							<mx:LinkButton label="换算" click="button1_clickHandler(event)"/>
+							<mx:Label paddingLeft="10" text="(不换算扭矩与效率)" paddingTop="2"/>
+						</mx:HBox>
 						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none" horizontalAlign="left">
 							<mx:LinkBar dataProvider="{blogModel}"  styleName="LinkBarStyle01"/>
 							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 140}">

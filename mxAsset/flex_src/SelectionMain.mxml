@@ -19,18 +19,19 @@
 			import mx.managers.PopUpManager;
 			
 			import shry_xxgl.FYXXFormMoudel;
+			import shry_xxgl.ParamListGridMoudel;
 			
 			
 			//菜单数据
 			public var menuTreeDate:XML=null;
 			//保存实例化的对象
 			private var modelMap:Dictionary=null;
-			//相关资料
+			//风叶选型
 			private var FYXX:String="FYXXPage";
-			//供应商
+			//历史记录
 			private var LSJL:String="LSJLPage";
-			//运维人员
-			private var PEOPLE:String="PeoplePage";
+			//参数设置
+			private var CSSZ:String="CSSZPage";
 			
 			
 			//初始化页面
@@ -123,6 +124,8 @@
 				var tempMoudel:*=null;
 				if(ASStringHelper.stringCompare(this.FYXX,strpageurl,true)==0){
 					tempMoudel=new FYXXFormMoudel();
+				}else if(ASStringHelper.stringCompare(this.CSSZ,strpageurl,true)==0){
+					tempMoudel=new ParamListGridMoudel();
 				}/*else if(ASStringHelper.stringCompare(this.SUPPLIER,strpageurl,true)==0){
 					tempMoudel=new ServiceList();
 					tempMoudel.pageType="供应商";
@@ -223,12 +226,12 @@
 			<item id="bbtj" label="选型操作">
 				<node id="FYXX" label="风叶选型" pageUrl="FYXXPage"/>
 			</item>	
-			<item id="xxhfw" label="历史数据">
-				<node id="LSJL" label="选型历史" pageUrl="LSJLPage"/>
+			<item id="xxhfw" label="选型数据">
 				<node id="CSSZ" label="参数设置" pageUrl="CSSZPage"/>
 			</item>	
 		</root>
 	</mx:XML>
+				<!--<node id="LSJL" label="选型历史" pageUrl="LSJLPage"/>-->
 		<!--<node id="grrc" label="个人日程" pageUrl=""/>
 	    <node id="CompactPage" label="合同管理" pageUrl="CompactPage"/>
 		<node id="xgzl" label="相关资料" pageUrl="aboutdatum"/>

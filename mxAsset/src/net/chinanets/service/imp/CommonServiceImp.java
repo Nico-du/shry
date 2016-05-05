@@ -62,8 +62,8 @@ public class CommonServiceImp implements CommonService {
 	 * @param obj
 	 * @return
 	 */
-	public Long saveObject(Object obj) {
-		return (Long) commonDao.save(obj);
+	public Serializable saveObject(Object obj) {
+		return  commonDao.save(obj);
 	}
 	
 	/***

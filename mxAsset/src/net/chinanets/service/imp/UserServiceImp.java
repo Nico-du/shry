@@ -176,14 +176,17 @@ public class UserServiceImp extends CommonServiceImp implements UserService {
 			UserVo first = (UserVo)list.get(i);
 			if("admin".equals(first.getMc())) {
 				list.remove(first);
+				i--;
 			}
-			for(int j = i + 1; j < list.size(); j++) {
+/*			for(int j = i + 1; j < list.size(); j++) {
 				UserVo second = (UserVo)list.get(j);
+				if(second == null){list.remove(j); continue; }
 				if(first.getMc().equals(second.getMc())) {
 //					distinctList.add(first);
 					list.remove(second);
+					j--;
 				}
-			}
+			}*/
 		}
 		return list;
 	}
@@ -676,7 +679,7 @@ public class UserServiceImp extends CommonServiceImp implements UserService {
 				user.getDepts().add(rule);
 			}
 		}
-		Long userId = super.saveObject(user);
+		Long userId = (Long) super.saveObject(user);
 		//TODO 添加  复制默认权限到users_menus --
 		List usersMenus = super.getObjectList(new UsersMenus(), " 1=1 and USER_ID="+ruleUserId);
 		UsersMenus um;

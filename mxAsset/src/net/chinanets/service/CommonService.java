@@ -11,7 +11,7 @@ public interface CommonService {
 	 * @param obj
 	 * @return
 	 */
-	public Long saveObject(Object obj);
+	public Serializable saveObject(Object obj);
 	
 	/***
 	 * 删除对象

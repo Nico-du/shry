@@ -23,8 +23,17 @@ public interface ChartService {
 	 */
 	public String translateData(String jsonArrayStrIn,String jsonObjectIn,String type);
 	
-	
+	/**
+	 * 风叶选型结果的 数据换算
+	 * 获取选型结果曲线数据列表
+	 */
 	public List<ShryFyxnData> getXXJGChartList(String sSql,String jsonObjectIn);
+	
+	/**
+	 * 风叶性能数据图 换算
+	 * 等比利换算
+	 */
+	public List<ShryFyxnData> getFYXNChartList(String sSql,String fyid,Double hsbl);
 	///主页homeModel的方法
 	/**
 	 * 获取我的任务
