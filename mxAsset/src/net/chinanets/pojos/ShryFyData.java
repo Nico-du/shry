@@ -11,6 +11,10 @@ public class ShryFyData implements java.io.Serializable {
 
 	// Fields
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Long fyid;
 	private String xh;
 	private String pp;

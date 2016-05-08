@@ -56,7 +56,7 @@
 				commonService.removeEventListener(ResultEvent.RESULT,initBack);
 			}
 			private var objNr:String = "";
-        public function deleteFile(obj:Object):void{
+        public function downloadFile(obj:Object):void{
 			objNr = obj.docNr;
 			documentService.isFileExist(obj.docNr);
 			documentService.addEventListener(ResultEvent.RESULT,getFileExist);
@@ -81,7 +81,7 @@
 			<mx:DataGridColumn headerText="下载" width="45">
 				<mx:itemRenderer>
 					<mx:Component>
-						<mx:Button  icon="@Embed(source='images/xia.png')" click="this.parentDocument.deleteFile(data)"/>
+						<mx:Button  icon="@Embed(source='images/xia.png')" click="this.parentDocument.downloadFile(data)"/>
 					</mx:Component>
 				</mx:itemRenderer>
 				</mx:DataGridColumn>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="closePage()" 
-			initialize="initializeHandler(event)"	layout="absolute" width="460" height="340" showCloseButton="true" title="修改附件">
+			initialize="initializeHandler(event)"	layout="absolute" width="560" height="440" showCloseButton="true" title="修改附件">
 	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" 
 					 showBusyCursor="true"/>
 	<mx:RemoteObject id="documentService" destination="documentService"  endpoint="/mxAsset/messagebroker/amf" 
@@ -68,7 +68,7 @@
 			{   
 				// uploadFile= new FileReference();
 				uploadFileList = new FileReferenceList();
-				var imagesFilter:FileFilter = new FileFilter("图片类型(*.jpg;*.gif;*.png;*.bmp)", "*.jpg;*.gif;*.png;*.bmp");
+				var imagesFilter:FileFilter = new FileFilter("图片类型(*.jpg;*.jpeg;*.gif;*.png;*.bmp)", "*.jpg;*.jpeg;*.gif;*.png;*.bmp");
 				var docFilter:FileFilter = new FileFilter("文档类型(*.pdf;*.doc;*.docx;*.txt;*.xls;*.xlsx;)", "*.pdf;*.doc;*.docx;*.txt;*.xls;*.xlsx;");
 				var fileFilter:FileFilter = new FileFilter("文件类型(*.*;)", "*.*;");
 				uploadFileList.addEventListener(Event.SELECT,selectHandler);
@@ -185,15 +185,38 @@
 						documentService.addEventListener(ResultEvent.RESULT,deleteBack);
 				}
 			}
+			
+			private var objNr:String = "";
+			public function downloadFile(obj:Object):void{
+				objNr = obj.filepath;
+				documentService.isFileExist(objNr);
+				documentService.addEventListener(ResultEvent.RESULT,getFileExist);
+			}
+			private function getFileExist(evt:ResultEvent):void{
+				documentService.removeEventListener(ResultEvent.RESULT,getFileExist);
+				if(evt.result+"" == "true"){
+					CommonMethod.downloadExcel(encodeURI("sysArgFiles/"+objNr));
+				}else{
+					Alert.show(CommonXMLData.Alert_Alter_NotExistFile,CommonXMLData.Alert_Title);
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:Button x="10" y="10" label="选择文件" width="98" click="select()"/>
-	<mx:DataGrid x="10" y="40" width="422" dataProvider="{existedFiles}" height="247">
+	<mx:DataGrid x="10" y="40" width="522" dataProvider="{existedFiles}" height="347">
 		<mx:columns>
 			<mx:DataGridColumn headerText="文件名称" dataField="filename"/>
 			<mx:DataGridColumn headerText="类型" dataField="filetype"/>
 			<mx:DataGridColumn headerText="大小(byte)" dataField="filesize"/>
 			<mx:DataGridColumn headerText="上传日期" dataField="uploaddate"/>
+			<mx:DataGridColumn headerText="下载" width="45">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:Button  icon="@Embed(source='images/xia.png')" click="this.parentDocument.downloadFile(data)"/>
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
 			<mx:DataGridColumn headerText="删除" width="45">
 				<mx:itemRenderer>
 					<mx:Component>

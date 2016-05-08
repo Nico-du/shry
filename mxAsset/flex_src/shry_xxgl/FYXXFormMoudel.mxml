@@ -6,6 +6,7 @@
 				xmlns:numberInput="cn.cnspagemoduel.textinput.*"  xmlns:shryChart="cn.cnspagemoduel.chartline.*" xmlns:commonpages="com.commonpages.*" >
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:RemoteObject id="chartService" destination="chartService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script source="../systemManage/initAllAssetRule.as"/> 
 	<mx:Script>
 		<![CDATA[
 			import asset_bfdj.ProcessMethods;

@@ -171,4 +171,17 @@ public interface CommonDao {
 	 * 原始数据SQL增删改执行方法
 	 **/
 	public boolean RunUpdateBySQL(String strSQL,Object[] params);
+	
+	/**
+	 * hibernate QBC 查询
+	 * 通过型号查询
+	 */
+	public  List getInfoById (String xh,Object obj);
+	
+	/**
+	 * 使用hql查询
+	 */
+	
+	public List getInfoByHql(String sql,Object obj);
+	
 }

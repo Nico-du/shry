@@ -144,6 +144,10 @@
 						return;
 				}
 				mapImg.source  = CommonXMLData.UploadFile_BasePath + filePath;
+				mapImg.height = mainCanvas.height * 0.95;
+				 mapImg.width = mainCanvas.width * 0.95;
+				mapImg.x=(this.width - mapImg.width)/2 ; 
+			    mapImg.y=(this.height - mapImg.height)/2 - 30;
 				mapImg.validateNow();
 			}
 			
@@ -163,8 +167,8 @@
 	<mx:LinkButton id="resetBtn" icon="@Embed(source='images/formtoolbar/close.gif')" label="关闭" click="closeWd()" />
 	</mx:HBox> 
 		<ns:ImgMagnifier id="mainCanvas" showbigGlass="false" width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-		<mx:Image id="mapImg"   mouseOver="{Mouse.cursor = MouseCursor.HAND;}" mouseOut="{Mouse.cursor = MouseCursor.AUTO;}" 
-				  x="{ (this.width - mapImg.width)/2 }" y="{(this.height-mapImg.height)/2 - 30}"/>
+		<mx:Image id="mapImg"   mouseOver="{Mouse.cursor = MouseCursor.HAND;}" mouseOut="{Mouse.cursor = MouseCursor.AUTO;}"  
+				 /> <!-- x="{ (this.width - mapImg.width)/2 }" y="{(this.height-mapImg.height)/2 - 30}"-->
 		</ns:ImgMagnifier>
 	<!--	<mx:Image id="mapImg" source="@Embed(source='images/ShanghaiMetroMap.png')"  source="images/ShanghaiMetroMap.png"-->
 </mx:TitleWindow>

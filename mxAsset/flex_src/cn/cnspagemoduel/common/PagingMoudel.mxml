@@ -43,7 +43,7 @@
 			/**
 			 *是否自动判断宽度不够 分页工具条自动换行 
 			 **/
-			public var isValidateSecondLine:Boolean = true;
+			public var isValidateSecondLine:Boolean = false;
 			/**
 			 *初始化信息 
 			 */

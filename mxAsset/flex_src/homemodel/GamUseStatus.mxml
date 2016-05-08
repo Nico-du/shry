@@ -9,15 +9,20 @@
 			import mx.core.FlexGlobals;
 			import mx.events.FlexEvent;
 			private function buttonSelectClick(event:Event):void{
-				FlexGlobals.topLevelApplication.mainPage.AssetPage.shouldSetTreeIndex = true;
-				FlexGlobals.topLevelApplication.mainPage.AssetPage.defaultAssetWFTreeIndex = -2;//判断是否为快捷按钮
-				FlexGlobals.topLevelApplication.mainPage.AssetPage.defaultMenuID = event.currentTarget.id;
-				FlexGlobals.topLevelApplication.mainPage.AssetPage.modelMap["203"] = null;
-				FlexGlobals.topLevelApplication.mainPage.AssetPage.modelMap["204"] = null;
-				FlexGlobals.topLevelApplication.mainPage.AssetPage.modelMap["206"] = null;
-				FlexGlobals.topLevelApplication.mainPage.menuItemClickAsset();
-				var assetMainWd:DataAssetMain = FlexGlobals.topLevelApplication.mainPage.DataAssetPage;
-				assetMainWd.resetCurrentGridPage(event.currentTarget.id,true);
+				FlexGlobals.topLevelApplication.mainPage.DataAssetPage.shouldSetTreeIndex = true;
+				FlexGlobals.topLevelApplication.mainPage.DataAssetPage.defaultAssetWFTreeIndex = -2;//判断是否为快捷按钮
+				FlexGlobals.topLevelApplication.mainPage.DataAssetPage.defaultMenuID = event.currentTarget.id;
+				var menuId:String = "DataAsset";
+				if(event.currentTarget.id == "xxcz_fyxx"){
+					menuId = "SelectionMain";
+					FlexGlobals.topLevelApplication.mainPage.menuItemClickAsset(menuId);
+					FlexGlobals.topLevelApplication.mainPage.SelectionMainPage.menutree.selectedIndex = 1;
+					FlexGlobals.topLevelApplication.mainPage.SelectionMainPage.treeSelectClick();
+				}else{
+					FlexGlobals.topLevelApplication.mainPage.menuItemClickAsset(menuId);
+					var assetMainWd:DataAssetMain = FlexGlobals.topLevelApplication.mainPage.DataAssetPage;
+					assetMainWd.resetCurrentGridPage(event.currentTarget.id,true);
+				}
 			}
 			
 
@@ -25,7 +30,7 @@
 			{
 				var ruleId:String = Application.application.userVo.ruleId;
 				if(ruleId=="42" || ruleId=="43" || ruleId=="45" ){
-					mainTile.removeChild(smzq_rkdj);
+				//	mainTile.removeChild(smzq_rkdj);
 				}
 			}
 
@@ -36,11 +41,11 @@
 			<mx:Label text="快捷菜单" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13"/>
 		</mx:HBox> 
 		<mx:Tile id="mainTile" width="100%" height="100%" paddingTop="20" paddingLeft="20" borderStyle="none" horizontalAlign="center" horizontalGap="10" verticalAlign="top" verticalGap="0">
-			<mycoms:ImageCanvas id="smzq_rkdj" txt="风叶选型" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_rk_img.gif"/>
-			<mycoms:ImageCanvas id="smzq_lysq" txt="风叶查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_ly_img.gif"/>
-			<mycoms:ImageCanvas id="smzq_tksq" txt="电机查询"  click="buttonSelectClick(event)" width="100" height="100" imgname="sy_tk_img.gif"/>
-			<mycoms:ImageCanvas id="smzq_wxdj" txt="曲线图生成" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_wx_img.gif"/>
-			<mycoms:ImageCanvas id="smzq_bfsq" txt="图表下载" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_bf_img.gif"/>
+			<mycoms:ImageCanvas id="xxcz_fyxx" txt="风叶选型" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_rk_img.gif"/>
+			<mycoms:ImageCanvas id="zlgl_fysj" txt="风叶查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_ly_img.gif"/>
+			<mycoms:ImageCanvas id="zlgl_zcsj" txt="总成查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_wx_img.gif"/>
+			<mycoms:ImageCanvas id="zlgl_djsj" txt="电机查询"  click="buttonSelectClick(event)" width="100" height="100" imgname="sy_tk_img.gif"/>
+			<mycoms:ImageCanvas id="xncs_sydsj" txt="试验单查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_bf_img.gif"/>
 			<!--添加图例，也就是说明图形的某个线条的颜色和作用的实例-->
 		</mx:Tile>
 	</mx:VBox>

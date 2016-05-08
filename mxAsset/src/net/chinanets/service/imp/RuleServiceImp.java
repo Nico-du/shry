@@ -240,10 +240,9 @@ public class RuleServiceImp extends CommonServiceImp implements RuleService {
 		root.addAttribute("isSelect", "1");
 		Users user = (Users) super.getObjectById(new Users(), userid);
 		if(user == null) return null;
-		root = getUserMenuPart(document,root,user,"wzgl","物资管理");
-		root = getUserMenuPart(document,root,user,"hwgl","会务管理");
-		root = getUserMenuPart(document,root,user,"clgl","车辆管理");
-		root = getUserMenuPart(document,root,user,"rcfw","日常服务");
+		root = getUserMenuPart(document,root,user,"zlgl","资料管理");
+		root = getUserMenuPart(document,root,user,"xxgl","选型管理");
+//		root = getUserMenuPart(document,root,user,"rcfw","日常服务");
 		root = getUserMenuPart(document,root,user,"xtfw","系统服务");
 		
 		ChinaNetsUtil.writXml(document);

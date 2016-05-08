@@ -120,7 +120,7 @@ public class ClobServlet extends HttpServlet {
 					String time=format.format(date);
 					
 					Hanzi2Pinyin hanziPinyin = new Hanzi2Pinyin();
-					value = hanziPinyin.getPinYin(value);
+					value = java.net.URLEncoder.encode(hanziPinyin.getPinYin(value));//转意中文和特殊字符 下载使用URL下载，需要进行URL转意
 					String docNr=time+value;
 					//写入文件
 					//float l=item.getSize()/1024;

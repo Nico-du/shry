@@ -52,6 +52,8 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
+			import systemManage.EditUserPwd;
+			
 		//	import systemManage.EditUserPwd;
 			
 			//保存用户对象
@@ -113,13 +115,15 @@
 					SelectionMainPage.menuTreeDate = SelectionMainPage.serviceMainXml;
 					ServiceMainPage.menuTreeDate = ServiceMainPage.serviceMainXml;
 					SystemMainPage.menuTreeDate = SystemMainPage.systemMainXml;
+					DataAssetPage.menuTreeDate = DataAssetPage.serviceMainXml;
+					DataAssetPage.beforeInitPage();
 					SelectionMainPage.beforeInitPage();
 					ServiceMainPage.beforeInitPage();
 					SystemMainPage.beforeInitPage();
 					return;
 				}
-				userService.getUserStructureMenu(FlexGlobals.topLevelApplication.userVo.id,"hwgl");
-				userService.getUserStructureMenu(FlexGlobals.topLevelApplication.userVo.id,"rcfw");
+				userService.getUserStructureMenu(FlexGlobals.topLevelApplication.userVo.id,"xxgl");
+				userService.getUserStructureMenu(FlexGlobals.topLevelApplication.userVo.id,"zlgl");
 				userService.getUserStructureMenu(FlexGlobals.topLevelApplication.userVo.id,"xtfw");
 				userService.addEventListener(ResultEvent.RESULT,getUserStructureMenuBack);
 			}
@@ -134,9 +138,9 @@
 						SelectionMainPage.beforeInitPage();
 						break;
 					case 1:
-						if(rstXML.children().length() < 1){this.removeWindowMenuBar("ServiceMain"); break;}
-						ServiceMainPage.menuTreeDate = rstXML;
-						ServiceMainPage.beforeInitPage();
+						if(rstXML.children().length() < 1){this.removeWindowMenuBar("DataAsset"); break;}
+						DataAssetPage.menuTreeDate = rstXML;
+						DataAssetPage.beforeInitPage();
 						break;
 					case 2:
 						if(rstXML.children().length() < 1){this.removeWindowMenuBar("SystemMain"); break;}
@@ -179,15 +183,15 @@
 			}
 			
 			//选中Asset
-			public function menuItemClickAsset():void{
-				menuItemClick(null);
+			public function menuItemClickAsset(targetBtn:String="DataAsset"):void{
+				menuItemClick(null,targetBtn);
 			}
 			//菜单按钮添加触发事件
-			protected function menuItemClick(tempEvent:MouseEvent):void{
+			protected function menuItemClick(tempEvent:MouseEvent,menuid:String=null):void{
 				var tempLinkButton:LinkButton=null;
 				if(tempEvent == null){
 					for(var i:int =0;i<mainWindowMenuBar.getChildren().length;i++){
-						if(mainWindowMenuBar.getChildren()[i].id == "DataAsset"){
+						if(mainWindowMenuBar.getChildren()[i].id == menuid){
 							tempLinkButton = mainWindowMenuBar.getChildren()[i] as LinkButton;
 						}
 					}
@@ -198,7 +202,7 @@
 						
 				}
 				
-				var menuid:String=tempLinkButton.id;
+				if(menuid == null){menuid=tempLinkButton.id; }
 				var shoutmenuid:String=menuid+tempShoutId;
 				if(this[shoutmenuid]!=null){
 					this.mainWindowStack.selectedChild=this[shoutmenuid];
@@ -209,6 +213,7 @@
 					} else if(menuid == "SelectionMain"){
 						this[shoutmenuid].treeSelectClick();
 					} else if(menuid == "DataAsset"){
+						this[shoutmenuid].treeSelectClick();
 			//		if(FlexGlobals.topLevelApplication.mainPage.DataAssetPage.defaultAssetWFTreeIndex != -2){ this[shoutmenuid].setDefaultPage();}
 					}  
 				}
@@ -236,13 +241,13 @@
 					return;
 				}
 				
-				/*var editPwd:EditUserPwd = CommonMethod.pageCacheObj.editUserPwdPage;
+				var editPwd:EditUserPwd = CommonMethod.pageCacheObj.editUserPwdPage;
 				if(editPwd == null){
 					editPwd = new EditUserPwd();
 					CommonMethod.pageCacheObj.editUserPwdPage = editPwd;
 				}
 				PopUpManager.addPopUp(editPwd,this.parentApplication as DisplayObject,true);
-				PopUpManager.centerPopUp(editPwd);*/
+				PopUpManager.centerPopUp(editPwd);
 			}
 			//注销页面
 			protected function logoutAction():void{
@@ -285,7 +290,6 @@
 			<nsone:HomeModel id="HomeModelPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
 			<nsone:DataAssetMain id="DataAssetPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
 			<nsone:SelectionMain id="SelectionMainPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
-			<nsone:CarMain id="AssetCarPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
 			<nsone:ServiceMain id="ServiceMainPage" showEffect="WipeRight" hideEffect="WipeLeft"/>
 			
 			<nsone:SystemMain id="SystemMainPage" showEffect="WipeRight" hideEffect="WipeLeft"/>

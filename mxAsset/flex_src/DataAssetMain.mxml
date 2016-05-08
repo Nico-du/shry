@@ -46,8 +46,10 @@
 			//试验单
 			private var SYD:String="SYDPage";
 			
+			public var defaultTreeIndex:int = 1;//跳转到的菜单
+			public var defaultMenuID:String = "";//跳转到的菜单
 			public var defaultAssetWFTreeIndex:int = -1;
-			
+			public var shouldSetTreeIndex:Boolean = false;
 			//初始化页面
 			public function initPage():void{
 				modelMap=new Dictionary();
@@ -63,7 +65,7 @@
 					delete serviceMainXml.item[1].node[2];
 					delete serviceMainXml.item[1].node[0];
 				}*/
-				this.menuTreeDate=this.serviceMainXml; 
+		//		this.menuTreeDate=this.serviceMainXml; 
 				this.menutree.dataProvider=menuTreeDate;
 				this.menutree.callLater(expandTree);
 				
@@ -237,21 +239,24 @@
 			
 			//自动切换Grid页面
 			public function resetCurrentGridPage(curBtnId:String,isShowNewPage:Boolean = false,menuId:String=null):void{
-			/* 	var btnId:String="";
+			 	var btnId:String="";
 				if(menuId != null){
 					btnId = menuId;
 				}else{
 					btnId = curBtnId;	
 				}
 				
-				setBtnState(btnId);
+			//	setBtnState(btnId);
 				
-				var selectItem:XML=getSelectItem(btnId);
-				if(defaultAssetWFTreeIndex == -2){//快捷按钮事件判断
+	//			var selectItem:XML=getSelectItem(btnId);
+				var selectItem:int=getSelectItemIndex(btnId);
+				this.menutree.selectedIndex = selectItem;
+				treeSelectClick();
+				/* if(defaultAssetWFTreeIndex == -2){//快捷按钮事件判断
 					isShowNewPage = true;
 					defaultAssetWFTreeIndex = 1;
 				}
-				if("smzq_kcxx" == btnId){isShowNewPage=false;}
+				isShowNewPage=false;
 				var strid:String = selectItem.@id;
 				var tmpWd:Object = this.modelMap[strid];
 				var isNewPage:Boolean = (tmpWd == null);
@@ -262,15 +267,52 @@
 				if(tempContent==null){
 					return;
 				}
-				this.managerStack.selectedChild=tempContent as INavigatorContent;
-				if(isShowNewPage){
+				this.managerStack.selectedChild=tempContent as INavigatorContent; */
+				/* if(isShowNewPage){
 					if(!isNewPage){
 						tempContent.newActionClick();
 					}else{
 						tempContent.isShowNewPage = isShowNewPage;
 					}
-				} */
+				}  */
 			}
+			//获取指定的selectItem
+			private function getSelectItemIndex(menuid:String):int{
+				var selectItem:XML=null;
+				var selectIndex:int = -1;
+				switch(menuid){
+					case "xxcz_fyxx": selectIndex= -1;  selectItem= <node id="1101" label="风叶选型" url="xxcz_fyxx" pageUrl="FYXXPage"/>; break;
+					case "zlgl_zcsj": selectIndex= 1;  selectItem= <node id="201" label="总成数据" url="zlgl_zcsj" pageUrl="ZCPage"/>; break;
+					case "zlgl_fysj": selectIndex= 2;  selectItem= <node id="202" label="风叶数据" url="zlgl_fysj" pageUrl="FYPage"/>; break;
+					case "zlgl_djsj": selectIndex= 3;  selectItem= <node id="203" label="电机数据" url="zlgl_djsj" pageUrl="DJPage"/>; break;
+					case "xncs_sydsj": selectIndex= 5;  selectItem= <node id="301" label="试验单数据" url="xncs_sydsj" pageUrl="SYDPage"/>; break;
+					case "xncs_zcxn": selectIndex= 6;  selectItem= <node id="302" label="总成性能" url="xncs_zcxn" pageUrl="ZCXNPage"/>; break;
+					case "xncs_fyxn": selectIndex= 7;  selectItem= <node id="303" label="风叶性能" url="xncs_fyxn" pageUrl="FYXNPage"/>; break;
+				}
+				return selectIndex;
+			}
+			//设置按钮状态
+			/* private function setBtnState(btnid:String):void{
+				var comArray:Array = toolBar.getChildren();
+				comArray.push(smzq_rkdj);
+				comArray.push(smzq_kcxx);
+				
+				for each(var obj:Object in comArray){
+					if(obj.id == btnid){
+						obj.enabled = false;
+					}else{
+						obj.enabled = true;
+					}
+				}
+				
+				if(menuLeft.includeInLayout && menuLeft.visible && menuLeft.parent != null){
+					if(btnid != "menuTree"){ menutree.selectedIndex = 0; }
+					if(btnid != "dicAssetTree"){ dicAssetTree.selectedIndex = 0; }
+					if(btnid != "dicSearchAssetTree" &&　(dicSearchAssetTree.dataProvider as ArrayCollection) != null
+						&& (dicSearchAssetTree.dataProvider as ArrayCollection).length > 0){ dicSearchAssetTree.selectedIndex = 0; }
+				}
+				
+			} */
 			
 			public function getCurrentDicids(selectItem:XML):String{
 				var tempObj:Object = getDICModelBySelect(selectItem);
@@ -282,17 +324,24 @@
 	<mx:XML id="serviceMainXml">
 		<root>
 			<item id="jbfw" label="风扇参数">
-			    <node id="ZCPage" label="总成数据" pageUrl="ZCPage"/>
-				<node id="FYPage" label="风叶数据" pageUrl="FYPage"/>
-				<node id="DJPage" label="电机数据" pageUrl="DJPage"/>
+				<node id="201" label="总成数据" url="zlgl_zcsj" pageUrl="ZCPage" />
+				<node id="202" label="风叶数据" url="zlgl_fysj" pageUrl="FYPage"/>
+				<node id="203" label="电机数据" url="zlgl_djsj" pageUrl="DJPage" />
 			</item>
 			<item id="bmfw" label="性能数据">
-				<node id="SYDPage" label="试验单数据" pageUrl="SYDPage"/>
-				<node id="ZCXNPage" label="总成性能" pageUrl="ZCXNPage"/>
-				<node id="FYXNPage" label="风叶性能" pageUrl="FYXNPage"/>
+				<node id="301" label="试验单数据" url="xncs_sydsj" pageUrl="SYDPage"/>
+				<node id="302" label="总成性能" url="xncs_zcxn" pageUrl="ZCXNPage"/>
+				<node id="303" label="风叶性能" url="xncs_fyxn" pageUrl="FYXNPage"/>
 			</item>
 		</root>
 	</mx:XML>
+<!--			    <node id="ZCPage" label="总成数据" pageUrl="ZCPage"/>
+				<node id="FYPage" label="风叶数据" pageUrl="FYPage"/>
+				<node id="DJPage" label="电机数据" pageUrl="DJPage"/>
+				
+				<node id="SYDPage" label="试验单数据" pageUrl="SYDPage"/>
+				<node id="ZCXNPage" label="总成性能" pageUrl="ZCXNPage"/>
+				<node id="FYXNPage" label="风叶性能" pageUrl="FYXNPage"/>-->
 		<!--<node id="grrc" label="个人日程" pageUrl=""/>
 	    <node id="CompactPage" label="合同管理" pageUrl="CompactPage"/>
 		<node id="xgzl" label="相关资料" pageUrl="aboutdatum"/>

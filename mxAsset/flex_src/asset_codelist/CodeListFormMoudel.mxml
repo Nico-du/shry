@@ -7,6 +7,8 @@
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
+			import asset_bfdj.ProcessMethods;
+			
 			import cn.cnsasfram.codelist.ASCodeListHelper;
 			import cn.cnsasfram.entity.DoResult;
 			import cn.cnsasfram.entity.enum.Errors;
@@ -87,9 +89,10 @@
 			public function loadUserPower():void{
 				//判断读取权限
 				//判断写入权限
-				ASCommonHelper.controlVisible(this.saveAndNewAction,parentPage.newAction.visible);  
+			/* 	ASCommonHelper.controlVisible(this.saveAndNewAction,parentPage.newAction.visible);  
 				 ASCommonHelper.controlVisible(this.newAction,parentPage.newAction.visible);
-				ASCommonHelper.controlVisible(this.removeAndCloseAction,parentPage.removeAction.visible);
+				ASCommonHelper.controlVisible(this.removeAndCloseAction,parentPage.removeAction.visible); */
+				ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible,parentPage.editAction.visible ,parentPage.removeAction.visible,this.dataId=="");
 			}
 			
 			//初始化页面之后调用

@@ -167,6 +167,13 @@
 		<aop:pointcut id="transactionPoint" expression="execution(* net.chinanets.service.*.*(..))" />
 		<aop:advisor pointcut-ref="transactionPoint" advice-ref="txAdvice" />
 	</aop:config>
+	
+	<!-- 为上传操作添加事务管理 servlet 包里的任意类的任意方法 -->  
+		<aop:config>
+		<aop:pointcut id="AllUploadMethod" expression="execution(* net.chinanets.servlet.*.*(..))" />
+		<aop:advisor pointcut-ref="AllUploadMethod" advice-ref="txAdvice" />
+	</aop:config>
+	
 	<!-- 系统日志管理 -->
 	<bean id="logManager" class="net.chinanets.utils.LogManager"></bean>
 	<aop:config>

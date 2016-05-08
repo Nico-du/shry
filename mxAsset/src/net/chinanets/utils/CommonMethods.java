@@ -150,4 +150,44 @@ public class CommonMethods {
 		System.out.println(isNullOrWhitespace("		"));
 	}
 	
+	/**
+	 * @方法作用描述：判断是否是double类型
+	 * @param:
+	 * @author: 徐超
+	 * @date: 2016-3-13上午12:58:46
+	 */
+	public static  boolean isDouble(String str) 
+	{ 
+	try 
+	{ 
+	Double.parseDouble(str); 
+	return true; 
+	} 
+	catch(NumberFormatException ex){} 
+	return false; 
+	}
+	
+	/**
+	 * 类型判断，只能输入数字
+	 * 例如 0.001 小数点前面是0-9的数字零个或者多个，小数点后面
+	 */
+	public static boolean checkType(String str){
+		String regex = "[0-9][1,].[0-9]{0,}[1-9]{1,}$";
+	    boolean fleg = str.matches(regex);
+		return fleg;
+	}
+	
+	
+	/**
+	 * 是否为空字符串或者空串
+	 * @param str
+	 * @return
+	 */
+	public static boolean isBlank(String str){
+		if(str == null || str.equals("")){
+			return true;
+		}
+		return false;
+	}
+	
 }

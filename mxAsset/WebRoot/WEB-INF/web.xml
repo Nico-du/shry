@@ -87,6 +87,12 @@
     <servlet-name>JzExcelUploadServlet</servlet-name>
     <servlet-class>net.chinanets.servlet.JzExcelUploadServlet</servlet-class>
   </servlet>
+
+  <servlet>
+    <servlet-name>ParamDataExcelUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.ParamDataExcelUploadServlet</servlet-class>
+  </servlet>
+
   <servlet>
     <servlet-name>FsmJzPcUploadServlet</servlet-name>
     <servlet-class>net.chinanets.servlet.FsmJzPcUploadServlet</servlet-class>
@@ -119,8 +125,17 @@
     <servlet-class>net.chinanets.servlet.JzHjbServlet</servlet-class>
   </servlet>
 
+<!-- 总成性能导入 -->
+  <servlet>
+    <servlet-name>ZCXNExcelUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.ZCXNExcelUploadServlet</servlet-class>
+  </servlet>
 
-
+<!-- 风叶性能导入 -->
+  <servlet>
+    <servlet-name>FYXNExcelUploadServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.FYXNExcelUploadServlet</servlet-class>
+  </servlet>
 
 
   <servlet>
@@ -354,6 +369,12 @@
     <servlet-name>JzExcelUploadServlet</servlet-name>
     <url-pattern>/servlet/JzExcelUploadServlet</url-pattern>
   </servlet-mapping>
+  
+   <servlet-mapping>
+    <servlet-name>ParamDataExcelUploadServlet</servlet-name>
+    <url-pattern>/servlet/ParamDataExcelUploadServlet</url-pattern>
+  </servlet-mapping>
+  
   <servlet-mapping>
     <servlet-name>FsmJzPcUploadServlet</servlet-name>
     <url-pattern>/servlet/FsmJzPcUploadServlet</url-pattern>
@@ -384,9 +405,17 @@
     <servlet-name>JzHjbServlet</servlet-name>
     <url-pattern>/servlet/JzHjbServlet</url-pattern>
   </servlet-mapping>
+<!-- 总成性能导入 -->
+   <servlet-mapping>
+    <servlet-name>ZCXNExcelUploadServlet</servlet-name>
+    <url-pattern>/servlet/ZCXNExcelUploadServlet</url-pattern>
+  </servlet-mapping>
 
- 
-
+<!-- 风叶性能导入 -->
+   <servlet-mapping>
+    <servlet-name>FYXNExcelUploadServlet</servlet-name>
+    <url-pattern>/servlet/FYXNExcelUploadServlet</url-pattern>
+  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>OutComputerBookServlet</servlet-name>
     <url-pattern>/servlet/OutComputerBookServlet</url-pattern>

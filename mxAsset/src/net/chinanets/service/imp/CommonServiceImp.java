@@ -62,8 +62,8 @@ public class CommonServiceImp implements CommonService {
 	 * @param obj
 	 * @return
 	 */
-	public Serializable saveObject(Object obj) {
-		return  commonDao.save(obj);
+	public Long saveObject(Object obj) {
+		return (Long) commonDao.save(obj);
 	}
 	
 	/***
@@ -819,6 +819,17 @@ public class CommonServiceImp implements CommonService {
 		
 		public boolean RunUpdateBySQL(String strSQL){
 			return commonDao.RunUpdateBySQL(strSQL, null);
+		}
+		
+		@Override
+		public List getInfoById(String xh, Object obj) {
+			return commonDao.getInfoById(xh, obj);
+		}
+
+		@Override
+		public List getInfoByHql(String sql, Object obj) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 }
 

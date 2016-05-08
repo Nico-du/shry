@@ -11,7 +11,7 @@ public interface CommonService {
 	 * @param obj
 	 * @return
 	 */
-	public Serializable saveObject(Object obj);
+	public Long saveObject(Object obj);
 	
 	/***
 	 * 删除对象
@@ -197,4 +197,13 @@ public interface CommonService {
 	 public void Delt();
 	 public List pt(String fileName,String txtName);
 	 public void deleteByHql(String hql);
+		/**
+		 * hibernate QBC 查询
+		 * 通过型号查询
+		 */
+		public  List getInfoById (String xh,Object obj);
+		/**
+		 * 使用hql查询
+		 */
+		public List getInfoByHql(String sql,Object obj);
 }

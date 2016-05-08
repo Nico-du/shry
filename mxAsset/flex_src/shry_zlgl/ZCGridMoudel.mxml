@@ -3,6 +3,7 @@
 		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
 		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoduel.common.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script source="../systemManage/initAllAssetRule.as"/> 
 	<mx:Script>
 		<![CDATA[
 			import asset_bfdj.ProcessMethods;
@@ -15,7 +16,7 @@
 			
 			import com.adobe.serialization.json.JSON;
 			import com.benstucki.utilities.IconUtility;
-			
+			import com.commonpages.UploadWindow;
 			import flex.util.CommonMethod;
 			
 			import mx.collections.ArrayCollection;
@@ -205,7 +206,10 @@
 			
 			//上传数据事件
 			protected function importDataActionClick():void{
-				
+				var upw:UploadWindow= new UploadWindow();
+				upw.url="/mxAsset/servlet/ParamDataExcelUploadServlet";
+				PopUpManager.addPopUp(upw,this.parentApplication as DisplayObject,true);
+				PopUpManager.centerPopUp(upw);
 			}
 			
 			//查看详细数据
@@ -479,6 +483,7 @@
 				<mx:LinkButton id="newAction" click="newActionClick()" enabled="true" height="{aboutheight}" label="新建" toolTip="新建" icon="@Embed(source='images/add.gif')"/>
 				<mx:LinkButton id="editAction" click="editActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="编辑" toolTip="编辑" icon="@Embed(source='images/edit.gif')"/>
 				<mx:LinkButton id="removeAction" click="removeActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="删除" toolTip="删除" icon="@Embed(source='images/delete.gif')"/>
+				<mx:LinkButton id="importAction" click="importDataActionClick()" enabled="true" height="{aboutheight}" label="导入" toolTip="导入" icon="@Embed(source='images/export.gif')"/>
 				<mx:LinkButton id="exportAction" click="exportActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="导出" toolTip="导出" icon="@Embed(source='images/export.gif')"/>
 				<mx:LinkButton id="refreshAction" click="searchClickAction()" height="{aboutheight}" label="刷新" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
 				<mx:ComboBox id="otherAction" cornerRadius="2" editable="false" width="90" height="{aboutheight}" blendMode="overlay">

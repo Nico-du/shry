@@ -4,6 +4,7 @@
 		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoduel.common.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:RemoteObject id="chartService" destination="chartService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script source="../systemManage/initAllAssetRule.as"/> 
 	<mx:Script>
 		<![CDATA[
 			import asset_bfdj.ProcessMethods;

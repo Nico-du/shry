@@ -93,7 +93,8 @@
 					sjbfsl.enabled = true; sjbfsl.editable = true;
 					lggd.enabled = true; lggd.editable = true;
 				} */
-				ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible,parentPage.editAction.visible ,parentPage.removeAction.visible);
+				
+				ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible,parentPage.editAction.visible ,parentPage.removeAction.visible,this.dataId=="");
 			}
 			
 			//初始化页面之后调用
@@ -512,7 +513,7 @@
 										<mx:HBox id="fyts" width="100%" height="{aboutheight*5}" borderStyle="none" verticalAlign="middle" horizontalAlign="left">
 											<!--<mx:Image id="image1" source="{imgFileNameT}"   height="{aboutheight*5}" width="{aboutheight*5}"/>
 											<mx:Image id="image2" source="{imgFileNameB}"    height="{aboutheight*5}" width="{aboutheight*5}"/>-->
-											<mx:Button label="添加图片" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,this.idColumnName,this.dataId)"/>
+											<mx:Button label="添加文件" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,this.idColumnName,this.dataId)"/>
 										</mx:HBox>
 									</mx:GridItem>
 								</mx:GridRow>

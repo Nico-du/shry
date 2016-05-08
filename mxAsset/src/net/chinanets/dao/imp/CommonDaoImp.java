@@ -26,6 +26,7 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -917,5 +918,51 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao,Seria
 		}finally{
 			session.close();
 		}
+	}
+	
+	
+	/**
+	 * hibernate QBC 查询
+	 * 通过型号查询
+	 */
+	
+	public  List getInfoById (String xh,Object obj){
+		Session session =this.getSessionFactory().getCurrentSession();
+		Transaction ts = session.beginTransaction();
+		 List<Object>list = new ArrayList<Object>();
+		try {
+			String className = obj.getClass().getName();
+			Class  name = Class.forName(className);
+			DetachedCriteria dc = DetachedCriteria.forClass(name);
+			if(xh!=null&&!"".equals(xh)){
+				dc.add(Restrictions.eq("xh", xh));
+			}
+			list =this.getHibernateTemplate().findByCriteria(dc);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return     list;
+	}
+	
+	/**
+	 * 使用hqlchax
+	 */
+	
+	public List getInfoByHql(String sql,Object obj){
+		
+		Session session =this.getSessionFactory().getCurrentSession();
+		 Transaction ts = session.beginTransaction();
+		 List<Object>list = new ArrayList<Object>();
+		 try {
+		    Query query = session.createQuery(sql);
+		    list = query.list();
+		   ts.commit();
+		  } catch (HibernateException ex) {
+	        ts.rollback();
+	        ex.printStackTrace();
+		 }finally{
+			session.close();
+		 }
+		 return list;
 	}
 }

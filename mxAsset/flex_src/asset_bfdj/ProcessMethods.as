@@ -104,27 +104,29 @@ package asset_bfdj
 		/**
 		 *隐藏流程页面按钮 
 		 **/
-		public static function changeCNSTModuelState(currentWd:Object,isAddEnable:Boolean,isEditEnable:Boolean,isDelEnable:Boolean):void{
+		public static function changeCNSTModuelState(currentWd:Object,isAddEnable:Boolean,isEditEnable:Boolean,isDelEnable:Boolean,isAddDataPage:Boolean=true):void{
 			var isGridPage:Boolean = false;//是否GRID列表页面
 			isGridPage = !(currentWd.hasOwnProperty("saveAction") && currentWd.hasOwnProperty("saveAndNewAction"));
 			
 			if(currentWd == null){Alert.show("null param currentWd -- changeCNSTPageState() !");return;}
 			
-			if(currentWd.hasOwnProperty("saveAndNewAction")){currentWd["saveAndNewAction"].visible = isAddEnable;currentWd["saveAndNewAction"].includeInLayout=isAddEnable;}
 			if(currentWd.hasOwnProperty("newAction")){currentWd["newAction"].visible = isAddEnable;currentWd["newAction"].includeInLayout=isAddEnable;}
 			if(currentWd.hasOwnProperty("historyAction")){currentWd["historyAction"].visible = !isAddEnable;currentWd["historyAction"].includeInLayout= !isAddEnable;}
 			
 			if(isGridPage){
 				if(currentWd.hasOwnProperty("editAction")){currentWd["editAction"].visible = isEditEnable;currentWd["editAction"].includeInLayout=isEditEnable;}
 			}else{
-				if(!isEditEnable && !isAddEnable){
+				if((!isEditEnable && !isAddEnable)  || (!isEditEnable && !isAddDataPage) || (!isAddEnable && isAddDataPage)){
+					if(currentWd.hasOwnProperty("newAction")){currentWd["newAction"].visible = false;currentWd["newAction"].includeInLayout=false;}
 					if(currentWd.hasOwnProperty("saveAction")){currentWd["saveAction"].visible = false;currentWd["saveAction"].includeInLayout=false;}
 					if(currentWd.hasOwnProperty("saveAndCloseAction")){currentWd["saveAndCloseAction"].visible = false;currentWd["saveAndCloseAction"].includeInLayout=false;}
 					if(currentWd.hasOwnProperty("editAction")){currentWd["editAction"].visible = false;currentWd["editAction"].includeInLayout=false;}
+					if(currentWd.hasOwnProperty("saveAndNewAction")){currentWd["saveAndNewAction"].visible =false;currentWd["saveAndNewAction"].includeInLayout= false;}
 				}else{
 					if(currentWd.hasOwnProperty("saveAction")){currentWd["saveAction"].visible = true;currentWd["saveAction"].includeInLayout=true;}
 					if(currentWd.hasOwnProperty("saveAndCloseAction")){currentWd["saveAndCloseAction"].visible = true;currentWd["saveAndCloseAction"].includeInLayout=true;}
 					if(currentWd.hasOwnProperty("editAction")){currentWd["editAction"].visible = true;currentWd["editAction"].includeInLayout=true;}
+					if(currentWd.hasOwnProperty("saveAndNewAction")){currentWd["saveAndNewAction"].visible =true;currentWd["saveAndNewAction"].includeInLayout= true;}
 				}
 			}
 			

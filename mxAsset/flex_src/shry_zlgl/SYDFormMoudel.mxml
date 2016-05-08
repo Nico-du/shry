@@ -97,7 +97,7 @@
 					lggd.enabled = true; lggd.editable = true;
 				} */
 				if(parentPage != null){
-					ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible && !isReadOnly,parentPage.editAction.visible && !isReadOnly ,parentPage.removeAction.visible && !isReadOnly);
+					ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible && !isReadOnly,parentPage.editAction.visible && !isReadOnly ,parentPage.removeAction.visible && !isReadOnly,this.dataId=="");
 				}else{
 					ProcessMethods.changeCNSTModuelState(this,false,false,false);
 				}

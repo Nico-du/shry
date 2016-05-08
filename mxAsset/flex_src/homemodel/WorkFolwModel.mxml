@@ -41,7 +41,7 @@
 		<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#99CCFF" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
 			<mx:Label text="备忘录" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13"/>
 		</mx:HBox>
-		<cnsdg:CNSASBaseDataGrid id="workflow_dg"  width="100%" height="100%" borderStyle="none" dgcustomed="false" verticalAlign="middle" doubleClickEnabled="true" doubleClick="gotoMession(event)">
+		<cnsdg:CNSASBaseDataGrid id="workflow_dg"  width="100%" height="100%" borderStyle="none" dgcustomed="false" verticalAlign="middle" doubleClickEnabled="true" >
 			<cnsdg:columns>
 				<mx:DataGridColumn headerText="任务名称" width="100" dataField="rwbh" sortable="true"/>
 				<mx:DataGridColumn headerText="任务内容" width="300" dataField="rwmc" sortable="true"/>

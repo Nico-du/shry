@@ -898,7 +898,7 @@ package flex.util
 			var anthObj= getMenuAuthority(selectItem.@id,pwd);
 			
 			if(anthObj == null){Alert.show("您没有操作当前菜单的权限!",CommonXMLData.Alert_Title); return null;}
-			if(!pwd.hasOwnProperty("deptSearchCondtion")){return 1;Alert.show(" 当前页面未引入权限initAllMenuRule.as !");return null;}
+			if(!pwd.hasOwnProperty("deptSearchCondtion")){Alert.show(" 当前页面未引入权限initAllMenuRule.as !");return null;}
 			pwd.deptSearchCondtion = anthObj.searchCondition;
 			pwd.setBmCondition();
 			pwd.addEventListener(FlexEvent.INITIALIZE,doAutority(selectItem));
@@ -1148,8 +1148,6 @@ package flex.util
 			callBackFunc.call(treeData); 
 		}
 	
-	 public static var isExportLYDVisible:Boolean = true;	
-	 	
 	 public static var commonLongDateFormatter:DateFormatter = new DateFormatter();
 	 public static var commonDateFormatter:DateFormatter = new DateFormatter();
 	 commonLongDateFormatter.formatString = "YYYY-MM-DD";

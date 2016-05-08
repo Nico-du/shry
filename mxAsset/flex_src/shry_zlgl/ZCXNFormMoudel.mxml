@@ -91,7 +91,7 @@
 					sjbfsl.enabled = true; sjbfsl.editable = true;
 					lggd.enabled = true; lggd.editable = true;
 				} */
-				ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible,parentPage.editAction.visible ,parentPage.removeAction.visible);
+				ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible,parentPage.editAction.visible ,parentPage.removeAction.visible,this.dataId=="");
 			}
 			
 			//初始化页面之后调用
