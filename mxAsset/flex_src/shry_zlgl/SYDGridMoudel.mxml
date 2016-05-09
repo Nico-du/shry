@@ -310,7 +310,7 @@
 				if(ASStringHelper.isNullOrEmpty(dataids)){
 					return;
 				}
-				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_FY_DATA","LXDID","试验单"); 
+				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_SYD_DATA","LXDID","试验单"); 
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
 				this.deleteDataIds = dataids;
 			}

@@ -24,10 +24,12 @@ import java.util.Set;
 import jxl.Sheet;
 import jxl.Workbook;
 import net.chinanets.dao.CommonDao;
+import net.chinanets.data.DataEntity;
 import net.chinanets.pojos.Dept;
 import net.chinanets.service.CommonService;
 import net.chinanets.u.Sort;
 import net.chinanets.vo.DeptVo;
+import net.sf.json.JSONArray;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -819,6 +821,14 @@ public class CommonServiceImp implements CommonService {
 		
 		public boolean RunUpdateBySQL(String strSQL){
 			return commonDao.RunUpdateBySQL(strSQL, null);
+		}
+		
+		public JSONArray RunSelectJSONArrayBySql(String strSQL,Object[] params){
+			return commonDao.RunSelectJSONArrayBySql(strSQL, null);
+		}
+		
+		public List<DataEntity> RunSelectDataEntityBySql(String strSQL,Object[] params){
+			return commonDao.RunSelectDataEntityBySql(strSQL,params);
 		}
 		
 		@Override

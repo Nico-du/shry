@@ -465,27 +465,51 @@
 				datumFormTabNV.height += aboutheight;
 			}
 			
+			var dhszsbl:Number = 0;
+			var dhsdlhzj:Number = 0;
 			/**
 			 * 获取图表信息
 			 * */
-			public function getChartDataAndAddChart(hszsbl:Number,hsdlhzj:Number):void{
+			public function getCbxData(hszsbl:Number,hsdlhzj:Number):void{
 				if(CommonMethod.isNullOrWhitespace(dataId)){
 					Alert.show("曲线表关联的表字段数据为空！",CommonXMLData.Alert_Title);
 					return;
 				}
-				//获取转速数据 到hsCbx下拉列表中显示 TODO
-				var sSqlZs;String = "select DISTINCT(lxdid),zzs from shry_fyxn_data fyxn where fyxn.fyid='"+dataId+"' ";
+				dhszsbl = hszsbl;  dhsdlhzj=hsdlhzj;
 				
+				//获取转速数据 到hsCbx下拉列表中显示 TODO 
+			//	var sSqlZs:String = "select DISTINCT(lxdid) as lxdid,zzs from shry_fyxn_data fyxn where fyxn.fyid='"+dataId+"' ";
+				var sSqlZs:String = "SELECT lxdid,zzs FROM shry_fyxn_data fyxn WHERE fyxn.fyid='"+dataId+"' GROUP BY lxdid";
 				
+				commonService.RunSelectJSONArrayBySql(sSqlZs,null);
+				commonService.addEventListener(ResultEvent.RESULT,getZsResultBack);
+			}
+			
+			private function getZsResultBack(event:ResultEvent):void {
+				commonService.removeEventListener(ResultEvent.RESULT,getZsResultBack);
+				/* var strresult:String=event.result.toString();
+				if(strresult == "" || !strresult.indexOf("{") == 0){ return; }
+				var objList:ArrayCollection = JSON.decode(strresult,true) as ArrayCollection; */
+				var objList:ArrayCollection = event.result as ArrayCollection;
+				hsCbx.dataProvider = objList;
+				hsCbx.selectedIndex = 0;
 				
+				getChartDataAndAddChart(dhszsbl,dhsdlhzj);
+			}
+				
+				/**
+				 * 获取图表信息
+				 * */
+				public function getChartDataAndAddChart(hszsbl:Number,hsdlhzj:Number):void{
+					if(hsCbx.selectedItem == null ){ return; }
 				var sLxdid:String = hsCbx.selectedItem.lxdid;
-				
 				var sSql:String = "select * from SHRY_FYXN_DATA where fyid = '"+dataId+"' and lxdid='"+sLxdid+"' order by (ll+0) asc";
 				
 				
-				chartService.getFYXNChartList(sSql,dataId,hszsbl,hsdlhzj);  
+				chartService.getFYXNChartList(sSql,dataId,hszsbl,hsdlhzj);
 				chartService.addEventListener(ResultEvent.RESULT,resultBack);
 			}
+			
 			private function resultBack(event:ResultEvent):void {
 				chartService.removeEventListener(ResultEvent.RESULT,resultBack);
 				if(event.result == null)return;
@@ -553,7 +577,7 @@
 					datumFormTabNV.height = (this.height - 80);
 					if(chartMultiPanel.getChildren().length < 1){
 						nvPage2.setChildIndex(hsHbox,0);
-						getChartDataAndAddChart(Number(hszsblinput.text),Number(dqdlhzjinput.text));
+						getCbxData(Number(hszsblinput.text),Number(dqdlhzjinput.text));
 					}
 				}else{
 					datumFormTabNV.height = datumFormTabNVPHeight;
@@ -781,14 +805,15 @@
 					</mx:Canvas>
 					<mx:Panel id="nvPage2" label="性能图" width="100%"  borderStyle="none" headerHeight="0" layout="absolute"
 							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-						<mx:HBox horizontalGap="0" x="250" y="3" id="hsHbox">
-							<mx:ComboBox id="hsCbx" width="100"/>
-						<!--	<mx:Label paddingTop="2" text="当前转速(rpm)"/><mx:TextInput width="50" id="dqzsinput" editable="false" borderStyle="none"/>
-							<mx:Label paddingTop="2" paddingLeft="20" text="换算到{rpm}"/><mx:TextInput width="50" id="hszsinput"/>-->
-							<mx:Label text="转速换算比例(%):" paddingTop="2"/>
+						<mx:HBox horizontalGap="2" x="250" y="3" id="hsHbox">
+							<mx:Label paddingTop="2" text="转速(rpm):"/>
+							<mx:ComboBox id="hsCbx" width="60" labelField="zzs" change="getChartDataAndAddChart(Number(hszsblinput.text),Number(hsdlhzjinput.text))"/>
+						<!--	<mx:Label paddingTop="2" text="当前转速(rpm):"/><mx:TextInput width="50" id="dqzsinput" editable="false" borderStyle="none"/>
+							<mx:Label paddingTop="2" paddingLeft="20" text="换算到{rpm}:"/><mx:TextInput width="50" id="hszsinput"/>-->
+							<mx:Label paddingLeft="2" text="转速换算比例(%):" paddingTop="2"/>
 							<numberInput:NumberTextInput width="40" id="hszsblinput" text="100"/>
-							<mx:Label paddingTop="2" text="当前导流环直径(mm)"/><mx:TextInput width="30" id="dqdlhzjinput" paddingTop="2" editable="false" borderStyle="none"/>
-							<mx:Label paddingTop="2"  text="换算到(mm)"/><numberInput:NumberTextInput  width="40" id="hsdlhzjinput"/>
+							<mx:Label paddingTop="2" text="当前导流环直径(mm):"/><mx:TextInput width="25" id="dqdlhzjinput" paddingTop="2" editable="false" borderStyle="none"/>
+							<mx:Label paddingTop="2"  text="换算到(mm):"/><numberInput:NumberTextInput  width="40" id="hsdlhzjinput"/>
 							
 							<mx:Button paddingLeft="5" label="转换" click="button1_clickHandler(event)"/>
 						</mx:HBox>

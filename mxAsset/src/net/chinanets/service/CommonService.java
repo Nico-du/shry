@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 
+import net.chinanets.data.DataEntity;
+import net.sf.json.JSONArray;
+
 public interface CommonService {
 	
 	/**
@@ -156,6 +159,20 @@ public interface CommonService {
 	
 	public List getAllObjectByHql(String hql);
 	
+	/**
+	 * 原始SQL查询数据
+	 * @param strSQL
+	 * @param params
+	 * @return  List<DataEntity>
+	 */
+	public List<DataEntity> RunSelectDataEntityBySql(String strSQL,Object[] params);
+	/**
+	 * 原始SQL查询数据
+	 * @param strSQL
+	 * @param params
+	 * @return JSONArray
+	 */
+	public JSONArray RunSelectJSONArrayBySql(String strSQL,Object[] params);
 	/**
 	 * //原始SQL语句查询数据
 	 * @param strSQL :完整的SQL查询语句
