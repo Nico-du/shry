@@ -18,6 +18,8 @@ import net.chinanets.entity.CnstWfstepData;
 import net.chinanets.pojos.ShryFyData;
 import net.chinanets.pojos.ShryFyZsData;
 import net.chinanets.pojos.ShryFyxnData;
+import net.chinanets.pojos.ShryZcData;
+import net.chinanets.pojos.ShryZcxnData;
 import net.chinanets.service.ChartService;
 import net.chinanets.utils.Arith;
 import net.chinanets.utils.CommonMethods;
@@ -352,32 +354,88 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 	 * @param hsbl 换算比利，%数
 	 * @return
 	 */
-	public List<ShryFyxnData> getFYXNChartList(String sSql,String fyid,Double hsbl){
+	public List<ShryFyxnData> getFYXNChartList(String sSql,String fyid,Double hszsbl,Double hsdlhzj){
 		ShryFyData fyObj =  (ShryFyData) commonDao.getObjectByExample(new ShryFyData(), " fyid = '"+fyid+"'").get(0);
 		List<ShryFyxnData> rstList = (List<ShryFyxnData>) commonDao.RunSelectClassBySql(sSql,"net.chinanets.pojos.ShryFyxnData");	
 		List<ShryFyxnData> listOut = new ArrayList<ShryFyxnData>();
 		
-		double dhsbl = hsbl/100;
-		if(dhsbl == 1){return rstList;}
-		String djy,dll,dzs,dgl;
+		double dlhzj = Double.parseDouble(fyObj.getDlhzj());
+		
+		double dhsbl = hszsbl/100;
+		if(dhsbl == 1 && dlhzj == hsdlhzj){return rstList;}
+		String djy,dll,dzs,dgl,dnj,dxl;
 		djy = dll = dzs = dgl = "";
 		for(ShryFyxnData each : rstList){
 			dzs = (Double.parseDouble(each.getZzs())*dhsbl)+"";
-			
+			//静压
 			djy = translatePressure(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()), 
 					Double.parseDouble(each.getJyl()), Double.parseDouble(each.getZzs())*dhsbl, 
-					Double.parseDouble(fyObj.getDlhzj()) ) +"";
-			
+					hsdlhzj) +"";
+			//流量
 			double eachLl = translateQuantity(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()),
 					Double.parseDouble(each.getLl()), Double.parseDouble(each.getZzs())*dhsbl,
-					Double.parseDouble(fyObj.getDlhzj()));
+					hsdlhzj);
 			dll = eachLl<0 ? "0" :  (eachLl+"") ;
-			
+			//功率
 			dgl = translatePower(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()), 
 					Double.parseDouble(each.getZgl()), Double.parseDouble(each.getZzs())*dhsbl, 
-					Double.parseDouble(fyObj.getDlhzj())) +"";
+					hsdlhzj) +"";
+			//扭矩
+//			扭矩值=9.55*轴功率/主风扇转速
+			dnj = (9.55 * Double.parseDouble(dgl)/Double.parseDouble(dzs)) + "";
 			
-			each.setZzs(dzs); each.setJyl(djy); each.setLl(dll); each.setZgl(dgl);
+//    		效率值=流量*静压/输入/36
+			//效率 
+			dxl = (Double.parseDouble(dll) * Double.parseDouble(djy) / Double.parseDouble(dgl) / 36 ) +"" ;
+			
+			each.setZzs(dzs); each.setJyl(djy); each.setLl(dll); each.setZgl(dgl); each.setNj(dnj); each.setXl(dxl);
+			
+			listOut.add(each);
+		}
+		return listOut;
+	}
+	
+	/**
+	 * 总成性能数据图 换算
+	 * 等比利换算
+	 * 根据转速变换 取其他性能参数
+	 * @param sSql
+	 * @param hsbl 换算比利，%数
+	 * @return
+	 */
+	public List<ShryZcxnData> getZCXNChartList(String sSql,String zcid,Double hszsbl,Double hsdlhzj){
+		ShryZcData zcObj =  (ShryZcData) commonDao.getObjectByExample(new ShryZcData(), " zcid = '"+zcid+"'").get(0);
+		ShryFyData fyObj =  (ShryFyData) commonDao.getObjectByExample(new ShryFyData(), " fyid = '"+zcObj.getFyid()+"'").get(0);
+		List<ShryZcxnData> rstList = (List<ShryZcxnData>) commonDao.RunSelectClassBySql(sSql,"net.chinanets.pojos.ShryZcxnData");	
+		List<ShryZcxnData> listOut = new ArrayList<ShryZcxnData>();
+		
+		double dlhzj = Double.parseDouble(fyObj.getDlhzj());
+		
+		double dhsbl = hszsbl/100;
+		if(dhsbl == 1 && dlhzj == hsdlhzj){return rstList;}
+		String djy,dll,dzs,dgl,dxl;
+		djy = dll = dzs = dgl = "";
+		for(ShryZcxnData each : rstList){
+			dzs = (Double.parseDouble(each.getZzs())*dhsbl)+"";
+			//静压
+			djy = translatePressure(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()), 
+					Double.parseDouble(each.getJyl()), Double.parseDouble(each.getZzs())*dhsbl, 
+					hsdlhzj) +"";
+			//流量
+			double eachLl = translateQuantity(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()),
+					Double.parseDouble(each.getLl()), Double.parseDouble(each.getZzs())*dhsbl,
+					hsdlhzj);
+			dll = eachLl<0 ? "0" :  (eachLl+"") ;
+			//功率
+			dgl = translatePower(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()), 
+					Double.parseDouble(each.getSrgl()), Double.parseDouble(each.getZzs())*dhsbl, 
+					hsdlhzj) +"";
+			
+//    		效率值=流量*静压/输入/36
+	     //效率 
+			dxl = (Double.parseDouble(dll) * Double.parseDouble(djy) / Double.parseDouble(dgl) / 36 ) +"" ;
+			
+			each.setZzs(dzs); each.setJyl(djy); each.setLl(dll); each.setSrgl(dgl); each.setXl(dxl);
 			
 			listOut.add(each);
 		}

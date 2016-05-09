@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -21,6 +20,7 @@ import jxl.Workbook;
 import net.chinanets.pojos.ListZcxnVo;
 import net.chinanets.pojos.ShryFyData;
 import net.chinanets.pojos.ShrySydData;
+import net.chinanets.pojos.ShryZcData;
 import net.chinanets.pojos.ShryZcxnData;
 import net.chinanets.service.CommonService;
 import net.chinanets.utils.CommonMethods;
@@ -91,23 +91,24 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 					/*	   String  sql ="select * from shry_fy_data where 1=1 and xh='"+listxnVo.getSydData().getFyxh()+"'  ";
 						   String tempClassPath = "net.chinanets.pojo.ShryFyData";
 						   List<ShryFyData> listfyData=  (List<ShryFyData>) comService.RunSelectClassBySql(sql, tempClassPath);*/
-						   
-						   List<ShryFyData> listfyData = comService.getInfoById(listxnVo.getSydData().getFyxh(), new ShryFyData());
-						   if(listfyData.size()>0&& listfyData.get(0)!=null){
-							  Long fyId =  listfyData.get(0).getFyid()==null?null:listfyData.get(0).getFyid();		
-							  //保存实验单数据，返回试验单id
-							  returnId = comService.saveObject(listxnVo.getSydData());
-							  for (int i = 0; i <listxnVo.getZcxnDataList().size(); i++) {
-									//保存总成性能数据
-								   listxnVo.getZcxnDataList().get(i).setLxdid(returnId);
-								   listxnVo.getZcxnDataList().get(i).setFyid(fyId);
-								   listxnVo.getZcxnDataList().get(i).setUpdatedate(new Date());
-								   listxnVo.getZcxnDataList().get(i).setUpdateuser("1");
-								   comService.saveObject(listxnVo.getZcxnDataList().get(i));
-						    	 }
-							   str="导入数据成功！";
+						   //根据试验单中的总成型号，校验改记录是否在总成数据总唯一
+						   List<ShryZcData> listZcData = comService.getInfoById(listxnVo.getSydData().getZcxh(), new ShryZcData());
+						   if(listZcData.size()>0&&listZcData.get(0)!=null){
+								  //保存实验单数据，返回试验单id
+								  returnId = comService.saveObject(listxnVo.getSydData());
+								  for (int i = 0; i <listxnVo.getZcxnDataList().size(); i++) {
+										//保存总成性能数据
+									   listxnVo.getZcxnDataList().get(i).setLxdid(returnId);
+									   listxnVo.getZcxnDataList().get(i).setZcid(listZcData.get(0).getZcid());
+									   listxnVo.getZcxnDataList().get(i).setFyid(listZcData.get(0).getFyid());
+									   listxnVo.getZcxnDataList().get(i).setUpdatedate(new Date());
+									   listxnVo.getZcxnDataList().get(i).setUpdateuser("1");
+									   listxnVo.getZcxnDataList().get(i).setXl(listxnVo.getSydData().getZcxh());
+									   comService.saveObject(listxnVo.getZcxnDataList().get(i));
+							    	 }
+								   str="导入数据成功！";
 						   }else{
-								str = "该型号："+listxnVo.getSydData().getFyxh()+ "对应的风叶数据不存在，请先导入该型号的风叶数据！";
+							   str="该型号："+listxnVo.getSydData().getZcxh()+"的总成数据不存在！";
 						   }
 					     }else{
 						   str="数据已存在，请检查数据！";
@@ -146,6 +147,8 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 			List<ShryZcxnData> zcxnList = new ArrayList<ShryZcxnData>();
 			List<ShrySydData> sydList = new ArrayList<ShrySydData>();
 			String lxdh = st.getCell(4, 3).getContents().trim(); //联系单号
+			//148#/RY0.1504010 截取“/”后面作为联系单号
+			lxdh = lxdh.substring(lxdh.indexOf("/")+1);
 			String zcxh = st.getCell(1,6).getContents().trim();//总成型号
 			String fyxh = st.getCell(1,7).getContents().trim();//风叶型号
 			String syry = st.getCell(1, 10).getContents().trim();//试验人员

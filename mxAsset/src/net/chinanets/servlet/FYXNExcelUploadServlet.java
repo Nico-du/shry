@@ -149,6 +149,8 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 			List<ShryFyxnData> fyxnList = new ArrayList<ShryFyxnData>();
 			List<ShrySydData> sydList = new ArrayList<ShrySydData>();
 			String lxdh = st.getCell(4, 3).getContents().trim(); //联系单号
+			//148#/RY0.1504010 截取“/”后面作为联系单号
+			lxdh = lxdh.substring(lxdh.indexOf("/")+1);
 			String zcxh = st.getCell(1,6).getContents().trim();//总成型号
 			String fyxh = st.getCell(1,7).getContents().trim();//风叶型号
 			String syry = st.getCell(1, 10).getContents().trim();//试验人员

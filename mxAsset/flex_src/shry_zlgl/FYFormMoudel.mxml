@@ -300,6 +300,9 @@
 				
 				this.memo.text=tempObj["memo"];
 				
+				this.dqdlhzjinput.text=tempObj["dlhzj"];
+				this.hsdlhzjinput.text=tempObj["dlhzj"];
+				
 				/* syzt.data=tempObj["assettablename"];
 				ypsm.data=tempObj["assetidcolumn"];
 				ypfb.data=tempObj["assetid"]; */
@@ -463,17 +466,24 @@
 			}
 			
 			/**
-			 * 获取图标信息
+			 * 获取图表信息
 			 * */
-			public function getChartDataAndAddChart(hsbl:Number=100):void{
+			public function getChartDataAndAddChart(hszsbl:Number,hsdlhzj:Number):void{
 				if(CommonMethod.isNullOrWhitespace(dataId)){
 					Alert.show("曲线表关联的表字段数据为空！",CommonXMLData.Alert_Title);
 					return;
 				}
-				var sSql:String = "select * from SHRY_FYXN_DATA where fyid = '"+dataId+"' order by (ll+0) asc";
+				//获取转速数据 到hsCbx下拉列表中显示 TODO
+				var sSqlZs;String = "select DISTINCT(lxdid),zzs from shry_fyxn_data fyxn where fyxn.fyid='"+dataId+"' ";
 				
 				
-				chartService.getFYXNChartList(sSql,dataId,hsbl);  
+				
+				var sLxdid:String = hsCbx.selectedItem.lxdid;
+				
+				var sSql:String = "select * from SHRY_FYXN_DATA where fyid = '"+dataId+"' and lxdid='"+sLxdid+"' order by (ll+0) asc";
+				
+				
+				chartService.getFYXNChartList(sSql,dataId,hszsbl,hsdlhzj);  
 				chartService.addEventListener(ResultEvent.RESULT,resultBack);
 			}
 			private function resultBack(event:ResultEvent):void {
@@ -543,7 +553,8 @@
 					datumFormTabNV.height = (this.height - 80);
 					if(chartMultiPanel.getChildren().length < 1){
 						nvPage2.setChildIndex(hsHbox,0);
-						getChartDataAndAddChart();}
+						getChartDataAndAddChart(Number(hszsblinput.text),Number(dqdlhzjinput.text));
+					}
 				}else{
 					datumFormTabNV.height = datumFormTabNVPHeight;
 				}
@@ -552,9 +563,11 @@
 
 			protected function button1_clickHandler(event:MouseEvent):void
 			{
-				var shsbl:String = hsblinput.text;
-				if(Number(shsbl) > 1000 || Number(shsbl) < 0 ){ Alert.show("换算比例必须在0~1000之间！",CommonXMLData.Alert_Title); return; }
-				getChartDataAndAddChart(Number(shsbl));
+				var hszsbl:String = hszsblinput.text;
+				var hsdlhzj:String = hsdlhzjinput.text;
+				if((Number(hszsbl) > 1000 || Number(hszsbl) < 0) ){ Alert.show("换算比例值必须在0~1000之间！",CommonXMLData.Alert_Title); return; }
+				if((Number(hsdlhzj) > 10000 || Number(hsdlhzj) < 0 ) ){ Alert.show("换算值必须在0~10000之间！",CommonXMLData.Alert_Title); return; }
+				getChartDataAndAddChart(Number(hszsbl),Number(hsdlhzj));
 			}
 
 		]]>
@@ -768,17 +781,23 @@
 					</mx:Canvas>
 					<mx:Panel id="nvPage2" label="性能图" width="100%"  borderStyle="none" headerHeight="0" layout="absolute"
 							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-						<!--<mx:HBox x="300" y="85" id="hsBox" visible="true">
-							<mx:Label paddingTop="2" text="当前转速"/><mx:TextInput width="50" id="dqzsinput" editable="false"/><mx:Label paddingTop="2" text="rpm"/>
-							<mx:Label paddingTop="2" paddingLeft="20" text="换算到"/><mx:TextInput width="50" id="hsinput"/><mx:Label paddingTop="2" text="rpm"/>
+						<mx:HBox horizontalGap="0" x="250" y="3" id="hsHbox">
+							<mx:ComboBox id="hsCbx" width="100"/>
+						<!--	<mx:Label paddingTop="2" text="当前转速(rpm)"/><mx:TextInput width="50" id="dqzsinput" editable="false" borderStyle="none"/>
+							<mx:Label paddingTop="2" paddingLeft="20" text="换算到{rpm}"/><mx:TextInput width="50" id="hszsinput"/>-->
+							<mx:Label text="转速换算比例(%):" paddingTop="2"/>
+							<numberInput:NumberTextInput width="40" id="hszsblinput" text="100"/>
+							<mx:Label paddingTop="2" text="当前导流环直径(mm)"/><mx:TextInput width="30" id="dqdlhzjinput" paddingTop="2" editable="false" borderStyle="none"/>
+							<mx:Label paddingTop="2"  text="换算到(mm)"/><numberInput:NumberTextInput  width="40" id="hsdlhzjinput"/>
+							
 							<mx:Button paddingLeft="5" label="转换" click="button1_clickHandler(event)"/>
-						</mx:HBox>-->
-						<mx:HBox horizontalGap="2" x="250" y="3" id="hsHbox">
-							<mx:Label text="换算比例(%):" paddingTop="2"/>
+						</mx:HBox>
+						<!--<mx:HBox horizontalGap="2" x="250" y="3" id="hsHbox">
+							<mx:Label text="转速换算比例(%):" paddingTop="2"/>
 							<numberInput:NumberTextInput width="60" id="hsblinput" text="100"/>
 							<mx:LinkButton label="换算" click="button1_clickHandler(event)"/>
 							<mx:Label paddingLeft="10" text="(不换算扭矩与效率)" paddingTop="2"/>
-						</mx:HBox>
+						</mx:HBox>-->
 						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none" horizontalAlign="left">
 							<mx:LinkBar dataProvider="{blogModel}"  styleName="LinkBarStyle01"/>
 							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 140}">

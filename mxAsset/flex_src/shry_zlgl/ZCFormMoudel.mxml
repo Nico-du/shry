@@ -258,6 +258,9 @@
 				
 				this.memo.text=tempObj["memo"];
 				
+				this.dqdlhzjinput.text=tempObj["dlhzj"];
+				this.hsdlhzjinput.text=tempObj["dlhzj"];
+				
 				/* jqfs.data=tempObj["assettablename"];
 				ypsm.data=tempObj["assetidcolumn"];
 				ypfb.data=tempObj["assetid"]; */
@@ -426,16 +429,7 @@
 			/**
 			 * 获取图标信息
 			 * */
-			public function getChartDataAndAddChart():void{
-				/* var sClassPath = "";
-				var idColumn:String = "";
-				if(tempObjBeanName.toUpperCase() == "SHRY_FY_DATA"){
-				sClassPath = "net.chinanets.pojos.ShryFyxnData";
-				idColumn = "fyid";
-				}else if(tempObjBeanName.toUpperCase() == "SHRY_ZC_DATA"){
-				sClassPath = "net.chinanets.pojos.ShryZcxnData";
-				idColumn = "zcid";
-				} */
+			public function getChartDataAndAddChart(hszsbl:Number,hsdlhzj:Number):void{
 				if(CommonMethod.isNullOrWhitespace(dataId)){
 					Alert.show("曲线表关联的表字段数据为空！",CommonXMLData.Alert_Title);
 					return;
@@ -443,7 +437,7 @@
 				var sSql:String = "select * from SHRY_ZCXN_DATA where zcid = '"+dataId+"' order by (ll+0) asc";
 				
 				
-				AllAssetServiceRmt.RunSelectClassBySql(sSql,"net.chinanets.pojos.ShryFyxnData");
+				AllAssetServiceRmt.getZCXNChartList(sSql,dataId,hszsbl,hsdlhzj);  
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,resultBack);
 			}
 			private function resultBack(event:ResultEvent):void {
@@ -454,6 +448,7 @@
 				serialLineName1="静压*(Pa)"  serialLineName2="输入*(W)"  serialLineName3="主转速*(r/min)"  serialLineName4="效率*(%)" 
 				height="{this.height - 140}" id="lineChart" /> */
 				//添加多曲线
+				chartMultiPanel.removeAllChildren();
 				var objList:ArrayCollection = event.result as ArrayCollection;
 				var multiChart:LinueChartMultiModel = new LinueChartMultiModel();
 				multiChart._yField3 = "zzs";
@@ -469,6 +464,7 @@
 					<shryChart:LinueChartModel modelTitle="总成流量—输入功率曲线图" height="{this.height - 140}" id="lineChart04" />
 					<shryChart:LinueChartModel modelTitle="总成流量—静压曲线图" height="{this.height - 140}" id="lineChart05" /> */
 				//添加单曲线
+				chartPanel.removeAllChildren();
 				var lineChart1:LinueChartModel = new LinueChartModel();
 				lineChart1.modelTitle="总成流量—效率曲线图"; lineChart1.height=this.height - 140; 
 				lineChart1._xField = "ll"; lineChart1._yField = "xl";
@@ -504,12 +500,23 @@
 				}
 				if(datumFormTabNV.selectedIndex == 1){
 					datumFormTabNV.height = (this.height - 80);
-					if(chartMultiPanel.getChildren().length < 1){getChartDataAndAddChart();}
+					if(chartMultiPanel.getChildren().length < 1){
+						nvPage2.setChildIndex(hsHbox,0);
+						getChartDataAndAddChart(Number(hszsblinput.text),Number(dqdlhzjinput.text));
+					}
 				}else{
 					datumFormTabNV.height = datumFormTabNVPHeight;
 				}
 			}
-
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				var hszsbl:String = hszsblinput.text;
+				var hsdlhzj:String = hsdlhzjinput.text;
+				if((Number(hszsbl) > 1000 || Number(hszsbl) < 0) ){ Alert.show("换算比例值必须在0~1000之间！",CommonXMLData.Alert_Title); return; }
+				if((Number(hsdlhzj) > 10000 || Number(hsdlhzj) < 0 ) ){ Alert.show("换算值必须在0~10000之间！",CommonXMLData.Alert_Title); return; }
+				getChartDataAndAddChart(Number(hszsbl),Number(hsdlhzj));
+			}
 		]]>
 	</mx:Script>
 	<mx:Fade id="fadeEffect" target="{resultmsg}" alphaFrom="1"  alphaTo="0" duration="10000"/>
@@ -673,8 +680,18 @@
 							</mx:Grid>
 						</mx:VBox>
 					</mx:Canvas>
-					<mx:Panel id="nvPage2" label="性能图" width="100%" borderStyle="none" headerHeight="0" 
+					<mx:Panel id="nvPage2" label="性能图" width="100%"  borderStyle="none" headerHeight="0" layout="absolute"
 							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
+						<mx:HBox horizontalGap="2" x="250" y="3" id="hsHbox">
+							<!--	<mx:Label paddingTop="2" text="当前转速(rpm)"/><mx:TextInput width="50" id="dqzsinput" editable="false" borderStyle="none"/>
+							<mx:Label paddingTop="2" paddingLeft="20" text="换算到(rpm)"/><mx:TextInput width="50" id="hszsinput"/>-->
+							<mx:Label text="转速换算比例(%):" paddingTop="2"/>
+							<numberInput:NumberTextInput width="60" id="hszsblinput" text="100"/>
+							<mx:Label paddingTop="2" text="当前道流环直径(mm)"/><mx:TextInput width="50" id="dqdlhzjinput" editable="false" borderStyle="none"/>
+							<mx:Label paddingTop="2" paddingLeft="20" text="换算到(rpm)"/><numberInput:NumberTextInput  width="50" id="hsdlhzjinput"/>
+							
+							<mx:Button paddingLeft="5" label="转换" click="button1_clickHandler(event)"/>
+						</mx:HBox>
 						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0"  verticalGap="2" cornerRadius="2" borderStyle="none">
 							<mx:LinkBar dataProvider="{blogModel}"  styleName="LinkBarStyle01"/>
 							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 140}">

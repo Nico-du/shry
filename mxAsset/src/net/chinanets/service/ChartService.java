@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.chinanets.pojos.ShryFyxnData;
+import net.chinanets.pojos.ShryZcxnData;
 import net.chinanets.vo.UserVo;
 import net.sf.json.JSONArray;
 @SuppressWarnings("unchecked")
@@ -33,7 +34,12 @@ public interface ChartService {
 	 * 风叶性能数据图 换算
 	 * 等比利换算
 	 */
-	public List<ShryFyxnData> getFYXNChartList(String sSql,String fyid,Double hsbl);
+	public List<ShryFyxnData> getFYXNChartList(String sSql,String fyid,Double hszsbl,Double hsdlhzj);
+	/**
+	 * 风叶性能数据图 换算
+	 * 等比利换算
+	 */
+	public List<ShryZcxnData> getZCXNChartList(String sSql,String fyid,Double hszsbl,Double hsdlhzj);
 	///主页homeModel的方法
 	/**
 	 * 获取我的任务
