@@ -204,13 +204,14 @@
 			
 			//下载模板事件
 			protected function exportModelActionClick():void{
-				
+				CommonMethod.downloadExcel(encodeURI("sysArgFiles/template/template_zcxn.xls"));
 			}
 			
 			//上传数据事件
 			protected function importDataActionClick():void{
 				var upw:UploadWindow= new UploadWindow();
 				upw.url="/mxAsset/servlet/ZCXNExcelUploadServlet";
+				upw.parentPage = this;
 				PopUpManager.addPopUp(upw,this.parentApplication as DisplayObject,true);
 				PopUpManager.centerPopUp(upw);
 			}
@@ -344,7 +345,7 @@
 						dataids+=dataobj.zcxnid+",";
 					}
 				}
-				if(ASStringHelper.isNullOrEmpty(dataids)){
+				if(!ASStringHelper.isNullOrEmpty(dataids)){
 					dataids=dataids.substr(0,dataids.length-1);
 				}
 				return dataids;
@@ -395,6 +396,17 @@
 			protected function getColumnIndex(item:Object,column:DataGridColumn):String{
 				return String(this.cns_dg.dataProvider.getItemIndex(item)+1);
 			}
+
+			protected function otherAction_clickHandler(event:Event):void
+			{
+				if(otherAction.selectedIndex != -1 )
+				if(otherAction.selectedItem.value == "exportModelAction"){
+					exportModelActionClick();
+				}else if(otherAction.selectedItem.value == "inportDataAction"){
+					importDataActionClick();
+				}
+			}
+
 		]]>
 	</mx:Script>
 	<mx:HDividedBox width="100%" height="100%" verticalAlign="middle" verticalGap="0" borderStyle="none" horizontalAlign="center" horizontalGap="3">
@@ -505,7 +517,7 @@
 				<mx:LinkButton id="importAction" click="importDataActionClick()" enabled="true" height="{aboutheight}" label="导入" toolTip="导入" icon="@Embed(source='images/export.gif')"/>
 				<mx:LinkButton id="exportAction" click="exportActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="导出" toolTip="导出" icon="@Embed(source='images/export.gif')"/>
 				<mx:LinkButton id="refreshAction" click="searchClickAction()" height="{aboutheight}" label="刷新" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
-				<mx:ComboBox id="otherAction" cornerRadius="2" editable="false" width="90" height="{aboutheight}" blendMode="overlay">
+				<mx:ComboBox id="otherAction" cornerRadius="2" editable="false" width="90" height="{aboutheight}" blendMode="overlay" change="otherAction_clickHandler(event)">
 					<mx:Array id="cbotherchoose">
 						<mx:Object label="其它操作" value="unknow"/>
 						<mx:Object label="导出模板" value="exportModelAction"/>

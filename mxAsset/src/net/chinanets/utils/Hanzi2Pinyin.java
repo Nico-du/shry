@@ -1,4 +1,4 @@
-package net.chinanets.u;
+package net.chinanets.utils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -53,15 +53,5 @@ public class Hanzi2Pinyin {
   
         return format;   
     }   
-
-    public static void main(String[] args) {
-    	try {
-    		Hanzi2Pinyin hz = new Hanzi2Pinyin();
-			System.out.println(hz.getPinYin("������ɫŮ�����22�����й���"));
-		} catch (BadHanyuPinyinOutputFormatCombination e) {
-		// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
   
 }  

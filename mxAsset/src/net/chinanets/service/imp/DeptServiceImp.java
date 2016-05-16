@@ -20,7 +20,7 @@ import net.chinanets.pojos.Employee;
 import net.chinanets.pojos.Rules;
 import net.chinanets.pojos.Users;
 import net.chinanets.service.DeptService;
-import net.chinanets.u.Hanzi2Pinyin;
+import net.chinanets.utils.Hanzi2Pinyin;
 
 public class DeptServiceImp extends CommonServiceImp implements DeptService {
 

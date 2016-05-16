@@ -6,11 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import net.chinanets.dao.CommonDao;
 import net.chinanets.data.DataEntity;
+import net.chinanets.pojos.ShrySydData;
 import net.chinanets.utils.helper.ConditionHelper;
 import net.chinanets.utils.helper.DateHelper;
 import net.chinanets.utils.helper.JsonHelper;
@@ -18,6 +20,7 @@ import net.chinanets.utils.helper.StringHelper;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
@@ -945,10 +948,10 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao,Seria
 	}
 	
 	/**
-	 * 使用hqlchax
+	 * 使用hql查询
 	 */
 	
-	public List getInfoByHql(String sql,Object obj){
+	public List getInfoByHql(String sql){
 		
 		Session session =this.getSessionFactory().getCurrentSession();
 		 Transaction ts = session.beginTransaction();
@@ -965,4 +968,39 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao,Seria
 		 }
 		 return list;
 	}
+	
+	   /**
+	    * 总成性能导入，查询是否存在重复记录
+	    * param:   试验单号 +试验性质+试验日期
+	    */
+		public List<ShrySydData>  getZCSydByParam(Long syId,String syxz,Date syrq){
+			DetachedCriteria dc = DetachedCriteria.forClass(ShrySydData.class);
+			if(syId!=null){
+				dc.add(Restrictions.eq("lxdid", syId));
+			}
+			if(StringUtils.isNotBlank(syxz)){
+				dc.add(Restrictions.eq("symd", syxz));
+			}
+			if(syrq!=null){
+				dc.add(Restrictions.eq("syrq", syrq));
+			}
+			return getHibernateTemplate().findByCriteria(dc);
+		}
+		
+		/**
+		 * 风叶性能导入，查询是否存在重复记录
+		 * param：试验单号 + 风叶id 
+		 */
+		public List<ShrySydData>getFYSydByParam(Long syId,Long fyid){
+			
+			DetachedCriteria dc = DetachedCriteria.forClass(ShrySydData.class);
+			if(syId!=null){
+				dc.add(Restrictions.eq("lxdid", syId));
+			}
+			if(fyid!=null){
+				dc.add(Restrictions.eq("fyid", fyid));
+			}
+			return getHibernateTemplate().findByCriteria(dc);
+		}
+
 }

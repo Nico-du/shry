@@ -2,9 +2,11 @@
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import net.chinanets.data.DataEntity;
+import net.chinanets.pojos.ShrySydData;
 import net.sf.json.JSONArray;
 
 public interface CommonService {
@@ -222,5 +224,19 @@ public interface CommonService {
 		/**
 		 * 使用hql查询
 		 */
-		public List getInfoByHql(String sql,Object obj);
+		public List getInfoByHql(String sql);
+		
+		 /**
+		    * 总成性能导入，查询是否存在重复记录
+		    * param:   试验单号 +试验性质+试验日期
+		    */
+		public List<ShrySydData> getZCSydByParam(Long syId, String syxz,Date syrq) ;
+
+		/**
+		 * 风叶性能导入，查询是否存在重复记录
+		 * param：试验单号 + 风叶id
+		 */
+		public List<ShrySydData> getFYSydByParam(Long syId, Long fyxh) ;
+		
+		
 }

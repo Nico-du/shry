@@ -10,7 +10,8 @@
 	
 	import mx.managers.PopUpManager;
 
-	
+        //父窗口
+	    public var parentPage:Object = null;
 		public var variables:URLVariables = new URLVariables(); 
 		public var excelFile:FileReference = new FileReference();
 		public var url:String;
@@ -78,6 +79,7 @@
         {
         	excelFile.removeEventListener(Event.SELECT,selectHandler);
         	excelFile.removeEventListener(ProgressEvent.PROGRESS,progressHandler);
+			if(parentPage != null && parentPage.hasOwnProperty("loadData")){  parentPage.loadData(); parentPage=null;}
         	PopUpManager.removePopUp(this);
         }
         

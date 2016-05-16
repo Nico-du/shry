@@ -26,8 +26,9 @@ import jxl.Workbook;
 import net.chinanets.dao.CommonDao;
 import net.chinanets.data.DataEntity;
 import net.chinanets.pojos.Dept;
+import net.chinanets.pojos.ShrySydData;
 import net.chinanets.service.CommonService;
-import net.chinanets.u.Sort;
+import net.chinanets.utils.Sort;
 import net.chinanets.vo.DeptVo;
 import net.sf.json.JSONArray;
 
@@ -837,9 +838,23 @@ public class CommonServiceImp implements CommonService {
 		}
 
 		@Override
-		public List getInfoByHql(String sql, Object obj) {
-			// TODO Auto-generated method stub
-			return null;
+		public List getInfoByHql(String sql) {
+			return commonDao.getInfoByHql(sql);
+		}
+		 /**
+	    * 总成性能导入，查询是否存在重复记录
+	    * param:   试验单号 +试验性质+试验日期
+	    */
+		public List<ShrySydData> getZCSydByParam(Long syId, String syxz,Date syrq) {
+			return commonDao.getZCSydByParam(syId, syxz, syrq);
+		}
+
+		/**
+		 * 风叶性能导入，查询是否存在重复记录
+		 * param：试验单号 + 风叶id
+		 */
+		public List<ShrySydData> getFYSydByParam(Long syId, Long fyxh) {
+			return commonDao.getFYSydByParam(syId, fyxh);
 		}
 }
 

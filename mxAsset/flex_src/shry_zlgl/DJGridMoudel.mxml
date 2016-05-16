@@ -339,7 +339,7 @@
 						dataids+=dataobj.djid+",";
 					}
 				}
-				if(ASStringHelper.isNullOrEmpty(dataids)){
+				if(!ASStringHelper.isNullOrEmpty(dataids)){
 					dataids=dataids.substr(0,dataids.length-1);
 				}
 				return dataids;

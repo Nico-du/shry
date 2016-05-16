@@ -3,6 +3,7 @@
 		   showEffect="WipeRight" hideEffect="WipeLeft" width="100%" height="100%"  fontSize="12" 
 		   xmlns:cnsdg="cn.cnsasfram.datagrid.*" xmlns:cnspg="cn.cnspagemoduel.common.*">
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script source="../systemManage/initAllAssetRule.as"/> 
 	<mx:Script>
 		<![CDATA[
@@ -310,6 +311,8 @@
 				if(ASStringHelper.isNullOrEmpty(dataids)){
 					return;
 				}
+				commonService.RunUpdateBySQL("delete from shry_zcxn_data where lxdid in ("+dataids+") ");
+				commonService.RunUpdateBySQL("delete from shry_fyxn_data where lxdid in ("+dataids+") ");
 				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_SYD_DATA","LXDID","试验单"); 
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
 				this.deleteDataIds = dataids;
@@ -343,8 +346,8 @@
 						dataids+=dataobj.lxdid+",";
 					}
 				}
-				if(ASStringHelper.isNullOrEmpty(dataids)){
-					dataids=dataids.substr(0,dataids.length-1);
+				if(!ASStringHelper.isNullOrEmpty(dataids)){
+					dataids=dataids.substring(0,dataids.length-1);
 				}
 				return dataids;
 			}

@@ -1,4 +1,4 @@
-package net.chinanets.u;
+package net.chinanets.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;

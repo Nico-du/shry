@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.chinanets.pojos.ShryUploadfileData;
 import net.chinanets.service.CommonService;
-import net.chinanets.u.Hanzi2Pinyin;
+import net.chinanets.utils.Hanzi2Pinyin;
 
 import java.sql.Blob;
 import java.text.SimpleDateFormat;

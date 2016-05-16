@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import jxl.Sheet;
 import jxl.Workbook;
+import net.chinanets.excel.StringDateUtil;
 import net.chinanets.pojos.ListFyxnVo;
 import net.chinanets.pojos.ShryFyData;
 import net.chinanets.pojos.ShryFyxnData;
@@ -77,25 +78,24 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 					Long returnId = null; // 保存实验单返回后的实验单id
 					ShryFyData fyData = new ShryFyData();
 					if (listFyxnVo.getResult() == null&& listFyxnVo.getFyxnData() != null) {
-						// 判断实验单id是否唯一，给出选择操作提示 TODO
-						int count = comService.getCountByObject(listFyxnVo.getSydData());
-						if (count == 0) {
-							// 保存试验单数据并返回试验单id
-							listFyxnVo.getSydData().setInputdate(new Date());
-							listFyxnVo.getSydData().setInputuser("1");
-							listFyxnVo.getSydData().setUpdatedate(new Date());
-							listFyxnVo.getSydData().setUpdateuser("1");
-							returnId = comService.saveObject(listFyxnVo.getSydData());
-							// 取试验单的风叶型号，去风叶表中查询风叶信息，取查询记录中的风叶id保存风叶性能表中的风叶id,若不存在则给出提示
-					/*		String sql = "select * from shry_fy_data where 1=1 and xh='"+ listFyxnVo.getSydData().getFyxh() + "'  ";
-							String tempClassPath = "net.chinanets.pojo.ShryFyData";
-							List<ShryFyData> listfyData = (List<ShryFyData>) comService.RunSelectClassBySql(sql, tempClassPath);*/
-							
+							// 取试验单的风叶型号，去风叶表中查询风叶信息，取查询记录中的风叶id保存风叶性能表中的风叶id,和实验单中的风叶id，若不存在则给出提示
 							List<ShryFyData> listfyData = comService.getInfoById(listFyxnVo.getSydData().getFyxh(), new ShryFyData());
-							
 							if (listfyData.size() > 0) {
 								if (listfyData.get(0).getFyid() != null) {
 									Long fyId = listfyData.get(0).getFyid();
+									List<ShrySydData> listFyxn = comService.getFYSydByParam(listFyxnVo.getSydData().getLxdid(), fyId);
+									if(listFyxn!=null && !listFyxn.isEmpty()){
+										 str = "该风叶性能表中已存在，风叶型号为:"+listFyxnVo.getSydData().getFyxh()+",联系单号为:"+listFyxnVo.getSydData().getLxdid()+"的数据！";
+									}
+									
+									// 保存试验单数据并返回试验单id
+									listFyxnVo.getSydData().setInputdate(new Date());
+									listFyxnVo.getSydData().setInputuser("1");
+									listFyxnVo.getSydData().setUpdatedate(new Date());
+									listFyxnVo.getSydData().setUpdateuser("1");
+									listFyxnVo.getSydData().setFyid(fyId);
+									returnId = comService.saveObject(listFyxnVo.getSydData());
+									
 									// 保存风叶性能数据
 									for (int i = 0; i < listFyxnVo.getFyxnData().size(); i++) {
 										listFyxnVo.getFyxnData().get(i).setLxdid(returnId);
@@ -104,19 +104,16 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 										listFyxnVo.getFyxnData().get(i).setUpdateuser("1");
 										comService.saveObject(listFyxnVo.getFyxnData().get(i));
 									}
-									str = "导入数据成功！";
-								}
-							} else {
-								str = "该型号："+ listFyxnVo.getSydData().getFyxh()+ "对应的风叶数据不存在，请先导入该型号的风叶数据！";
+									str="导入成功！";
+								}	
+							}else{
+								str ="该风叶型号"+listFyxnVo.getSydData().getFyxh()+"不存在基础数据中，请先导入风叶基础数据";
 							}
-						} else {
-							str = "数据已存在！";
+						}else{
+							str=listFyxnVo.getResult().toString();
 						}
-					} else {
-						str = listFyxnVo.getResult().toString();
 					}
 				}
-			}
 		} catch (Exception e) {
 			out.write("导入异常！请检查数据");
 			e.printStackTrace();
@@ -151,6 +148,7 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 			String lxdh = st.getCell(4, 3).getContents().trim(); //联系单号
 			//148#/RY0.1504010 截取“/”后面作为联系单号
 			lxdh = lxdh.substring(lxdh.indexOf("/")+1);
+			String  syrq = st.getCell(1,3).getContents().trim();//试验日期
 			String zcxh = st.getCell(1,6).getContents().trim();//总成型号
 			String fyxh = st.getCell(1,7).getContents().trim();//风叶型号
 			String syry = st.getCell(1, 10).getContents().trim();//试验人员
@@ -158,6 +156,7 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 			String yps = st.getCell(7, 6).getContents().trim();//叶片数
 			String  fyzj = st.getCell(7, 5).getContents().trim();//风叶直径
 			String  fyxs = st.getCell(7, 3).getContents().trim();//风叶型式
+			String symd = st.getCell(1,8).getContents().trim();//试验性质
 			String memo = st.getCell(1, 11).getContents().trim();//备注 
 			
 	      	/*实验单数据*/
@@ -170,6 +169,8 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 			sydData.setFjxs(fyxs);
 			sydData.setSply(sply);
 			sydData.setSydx("风叶");
+			sydData.setSymd(symd);
+			sydData.setSyrq(StringDateUtil.stringToDate(syrq, 3));
 			sydData.setMemo(memo);
 			
 			for(int i=15;i<rows;i++){
@@ -246,7 +247,7 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 			listFyxnVo.setFyxnData(fyxnList);
 			wbk.close();
 			input.close();
-	}catch(Exception e){
+	  }catch(Exception e){
 			e.printStackTrace();
 		}
 		return listFyxnVo;

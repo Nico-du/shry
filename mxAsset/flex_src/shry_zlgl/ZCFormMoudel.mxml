@@ -546,6 +546,11 @@
 				if((Number(hsdlhzj) > 10000 || Number(hsdlhzj) < 0 ) ){ Alert.show("换算值必须在0~10000之间！",CommonXMLData.Alert_Title); return; }
 				getChartDataAndAddChart(Number(hszsbl),Number(hsdlhzj));
 			}
+			
+			//转换itemdata
+			protected function getColumnText(item:Object):String{
+				return item.symd+"_"+item.syrq ;
+			}
 		]]>
 	</mx:Script>
 	<mx:Fade id="fadeEffect" target="{resultmsg}" alphaFrom="1"  alphaTo="0" duration="10000"/>
@@ -713,7 +718,7 @@
 							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
 						<mx:HBox horizontalGap="2" x="250" y="3" id="hsHbox">
 							<mx:Label paddingTop="2" text="试验目的_日期:"/>
-							<mx:ComboBox id="hsCbx" width="110" labelField="symd" change="getChartDataAndAddChart(Number(hszsblinput.text),Number(hsdlhzjinput.text))"/>
+							<mx:ComboBox id="hsCbx" labelFunction="getColumnText" width="180" labelField="symd" change="getChartDataAndAddChart(Number(hszsblinput.text),Number(hsdlhzjinput.text))"/>
 							<mx:Label paddingLeft="2" text="转速换算比例(%):" paddingTop="2"/>
 							<numberInput:NumberTextInput width="40" id="hszsblinput" text="100"/>
 							<mx:Label paddingTop="2" text="当前导流环直径(mm):"/><mx:TextInput width="25" id="dqdlhzjinput" paddingTop="2" editable="false" borderStyle="none"/>

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import jxl.Sheet;
 import jxl.Workbook;
+import net.chinanets.excel.StringDateUtil;
 import net.chinanets.pojos.ListZcxnVo;
 import net.chinanets.pojos.ShryFyData;
 import net.chinanets.pojos.ShrySydData;
@@ -47,6 +48,7 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 	}
 
  
+	@SuppressWarnings("unused")
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		ServletContext servletContext = request.getSession().getServletContext();
@@ -78,23 +80,28 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 					ListZcxnVo  listxnVo = parseExcel(opName);
 					Long returnId=null ; //保存实验单返回后的实验单id
 				   if (listxnVo.getResult()==null && listxnVo.getZcxnDataList()!=null) {
-					   //校验数据唯一性是否已经存在
-					   int count = comService.getCountByObject(listxnVo.getSydData());
-					   if(count==0){
+					   /**
+					    * 总成性能导入，查询是否存在重复记录
+					    * param:   试验单号 +试验性质+试验日期
+					    */
+					List<ShrySydData>  listData = comService.getZCSydByParam(listxnVo.getSydData().getLxdid(), listxnVo.getSydData().getSymd(), listxnVo.getSydData().getSyrq());
+					   if(listData.isEmpty() || listData==null){
 						   //不存在则保存实验单数据，并返回试验单id 用于总成性能表中试验单id保存
 						   listxnVo.getSydData().setInputdate(new Date());
 						   listxnVo.getSydData().setInputuser("1");
 						   listxnVo.getSydData().setUpdatedate(new Date());
 						   listxnVo.getSydData().setUpdateuser("1");
 						   
-						   //取试验单的风叶型号，在风叶表中查询风叶信息，取查询记录中的风叶id保存总成性能表中的风叶id
-					/*	   String  sql ="select * from shry_fy_data where 1=1 and xh='"+listxnVo.getSydData().getFyxh()+"'  ";
-						   String tempClassPath = "net.chinanets.pojo.ShryFyData";
-						   List<ShryFyData> listfyData=  (List<ShryFyData>) comService.RunSelectClassBySql(sql, tempClassPath);*/
-						   //根据试验单中的总成型号，校验改记录是否在总成数据总唯一
+						   
+						   //取试验单的风叶型号，在总成表中查询风叶信息，取查询记录中的风叶id，总成id，电机id
 						   List<ShryZcData> listZcData = comService.getInfoById(listxnVo.getSydData().getZcxh(), new ShryZcData());
+						   //根据试验单中的总成型号，校验改记录是否在总成数据总唯一
 						   if(listZcData.size()>0&&listZcData.get(0)!=null){
-								  //保存实验单数据，返回试验单id
+							     //保存风叶id总成id
+							      listxnVo.getSydData().setFyid(listZcData.get(0).getFyid());
+							      listxnVo.getSydData().setZcid(listZcData.get(0).getZcid());
+							      listxnVo.getSydData().setDjid(Long.parseLong(listZcData.get(0).getDjid()));
+							      //保存实验单数据，返回试验单id
 								  returnId = comService.saveObject(listxnVo.getSydData());
 								  for (int i = 0; i <listxnVo.getZcxnDataList().size(); i++) {
 										//保存总成性能数据
@@ -103,7 +110,6 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 									   listxnVo.getZcxnDataList().get(i).setFyid(listZcData.get(0).getFyid());
 									   listxnVo.getZcxnDataList().get(i).setUpdatedate(new Date());
 									   listxnVo.getZcxnDataList().get(i).setUpdateuser("1");
-									   listxnVo.getZcxnDataList().get(i).setXl(listxnVo.getSydData().getZcxh());
 									   comService.saveObject(listxnVo.getZcxnDataList().get(i));
 							    	 }
 								   str="导入数据成功！";
@@ -149,6 +155,7 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 			String lxdh = st.getCell(4, 3).getContents().trim(); //联系单号
 			//148#/RY0.1504010 截取“/”后面作为联系单号
 			lxdh = lxdh.substring(lxdh.indexOf("/")+1);
+			String  syrq = st.getCell(1,3).getContents().trim();//试验日期
 			String zcxh = st.getCell(1,6).getContents().trim();//总成型号
 			String fyxh = st.getCell(1,7).getContents().trim();//风叶型号
 			String syry = st.getCell(1, 10).getContents().trim();//试验人员
@@ -157,6 +164,7 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 			String  fyzj = st.getCell(7, 5).getContents().trim();//风叶直径
 			String  fyxs = st.getCell(7, 3).getContents().trim();//风叶型式
 			String bz = st.getCell(1, 11).getContents().trim();//备注
+			String symd = st.getCell(1,8).getContents().trim();//试验性质
 			
           	/*实验单数据*/
 		   sydData = new ShrySydData();
@@ -168,6 +176,8 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 			sydData.setFyzj(fyzj);
 			sydData.setFjxs(fyxs);
 			sydData.setSply(sply);
+			sydData.setSymd(symd);
+			sydData.setSyrq(StringDateUtil.stringToDate(syrq, 3));
 			sydData.setMemo(bz);
 		    sydData.setSydx("总成");
 			for(int i=15;i<rows;i++){
