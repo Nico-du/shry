@@ -33,13 +33,13 @@
         <property name="memo" type="java.lang.String">
             <column name="memo" length="200" />
         </property>
-        <property name="inputdate" type="java.sql.Timestamp">
+        <property name="inputdate" type="java.util.Date">
             <column name="inputdate" length="19" />
         </property>
         <property name="inputuser" type="java.lang.String">
             <column name="inputuser" length="50" />
         </property>
-        <property name="updatedate" type="java.sql.Timestamp">
+        <property name="updatedate" type="java.util.Date">
             <column name="updatedate" length="19" />
         </property>
         <property name="updateuser" type="java.lang.String">

@@ -1,5 +1,6 @@
 package net.chinanets.utils;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.DocumentHelper;
 import org.springframework.context.ApplicationContext;
 
@@ -21,6 +23,21 @@ public class CommonMethods {
 	public static SimpleDateFormat longDateFormate = new SimpleDateFormat("yyyy年MM月dd日");
 	public static final int MinRyhcsl = 20;//日用耗材数量提醒的阀值
 	public static ArrayList<String> LoginedUserArray = new ArrayList<String>();//单点登录， 验证成功的UserId
+	
+	
+	/**
+	 * 四舍五入保留 scale位小数
+	 * @param doubleIn
+	 * @param scale
+	 * @return
+	 */
+	public static String formateDouble(String doubleIn,int scale){
+		if(!isDouble(doubleIn)){ return "not a number";}
+		if(scale <0 || scale>100){ return "parameter scale must between (1,100) ";}
+		 BigDecimal b = new BigDecimal(Double.parseDouble(doubleIn));
+		return b.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue()+"";
+	}
+	
 	
 	public static boolean isNullOrWhitespace(Object str){
 		return ((str == null ) || (str.toString().trim().length() == 0));
@@ -101,54 +118,6 @@ public class CommonMethods {
         return false; 
     } 
 	
-	//获取设备标识     公共方法
-	//根据设备名称获取 设备的所属表 和  标识字段
-	//返回 表名;标识字段
-	public static String getSbbs(String assetName){
-		String tableName ="",bctj ="";
-		if(assetName != null){
-			if(assetName.equals("台式机")){ tableName = "ASSET_COMPUTER"; bctj = "zclxid = '361'"; }
-			if(assetName.equals("笔记本") || assetName.equals("便携电脑")){ tableName = "ASSET_COMPUTER"; bctj = "zclxid = '362' "; }
-			if(assetName.equals("显示器")){ tableName = "ASSET_COMPUTER"; bctj = "zclxid = '363'"; }
-			if(assetName.equals("U盘")){tableName="ASSET_JZ";bctj=" mc ='U盘' ";}
-			if(assetName.equals("移动硬盘")){tableName="ASSET_JZ";bctj=" mc ='移动硬盘' ";}
-			if(assetName.equals("录音笔")){tableName="ASSET_JZ";bctj=" mc ='录音笔' ";}
-			if(assetName.equals("打印机")){tableName="ASSET_Wssb";bctj=" zclxid ='364' ";}
-			if(assetName.equals("扫描仪")){tableName="ASSET_Wssb";bctj=" zclxid ='365' ";}
-			if(assetName.equals("传真机")){tableName="ASSET_Wssb";bctj=" zclxid ='366' ";}
-			if(assetName.equals("机顶盒")){tableName="ASSET_Wssb";bctj=" zclxid ='367' ";}
-			if(assetName.equals("视频切换器")){tableName="ASSET_Wssb";bctj=" zclxid ='368' ";}
-			if(assetName.equals("速录机")){tableName="ASSET_Wssb";bctj=" zclxid ='369' ";}
-			if(assetName.equals("音箱")){tableName="ASSET_Wssb";bctj=" zclxid ='370' ";}
-			if(assetName.equals("数字录音电话")){tableName="ASSET_Wssb";bctj=" zclxid ='371' ";}
-			if(assetName.equals("单兵摄录仪")){tableName="ASSET_Wssb";bctj=" zclxid ='372' ";}
-			if(assetName.equals("读卡器")){tableName="ASSET_Wssb";bctj=" zclxid ='373' ";}
-			if(assetName.equals("电视机")){tableName="ASSET_Wssb";bctj=" zclxid ='374' ";}
-			if(assetName.equals("小型机")){  tableName="ASSET_SERVER";bctj=" zclx ='小型机' ";}
-			if(assetName.equals("工控机")){  tableName="ASSET_SERVER";bctj=" zclx ='工控机' ";}
-			if(assetName.equals("PC服务器")){  tableName="ASSET_SERVER";bctj=" zclx ='PC服务器' ";}
-			if(assetName.equals("刀片服务器")){  tableName="ASSET_SERVER";bctj=" zclx ='刀片服务器' ";}
-			if(assetName.equals("磁盘阵列")){tableName="ASSET_STORAGE";bctj=" zclx ='磁盘阵列' ";}
-			if(assetName.equals("磁盘")){tableName="ASSET_STORAGE";bctj=" zclx ='磁盘' ";}
-			if(assetName.equals("磁带")){tableName="ASSET_STORAGE";bctj=" zclx ='磁带' ";}
-			if(assetName.equals("磁盘扩展柜")){tableName="ASSET_STORAGE";bctj=" zclx ='磁盘扩展柜' ";}
-			if(assetName.equals("磁盘库")){tableName="ASSET_STORAGE";bctj=" zclx ='磁盘库' ";}
-			if(assetName.equals("路由器")){tableName="ASSET_NET";bctj=" zclx ='路由器' ";}
-			if(assetName.equals("交换机")){tableName="ASSET_NET";bctj=" zclx ='交换机' ";}
-			if(assetName.equals("安全设备")){tableName="ASSET_NET";bctj=" zclx ='安全设备' ";}
-			if(assetName.equals("光纤收发器")){tableName="ASSET_NET";bctj=" zclx ='光纤收发器' ";}
-			if(assetName.equals("录像设备")){tableName="ASSET_VIDEO";bctj=" zclxid ='367' ";}
-			if(assetName.equals("摄像设备")){tableName="ASSET_VIDEO";bctj=" zclxid ='368' ";}
-			if(assetName.equals("投影机")){tableName="ASSET_VIDEO";bctj=" zclxid ='369' ";}
-			if(assetName.equals("显示屏")){tableName="ASSET_VIDEO";bctj=" zclxid ='370' ";}
-			if(assetName.equals("音响设备")){tableName="ASSET_VIDEO";bctj=" zclxid ='371' ";}
-			if(assetName.equals("UPS")){tableName="ASSET_UPS";bctj=" zclx ='UPS' ";}
-		}
-		return tableName+";"+ bctj;
-	}
-	public static void main(String args[]){
-		System.out.println(isNullOrWhitespace("		"));
-	}
 	
 	/**
 	 * @方法作用描述：判断是否是double类型

@@ -1,26 +1,125 @@
 package flex.util
 {
+	import com.adobe.serialization.json.JSON;
+	import com.benstucki.utilities.IconUtility;
+	
 	import flash.net.SharedObject;
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.XMLListCollection;
+	import mx.containers.Grid;
+	import mx.containers.GridItem;
+	import mx.containers.GridRow;
 	import mx.containers.HBox;
 	import mx.containers.VBox;
 	import mx.controls.Button;
 	import mx.controls.ComboBox;
 	import mx.controls.DataGrid;
+	import mx.controls.Label;
 	import mx.controls.LinkButton;
 	import mx.controls.Tree;
 	import mx.core.Application;
-	
-	import com.adobe.serialization.json.JSON;
-	import com.benstucki.utilities.IconUtility;
+
 	/**
 	 *静态公共方法类 
 	 **/
 	public class CommonUIMethod
 	{
 		///控制UI的公共方法
+	
+		/**
+		 * 风叶选型数据转换
+		 * 用来显示转换后的数据表格
+		 * 根据 arcIn数据 生成一个 表格样式的Table
+		 **/
+		public static function generateTable(dataType:String,arcIn:ArrayCollection):Grid{
+			var titleDataFyxn: Array = [
+				{title: "流量(m^3/h)", columnname: "ll"},
+				{title: "静压(Pa)", columnname: "jyl"},
+				{title: "主转速(r/min)", columnname: "zzs"},
+				{title: "辅转速(r/min)", columnname: "fzs"},
+				{title: "扭矩(N·m)", columnname: "nj"},
+				{title: "轴功率(W)", columnname: "zgl"},
+				{title: "效率(%)", columnname: "xl"},
+			];
+			var titleDataZcxn: Array = [
+				{title: "流量(m^3/h)", columnname: "ll"},
+				{title: "静压(Pa)", columnname: "jyl"},
+				{title: "主转速(r/min)", columnname: "zzs"},
+				{title: "辅转速(r/min)", columnname: "fzs"},
+				{title: "电压(V)", columnname: "dy"},
+				{title: "电流(A)", columnname: "dl"},
+				{title: "输入(W)", columnname: "srgl"},
+				{title: "效率(%)", columnname: "xl"},
+			];
+			
+		var curTitleData:Array = null;
+		if(dataType == "fyxn"){
+			curTitleData =  titleDataFyxn;
+		}else if(dataType == "zcxn"){
+			curTitleData =  titleDataZcxn;
+		}else{ return null;}
+		
+		var grid:Grid = new Grid();
+		grid.setStyle("borderStyle","solid");
+		grid.setStyle("horizontalGap","0");
+		grid.setStyle("verticalGap","0");
+		var gridRowTitle:GridRow = new GridRow();
+		//生成Title行
+		for each(var eachClm:Object in curTitleData){
+			if(eachClm == null || eachClm == "" || eachClm.length < 1){ continue;}
+			var gridItem:GridItem = new GridItem();
+			gridItem.width = 90;
+			gridItem.height = 25;
+			gridItem.setStyle("borderStyle","solid");
+			gridItem.setStyle("borderThickness","1");
+			gridItem.setStyle("horizontalAlign","center");
+			gridItem.setStyle("verticalAlign","middle");
+			gridItem.setStyle("paddingTop","-1");
+			gridItem.setStyle("paddingBottom","-1");
+			gridItem.setStyle("paddingLeft","-1");
+			gridItem.setStyle("paddingRight","-1");
+			var gLable:Label = new Label();
+			gLable.text = eachClm.title;
+			gLable.setStyle("paddingTop","3");
+			gLable.setStyle("paddingLeft","3");
+			
+			gridItem.addChild(gLable);
+			gridRowTitle.addChild(gridItem);
+		}
+		grid.addChild(gridRowTitle);
+		//生成data行
+		for each(var eachObj:Object in arcIn){
+			var gridRow:GridRow = new GridRow();
+			
+			for each(var eachClm:Object in curTitleData){
+				var gridItem:GridItem = new GridItem();
+				gridItem.width = 90;
+				gridItem.height = 25;
+				gridItem.setStyle("borderStyle","solid");
+				gridItem.setStyle("borderThickness","1");
+				gridItem.setStyle("horizontalAlign","center");
+				gridItem.setStyle("verticalAlign","middle");
+				gridItem.setStyle("paddingTop","-1");
+				gridItem.setStyle("paddingBottom","-1");
+				gridItem.setStyle("paddingLeft","-1");
+				gridItem.setStyle("paddingRight","-1");
+				
+				var gLable:Label = new Label();
+				gLable.text = eachObj[eachClm.columnname];
+				gLable.setStyle("paddingTop","3");
+				gLable.setStyle("paddingLeft","2");
+				
+				gridItem.addChild(gLable);
+				gridRow.addChild(gridItem);
+			}
+			grid.addChild(gridRow);
+		}
+			return grid;
+		}
+		
+		
+		
 		/**
 		 *全选/反选
 		 **/

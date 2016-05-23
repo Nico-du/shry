@@ -150,6 +150,15 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 									fyData = new ShryFyData();
 									zcData = new ShryZcData();
 									djData = new ShryDjData();
+									//对参数模版格式进行校验
+									String djxhName = st.getCell(1, 0).getContents().trim();
+									String fsccName = st.getCell(2, 0).getContents().trim();
+									String fyxhName = st.getCell(3,0).getContents().trim();
+									if( !"电机型号".equals(djxhName) || !"风扇尺寸(mm)".equals(fsccName) || !"风叶型号".equals(fyxhName)){
+										vo.setResult("参数模版格式不正确！请检查参数导入模版");
+										break;
+									}
+									
 									/*风叶对象数据*/
 									String xh = st.getCell(3, i).getContents().trim(); // 风叶型号
 									String fbzj = st.getCell( 4,i).getContents().trim(); // 翻边直径

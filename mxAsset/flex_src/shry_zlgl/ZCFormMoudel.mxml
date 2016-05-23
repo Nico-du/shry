@@ -25,6 +25,7 @@
 			import com.adobe.serialization.json.JSON;
 			
 			import flex.util.CommonMethod;
+			import flex.util.CommonUIMethod;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -34,6 +35,7 @@
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
 			import mx.validators.Validator;
 			//所有按钮高度，工具栏
 			[Bindable]
@@ -479,13 +481,14 @@
 				//添加多曲线
 				chartMultiPanel.removeAllChildren();
 				var objList:ArrayCollection = event.result as ArrayCollection;
+				var objList2:ArrayCollection = ObjectUtil.copy(event.result) as ArrayCollection;
 				var multiChart:LinueChartMultiModel = new LinueChartMultiModel();
 				multiChart._yField3 = "zzs"; multiChart._yField2 = "srgl";
 				multiChart.modelTitle="总成流量—静压/输入功率/转速/效率曲线图";  multiChart.xAxisTitle="流量(m^3/h)"; multiChart.xToolTipTiltle="流量";
 				multiChart.yAxisTitle="静压/输入功率/转速/效率"; multiChart.yToolTipTiltle="Y";
 				multiChart.serialLineName1="静压*(Pa)";  multiChart.serialLineName2="输入*(W)";  multiChart.serialLineName3="转速*(rpm)";  multiChart.serialLineName4="效率*(%)" ;
 				multiChart.height=this.height - 140;
-				multiChart.dpArray = objList;
+				multiChart.dpArray = objList2;
 				chartMultiPanel.addChild(multiChart);
 				
 				/* <shryChart:LinueChartModel modelTitle="总成流量—效率曲线图" height="{this.height - 140}" id="lineChart02" />
@@ -514,6 +517,24 @@
 				lineChart4.xToolTipTiltle = lineChart4.xAxisTitle= "流量";lineChart4.yToolTipTiltle= lineChart4.yAxisTitle= "静压";
 				lineChart4._xField = "ll"; lineChart4._yField = "jyl";
 				lineChart4.dpArray = objList;
+				
+				//添加数据表格
+				var dataGrid:Grid = CommonUIMethod.generateTable("zcxn",objList);
+				var vbx:VBox = new VBox();
+				vbx.setStyle("horizontalAlign","center");	vbx.setStyle("borderColor","#99CCFF"); vbx.setStyle("borderStyle","solid");  
+				vbx.percentWidth = 100;
+				var hbx:HBox = new HBox();
+				hbx.percentWidth = 100;
+				hbx.height = 20;
+				hbx.setStyle("borderStyle","none"); hbx.setStyle("backgroundColor","#99CCFF"); 
+				hbx.setStyle("horizontalGap","0"); hbx.setStyle("verticalAlign","middle"); hbx.setStyle("verticalGap","0");
+				var hbxLabel:Label = new Label(); hbxLabel.text="性能数据表";hbxLabel.height = 20; hbx.setStyle("fontWeight","bold"); hbx.setStyle("fontSize","13");
+				hbx.addChild(hbxLabel);
+				vbx.addChild(hbx);
+				vbx.addChild(dataGrid);
+				
+				chartPanel.addChild(vbx); 
+				
 				chartPanel.addChild(lineChart1);
 				chartPanel.addChild(lineChart2);
 				chartPanel.addChild(lineChart3);

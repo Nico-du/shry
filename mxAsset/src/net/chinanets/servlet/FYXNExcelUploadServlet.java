@@ -178,6 +178,14 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 				listFyxnVo = new ListFyxnVo();
 				//过滤到空数据行
 				if(StringUtils.isNotBlank(st.getCell(1, 15).getContents().trim())){
+			       //对模版标题行校验，判断模版是否是风叶性能导入模版
+	               String zzsName = st.getCell(3,13).getContents().trim();
+	               String fzsName = st.getCell(4,13).getContents().trim();
+	               String zjName = st.getCell(5, 13).getContents().trim();
+	               if(!"主转速".equals(zzsName) || !"副转速".equals(fzsName) || !"转矩".equals(zjName)){
+	            	   listFyxnVo.setResult("该模版不符合风叶性能导入模版格式！请检查导入模版");
+	            	   break;
+	               }
 	               String  flow = st.getCell(1, i).getContents().trim(); //流量
 	               String  jy = st.getCell(2,i).getContents().trim();      //静压
 	               String  zzs = st.getCell(3, i).getContents().trim();//主转速
@@ -185,7 +193,7 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 	               String  zj = st.getCell(5, i).getContents().trim();//转矩
 	               String  zgl = st.getCell(6,i).getContents().trim();//轴功率
 	               String  xl = st.getCell(7, i).getContents().trim(); //效率
-	  
+	              
 	               //解决 模版中含有下面曲线图导致的行数下标越界，当行里数据都为空，这表示读完，跳出循环
 	            if(CommonMethods.isBlank(flow) && CommonMethods.isBlank(jy) &&CommonMethods.isBlank(zzs) 
 	            		&&CommonMethods.isBlank(fzs) &&CommonMethods.isBlank(zj)&&CommonMethods.isBlank(zgl)

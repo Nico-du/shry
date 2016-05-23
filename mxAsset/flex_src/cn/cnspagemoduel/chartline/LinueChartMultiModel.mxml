@@ -71,7 +71,7 @@
 			/**
 			 *曲线数据源 
 			 **/
-			[Bindable]
+		/* 	[Bindable] */
 			public var dpArray:ArrayCollection = new ArrayCollection([  
 				{ll:0.0   ,jyl:374.3 ,zzs:2796 ,dy:15.2 ,dl:36.8 ,zgl:559.4 ,xl:0.00  },
 				{ll:309.2 ,jyl:279.6 ,zzs:2796 ,dy:13.8 ,dl:27.4 ,zgl:378.1 ,xl:6.35  },
@@ -199,16 +199,16 @@
 						eachYDataValue3 = 	dpArray.getItemAt(idx)[_yField3];
 						eachYDataValue4 = 	dpArray.getItemAt(idx)[_yField4];
 						if(  legthmaxYValue1 > 2 && eachYDataValue1 != null && eachYDataValue1 != undefined &&  eachYDataValue1 != "" && Number(eachYDataValue1) != NaN){
-							dpArray.getItemAt(idx)[_yField1] =  Number(eachYDataValue1)/Math.pow(10,legthmaxYValue1 -2);
+							dpArray.getItemAt(idx)[_yField1] =  CommonMethod.numberRandom(Number(eachYDataValue1)/Math.pow(10,legthmaxYValue1 -2));
 						}
 						if(  legthmaxYValue2 > 2 && eachYDataValue2 != null && eachYDataValue2 != undefined &&  eachYDataValue2 != "" && Number(eachYDataValue2) != NaN){
-							dpArray.getItemAt(idx)[_yField2] =  Number(eachYDataValue2)/Math.pow(10,legthmaxYValue2 -2);
+							dpArray.getItemAt(idx)[_yField2] =  CommonMethod.numberRandom(Number(eachYDataValue2)/Math.pow(10,legthmaxYValue2 -2));
 						}
 						if(  legthmaxYValue3 > 2 && eachYDataValue3 != null && eachYDataValue3 != undefined &&  eachYDataValue3 != "" && Number(eachYDataValue3) != NaN){
-							dpArray.getItemAt(idx)[_yField3] =  Number(eachYDataValue3)/Math.pow(10,legthmaxYValue3 -2);
+							dpArray.getItemAt(idx)[_yField3] =  CommonMethod.numberRandom(Number(eachYDataValue3)/Math.pow(10,legthmaxYValue3 -2));
 						}
 						if(  legthmaxYValue4 > 2 && eachYDataValue4 != null && eachYDataValue4 != undefined &&  eachYDataValue4 != "" && Number(eachYDataValue4) != NaN){
-							dpArray.getItemAt(idx)[_yField4] =  Number(eachYDataValue4)/Math.pow(10,legthmaxYValue4 -2);
+							dpArray.getItemAt(idx)[_yField4] =  CommonMethod.numberRandom(Number(eachYDataValue4)/Math.pow(10,legthmaxYValue4 -2));
 						}
 					}
 					

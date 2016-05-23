@@ -303,7 +303,7 @@
 				}else{
 					var quklytext:String=this.qukilySearchTxt.text;
 					if(!ASStringHelper.isNullOrEmpty(quklytext)){
-						condition.s_lxdh_string_like=quklytext;
+						condition.s_zcxh_string_like=quklytext;
 					}
 				}
 				if(lxdid != ""){

@@ -143,6 +143,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 	
 	
 	/**
+	 * 返回满足条件的fyid List
 	 * @param fyxnList
 	 * @return
 	 */
@@ -388,7 +389,9 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			//效率 
 			dxl = (Double.parseDouble(dll) * Double.parseDouble(djy) / Double.parseDouble(dgl) / 36 ) +"" ;
 			
-			each.setZzs(dzs); each.setJyl(djy); each.setLl(dll); each.setZgl(dgl); each.setNj(dnj); each.setXl(dxl);
+			each.setZzs(CommonMethods.formateDouble(dzs,2)); each.setJyl(CommonMethods.formateDouble(djy,2)); 
+			each.setLl(CommonMethods.formateDouble(dll,2)); each.setZgl(CommonMethods.formateDouble(dgl,2)); 
+			each.setNj(CommonMethods.formateDouble(dnj,2)); each.setXl(CommonMethods.formateDouble(dxl,2));
 			
 			listOut.add(each);
 		}
@@ -435,7 +438,9 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 	     //效率 
 			dxl = (Double.parseDouble(dll) * Double.parseDouble(djy) / Double.parseDouble(dgl) / 36 ) +"" ;
 			
-			each.setZzs(dzs); each.setJyl(djy); each.setLl(dll); each.setSrgl(dgl); each.setXl(dxl);
+			each.setZzs(CommonMethods.formateDouble(dzs,2)); each.setJyl(CommonMethods.formateDouble(djy,2)); 
+			each.setLl(CommonMethods.formateDouble(dll,2)); each.setSrgl(CommonMethods.formateDouble(dgl,2)); 
+			each.setXl(CommonMethods.formateDouble(dxl,2));
 			
 			listOut.add(each);
 		}

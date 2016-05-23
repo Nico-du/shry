@@ -58,6 +58,14 @@ package flex.util
 	 **/
 	public class CommonMethod
 	{
+		
+		/**
+		 *四舍五入保留scale位小数 
+		 **/
+		public static function numberRandom(numIn:Number,scale:int=2):String{
+			return (Math.round(numIn*Math.pow(10, scale))/Math.pow(10, scale)).toFixed(scale);
+		}
+		
 		/**
 		 *选择 一个 风叶/电机/总成数据 
 		 **/

@@ -185,6 +185,16 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 				listxnVo = new ListZcxnVo();
 					//过滤到空数据行
 				if(StringUtils.isNotBlank(st.getCell(1, 15).getContents().trim())){
+					
+			        //对模版标题行校验，判断模版是否是风叶性能导入模版
+		               String zfsName = st.getCell(3,13).getContents().trim();
+		               String ffsName = st.getCell(4,13).getContents().trim();
+		               String dyName = st.getCell(5, 13).getContents().trim();
+		               if(!"主风扇".equals(zfsName) || !"辅风扇".equals(ffsName) || !"电压".equals(dyName)){
+		            	   listxnVo.setResult("该模版不符合总成性能导入模版格式！请检查导入模版");
+		            	   break;
+		               }
+		               
 	               String  flow = st.getCell(1, i).getContents().trim(); //流量
 	               String  jy = st.getCell(2,i).getContents().trim();      //静压
 	               String  mainFy = st.getCell(3, i).getContents().trim();//主风扇
@@ -193,7 +203,6 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 	               String  dl = st.getCell(6,i).getContents().trim();//电流
 	               String  sr = st.getCell(7, i).getContents().trim(); //输入
 	               String  xl = st.getCell(8,i).getContents().trim();//效率
-	  
 	               if(CommonMethods.isBlank(flow)&&CommonMethods.isBlank(jy)&&CommonMethods.isBlank(mainFy)
 	            		   &&CommonMethods.isBlank(subFy)&&CommonMethods.isBlank(dy)&&CommonMethods.isBlank(dl)
 	            		   &&CommonMethods.isBlank(sr)&&CommonMethods.isBlank(xl)){
