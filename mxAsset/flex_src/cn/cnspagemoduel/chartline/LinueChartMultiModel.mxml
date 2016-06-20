@@ -106,6 +106,7 @@
 			 **/
 			private function initPageStyle():void{
 				this.calculateAxisData();	
+				this.convertData();
 		//		gamdiscardlinechart.invalidateDisplayList();
 			}
 			
@@ -215,6 +216,39 @@
 				}
 			}
 			
+			/**
+			 *过滤数据 过滤Y轴  小于0的数据   Y轴 0到-2直接转换为0 小于-2的数据不显示
+			 **/
+			private function convertData():void{
+				var dpArrayNew:ArrayCollection = new ArrayCollection();
+				for each(var eachObj:Object in  dpArray){
+					if(eachObj[_yField1] < 0){
+						if(eachObj[_yField1] < 0 && eachObj[_yField1] >= -2){
+							eachObj[_yField1]  = 0;
+						}else{ continue; }
+					}
+					
+					if(eachObj[_yField2] < 0){
+						if(eachObj[_yField2] < 0 && eachObj[_yField2] >= -2){
+							eachObj[_yField2]  = 0;
+						}else{ continue; }
+					}
+					
+					if(eachObj[_yField3] < 0){
+						if(eachObj[_yField3] < 0 && eachObj[_yField3] >= -2){
+							eachObj[_yField3]  = 0;
+						}else{ continue; }
+					}
+					
+					if(eachObj[_yField4] < 0){
+						if(eachObj[_yField4] < 0 && eachObj[_yField4] >= -2){
+							eachObj[_yField4]  = 0;
+						}else{ continue; }
+					}
+					dpArrayNew.addItem(eachObj);
+				}
+				this.dpArray = dpArrayNew;
+			}
 			
 			//初始化页面之后调用
 			public function afterInitPage():void{

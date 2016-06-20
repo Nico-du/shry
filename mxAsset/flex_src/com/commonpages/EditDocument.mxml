@@ -206,7 +206,7 @@
 	<mx:Button x="10" y="10" label="选择文件" width="98" click="select()"/>
 	<mx:DataGrid x="10" y="40" width="522" dataProvider="{existedFiles}" height="347">
 		<mx:columns>
-			<mx:DataGridColumn headerText="文件名称" dataField="filename"/>
+			<mx:DataGridColumn headerText="文件名称" dataField="filename" width="180"/>
 			<mx:DataGridColumn headerText="类型" dataField="filetype"/>
 			<mx:DataGridColumn headerText="大小(byte)" dataField="filesize"/>
 			<mx:DataGridColumn headerText="上传日期" dataField="uploaddate"/>

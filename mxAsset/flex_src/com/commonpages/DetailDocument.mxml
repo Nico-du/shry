@@ -74,10 +74,10 @@
 	</mx:Script>
 	<mx:DataGrid x="10" y="10" width="422" dataProvider="{existedFiles}" height="277">
 		<mx:columns>
-			<mx:DataGridColumn headerText="文件名称" dataField="docMc"/>
-			<mx:DataGridColumn headerText="类型" dataField="docType"/>
-			<mx:DataGridColumn headerText="大小(byte)" dataField="docSize"/>
-			<mx:DataGridColumn headerText="上传日期" dataField="docRq"/>
+			<mx:DataGridColumn headerText="文件名称" dataField="filename" width="180"/>
+			<mx:DataGridColumn headerText="类型" dataField="filetype"/>
+			<mx:DataGridColumn headerText="大小(byte)" dataField="filesize"/>
+			<mx:DataGridColumn headerText="上传日期" dataField="uploaddate"/>
 			<mx:DataGridColumn headerText="下载" width="45">
 				<mx:itemRenderer>
 					<mx:Component>

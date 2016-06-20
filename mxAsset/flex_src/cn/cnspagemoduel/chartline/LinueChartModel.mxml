@@ -90,6 +90,7 @@
 					beforeInitPage();
 				}
 			this.initPageStyle();
+			this.convertData();
 			}
 			
 			/**
@@ -177,6 +178,21 @@
 				}
 			}
 			
+			/**
+			 *过滤数据 过滤Y轴  小于0的数据   Y轴 0到-2直接转换为0 小于-2的数据不显示
+			 **/
+			private function convertData():void{
+				var dpArrayNew:ArrayCollection = new ArrayCollection();
+				for each(var eachObj:Object in  dpArray){
+					if(eachObj[_yField] < 0){
+						if(eachObj[_yField] < 0 && eachObj[_yField] >= -2){
+							eachObj[_yField]  = 0;
+						}else{ continue; }
+					}
+					dpArrayNew.addItem(eachObj);
+				}
+				this.dpArray = dpArrayNew;
+			}
 			
 			//初始化页面之后调用
 			public function afterInitPage():void{

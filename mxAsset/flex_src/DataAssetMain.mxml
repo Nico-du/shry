@@ -22,7 +22,7 @@
 			import shry_zlgl.DJGridMoudel;
 			import shry_zlgl.FYGridMoudel;
 			import shry_zlgl.FYXNGridMoudel;
-			import shry_zlgl.FYZSGridMoudel;
+			import shry_zlgl.FYZSGridGroupMoudel;
 			import shry_zlgl.SYDGridMoudel;
 			import shry_zlgl.ZCGridMoudel;
 			import shry_zlgl.ZCXNGridMoudel;
@@ -157,7 +157,7 @@
 				}else if(ASStringHelper.stringCompare(this.DJ,strpageurl,true)==0){
 					tempMoudel=new DJGridMoudel();
 				}else if(ASStringHelper.stringCompare(this.ZS,strpageurl,true)==0){
-					tempMoudel=new FYZSGridMoudel();
+					tempMoudel=new FYZSGridGroupMoudel();
 				}/*else if(ASStringHelper.stringCompare(XJCX,strpageurl,true)==0){
 					tempMoudel=new XjjlList();
 				}else if(ASStringHelper.stringCompare(XJTJ,strpageurl,true)==0){
