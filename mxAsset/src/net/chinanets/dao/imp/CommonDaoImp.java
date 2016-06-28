@@ -871,7 +871,7 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao,Seria
 					String columnName=resultMeta.getColumnName(i);
 					String columnType=resultMeta.getColumnTypeName(i);
 					Object columnValue=null;
-					if(StringHelper.Compare(columnType, "DATE", true)==0){
+					if(StringHelper.Compare(columnType, "DATE", true)==0 || StringHelper.Compare(columnType, "DATETIME", true)==0){
 						columnValue=result.getTimestamp(columnName);
 						columnValue=DateHelper.GetStrDateByDateClass(columnValue, null);
 					}else{

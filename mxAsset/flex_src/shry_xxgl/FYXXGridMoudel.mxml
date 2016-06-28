@@ -549,8 +549,8 @@
 						<mx:DataGridColumn headerText="叶片分布" width="80" dataField="ypfb" sortable="true"/>				
 						<mx:DataGridColumn headerText="状态" width="80" dataField="syzt" sortable="true"/>	
 						<mx:DataGridColumn headerText="选型所取转速" width="100" dataField="stdzs" sortable="true"/>			
-						<mx:DataGridColumn headerText="更新人" width="100" dataField="updateusername" sortable="true"/>
-						<mx:DataGridColumn headerText="更新时间" width="155" dataField="updatedate" sortable="true"/>
+						<mx:DataGridColumn headerText="功率" width="100" dataField="updateusername" sortable="true"/>
+						<mx:DataGridColumn headerText="数据更新时间" width="155" dataField="updatedate" sortable="true"/>
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
 					</mx:columns>
 				</mx:DataGrid>

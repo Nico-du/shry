@@ -144,6 +144,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 	
 	/**
 	 * 返回满足条件的fyid List
+	 * 使用默认的噪声数据进行选型 fyid为4的数据
 	 * @param fyxnList
 	 * @return
 	 */
@@ -165,7 +166,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		
 		int stepRange = 50;
 		double dZj = 0;
-		//按风叶ID分组 
+		//Step 1:按风叶ID分组 
 		List<List<ShryFyxnData>> xnListGroup = new ArrayList<List<ShryFyxnData>>();
 		List<ShryFyxnData> eachFyxnList;
 		Long curfyid = null;  
@@ -205,9 +206,10 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 	((当前转速 - 转速1)%50 > 25 ? 1 : 0 + (int)(当前转速 - 转速1)/50) * 50) * 当前转速 
 		 */
 		
-		//缺失数据的 基础参数
+		//缺失的数据记录
 		List<String> missDataList = new ArrayList<String>();
-		//1.获取初始转速值
+		
+		//Step 2:获取初始转速值
 		String eachJy,eachLl,eachGl,eachZs;
 		label1:	for(List<ShryFyxnData> eachXnList : xnListGroup){
 			//数据校验
@@ -217,25 +219,30 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 				eachGl = each.getZgl();
 				eachZs = each.getZzs();
 				if(StringUtils.isBlank(eachJy) || StringUtils.isBlank(eachLl) || StringUtils.isBlank(eachGl) || StringUtils.isBlank(eachZs) ){
-					String fyxh = (String) commonDao.getOneColumnValueByHql("SELECT fy.XH FROM shry_fy_data fy WHERE fy.FYID ='"+each.getFyid()+"' ");
-					String lxdh = (String) commonDao.getOneColumnValueByHql("select lxd.lxdh from shry_syd_data lxd where lxd.lxdid= ='"+each.getLxdid()+"' ");
+					String fyxh = (String) commonDao.getObjectBySql("SELECT fy.XH FROM shry_fy_data fy WHERE fy.FYID ='"+each.getFyid()+"' ").get(0);
+					String lxdh = (String) commonDao.getObjectBySql("select lxd.lxdh from shry_syd_data lxd where lxd.lxdid ='"+each.getLxdid()+"' ").get(0);
 					missDataList.add("联系单号为"+lxdh+"的风叶性能数据中的部分数据缺失,选型忽略该联系单下的风叶"+fyxh);
 					continue label1;
 				}
 				if(Double.parseDouble(eachJy) < 0 || Double.parseDouble(eachJy) < 0 || Double.parseDouble(eachJy) < 0 || Double.parseDouble(eachJy) < 0){
-					String fyxh = (String) commonDao.getOneColumnValueByHql("SELECT fy.XH FROM shry_fy_data fy WHERE fy.FYID ='"+each.getFyid()+"' ");
-					String lxdh = (String) commonDao.getOneColumnValueByHql("select lxd.lxdh from shry_syd_data lxd where lxd.lxdid= ='"+each.getLxdid()+"' ");
+					String fyxh = (String) commonDao.getObjectBySql("SELECT fy.XH FROM shry_fy_data fy WHERE fy.FYID ='"+each.getFyid()+"' ").get(0);
+					String lxdh = (String) commonDao.getObjectBySql("select lxd.lxdh from shry_syd_data lxd where lxd.lxdid ='"+each.getLxdid()+"' ").get(0);
 					missDataList.add("联系单号为"+lxdh+"的风叶性能数据中的部分数据异常(小于0的数据),选型忽略该联系单下的风叶"+fyxh);
 					continue label1;
 				}
 			}
+			
+			//Step 2.1:获取直径参数
 			String dlhzj  = (String) commonDao.getObjectBySql("SELECT fy."+columnName+" FROM shry_fy_data fy WHERE fy.FYID ='"+eachXnList.get(0).getFyid()+"' ").get(0);
 			
 			ShryFyxnData startFyxhData = null;
 			double minJyRange,minLlRange;
 			minJyRange = minLlRange = 100000000;
+			
+			//Step 2.2:获取初始转速
 			//一定 满足 同静压时流量值大于输入值或者同流量时静压大于输入值,套公式改转速
 			//取两个值同时大于且最接近于 目标 的值 为起始值
+			//Step 2.2.1: 基于已有性能数据 获取初始转速
 			for(ShryFyxnData each : eachXnList){
 				eachJy = each.getJyl();
 				eachLl = each.getLl();
@@ -246,11 +253,17 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 					minLlRange = Double.parseDouble(eachLl) - dLl;
 				}
 			}
-			if(startFyxhData == null){ continue; }
-			//获取风叶 流量-静压 数据
+			if(startFyxhData == null){
+			//TODO Step 2.2.2:基于推算数据 获取初始转速  可推算的最大转速设定为4500
+				
+				continue; }
+			
+			//Step 3: 获取该风叶型号 噪声参考 数据
 			ShryFyZsData objExp = new ShryFyZsData();
-			objExp.setFyid(eachXnList.get(0).getFyid());
-			List<ShryFyZsData> fyzsList = commonDao.getObjectByExample(objExp);//("select * from shry_fy_zs_data fyzs where fyzs.fyid='"+eachXnList.get(0).getFyid()+"' ");
+//			objExp.setFyid(eachXnList.get(0).getFyid());
+			objExp.setFyid(4l);//当前版本噪声数据非必须数据  使用默认数据作为参考
+			
+			List<ShryFyZsData> fyzsList = commonDao.getObjectByExample(objExp); //("select * from shry_fy_zs_data fyzs where fyzs.fyid='"+eachXnList.get(0).getFyid()+"' ");
 			double x[] = new double[fyzsList.size()];
 			double y[] = new double[fyzsList.size()];
 			int i=0;
@@ -266,32 +279,29 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 				i++;
 			}
 			
-			//从起始值开始 以步长stepRange 递减 进行推算
+			//Step 4.1: 推算噪声数据  并 根据初始性能数据 反推两个临界转速
 			//跳出条件为 不满足 [同静压时流量值大于输入值 或 者同流量时静压大于输入值]
 			int startZs = Integer.parseInt(startFyxhData.getZzs());
 			int startIndex = eachXnList.indexOf(startFyxhData);
 			double dEachJy,dEachLl,dEachGl,dEachZs;
-			double zsAry[] = {reversePressure(Double.parseDouble(dlhzj), startZs, Double.parseDouble(startFyxhData.getZgl()), dGl, Double.parseDouble(dlhzj)),
-					                    reverseQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getZgl()), dGl)  };
-			int ict = 0;// 0 : 同静压反推转速  1 : 同流量反推转速
+			double zsAry[] = {reversePressure(Double.parseDouble(dlhzj), startZs, Double.parseDouble(startFyxhData.getJyl()), dJy, Double.parseDouble(dlhzj)),
+					                    reverseQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getLl()), dLl)  };
+			int ict = 0;   // 0 : 同静压反推转速  1 : 同流量反推转速
 			//获取较小的功率
 			double dEachGl1 = 0;
-			String sStr1 = "";
 			for(double zs : zsAry ){
 				dEachJy = translatePressure(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getJyl()), zs, Double.parseDouble(dlhzj));
 				dEachLl = translateQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getLl()), zs, Double.parseDouble(dlhzj));
 				dEachGl = translatePower(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getZgl()), zs, Double.parseDouble(dlhzj));
 
-				//TODO 目标转速的记录转换，显示到前台 zs
-				//使用最小二乘法 拟合曲线并求值
+				//目标转速的记录, 显示到前台 zs
+				//Step 4.2:使用最小二乘法 拟合曲线并求值, 满足情况1或情况2都可
 				double dCurZs = Guass.getGuassValue(x,y,zs);
 					if(dCurZs < dZs && dEachGl < dGl ){
-						if(ict == 0 && dEachLl > dLl){ //同静压时流量值大于输入值
+						if(ict == 0 && dEachLl > dLl){ //情况1:同静压时流量值大于输入值
 							dEachGl1 = dEachGl;
-//							sStr1 = "fyid="+eachXnList.get(0).getFyid()+";zzs="+zs+";jy="+dEachJy+";ll="+dEachLl+";gl="+dEachGl+";zs="+dCurZs+";";
 							fylist.add(eachXnList.get(0).getFyid().intValue() +";"+(float)(zs));
-					//		fylist.add("fyid="+eachXnList.get(0).getFyid()+";zzs="+zs+";jy="+dEachJy+";ll="+dEachLl+";gl="+dEachGl+";zs="+dCurZs+";");
-						}else if(ict == 1 && dEachJy > dJy){// 同流量时静压大于输入值 
+						}else if(ict == 1 && dEachJy > dJy){//情况2: 同流量时静压大于输入值 
 							fylist.add(eachXnList.get(0).getFyid().intValue() +";"+(float)(zs));
 							//fylist.add("fyid="+eachXnList.get(0).getFyid()+";zzs="+zs+";jy="+dEachJy+";ll="+dEachLl+";gl="+dEachGl+";zs="+dCurZs+";");
 							/*if(dEachGl1 < dEachGl){//较小功率对比
@@ -303,6 +313,13 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 					ict++;
 				}
 			}
+			
+			//TODO Step 5: 从起始值开始 以步长stepRange 递减 进行推算
+			//当前数据满足选型条件时 继续推算至最小转速,记录推算过程中的数据,   汇总对比取 [功率最小] 的转速
+			//暂不考虑效率 没有效率换算公式
+			
+			
+			
 			
 		/*	for(double zs = startZs ; zs > 0 ; zs -= 50 ){
 				dEachJy = translatePressure(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getJyl()), zs, Double.parseDouble(dlhzj));
