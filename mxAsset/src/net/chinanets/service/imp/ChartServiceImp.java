@@ -97,8 +97,13 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		Double dDlhzj = StringUtils.isBlank(sDlhzj) ? null : Double.parseDouble(sDlhzj);
 		
 		//执行选型
-		List<String> xxjgList = doFySelection(fyxnList,Double.parseDouble(sJy),Double.parseDouble(sLl),
-				Double.parseDouble(sGl),Double.parseDouble(sZs),dDlhzj,dFbzj);
+		List<String> xxjgList = new ArrayList<String>();
+		try {
+			xxjgList = doFySelection(fyxnList,Double.parseDouble(sJy),Double.parseDouble(sLl),
+					Double.parseDouble(sGl),Double.parseDouble(sZs),dDlhzj,dFbzj);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		String fyids = "'',";
 		String caseWhenSql = ", case when '' then '' ";
 		for(String eachStr:xxjgList){
@@ -106,8 +111,16 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			caseWhenSql += " when fyid='"+eachStr.split(";")[0]+"' then '"+eachStr.split(";")[1]+"' ";
 		}
 		caseWhenSql += " end as stdzs ";
+		
+		String caseWhenSql2 = ", case when '' then '' ";
+		for(String eachStr:xxjgList){
+		//	fyids += " '"+eachStr.split(";")[0]+"',";
+			caseWhenSql2 += " when fyid='"+eachStr.split(";")[0]+"' then '"+eachStr.split(";")[2]+"' ";
+		}
+		caseWhenSql2 += " end as stdgl ";
+		
 		if(fyids.endsWith(",")){ fyids = fyids.substring(0,fyids.length()-1);}
-		JSONArray xxjgObjList = commonDao.RunSelectJSONArrayBySql("select * "+caseWhenSql+" from shry_fy_data where fyid in ("+fyids+") ", null);
+		JSONArray xxjgObjList = commonDao.RunSelectJSONArrayBySql("select * "+caseWhenSql+caseWhenSql2+" from shry_fy_data where fyid in ("+fyids+") ", null);
 		//electClassBySql("select * from shry_fy_data where fyid in ("+fyids+") ", "net.chinanets.pojos.ShryFyData.ShryFyData");
 		//(new ShryFyData(), " fyid in  ("+fyids+")");
 		if(xxjgObjList == null){xxjgObjList = new JSONArray();}
@@ -164,7 +177,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		
 		if(fyxnList == null || fyxnList.isEmpty()){ return fylist; }
 		
-		int stepRange = 50;
+		int stepRange = 20;
 		double dZj = 0;
 		//Step 1:按风叶ID分组 
 		List<List<ShryFyxnData>> xnListGroup = new ArrayList<List<ShryFyxnData>>();
@@ -246,7 +259,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			for(ShryFyxnData each : eachXnList){
 				eachJy = each.getJyl();
 				eachLl = each.getLl();
-				if(Double.parseDouble(eachJy) > dJy && Double.parseDouble(eachLl) > dLl 
+				if(Double.parseDouble(eachJy) >= dJy && Double.parseDouble(eachLl) >= dLl 
 						&& ( (Double.parseDouble(eachJy) - dJy) < minJyRange || (Double.parseDouble(eachLl) - dLl) < minLlRange )){
 					startFyxhData = each;
 					minJyRange = Double.parseDouble(eachJy) - dJy;
@@ -254,7 +267,8 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 				}
 			}
 			if(startFyxhData == null){
-			//TODO Step 2.2.2:基于推算数据 获取初始转速  可推算的最大转速设定为4500
+			//TODO Step 2.2.2:基于推算数据 获取初始转速  可推算的最大转速设定为4500 
+			//暂时不考虑 默认风叶试验数据会覆盖到这个尽量大的范围
 				
 				continue; }
 			
@@ -280,7 +294,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			}
 			
 			//Step 4.1: 推算噪声数据  并 根据初始性能数据 反推两个临界转速
-			//跳出条件为 不满足 [同静压时流量值大于输入值 或 者同流量时静压大于输入值]
+			//跳出条件为 不满足 [同静压时流量值大于输入值 且 者同流量时静压大于输入值]
 			int startZs = Integer.parseInt(startFyxhData.getZzs());
 			int startIndex = eachXnList.indexOf(startFyxhData);
 			double dEachJy,dEachLl,dEachGl,dEachZs;
@@ -288,7 +302,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 					                    reverseQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getLl()), dLl)  };
 			int ict = 0;   // 0 : 同静压反推转速  1 : 同流量反推转速
 			//获取较小的功率
-			double dEachGl1 = 0;
+			double dEachGl_part = 0;	int fyid_part = -1; double dSpeed_part = -1; //满足条件的结果
 			for(double zs : zsAry ){
 				dEachJy = translatePressure(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getJyl()), zs, Double.parseDouble(dlhzj));
 				dEachLl = translateQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getLl()), zs, Double.parseDouble(dlhzj));
@@ -297,18 +311,20 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 				//目标转速的记录, 显示到前台 zs
 				//Step 4.2:使用最小二乘法 拟合曲线并求值, 满足情况1或情况2都可
 				double dCurZs = Guass.getGuassValue(x,y,zs);
-					if(dCurZs < dZs && dEachGl < dGl ){
+					if(dCurZs < dZs && dEachGl <= dGl ){
 						if(ict == 0 && dEachLl > dLl){ //情况1:同静压时流量值大于输入值
-							dEachGl1 = dEachGl;
-							fylist.add(eachXnList.get(0).getFyid().intValue() +";"+(float)(zs));
+							dEachGl_part = dEachGl;
+							fyid_part = eachXnList.get(0).getFyid().intValue() ;
+							dSpeed_part = zs;
+//							xxrst_part = eachXnList.get(0).getFyid().intValue() +";"+(float)(zs);
+//							fylist.add(xxrst_part);
 						}else if(ict == 1 && dEachJy > dJy){//情况2: 同流量时静压大于输入值 
-							fylist.add(eachXnList.get(0).getFyid().intValue() +";"+(float)(zs));
-							//fylist.add("fyid="+eachXnList.get(0).getFyid()+";zzs="+zs+";jy="+dEachJy+";ll="+dEachLl+";gl="+dEachGl+";zs="+dCurZs+";");
-							/*if(dEachGl1 < dEachGl){//较小功率对比
-								fylist.add(sStr1);
-							}else{
-							fylist.add("fyid="+eachXnList.get(0).getFyid()+";zzs="+zs+";jy="+dEachJy+";ll="+dEachLl+";gl="+dEachGl+";zs="+dCurZs+";");
-							}*/
+							if(dEachGl_part < dEachGl){//较小功率对比
+								dEachGl_part = dEachGl;
+								fyid_part = eachXnList.get(0).getFyid().intValue() ;
+								dSpeed_part = zs;
+//								xxrst_part = eachXnList.get(0).getFyid().intValue() +";"+(float)(zs);
+							}
 					    }
 					ict++;
 				}
@@ -317,24 +333,43 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			//TODO Step 5: 从起始值开始 以步长stepRange 递减 进行推算
 			//当前数据满足选型条件时 继续推算至最小转速,记录推算过程中的数据,   汇总对比取 [功率最小] 的转速
 			//暂不考虑效率 没有效率换算公式
-			
-			
-			
-			
-		/*	for(double zs = startZs ; zs > 0 ; zs -= 50 ){
-				dEachJy = translatePressure(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getJyl()), zs, Double.parseDouble(dlhzj));
-				dEachLl = translateQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getLl()), zs, Double.parseDouble(dlhzj));
-				dEachGl = translatePower(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getZgl()), zs, Double.parseDouble(dlhzj));
-				
-				double dCurZs = Guass.getGuassValue(x,y,zs);
-				if(dCurZs < dZs && dEachGl < dGl && ( () || () )){
+			//命中的数据 进行最优功率选择   满足静压和流量大于目标值  translatePressure(double dn1, double dD1, double dP1, double dn2, double dD2)
+			if(fyid_part != -1){
+				double minSpeed_part,minGl_part; minSpeed_part = minGl_part = 0;
+				for(double zs = dSpeed_part ; zs > 0 ; zs -= stepRange ){
+					dEachJy = translatePressure(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getJyl()), zs, Double.parseDouble(dlhzj));
+					dEachLl = translateQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getLl()), zs, Double.parseDouble(dlhzj));
+					dEachGl = translatePower(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getZgl()), zs, Double.parseDouble(dlhzj));
 					
-				}
-			}*/
+//					double dCurZs = Guass.getGuassValue(x,y,zs);//暂不考虑噪声
+					if(dEachGl <= dGl && ( (dEachJy >= dJy && dEachLl>=  dLl))){
+						if(dEachGl < dEachGl_part){
+							dEachGl_part = dEachGl; dSpeed_part = zs;
+						}
+					}else{
+						break;
+					}
+			 }
+				//记入选型结果
+				fylist.add(fyid_part  +";"+ dSpeed_part+";"+dEachGl_part);
 			}
+			}
+		//过滤结果集合
+		List<String> fylist_rst = new ArrayList<String>();
+		String eachFyid="";
+		List<String> fylist_temp = new ArrayList<String>();
+		for(String each:fylist){fylist_temp.add(each); }
+		for(String each:fylist){
+			eachFyid = each.split(";")[0];
+			for(String eachSn:fylist_temp){
+				if(eachFyid.equals(eachSn.split(";")[0]) && Double.parseDouble(each.split(";")[2]) > Double.parseDouble(eachSn.split(";")[2])){
+					fylist_temp.remove(each); break;
+				}
+			}
+		}
+		fylist_rst = fylist_temp;
 		
-		
-		return fylist;
+		return fylist_rst;
 	}
 
 	
