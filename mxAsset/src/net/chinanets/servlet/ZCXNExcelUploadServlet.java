@@ -117,7 +117,7 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 							   str="该型号："+listxnVo.getSydData().getZcxh()+"的总成数据不存在！";
 						   }
 					     }else{
-						   str="数据已存在，请检查数据！";
+						   str="该总成性能模版中，实验单号+试验性质+试验日期，存在重复记录，请检查数据！";
 					   }
 					}else{
 						str=listxnVo.getResult().toString();
@@ -152,6 +152,16 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 			int rows = st.getRows();// 得到所有的行
 			List<ShryZcxnData> zcxnList = new ArrayList<ShryZcxnData>();
 			List<ShrySydData> sydList = new ArrayList<ShrySydData>();
+			
+		    //对模版标题行校验，判断模版是否是风叶性能导入模版
+            String zfsName = st.getCell(3,13).getContents().trim();
+            String ffsName = st.getCell(4,13).getContents().trim();
+            String dyName = st.getCell(5, 13).getContents().trim();
+            if(!"主风扇".equals(zfsName) || !"辅风扇".equals(ffsName) || !"电压".equals(dyName)){
+         	   listxnVo.setResult("该模版不符合总成性能导入模版格式！请检查导入模版");
+         	   return listxnVo;
+            }
+            
 			String lxdh = st.getCell(4, 3).getContents().trim(); //联系单号
 			//148#/RY0.1504010 截取“/”后面作为联系单号
 			lxdh = lxdh.substring(lxdh.indexOf("/")+1);
@@ -185,16 +195,6 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 				listxnVo = new ListZcxnVo();
 					//过滤到空数据行
 				if(StringUtils.isNotBlank(st.getCell(1, 15).getContents().trim())){
-					
-			        //对模版标题行校验，判断模版是否是风叶性能导入模版
-		               String zfsName = st.getCell(3,13).getContents().trim();
-		               String ffsName = st.getCell(4,13).getContents().trim();
-		               String dyName = st.getCell(5, 13).getContents().trim();
-		               if(!"主风扇".equals(zfsName) || !"辅风扇".equals(ffsName) || !"电压".equals(dyName)){
-		            	   listxnVo.setResult("该模版不符合总成性能导入模版格式！请检查导入模版");
-		            	   break;
-		               }
-		               
 	               String  flow = st.getCell(1, i).getContents().trim(); //流量
 	               String  jy = st.getCell(2,i).getContents().trim();      //静压
 	               String  mainFy = st.getCell(3, i).getContents().trim();//主风扇

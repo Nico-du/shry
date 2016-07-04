@@ -132,7 +132,7 @@ public class CommonMethods {
 	Double.parseDouble(str); 
 	return true; 
 	} 
-	catch(NumberFormatException ex){} 
+	catch(Exception ex){} 
 	return false; 
 	}
 	

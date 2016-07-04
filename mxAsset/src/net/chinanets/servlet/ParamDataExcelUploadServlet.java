@@ -72,7 +72,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 						CommonService comService = (CommonService) app.getBean("commonService");
 						for (int i = 0; i <listVo.getFyDataList().size(); i++) {
 							//根据风叶型号查询风叶数据表。判断该风叶型号是已经存在，如果已经存在则在该风叶型号前面加1#，若再有重复一次递增
-							   int fyCount = comService.getCountByObject(listVo.getFyDataList().get(i));
+							   int fyCount = comService.getCountShryFy(listVo.getFyDataList().get(i).getXh());
 							   if(fyCount>0){
 								   listVo.getFyDataList().get(i).setXh(i+"#"+listVo.getFyDataList().get(i).getXh());
 							   }

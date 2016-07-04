@@ -238,5 +238,11 @@ public interface CommonService {
 		 */
 		public List<ShrySydData> getFYSydByParam(Long syId, Long fyxh) ;
 		
+		/**
+		 * 根据风叶型号查询是否存在重复记录
+		 * param:xh
+		 * @return
+		 */
+		public int getCountShryFy(String xh);
 		
 }

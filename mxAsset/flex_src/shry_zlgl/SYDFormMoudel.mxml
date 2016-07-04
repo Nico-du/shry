@@ -313,6 +313,7 @@
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
 				}
+				
 				//执行编号重复验证
 				if(isCheckSuccess){
 					CommonMethod.validateWFBH(this.lxdh.text,"LXDID","lxdh",this.tempObjBeanName,this.dataId,this,beforeSaveDataBack);
@@ -324,7 +325,7 @@
 			//验证编号重复的回调函数 
 			public function beforeSaveDataBack(isbhcf:Boolean = false):void{
 				if(isbhcf){
-					var errorMsg:String="[试验单型号]重复,请重新输入";
+					var errorMsg:String="[联系单号]重复,请重新输入";
 					showCheckErrors(errorMsg);
 				//	xh.text = CommonMethod.genernateIncreaseWFBH(xh.text);
 					return;

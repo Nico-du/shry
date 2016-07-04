@@ -67,7 +67,8 @@
 			public var parentPage:ZCGridMoudel=null;
 			//临时存储方法
 			public var tempFunction:Function=null;
-			
+			//图表数据
+			var chartDataList:ArrayCollection = new ArrayCollection();
 			//页面初始化调用
 			public function initPage():void{
 				if(true){
@@ -481,6 +482,8 @@
 				//添加多曲线
 				chartMultiPanel.removeAllChildren();
 				var objList:ArrayCollection = event.result as ArrayCollection;
+				chartDataList = objList;
+				
 				var objList2:ArrayCollection = ObjectUtil.copy(event.result) as ArrayCollection;
 				var multiChart:LinueChartMultiModel = new LinueChartMultiModel();
 				multiChart._yField3 = "zzs"; multiChart._yField2 = "srgl";
@@ -557,6 +560,23 @@
 				}else{
 					datumFormTabNV.height = datumFormTabNVPHeight;
 				}
+			}
+			
+			public function exportHSJG_clickHandler():void{
+				if(hsCbx.selectedItem == null ){ return; }
+				var sLxdid:String = hsCbx.selectedItem.lxdid;
+				
+				var variables:URLVariables = new URLVariables();
+				variables.jdbcSql = "";
+				variables.dataid = this.dataId;
+				variables.dataid2 = sLxdid;
+				variables.exportType = "ZCXNHS";
+				variables.extraData = JSON.encode(chartDataList); ;
+				
+				var u:URLRequest = new URLRequest("/mxAsset/servlet/ExportAllExcel");
+				u.data = variables; 
+				u.method = URLRequestMethod.POST; 
+				navigateToURL(u,"_self");		
 			}
 			
 			protected function button1_clickHandler(event:MouseEvent):void
@@ -746,6 +766,7 @@
 							<mx:Label paddingTop="2"  text="换算到(mm):"/><numberInput:NumberTextInput  width="40" id="hsdlhzjinput"/>
 							
 							<mx:Button paddingLeft="5" label="转换" click="button1_clickHandler(event)"/>
+							<mx:Button  label="导出" click="exportHSJG_clickHandler()"/>
 						</mx:HBox>
 						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0"  verticalGap="2" cornerRadius="2" borderStyle="none">
 							<mx:LinkBar dataProvider="{blogModel}"  styleName="LinkBarStyle01"/>

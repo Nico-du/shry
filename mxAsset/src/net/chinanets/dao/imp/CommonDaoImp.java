@@ -12,6 +12,8 @@ import java.util.List;
 
 import net.chinanets.dao.CommonDao;
 import net.chinanets.data.DataEntity;
+import net.chinanets.excel.StringUtil;
+import net.chinanets.pojos.ShryFyData;
 import net.chinanets.pojos.ShrySydData;
 import net.chinanets.utils.helper.ConditionHelper;
 import net.chinanets.utils.helper.DateHelper;
@@ -1003,4 +1005,18 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao,Seria
 			return getHibernateTemplate().findByCriteria(dc);
 		}
 
+		/**
+		 * 根据风叶型号查询是否存在重复记录
+		 * param:xh
+		 * @return
+		 */
+		public 	List<ShryFyData> getShryFybyParam(String xh){
+
+			DetachedCriteria dc = DetachedCriteria.forClass(ShryFyData.class);
+			if(StringUtil.isNotBlank(xh)){
+				dc.add(Restrictions.eq("xh", xh));
+				
+			}
+			return getHibernateTemplate().findByCriteria(dc);
+		}
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import net.chinanets.utils.CommonMethods;
 import net.chinanets.utils.common.Enums;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -70,7 +71,7 @@ public class JsonHelper {
 			JSONArray tempJsonObj=JSONArray.fromObject(strValue);
 			return tempJsonObj;
 		}catch(Exception ex){
-			log.error(ex.getMessage());
+			ex.printStackTrace();			log.error(ex.getMessage());
 			return null;
 		}
 	}
@@ -86,7 +87,7 @@ public class JsonHelper {
 			JSONArray tempJsonArray=GetJsonArrayByJsonString(strValue);
 			return (Object[])JSONArray.toArray(tempJsonArray);
 		}catch(Exception ex){
-			log.error(ex.getMessage());
+			ex.printStackTrace();			log.error(ex.getMessage());
 			return null;
 		}
 	}
@@ -129,7 +130,7 @@ public class JsonHelper {
 				}
 				String strObjVlue="";
 				if(objValue!=null){
-					strObjVlue=objValue.toString();
+					strObjVlue=objValue+"";
 				}
 				String fieldType=tempField.getType().getSimpleName().toUpperCase();
 				tempField.setAccessible(true);
@@ -138,6 +139,10 @@ public class JsonHelper {
 					continue;
 				}else if(StringHelper.Compare(fieldType, Enums.DATATYPE.STRING.toString(), true)==0){
 					tempField.set(beanObj,strObjVlue);
+					continue;
+				}
+				//下面的校验都是Number类型校验
+				if(!CommonMethods.isDouble(strObjVlue)){
 					continue;
 				}
 				if(StringHelper.IsNullOrEmpty(strObjVlue)){
@@ -155,7 +160,7 @@ public class JsonHelper {
 			}
 			return beanObj;
 		}catch(Exception ex){
-			log.error(ex.getMessage());
+			ex.printStackTrace();			log.error(ex.getMessage());
 			return null;
 		}
 	}
@@ -206,6 +211,9 @@ public class JsonHelper {
 					tempField.set(tempObj,strObjVlue);
 					continue;
 				}
+				if(!CommonMethods.isDouble(strObjVlue)){
+					continue;
+				}
 				if(StringHelper.IsNullOrEmpty(strObjVlue)){
 					strObjVlue="0";
 				}
@@ -220,7 +228,7 @@ public class JsonHelper {
 				}
 			}
 		}catch(Exception ex){
-			log.error(ex.getMessage());
+			ex.printStackTrace();			log.error(ex.getMessage());
 		}
 	}
 	
@@ -244,7 +252,7 @@ public class JsonHelper {
 			}
 			return tempList;
 		}catch(Exception ex){
-			log.error(ex.getMessage());
+			ex.printStackTrace();			log.error(ex.getMessage());
 			return null;
 		}
 	}
@@ -259,7 +267,7 @@ public class JsonHelper {
 			JSONArray tempJsonArray=JSONArray.fromObject(strValue);
 			return JSONArray.toList(tempJsonArray);
 		}catch(Exception ex){
-			log.error(ex.getMessage());
+			ex.printStackTrace();			log.error(ex.getMessage());
 			return null;
 		}
 	}
@@ -282,7 +290,7 @@ public class JsonHelper {
 			}
 			return tempMap;
 		}catch(Exception ex){
-			log.error(ex.getMessage());
+			ex.printStackTrace();			log.error(ex.getMessage());
 			return null;
 		}
 	}
@@ -297,7 +305,7 @@ public class JsonHelper {
 			JSONObject tempObj=JSONObject.fromObject(tempObject);
 			return tempObj;
 		}catch(Exception ex){
-			log.error(ex.getMessage());
+			ex.printStackTrace();			log.error(ex.getMessage());
 			return null;
 		}
 	}
@@ -312,7 +320,7 @@ public class JsonHelper {
 			JSONObject tempObj=JSONObject.fromObject(tempList);
 			return tempObj;
 		}catch(Exception ex){
-			log.error(ex.getMessage());
+			ex.printStackTrace();			log.error(ex.getMessage());
 			return null;
 		}
 	}
@@ -327,7 +335,7 @@ public class JsonHelper {
 			JSONObject tempObj=JSONObject.fromObject(tempArray);
 			return tempObj;
 		}catch(Exception ex){
-			log.error(ex.getMessage());
+			ex.printStackTrace();			log.error(ex.getMessage());
 			return null;
 		}
 	}
@@ -342,7 +350,7 @@ public class JsonHelper {
 			JSONObject tempObj=JSONObject.fromObject(tempMap);
 			return tempObj;
 		}catch(Exception ex){
-			log.error(ex.getMessage());
+			ex.printStackTrace();			log.error(ex.getMessage());
 			return null;
 		}
 	}

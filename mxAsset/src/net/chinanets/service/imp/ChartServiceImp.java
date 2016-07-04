@@ -1,20 +1,14 @@
 package net.chinanets.service.imp;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.dom4j.Document;
-import org.dom4j.Element;
 
 import net.chinanets.data.DataEntity;
-import net.chinanets.entity.CnstWfstepData;
 import net.chinanets.pojos.ShryFyData;
 import net.chinanets.pojos.ShryFyZsData;
 import net.chinanets.pojos.ShryFyxnData;
@@ -26,8 +20,6 @@ import net.chinanets.utils.CommonMethods;
 import net.chinanets.utils.Guass;
 import net.chinanets.utils.common.DoResult;
 import net.chinanets.utils.common.Errors;
-import net.chinanets.utils.helper.JsonHelper;
-import net.chinanets.vo.Chart;
 import net.chinanets.vo.UserVo;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -830,147 +822,6 @@ public String translateData(String jsonArrayStrIn,String jsonObjectIn,String typ
 	}
 	
 	
-	/**
-	 * 年份与项目数
-	 * 
-	 * @return
-	 */
-	public List yearCount() {
-		String sql = "select nf,count(nf) from project_xm  group by nf order by nf asc";
-		return findObject(sql);
-	}
-
-	/**
-	 * 项目与金额
-	 * 
-	 * @return
-	 */
-	public List xmJe(String s) {
-		String sql = "select xmmc,je from project_xm " + s;
-		return findObject(sql);
-	}
-
-	/**
-	 * 项目与日期
-	 * 
-	 * @return
-	 */
-	public List xmZq(String s) {
-		String sql = "select  xmmc,ROUND(MONTHS_BETWEEN(TO_DATE(wcrq,'yyyy-MM-dd'),TO_DATE(ssrq,'yyyy-MM-dd'))) from project_xm  ";
-		return findObject(sql + s);
-	}
-
-	// 获得所有项目年份
-	public List getNf() {
-		String sql = "select distinct nf from project_xm  order by nf desc";
-		return super.getObjectBySql(sql);
-	}
-
-	private List findObject(String sql) {
-		List lt = super.getObjectBySql(sql);
-		List ary = new ArrayList();
-		for (Iterator iterator = lt.iterator(); iterator.hasNext();) {
-			Object[] obj = (Object[]) iterator.next();
-			Chart cr = new Chart();
-			cr.setName(obj[0].toString());
-			cr.setCount(Double.parseDouble((obj[1].toString())));
-			ary.add(cr);
-		}
-		return ary;
-	}
-
-	/*
-	 * 获得提示项目信息
-	 * 
-	 * @see net.chinanets.service.ChartService#getProject()
-	 */
-	public String getClockInfo(String time) {
-		String hql = "From ProjectXm xm  where xm.wcrq > '" + time + "' ";
-		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-		Calendar c1 = Calendar.getInstance();
-		Calendar c2 = Calendar.getInstance();
-		List xmList = super.getAllObjectByHql(hql);
-
-		Document document = org.dom4j.DocumentHelper.createDocument();
-		Element root = document.addElement("root");
-
-		/*for (Iterator iterator = xmList.iterator(); iterator.hasNext();) {
-			ProjectXm xm = (ProjectXm) iterator.next();
-
-			XmProcess pro = new XmProcess();
-			pro.setParentID(xm.getId());
-			List proList = super.getObjectList(pro);
-			for (Iterator proIt = proList.iterator(); proIt.hasNext();) {
-				XmProcess p = (XmProcess) proIt.next();
-				String bzTime = p.getBztime();
-				if (bzTime != null) {
-					try {
-						c1.setTime(fmt.parse(bzTime));
-						c2.setTime(fmt.parse(time));
-						long l1 = c1.getTimeInMillis();
-						long l2 = c2.getTimeInMillis();
-						// 计算天数
-						long day = (l1 - l2) / (24 * 60 * 60 * 1000);
-						if (day < xm.getStage() && day > 0) {
-							Element node = root.addElement("node");
-							node.addAttribute("xmName", xm.getXmmc());
-							node.addAttribute("xmID", xm.getId().toString());
-							node.addAttribute("xmWcrq", xm.getWcrq());
-							node.addAttribute("xmBz", p.getBzmc());
-							node.addAttribute("xmTime", p.getBztime());
-							node.addAttribute("xmDay", String.valueOf(day));
-							node.addAttribute("zt", p.getZt().toString());
-							node.addAttribute("pid", p.getId().toString());
-						}
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}*/
-
-		// net.chinanets.utils.ChinaNetsUtil.writXml(document);
-		return document.asXML();
-	}
 	
-	public void changeProcessZt(Long id){
-		/*XmProcess p=(XmProcess) super.getObjectById(new XmProcess(), id);
-		p.setZt(Long.parseLong("1"));
-		super.updateObject(p);*/
-	}
-	
-	public List<Map<String, String>> getXjjlChart(String dateRange){
-		if(dateRange == null || (dateRange.length()!=4 && dateRange.length() != 7))return null;
-		List<Map<String, String>> rstList= new ArrayList<Map<String,String>>();
-	/*	Map<String, String> hashMap;
-		Xjjl xjjlVo = new Xjjl();
-		String xjsj;
-		if(dateRange.length() == 4){
-			for(int i=1;i<=12;i++){
-				hashMap = new LinkedHashMap<String, String>(); 
-				xjsj = dateRange + "-"+ (i<10 ? "0"+i : i)+"%";
-				xjjlVo.setXjsj(xjsj);
-				xjjlVo.setXjjglx("正常");
-				hashMap.put("month",i+"月");
-				hashMap.put("normal",super.getCountByObject(xjjlVo)+"");
-				xjjlVo.setXjjglx("异常");
-				hashMap.put("unnormal",super.getCountByObject(xjjlVo)+"");
-				rstList.add(hashMap);
-			}
-		}else 	if(dateRange.length() == 7){
-			for(int i=1;i<=31;i++){
-				hashMap = new LinkedHashMap<String, String>(); 
-				xjsj = dateRange + "-"+ (i<10 ? "0"+i : i)+"%";
-				xjjlVo.setXjsj(xjsj);
-				xjjlVo.setXjjglx("正常");
-				hashMap.put("day",i+"日");
-				hashMap.put("normal",super.getCountByObject(xjjlVo)+"");
-				xjjlVo.setXjjglx("异常");
-				hashMap.put("unnormal",super.getCountByObject(xjjlVo)+"");
-				rstList.add(hashMap);
-			}
-		}*/
-		return rstList;
-	}
 
 }

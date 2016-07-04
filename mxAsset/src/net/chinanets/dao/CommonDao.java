@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.chinanets.data.DataEntity;
+import net.chinanets.pojos.ShryFyData;
 import net.chinanets.pojos.ShrySydData;
 import net.sf.json.JSONArray;
 
@@ -195,6 +196,13 @@ public interface CommonDao {
 	    * 总成性能导入，查询是否存在重复记录
 	    * param:   试验单号 +试验性质+试验日期
 	    */
-		public List<ShrySydData>  getZCSydByParam(Long syId,String syxz,Date syrq);
+	public List<ShrySydData>  getZCSydByParam(Long syId,String syxz,Date syrq);
+
+	/**
+	 * 根据风叶型号查询是否存在重复记录
+	 * param:xh
+	 * @return
+	 */
+	public 	List<ShryFyData> getShryFybyParam(String xh);
 	
 }

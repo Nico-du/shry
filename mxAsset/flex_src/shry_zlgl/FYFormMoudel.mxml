@@ -103,6 +103,8 @@
 			private var imgFileNameT:String = "sysArgFiles/fyts/RY5.437.131_T.png";
 			[Bindable]
 			private var imgFileNameB:String = "sysArgFiles/fyts/RY5.437.131_B.png";
+			//图表数据
+			var chartDataList:ArrayCollection = new ArrayCollection();
 			//页面初始化调用
 			public function initPage():void{
 				if(true){
@@ -523,6 +525,7 @@
 				chartMultiPanel.removeAllChildren();
 				var objList:ArrayCollection = new ArrayCollection();
 				objList = event.result as ArrayCollection;
+				chartDataList = objList;
 				var objList2:ArrayCollection = ObjectUtil.copy(event.result) as ArrayCollection;
 				var multiChart:LinueChartMultiModel = new LinueChartMultiModel();
 				multiChart.modelTitle="风叶流量—静压/输入功率/扭矩/效率曲线图";  multiChart.xAxisTitle="流量(m^3/h)"; multiChart.xToolTipTiltle="流量";
@@ -577,6 +580,29 @@
 				chartPanel.addChild(lineChart4);
 				
 			}
+			
+			public function exportHSJG_clickHandler():void{
+				if(hsCbx.selectedItem == null ){ return; }
+				var sLxdid:String = hsCbx.selectedItem.lxdid;
+				
+				var variables:URLVariables = new URLVariables();
+				variables.jdbcSql = "";
+				variables.dataid = this.dataId;
+				variables.dataid2 = sLxdid;
+				variables.exportType = "FYXNHS";
+				variables.extraData = JSON.encode(chartDataList); ;
+				
+				var u:URLRequest = new URLRequest("/mxAsset/servlet/ExportAllExcel");
+				u.data = variables; 
+				u.method = URLRequestMethod.POST; 
+				navigateToURL(u,"_self");		
+			}
+			
+			
+			
+			
+			
+			
 			
 			/**
 	<!--<shryChart:LinueChartMultiModel modelTitle="风叶流量—静压/输入功率/主转速/效率曲线图" tableName="shry_fyxn_data" idColumn="fyid" dataId="4"
@@ -842,7 +868,9 @@
 							<mx:Label paddingTop="2" text="当前导流环直径(mm):"/><mx:TextInput width="25" id="dqdlhzjinput" paddingTop="2" editable="false" borderStyle="none"/>
 							<mx:Label paddingTop="2"  text="换算到(mm):"/><numberInput:NumberTextInput  width="40" id="hsdlhzjinput"/>
 							
-							<mx:Button paddingLeft="5" label="转换" click="button1_clickHandler(event)"/>
+							<mx:Button  label="转换" click="button1_clickHandler(event)"/>
+							<mx:Button  label="导出" click="exportHSJG_clickHandler()"/>
+							
 						</mx:HBox>
 						<!--<mx:HBox horizontalGap="2" x="250" y="3" id="hsHbox">
 							<mx:Label text="转速换算比例(%):" paddingTop="2"/>

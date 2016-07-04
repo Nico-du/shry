@@ -856,5 +856,20 @@ public class CommonServiceImp implements CommonService {
 		public List<ShrySydData> getFYSydByParam(Long syId, Long fyxh) {
 			return commonDao.getFYSydByParam(syId, fyxh);
 		}
+		
+		/**
+		 * 根据风叶型号查询是否存在重复记录 0 不存在，1存在
+		 * param:xh
+		 * @return
+		 */
+		public int getCountShryFy(String xh){
+			List list = commonDao.getShryFybyParam(xh);
+			if(list.isEmpty() || list.size()<=0){
+				return 0;
+			}else{
+				return 1;
+			}
+			
+		}
 }
 

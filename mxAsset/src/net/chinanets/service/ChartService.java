@@ -84,19 +84,5 @@ public interface ChartService {
 	 */
 	public List<Map> getBmhclyqk(int year);
 	
-	public List yearCount();
-	
-	public List xmJe(String s);
-	
-	public List xmZq(String s);
-	
-	public List getNf();
-
-	public String getClockInfo(String time);
-	
-	public void changeProcessZt(Long id);
-	//获取巡检记录 月度/年度   正常/不正常 的巡检数量
-	public List<Map<String, String>> getXjjlChart(String dateRange);
-	
 	
 }
