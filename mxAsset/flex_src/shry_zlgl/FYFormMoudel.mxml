@@ -512,6 +512,7 @@
 					if(hsCbx.selectedItem == null ){ return; }
 				var sLxdid:String = hsCbx.selectedItem.lxdid;
 				var sSql:String = "select * from SHRY_FYXN_DATA where fyid = '"+dataId+"' and lxdid='"+sLxdid+"' order by (ll+0) asc";
+				hszsblinput.text = hsCbx.selectedItem.zzs;
 				
 				hszsbl = hszsbl/Number(hsCbx.selectedItem.zzs+"") * 100;
 				chartService.getFYXNChartList(sSql,dataId,hszsbl,hsdlhzj);
