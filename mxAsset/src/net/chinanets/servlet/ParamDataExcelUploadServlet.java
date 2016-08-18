@@ -256,6 +256,8 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 									zcData.setXh(zcxh);
 									zcData.setWxcc(zccc);
 									zcData.setSycx(sycx);
+									zcData.setJqfs(jqfs);
+									
 									djData.setXh(djxh);
 									
 									fyList.add(fyData);
