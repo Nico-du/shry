@@ -36,85 +36,159 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 	 * @date:2016-3-17下午10:24:33
 	 */
 	private static final long serialVersionUID = 1L;
-	public String str ="";
+	private static final String SUCCESS = "success";
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	
 	public void doGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
                this.doPost(request, response);
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setContentType("text/html;charset=utf-8");
-		PrintWriter out = response.getWriter();
-		String opName = "";
+		String outPutMsg ="导入失败：";
 		try {
 			// 获取上传文件流，写入到服务器文件
-			DiskFileItemFactory factory = new DiskFileItemFactory();
-			String path = request.getRealPath("/");
-			factory.setRepository(new File(path)); // 获取临时上传文件夹路径
-			factory.setSizeThreshold(1024 * 1024); // 设置上传文件大小临界值
-			ServletFileUpload upload = new ServletFileUpload(factory);
-			upload.setHeaderEncoding("utf-8");    //设置编码格式
-			upload.setSizeMax(100*1024*1024L); // 限制文件的上传大小100za
+			List<String> uploadFileList = readUploadFile(request);
+			if(uploadFileList == null || uploadFileList.size() < 1){ doResponse(response, outPutMsg+"读取上传文件异常"); return;}
+			//单文件上传
+			String opName = uploadFileList.get(0);
+			if(StringUtils.isBlank(opName)){  doResponse(response, outPutMsg+"读取上传文件异常"); return;}
 			
-			//取得servlet传入的对象参数
-			List list = upload.parseRequest(request);
-			for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-				FileItem item = (FileItem) iterator.next();
-				if (!item.isFormField()) {
-					String fileName = item.getName();
-					item.write(new File(path, fileName));
-					opName = path + fileName;
-					// 读取上传文件、解析插入数据库
-				    ListVo  listVo = parseExcel(opName);
-				   if (listVo.getResult()==null && listVo.getFyDataList()!=null) {
-						ServletContext servletContext = request.getSession().getServletContext();
-						ApplicationContext app = org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext(servletContext);
-						CommonService comService = (CommonService) app.getBean("commonService");
-						for (int i = 0; i <listVo.getFyDataList().size(); i++) {
-							//根据风叶型号查询风叶数据表。判断该风叶型号是已经存在，如果已经存在则在该风叶型号前面加1#，若再有重复一次递增
-							   int fyCount = comService.getCountShryFy(listVo.getFyDataList().get(i).getXh());
-							   if(fyCount>0){
-								   listVo.getFyDataList().get(i).setXh(i+"#"+listVo.getFyDataList().get(i).getXh());
-							   }
-								/* 保存风叶对象后返回的id，用于赋值给总成表中的风叶id */
-							   Long num = comService.saveObject(listVo.getFyDataList().get(i));
-							   //保存电机数据表，并将电机id返回给总成表中的电机id
-							   listVo.getDjDataList().get(i).setInputdate(new Date());
-							   listVo.getDjDataList().get(i).setInputuser("1");
-							   listVo.getDjDataList().get(i).setUpdatedate(new Date());
-							   listVo.getDjDataList().get(i).setUpdateuser("1");
-							   //判断电机数据是否已经存在，给出提示，不存在保存数据库
-							   String sql = "select count(*) from shry_dj_data where  xh='"+listVo.getDjDataList().get(i).getXh()+"'";
-							   int djCount = comService.getOneBysql(sql);
-							   if(djCount>0){
-								   str = "该电机型号："+listVo.getDjDataList().get(i).getXh()+"的数据已经存在！";
-							   }else{
-								   listVo.getZcDataList().get(i).setFyid(num);
-								   listVo.getZcDataList().get(i).setInputdate(new Date());
-								   listVo.getZcDataList().get(i).setInputuser("1");
-								   listVo.getZcDataList().get(i).setUpdatedate(new Date());
-								   listVo.getZcDataList().get(i).setUpdateuser("1");
-								   //保存电机数据
-								   Long  djId = comService.saveObject( listVo.getDjDataList().get(i));
-								   //保存总成数据
-								   listVo.getZcDataList().get(i).setDjid(String.valueOf(djId));
-								   comService.saveObject(listVo.getZcDataList().get(i));
-								   
-								   str="导入数据成功!";
-							   }
-						}
-					}else{
-						str=listVo.getResult().toString();
-					}
-				}
+			ServletContext servletContext = request.getSession().getServletContext();
+			ApplicationContext app = org.springframework.web.context.support.WebApplicationContextUtils
+					.getWebApplicationContext(servletContext);
+			CommonService comService = (CommonService) app.getBean("commonService");
+			
+			//Step 1: 读取上传文件/解析/初步校验
+		    ListVo  listVo = parseExcel(opName);
+		    //读取/校验失败,返回错误信息
+		   if (StringUtils.isNotBlank(listVo.getResult()) || listVo.getFyDataList() == null) {
+			   outPutMsg=listVo.getResult().toString();
+				doResponse(response, outPutMsg);
+				return;
 			}
-		} catch (Exception e) {
+		   
+		   //Step 2:数据准备,数据校验
+		   outPutMsg = doPrepareData(comService, listVo);
+		   if(!SUCCESS.equals(outPutMsg)){ doResponse(response, outPutMsg);	return;}
+		   
+		   //Step 3:保存数据库
+		   outPutMsg = doSaveAllData(comService, listVo);
+		   if(!SUCCESS.equals(outPutMsg)){ doResponse(response, outPutMsg);	return;}
+		   
+		   //Step 4:失败回滚,只回滚总成数据(风叶/电机数据直接使用已存在数据)
+			//暂不处理,出现保存出错的情况视为代码bug
+				   
+			
+		} catch (Throwable e) {
 			e.printStackTrace();
-		}finally{
-			out.write(str.toString());
+			doResponse(response, outPutMsg+"系统异常，执行保存时报错，请联系系统管理员。\n"+e.getMessage()+"\n"+e.getStackTrace());
+			return;
 		}
+		doResponse(response, "导入成功！");
 	}
 
+	
+	/**
+	 * 数据准备,数据校验
+	 * 1.总成数据校验：总成型号是否已存在
+	 * @param comService
+	 * @param listVo
+	 * @return
+	 */
+	private String doPrepareData(CommonService comService,ListVo listVo){
+		String validateResult = "导入失败：";
+		String sql; 
+		for (int i = 0; i <listVo.getFyDataList().size(); i++) {
+			  sql = " select count(0) from shry_zc_data where  xh='"+listVo.getZcDataList().get(i).getXh()+"' ";
+			   int djCount = comService.getOneBysql(sql);
+			   if(djCount>0){
+				   validateResult +=  "\n该总成型号："+listVo.getZcDataList().get(i).getXh()+"的参数数据已经存在！";
+			   }
+		}
+		
+		if(validateResult.length() < 10){ validateResult = SUCCESS;}
+		return validateResult;
+	}
+	
+	/**
+	 * 保存总成/风叶/电机数据
+	 * 1.风叶数据如果已存在,直接使用
+	 * 2.电机数据如果已存在,直接使用
+	 * @param listVo
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private String doSaveAllData(CommonService comService,ListVo listVo){
+		List<Long> savedZcList = new ArrayList<Long>();
+		
+		List<ShryFyData> fydataList; 
+		List<ShryDjData> djdataList; 
+		Long lFyid,lDjid,lZcid; 
+		for (int i = 0; i <listVo.getFyDataList().size(); i++) {
+			//根据风叶型号查询风叶数据表。判断该风叶型号是已经存在，如果已经存在则在该风叶型号前面加1#，若再有重复一次递增
+//			   int fyCount = comService.getCountShryFy(listVo.getFyDataList().get(i).getXh());
+//			   if(fyCount>0){
+//				   listVo.getFyDataList().get(i).setXh(i+"#"+listVo.getFyDataList().get(i).getXh());
+//			   }
+		   listVo.getDjDataList().get(i).setInputdate(new Date());
+		   listVo.getDjDataList().get(i).setInputuser("1");
+		   listVo.getDjDataList().get(i).setUpdatedate(new Date());
+		   listVo.getDjDataList().get(i).setUpdateuser("1");
+			
+		   listVo.getFyDataList().get(i).setInputdate(new Date());
+		   listVo.getFyDataList().get(i).setInputuser("1");
+		   listVo.getFyDataList().get(i).setUpdatedate(new Date());
+		   listVo.getFyDataList().get(i).setUpdateuser("1");
+		   
+		   listVo.getZcDataList().get(i).setInputdate(new Date());
+		   listVo.getZcDataList().get(i).setInputuser("1");
+		   listVo.getZcDataList().get(i).setUpdatedate(new Date());
+		   listVo.getZcDataList().get(i).setUpdateuser("1");
+			
+			fydataList = comService.getObjectList(new ShryFyData(), " xh='"+listVo.getFyDataList().get(i).getXh()+"' order by inputdate asc limit 1 ");
+			
+			if(fydataList != null && fydataList.size() > 0){
+				lFyid = fydataList.get(0).getFyid();
+			}else{
+			/* 保存风叶对象后返回的id，用于赋值给总成表中的风叶id */
+				lFyid = comService.saveObject(listVo.getFyDataList().get(i));
+			}
+			
+		   //保存电机数据表，并将电机id返回给总成表中的电机id
+			   
+			   //判断电机数据是否已经存在
+//			   String sql = "select count(*) from shry_dj_data where  xh='"+listVo.getDjDataList().get(i).getXh()+"'";
+//			   int djCount = comService.getOneBysql(sql);
+//			   if(djCount>0){
+//				   str = "该电机型号："+listVo.getDjDataList().get(i).getXh()+"的数据已经存在！";
+//			   }
+//			   //保存电机数据
+//			   Long  djId = comService.saveObject( listVo.getDjDataList().get(i));
+			   
+			   djdataList = comService.getObjectList(new ShryDjData(), " xh='"+listVo.getDjDataList().get(i).getXh()+"' order by inputdate asc limit 1 ");
+				if(djdataList != null && djdataList.size() > 0){
+					lDjid = djdataList.get(0).getDjid();
+				}else{
+				/* 保存风叶对象后返回的id，用于赋值给总成表中的风叶id */
+					lDjid = comService.saveObject(listVo.getDjDataList().get(i));
+				}
+				
+			   listVo.getZcDataList().get(i).setFyid(lFyid);
+			   //保存总成数据
+			   listVo.getZcDataList().get(i).setDjid(String.valueOf(lDjid));
+			   lZcid = comService.saveObject(listVo.getZcDataList().get(i));
+			   
+			   //在第一条数据报错失败时立即返回
+			   if(lZcid == null ){ return "执行数据保存时报错";}
+			   
+			   savedZcList.add(lZcid);
+			   
+		}
+		
+		return SUCCESS;
+	}
+	
+	
 
 	    // 解析excel文件转换成对象
 		private  ListVo parseExcel(String fileName) {
@@ -275,4 +349,50 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 					}
 					return vo;
 				}
+		
+		/**
+		 * 获取上传文件流，写入到服务器文件
+		 * @param request
+		 * @return 文件路径
+		 * @throws Exception
+		 */
+		private List<String> readUploadFile(HttpServletRequest request) throws Exception {
+			List<String> fileList = new ArrayList<String>();
+			
+			DiskFileItemFactory factory = new DiskFileItemFactory();
+			String path = request.getRealPath("/");
+			factory.setRepository(new File(path)); // 获取临时上传文件夹路径
+			factory.setSizeThreshold(1024 * 1024); // 设置上传文件大小临界值
+			ServletFileUpload upload = new ServletFileUpload(factory);
+			upload.setHeaderEncoding("utf-8");    //设置编码格式
+			upload.setSizeMax(100*1024*1024L); // 限制文件的上传大小100za
+			
+			//取得servlet传入的对象参数 --多个文件上传 TODO 可否改成单文件
+			List list = upload.parseRequest(request);
+			String opName = "";
+			for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+				FileItem item = (FileItem) iterator.next();
+				if (!item.isFormField()) {
+					String fileName = item.getName();
+					item.write(new File(path, fileName));
+					opName = path + fileName;
+					fileList.add(opName);
+				}
+			}
+			
+			return fileList;
+		}
+
+		/**
+		 * 响应页面导入结果数据
+		 * @param out
+		 * @throws IOException 
+		 */
+		private void doResponse(HttpServletResponse response,String outPutMsg) throws IOException{
+			response.setContentType("text/html;charset=utf-8");
+			PrintWriter out = response.getWriter();
+			out.write(outPutMsg.toString());
+		}
+		
+		
 }

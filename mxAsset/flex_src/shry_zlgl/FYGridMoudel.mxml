@@ -437,45 +437,45 @@
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="直径(毫米):" height="{aboutheight}"/>
+								<mx:Label text="直径(毫米):" height="{aboutheight}" visible="false"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="zj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="zj" enter="searchClickAction()" width="100%" height="{aboutheight}" visible="false"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="翻边直径(毫米):" height="{aboutheight}"/>
+								<mx:Label text="翻边直径(毫米):" height="{aboutheight}" visible="false"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="fbzj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="fbzj" enter="searchClickAction()" width="100%" height="{aboutheight}" visible="false"/>
 								</mx:FormItem>
 							</mx:GridItem>
 						</mx:GridRow>
 						<mx:GridRow width="100%" height="{aboutheight}">
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="导流环直径(毫米):" height="{aboutheight}"/>
+								<mx:Label text="导流环直径(毫米):" height="{aboutheight}" visible="false"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="dlhzj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="dlhzj" enter="searchClickAction()" width="100%" height="{aboutheight}" visible="false"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="重量(克):" height="{aboutheight}"/>
+								<mx:Label text="重量(克):" height="{aboutheight}" visible="false"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="zl" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="zl" enter="searchClickAction()" width="100%" height="{aboutheight}" visible="false"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="嵌件:" height="{aboutheight}"/>
+								<mx:Label text="嵌件:" height="{aboutheight}" visible="false"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="qj" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="qj" enter="searchClickAction()" width="100%" height="{aboutheight}" visible="false"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
@@ -530,7 +530,7 @@
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="型号" width="120" dataField="xh" sortable="true"/>
 						<mx:DataGridColumn headerText="叶片数目" width="80" dataField="ypsm" sortable="true"/>
-						<mx:DataGridColumn headerText="直径(毫米)" width="80" dataField="zj" sortable="true"/>
+						<mx:DataGridColumn headerText="直径(毫米)" width="80" dataField="zj" sortable="true" visible="false"/>
 						<mx:DataGridColumn headerText="翻边直径(毫米)" width="110" dataField="fbzj" sortable="true"/>
 						<mx:DataGridColumn headerText="导流环直径(毫米)" width="110" dataField="dlhzj" sortable="true"/>
 						<mx:DataGridColumn headerText="轮毂直径(毫米)" width="110" dataField="lgzj" sortable="true"/>

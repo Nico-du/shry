@@ -445,29 +445,29 @@
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="外形尺寸(毫米):" height="{aboutheight}"/>
+								<mx:Label text="外形尺寸(毫米):" height="{aboutheight}" visible="false"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="wxcc" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="wxcc" enter="searchClickAction()" width="100%" height="{aboutheight}" visible="false"/>
 								</mx:FormItem>
 							</mx:GridItem>
 						</mx:GridRow>
 						<mx:GridRow width="100%" height="{aboutheight}">
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="重量:" height="{aboutheight}"/>
+								<mx:Label text="重量:" height="{aboutheight}" visible="false"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="zl" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="zl" enter="searchClickAction()" width="100%" height="{aboutheight}" visible="false"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="适用车型:" height="{aboutheight}"/>
+								<mx:Label text="适用车型:" height="{aboutheight}" visible="false"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="sycx" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="sycx" enter="searchClickAction()" width="100%" height="{aboutheight}" visible="false"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
@@ -529,7 +529,7 @@
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="型号" width="120" dataField="xh" sortable="true"/>
 						<mx:DataGridColumn headerText="风叶型号" width="120" dataField="fyxh" sortable="true"/>
-						<mx:DataGridColumn headerText="电机型号" width="120" dataField="djid" sortable="true"/>
+						<mx:DataGridColumn headerText="电机型号" width="120" dataField="djxh" sortable="true"/>
 						<mx:DataGridColumn headerText="外形尺寸(毫米)" width="150" dataField="wxcc" sortable="true"/>
 						<mx:DataGridColumn headerText="重量(克)" width="110" dataField="zl" sortable="true"/>
 						<mx:DataGridColumn headerText="适用车型" width="110" dataField="sycx" sortable="true"/>

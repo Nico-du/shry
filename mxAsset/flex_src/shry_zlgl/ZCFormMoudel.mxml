@@ -302,11 +302,11 @@
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
 				}
-				if(ASStringHelper.isNullOrEmpty(this.fslx.text)){
+				/* if(ASStringHelper.isNullOrEmpty(this.fslx.text)){
 					errorMsg="[风扇类型]不允许为空";
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
-				}
+				} */
 				//执行编号重复验证
 				if(isCheckSuccess){
 					CommonMethod.validateWFBH(this.xh.text,"ZCID","XH",this.tempObjBeanName,this.dataId,this,beforeSaveDataBack);
@@ -682,7 +682,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+											<!--<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>-->
 											<mx:Label fontWeight="bold" height="{aboutheight}"  text="风扇类型:"/>
 										</mx:HBox>
 									</mx:GridItem>

@@ -333,11 +333,11 @@
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
 				}
-				if(ASStringHelper.isNullOrEmpty(this.ypfb.text)){
+				/* if(ASStringHelper.isNullOrEmpty(this.ypfb.text)){
 					errorMsg="[叶片分布]不允许为空";
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
-				}
+				} */
 				//执行编号重复验证
 				if(isCheckSuccess){
 					CommonMethod.validateWFBH(this.xh.text,"FYID","XH",this.tempObjBeanName,this.dataId,this,beforeSaveDataBack);
@@ -508,13 +508,17 @@
 				/**
 				 * 获取图表信息
 				 * */
-				public function getChartDataAndAddChart(hszsbl:Number,hsdlhzj:Number):void{
+				public function getChartDataAndAddChart(hszsbl:Number,hsdlhzj:Number,isChangeAction:Boolean = false):void{
 					if(hsCbx.selectedItem == null ){ return; }
 				var sLxdid:String = hsCbx.selectedItem.lxdid;
 				var sSql:String = "select * from SHRY_FYXN_DATA where fyid = '"+dataId+"' and lxdid='"+sLxdid+"' order by (ll+0) asc";
-				hszsblinput.text = hsCbx.selectedItem.zzs;
 				
-				hszsbl = hszsbl/Number(hsCbx.selectedItem.zzs+"") * 100;
+				if(isChangeAction){
+					hszsbl = 100;//显示原始数据
+					hszsblinput.text = hsCbx.selectedItem.zzs;
+				}else{
+				    hszsbl = hszsbl/Number(hsCbx.selectedItem.zzs+"") * 100;
+				}
 				chartService.getFYXNChartList(sSql,dataId,hszsbl,hsdlhzj);
 				chartService.addEventListener(ResultEvent.RESULT,resultBack);
 			}
@@ -708,7 +712,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+											<!--<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>-->
 											<mx:Label fontWeight="bold" height="{aboutheight}"  text="叶片分布:"/>
 										</mx:HBox>
 									</mx:GridItem>
@@ -764,7 +768,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="clbz" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="clbz" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -861,7 +865,7 @@
 							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
 						<mx:HBox horizontalGap="2" x="250" y="3" id="hsHbox">
 							<mx:Label paddingTop="2" text="转速(rpm):"/>
-							<mx:ComboBox id="hsCbx" width="60" labelField="zzs" change="getChartDataAndAddChart(Number(hszsblinput.text),Number(hsdlhzjinput.text))"/>
+							<mx:ComboBox id="hsCbx" width="60" labelField="zzs"  change="getChartDataAndAddChart(Number(hsCbx.selectedItem.zzs),Number(hsdlhzjinput.text),true)"/>
 						<!--	<mx:Label paddingTop="2" text="当前转速(rpm):"/><mx:TextInput width="50" id="dqzsinput" editable="false" borderStyle="none"/>
 							<mx:Label paddingTop="2" paddingLeft="20" text="换算到{rpm}:"/><mx:TextInput width="50" id="hszsinput"/>-->
 							<mx:Label paddingLeft="2" text="模拟转速(rpm):" paddingTop="2"/>

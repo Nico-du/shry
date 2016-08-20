@@ -1014,7 +1014,7 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao,Seria
 
 			DetachedCriteria dc = DetachedCriteria.forClass(ShryFyData.class);
 			if(StringUtil.isNotBlank(xh)){
-				dc.add(Restrictions.eq("xh", xh));
+				dc.add(Restrictions.like("xh", "%"+xh));
 				
 			}
 			return getHibernateTemplate().findByCriteria(dc);
