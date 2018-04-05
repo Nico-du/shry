@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" output="WebRoot/WEB-INF/classes" path="src"/>
 	<classpathentry kind="src" path="WebRoot/WEB-INF/lib"/>
-	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/activation.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/adobe-assembler-client.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/adobe-convertpdf-client.jar"/>
