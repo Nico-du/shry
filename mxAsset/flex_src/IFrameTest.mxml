@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   xmlns:flexiframe="http://code.google.com/p/flex-iframe/"
+			   minWidth="955" minHeight="600" >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<mx:VBox width="100%" height="100%" backgroundAlpha="0">
+		<mx:Canvas id="menuCanvas" width="100%" height="4%" backgroundColor="0x003a39" 
+				   horizontalScrollPolicy="off"	 verticalScrollPolicy="off">
+			<mx:MenuBar id="menubar" width="100%" height="100%" dataProvider="{xmlList}" 
+						styleName="yahei" mouseOver="menubar1_mouseOverHandler(event)"
+						labelField="@label" showRoot="false"/>
+		</mx:Canvas>
+		
+		<mx:TabNavigator id="stnContent"
+						 width="100%" backgroundAlpha="0"
+						 height="100%">
+			
+			<mx:Canvas id="test1" label="soso" mouseOver="showIFrameHandler(event)" backgroundAlpha="0.0" width="100%" height="100%">
+				<flexiframe:IFrame id="iframe1" source="http://www.soso.com"
+								   width="100%"
+								   height="100%"/>
+			</mx:Canvas>
+			
+			<mx:Canvas id="test2" label="line-sections" mouseOver="showIFrameHandler(event)" width="100%" height="100%">
+				<flexiframe:IFrame  id="iframe2"
+									source="charts/shry/line-sections.html"
+									width="100%"
+									height="100%"/>
+			</mx:Canvas>
+			<mx:Canvas id="test3" label="line-stack" mouseOver="showIFrameHandler(event)" width="100%" height="100%">
+				<flexiframe:IFrame  id="iframe3"
+									source="charts/shry/line-stack.html"
+									width="100%"
+									height="100%"/>
+			</mx:Canvas>
+			<mx:Canvas id="test4" label="scatter-exponential-regression" mouseOver="showIFrameHandler(event)" width="100%" height="100%">
+				<flexiframe:IFrame  id="iframe4"
+									source="charts/shry/scatter-exponential-regression.html"
+									width="100%"
+									height="100%"/>
+			</mx:Canvas>
+			<mx:Canvas id="test5" label="嵌套excel" mouseOver="showIFrameHandler(event)" width="100%" height="100%">
+				<flexiframe:IFrame  id="iframe5"
+									source="testExcelIn.jsp"
+									width="100%"
+									height="100%"/>
+			</mx:Canvas>
+			<!--http://echarts.baidu.com/examples/editor.html?c=scatter-exponential-regression-->
+		</mx:TabNavigator>
+	</mx:VBox>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			private var xmlList:XML = <items>
+											<item label='测试菜单'>
+												<item label='测试菜单-001'></item>
+												<item label='测试菜单-002'></item>
+												<item label='测试菜单-003'></item>
+												<item label='测试菜单-004'></item>
+											</item>
+									   </items>;
+			
+			
+			protected function menubar1_mouseOverHandler(event:MouseEvent):void
+			{
+				if(stnContent.length  > 0)
+				{
+					var canvas:Canvas = stnContent.selectedChild as Canvas;
+					canvas.setStyle("backgroundAlpha","0.01");
+					
+					var id:String = (stnContent.selectedChild as Object).id;
+					ExternalInterface.call("eval", "(function(){document.getElementById('iframe10').style.zIndex='-1';})()");
+				}
+			}
+			
+			private function showIFrameHandler(event:MouseEvent):void
+			{
+				var canvas:Canvas = stnContent.selectedChild as Canvas;
+				canvas.setFocus();
+				
+				if(stnContent.length  > 0)
+				{
+					var id:String = (stnContent.selectedChild as Object).id;
+					ExternalInterface.call("eval", "(function(){document.getElementById('iframe10').style.zIndex='1';})()");
+				}
+			}
+		]]>
+	</fx:Script>
+	
+</s:Application>
