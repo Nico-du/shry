@@ -14,6 +14,7 @@ public class ShryFyZsData implements java.io.Serializable {
 	private Long zsid;
 	private Long fyid;
 	private String csbz;
+	private String cszt;
 	private String speed;
 	private String noise;
 	private String memo;
@@ -34,11 +35,12 @@ public class ShryFyZsData implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public ShryFyZsData(Long fyid, String csbz, String speed,
+	public ShryFyZsData(Long fyid, String csbz,String cszt, String speed,
 			String noise, String memo, Date inputdate, String inputuser,
 			Date updatedate, String updateuser) {
 		this.fyid = fyid;
 		this.csbz = csbz;
+		this.cszt = cszt;
 		this.speed = speed;
 		this.noise = noise;
 		this.memo = memo;
@@ -72,6 +74,14 @@ public class ShryFyZsData implements java.io.Serializable {
 
 	public void setCsbz(String csbz) {
 		this.csbz = csbz;
+	}
+
+	public String getCszt() {
+		return cszt;
+	}
+
+	public void setCszt(String cszt) {
+		this.cszt = cszt;
 	}
 
 	public String getSpeed() {

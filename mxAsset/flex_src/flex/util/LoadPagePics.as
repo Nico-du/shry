@@ -2,6 +2,7 @@
 import flex.util.CommonXMLData;
 
 import mx.controls.Image;
+import mx.core.Application;
 
 public function loadPictures():void{
 	CommonMethod.loadTablePictures(this.tempObjBeanName,idColumnName,dataId,this,loadPicturesBack);
@@ -18,8 +19,8 @@ private function loadPicturesBack(result:Object):void{
 				eachImg.source= "style/flex_skins/file_pic.png";
 				eachImg.addEventListener(MouseEvent.CLICK,addMoreBtnClick);
 			}else{
-			    eachImg.source= CommonXMLData.UploadFile_BasePath + eachObj.filepath;
-				eachImg.addEventListener(MouseEvent.CLICK,CommonMethod.doshowZoomSelectedPic(this.tempObjBeanName,idColumnName,this.dataId,this));
+			    eachImg.source= CommonXMLData.UploadFile_BasePath + eachObj.filepath; 
+				eachImg.addEventListener(MouseEvent.CLICK,CommonMethod.doshowZoomSelectedPic(this.tempObjBeanName,idColumnName,this.dataId,FlexGlobals.topLevelApplication));
 			}
 			eachImg.width = aboutheight*5;
 			eachImg.height = aboutheight*5;
@@ -28,11 +29,22 @@ private function loadPicturesBack(result:Object):void{
 			eachImg.addEventListener(MouseEvent.MOUSE_OUT, mouseOutFunction);
 			fyts.addChild(eachImg);
 		}
+			if(this.hasOwnProperty("nvPageFyFrom1Group1")){
+			PICROW.height = aboutheight * 5;
+			fyts.height = aboutheight * 5;
+			}
+	}else{
+		if(this.hasOwnProperty("nvPageFyFrom1Group1")){
+			PICROW.height = aboutheight+2;
+			fyts.height = aboutheight+2;
+		}
 	}
-	var addMoreBtn:Button = new Button();
-	addMoreBtn.label="添加文件";
-	addMoreBtn.addEventListener(MouseEvent.CLICK,addMoreBtnClick);
-	fyts.addChild(addMoreBtn);
+	if(!this.hasOwnProperty("nvPageFyFrom1Group1")){
+		var addMoreBtn:Button = new Button();
+		addMoreBtn.label="添加文件";
+		addMoreBtn.addEventListener(MouseEvent.CLICK,addMoreBtnClick);
+		fyts.addChild(addMoreBtn);
+	}
 }
 
 private function isPICFile(filepath:String):Boolean{

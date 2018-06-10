@@ -42,7 +42,7 @@ package flex.util
 				{title: "轴功率(W)", columnname: "zgl"},
 				{title: "效率(%)", columnname: "xl"},
 			];
-			var titleDataZcxn: Array = [
+			var titleDataZcxnSrc: Array = [
 				{title: "流量(m^3/h)", columnname: "ll"},
 				{title: "静压(Pa)", columnname: "jyl"},
 				{title: "主转速(r/min)", columnname: "zzs"},
@@ -52,10 +52,21 @@ package flex.util
 				{title: "输入(W)", columnname: "srgl"},
 				{title: "效率(%)", columnname: "xl"},
 			];
-			
+			var titleDataZcxn: Array = [
+				{title: "流量(m^3/h)", columnname: "ll"},
+				{title: "静压(Pa)", columnname: "jyl"},
+				{title: "主转速(r/min)", columnname: "zzs"},
+				{title: "辅转速(r/min)", columnname: "fzs"},
+				//{title: "电压(V)", columnname: "dy"},
+				//{title: "电流(A)", columnname: "dl"},
+				{title: "输入(W)", columnname: "srgl"},
+				{title: "效率(%)", columnname: "xl"},
+			];
 		var curTitleData:Array = null;
 		if(dataType == "fyxn"){
 			curTitleData =  titleDataFyxn;
+		}else if(dataType == "zcxnsrc"){
+			curTitleData =  titleDataZcxnSrc;
 		}else if(dataType == "zcxn"){
 			curTitleData =  titleDataZcxn;
 		}else{ return null;}

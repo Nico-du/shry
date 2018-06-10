@@ -75,7 +75,7 @@
 				uploadFileList.addEventListener(IOErrorEvent.IO_ERROR,ioErrorHandler);
 				try
 				{
-					uploadFileList.browse([imagesFilter,docFilter,fileFilter]);
+					uploadFileList.browse([imagesFilter]);
 				}catch(error:Error)
 				{
 					trace(error);

@@ -260,6 +260,7 @@
 				this.zl.text=tempObj["zl"];
 				this.fslx.text=tempObj["fslx"];
 				this.sycx.text=tempObj["sycx"];
+				this.jsyq.text=tempObj["jsyq"];
 				
 				this.memo.text=tempObj["memo"];
 				
@@ -359,6 +360,7 @@
 				dataJson.zl=this.zl.text;
 				dataJson.wxcc=this.wxcc.text;
 				dataJson.sycx=this.sycx.text;
+				dataJson.jsyq=this.jsyq.text;
 				
 				dataJson.memo=this.memo.text;
 				dataJson.UPDATEUSER=userid;
@@ -434,6 +436,8 @@
 			
 			var dhszsbl:Number = 0;
 			var dhsdlhzj:Number = 0;
+			//获取转速数据 到hsCbx下拉列表中显示，
+			//读取换算列表显示图表 
 			public function getCbxData(hszsbl:Number,hsdlhzj:Number):void{
 				if(CommonMethod.isNullOrWhitespace(dataId)){
 					Alert.show("曲线表关联的表字段数据为空！",CommonXMLData.Alert_Title);
@@ -460,8 +464,9 @@
 				
 				getChartDataAndAddChart(dhszsbl,dhsdlhzj);
 			}
+			
 			/**
-			 * 获取图标信息
+			 * 获取图表信息
 			 * */
 			public function getChartDataAndAddChart(hszsbl:Number,hsdlhzj:Number):void{
 				if(hsCbx.selectedItem == null ){ return; }
@@ -472,6 +477,7 @@
 				chartService.getZCXNChartList(sSql,dataId,hszsbl,hsdlhzj);  
 				chartService.addEventListener(ResultEvent.RESULT,resultBack);
 			}
+			var isInit:Boolean = true;//是否首次初始化图表
 			private function resultBack(event:ResultEvent):void {
 				chartService.removeEventListener(ResultEvent.RESULT,resultBack);
 				if(event.result == null)return;
@@ -521,7 +527,7 @@
 				lineChart4._xField = "ll"; lineChart4._yField = "jyl";
 				lineChart4.dpArray = objList;
 				
-				//添加数据表格
+				//添加可换算数据表格
 				var dataGrid:Grid = CommonUIMethod.generateTable("zcxn",objList);
 				var vbx:VBox = new VBox();
 				vbx.setStyle("horizontalAlign","center");	vbx.setStyle("borderColor","#99CCFF"); vbx.setStyle("borderStyle","solid");  
@@ -531,21 +537,44 @@
 				hbx.height = 20;
 				hbx.setStyle("borderStyle","none"); hbx.setStyle("backgroundColor","#99CCFF"); 
 				hbx.setStyle("horizontalGap","0"); hbx.setStyle("verticalAlign","middle"); hbx.setStyle("verticalGap","0");
-				var hbxLabel:Label = new Label(); hbxLabel.text="性能数据表";hbxLabel.height = 20; hbx.setStyle("fontWeight","bold"); hbx.setStyle("fontSize","13");
+				var hbxLabel:Label = new Label(); hbxLabel.text="转换性能数据表";hbxLabel.height = 20; hbx.setStyle("fontWeight","bold"); hbx.setStyle("fontSize","13");
 				hbx.addChild(hbxLabel);
 				vbx.addChild(hbx);
 				vbx.addChild(dataGrid);
 				
-				chartPanel.addChild(vbx); 
-				
+				chartPanel.addChild(vbx);
 				chartPanel.addChild(lineChart1);
 				chartPanel.addChild(lineChart2);
 				chartPanel.addChild(lineChart3);
 				chartPanel.addChild(lineChart4);
 				
+				//添加原始性能数据表格
+				//只显示初始化数据，首次初始化时才设置
+				if(isInit){
+					perfDataPanel.removeAllChildren();
+					//添加可换算数据表格
+					var dataGrid:Grid = CommonUIMethod.generateTable("zcxnsrc",objList);
+					var vbx:VBox = new VBox();
+					vbx.setStyle("horizontalAlign","center");	vbx.setStyle("borderColor","#99CCFF"); vbx.setStyle("borderStyle","solid");  
+					vbx.percentWidth = 100;
+					var hbx:HBox = new HBox();
+					hbx.percentWidth = 100;
+					hbx.height = 20;
+					hbx.setStyle("borderStyle","none"); hbx.setStyle("backgroundColor","#99CCFF"); 
+					hbx.setStyle("horizontalGap","0"); hbx.setStyle("verticalAlign","middle"); hbx.setStyle("verticalGap","0");
+					var hbxLabel:Label = new Label(); hbxLabel.text="原始性能数据表";hbxLabel.height = 20; hbx.setStyle("fontWeight","bold"); hbx.setStyle("fontSize","13");
+					hbx.addChild(hbxLabel);
+					vbx.addChild(hbx);
+					vbx.addChild(dataGrid);
+					
+					perfDataPanel.addChild(vbx); 
+					isInit = false;
+				}
+				
 			}
 			
 			private var datumFormTabNVPHeight:Number = -1;
+			//基本信息/性能图/其他信息tab index更改时触发
 			protected function datumFormTabNV_tabIndexChangeHandler(event:Event):void
 			{
 				if(datumFormTabNVPHeight == -1){
@@ -554,7 +583,8 @@
 				if(datumFormTabNV.selectedIndex == 1){
 					datumFormTabNV.height = (this.height - 80);
 					if(chartMultiPanel.getChildren().length < 1){
-						nvPage2.setChildIndex(hsHbox,0);
+						nvPage2.setChildIndex(hsHbox,1);
+						blogModel.selectedIndex = 1;
 						getCbxData(Number(hszsblinput.text),Number(dqdlhzjinput.text));
 					}
 				}else{
@@ -562,6 +592,20 @@
 				}
 			}
 			
+			//性能数据/多曲线/单曲线 切换时触发
+			protected function blogModel_tabIndexChangeHandler(event:Event):void
+			{
+				if(blogModel.selectedIndex == 0){
+					hsHbox.visible =false;
+				}else{
+					hsHbox.visible=true;
+				}
+			}
+				
+				
+				
+			
+			//性能数据转换后导出
 			public function exportHSJG_clickHandler():void{
 				if(hsCbx.selectedItem == null ){ return; }
 				var sLxdid:String = hsCbx.selectedItem.lxdid;
@@ -579,6 +623,7 @@
 				navigateToURL(u,"_self");		
 			}
 			
+			//点击转换按钮
 			protected function button1_clickHandler(event:MouseEvent):void
 			{
 				var hszsbl:String = hszsblinput.text;
@@ -731,6 +776,32 @@
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow>
+								
+								<mx:GridRow width="100%" height="{aboutheight}">
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:Label text="技术要求:"  fontWeight="normal" height="{aboutheight}"/>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+											<mx:TextInput id="jsyq" width="100%" height="{aboutheight}"/>
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+										</mx:FormItem>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+										</mx:FormItem>
+									</mx:GridItem>
+								</mx:GridRow>
+								
 								<mx:GridRow id="MEMOROW" width="100%" height="{aboutheight}">
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:Label text="备注:" id="memolbl" height="{aboutheight}" includeInLayout="false" visible="false"/>
@@ -754,12 +825,15 @@
 								</mx:GridRow>
 							</mx:Grid>
 						</mx:VBox>
+					
+					
+					
 					</mx:Canvas>
 					<mx:Panel id="nvPage2" label="性能图" width="100%"  borderStyle="none" headerHeight="0" layout="absolute"
 							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
 						<mx:HBox horizontalGap="2" x="250" y="3" id="hsHbox">
 							<mx:Label paddingTop="2" text="试验目的_日期:"/>
-							<mx:ComboBox id="hsCbx" labelFunction="getColumnText" width="180" labelField="symd" change="getChartDataAndAddChart(Number(hszsblinput.text),Number(hsdlhzjinput.text))"/>
+							<mx:ComboBox id="hsCbx" labelFunction="getColumnText" width="200" labelField="symd" change="getChartDataAndAddChart(Number(hszsblinput.text),Number(hsdlhzjinput.text))"/>
 							<mx:Label paddingLeft="2" text="转速换算比例(%):" paddingTop="2"/>
 							<numberInput:NumberTextInput width="40" id="hszsblinput" text="100"/>
 							<mx:Label paddingTop="2" text="当前导流环直径(mm):"/><mx:TextInput width="25" id="dqdlhzjinput" paddingTop="2" editable="false" borderStyle="none"/>
@@ -770,7 +844,11 @@
 						</mx:HBox>
 						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0"  verticalGap="2" cornerRadius="2" borderStyle="none">
 							<mx:LinkBar dataProvider="{blogModel}"  styleName="LinkBarStyle01"/>
-							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 140}">
+							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 140}" change="blogModel_tabIndexChangeHandler(event)">
+								<mx:Panel id="perfDataPanel" label="性能数据"  width="100%"  borderStyle="none" headerHeight="0" 
+										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
+									
+									</mx:Panel>
 								<mx:Panel id="chartMultiPanel" label="多曲线性能图"  width="100%"  borderStyle="none" headerHeight="0" 
 										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
 									<!--<shryChart:LinueChartMultiModel modelTitle="总成流量—静压/输入功率/主转速/效率曲线图"

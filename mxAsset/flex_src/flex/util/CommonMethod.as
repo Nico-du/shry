@@ -1,11 +1,10 @@
 package flex.util
 {
 	
-	import com.adobe.serialization.json.JSON;
-	import com.benstucki.utilities.IconUtility;
 	import com.commonpages.DetailDocument;
 	import com.commonpages.EditDocument;
 	
+	import mx.core.IUIComponent;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
@@ -16,21 +15,13 @@ package flex.util
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	import flash.net.navigateToURL;
-	import flash.utils.describeType;
 	
-	import flex.pojos.ComputerVo;
 	import flex.pojos.DeptVo;
 	import flex.pojos.FileUploadVo;
-	import flex.pojos.NetVo;
-	import flex.pojos.ServerVo;
-	import flex.pojos.StorageVo;
-	import flex.pojos.UpsVo;
 	
 	import mx.collections.ArrayCollection;
 	import mx.collections.XMLListCollection;
 	import mx.containers.FormItem;
-	import mx.containers.HBox;
-	import mx.containers.VBox;
 	import mx.controls.Alert;
 	import mx.controls.Button;
 	import mx.controls.ComboBox;
@@ -46,8 +37,9 @@ package flex.util
 	import mx.events.FlexEvent;
 	import mx.formatters.DateFormatter;
 	import mx.managers.PopUpManager;
+	import mx.printing.FlexPrintJob;
+	import mx.printing.FlexPrintJobScaleType;
 	import mx.rpc.events.ResultEvent;
-	import mx.rpc.http.HTTPService;
 	import mx.rpc.remoting.RemoteObject;
 	import mx.utils.StringUtil;
 	
@@ -168,6 +160,17 @@ package flex.util
 			picMd.defaultImgIndex = int(evt.currentTarget.data);
 			PopUpManager.addPopUp(picMd, parentPage as DisplayObject,true);
 			PopUpManager.centerPopUp(picMd);
+		}
+		
+		/**
+		 * 打印targetWd
+		 **/
+		public static function  printWd(targetWd:IUIComponent):void{
+			var printjob:FlexPrintJob = new FlexPrintJob();
+			if(printjob.start()){
+			printjob.addObject(targetWd,FlexPrintJobScaleType.NONE);
+			printjob.send();
+			}
 		}
 		
 		/**
@@ -348,7 +351,7 @@ package flex.util
 		
 		
 		/**
-		 * 文件上传验证 1.数量10个以内 2.单个大小100m
+		 * 文件上传验证 1.数量10个以内 2.单个大小1m
 		**/
 		public static function validateFileUpload(fileCount:int,uploadFileList:FileReferenceList):Boolean{
 			if(fileCount>10){
@@ -356,8 +359,8 @@ package flex.util
 				return false;
 			}
 			for each(var file:FileReference in uploadFileList.fileList){
-				if(file.size > (1024*1024*100)){
-					Alert.show("您选择的文件过大,单个文件最大不超过100M!请重新选择!",CommonXMLData.Alert_Title);	
+				if(file.size > (1024*1024*1)){
+					Alert.show("您选择的文件过大,单个文件最大不超过1M!请重新选择!",CommonXMLData.Alert_Title);	
 					return false;
 				}
 			}

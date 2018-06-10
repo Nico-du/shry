@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="closeWd()" showCloseButton="true"  creationComplete="initializeHandler(event)"
-				title="查看图片"  horizontalScrollPolicy="off" verticalScrollPolicy="off"
-	layout="absolute" width="100%" height="100%"  xmlns:local="*" xmlns:ns="shry_tpgl.*" >
+				title="查看图片"  horizontalScrollPolicy="off" verticalScrollPolicy="off" layout="absolute" xmlns:local="*" xmlns:ns="shry_tpgl.*" >
 	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:RemoteObject id="documentService" destination="documentService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
 			import com.benstucki.utilities.IconUtility;
 			
 			import flex.pojos.FileUploadVo;
 			import flex.util.CommonXMLData;
+			import flex.util.CommonMethod;
 			
 			import mx.collections.ArrayCollection;
 			import mx.collections.CursorBookmark;
@@ -38,8 +39,8 @@
 			protected function initializeHandler(event:FlexEvent):void
 			{
 				
-				this.width = Application.application.width * 0.8;
-				this.height = Application.application.height * 0.8;
+				this.width = Application.application.width * 0.9;
+				this.height = Application.application.height * 0.9;
 				
 				initializeData();
 				initializeImgStyle();
@@ -151,6 +152,16 @@
 				mapImg.validateNow();
 			}
 			
+			//打印
+			private function printImg():void{
+				CommonMethod.printWd(mapImg);
+			}
+			
+			//下载
+			private function downloadImg():void{
+				CommonMethod.downloadExcel(encodeURI(mapImg.source+""));
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:AnimateProperty id="zoomInEffectWidth" target="{mapImg}" property="width" fromValue="{mapImg.width}" toValue="{mapImg.width*(1+zoomPercent)}"/>
@@ -160,6 +171,8 @@
 	
 	<mx:HBox id="toolBox" horizontalGap="5" x="{(this.width - toolBox.width)/2 }" y="{(this.height - toolBox.height) -40}">
 	<!--<mx:LinkButton id="useMaginifier" icon="@Embed(source='images/icon_page.png')" label="关闭放大镜" click="useMaginifierCg()" visible="false"/>-->
+		<mx:LinkButton id="printBtn"  icon="@Embed(source='images/print.gif')"  label="打印" click="printImg()" />
+		<mx:LinkButton id="downloadBtn"  icon="@Embed(source='images/xia.png')"  label="下载" click="downloadImg()" />
 	<mx:LinkButton id="zoominBtn"  icon="@Embed(source='images/search_min.png')"  label="放大" click="zoomInImg()" />
 	<mx:LinkButton id="zoomoutBtn"  icon="@Embed(source='images/icon_return.png')"  label="缩小" click="zoomOutImg()"/>
 	<mx:LinkButton id="previousBtn"  icon="@Embed(source='images/pg_prev1.gif')"  label="上一张" click="showImage(-1)"/>

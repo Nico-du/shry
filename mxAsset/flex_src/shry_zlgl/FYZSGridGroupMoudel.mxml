@@ -70,6 +70,10 @@
 			public var bfdid:String="";
 			//父窗口
 			public var parentPage:Object = null;
+			
+			public var tempSelectedRowItem:Object = null;
+			
+			
 			//初始调用方法
 			public function initPage():void{
 				this.highSearchChange();
@@ -193,7 +197,7 @@
 			
 			//删除事件
 			protected function removeActionClick():void{
-				Alert.show("您确认要删除噪声数据吗？","系统提示",Alert.OK|Alert.CANCEL,Application.application.mainPage,removeDataAction);
+				Alert.show("您确认要删除噪声数据吗？将删除该风叶+测试状态下的多条数据！","系统提示",Alert.OK|Alert.CANCEL,Application.application.mainPage,removeDataAction);
 			}
 			//其他操作
 			protected function otherAction_clickHandler(event:Event):void
@@ -225,6 +229,7 @@
 				var tempWindow:FYZSGridMoudel=new FYZSGridMoudel();
 				var tempid:String="";
 				if(tempSelctedItem!=null){
+					this.tempSelectedRowItem = tempSelctedItem;
 					tempid=tempSelctedItem.fyid;
 				}
 				tempWindow.dataId=tempid;
@@ -317,44 +322,42 @@
 				if(doEvent.detail==Alert.CANCEL){
 					return;
 				}
-				var dataids:String=this.getRemoveDataArray();
-				if(ASStringHelper.isNullOrEmpty(dataids)){
+				var whereCnd:String=this.getRemoveDataArray();
+				if(ASStringHelper.isNullOrEmpty(whereCnd)){
 					return;
 				}
-				commonService.RunUpdateBySQL("delete from SHRY_FY_ZS_DATA where fyid in ( select fyid from SHRY_FY_ZS_DATA where zsid in ("+dataids+") ) ");
-				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_FY_ZS_DATA","ZSID","噪声"); 
-				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
-				this.deleteDataIds = dataids;
+				//fyid in ( select fyid from SHRY_FY_ZS_DATA where zsid in ("+dataids+") ) 
+				commonService.RunUpdateBySQL("delete from SHRY_FY_ZS_DATA where "+whereCnd);
+				//AllAssetServiceRmt.RemoveObject(dataids,"SHRY_FY_ZS_DATA","ZSID","噪声"); 
+				commonService.addEventListener(ResultEvent.RESULT,removeDataActionBack);
 			}
 			//删除数据回调方法
 			protected function removeDataActionBack(rmtResult:ResultEvent):void{
-				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,removeDataActionBack);
-				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				commonService.removeEventListener(ResultEvent.RESULT,removeDataActionBack);
+				/* var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
 				if(doResult!=null && doResult.nRetCode!=Errors.OK){
 					Alert.show(doResult.strErrorInfo);
 					return;
 				}else{
 					//	Alert.show("数据删除成功");
 					this.isDeleteDateComplete = true;
-					this.loadData();
-				}
+				} */
+				this.loadData();
 			}
+			
 			private var isDeleteDateComplete:Boolean = false;
-			private var deleteDataIds:String = "";
 			public function removeAssetLSJL():void{
 			}
 			//得到要删除的数据
 			protected function getRemoveDataArray():String{
-				var dataids:String="";
+				var whereCdn:String="";
 				for each(var dataobj:Object in this.dataArray){
 					if(dataobj.selected){
-						dataids+=dataobj.zsid+",";
+						whereCdn += " (fyid= " + dataobj.fyid + " and cszt='"+dataobj.cszt+"') or";
 					}
 				}
-				if(!ASStringHelper.isNullOrEmpty(dataids)){
-					dataids=dataids.substr(0,dataids.length-1);
-				}
-				return dataids;
+				if(whereCdn.length > 1){ whereCdn = whereCdn.substring(0,whereCdn.length-2);}
+				return whereCdn;
 			}
 			//格式化datagrid的日期
 			public static function dateItemFormat(item:Object,dgColumn:DataGridColumn):String{  
@@ -531,7 +534,8 @@
 							</mx:itemRenderer> 
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="风叶型号" width="120" dataField="fyxh" sortable="true"/>
-						<mx:DataGridColumn headerText="测试标准" width="80" dataField="csbz" sortable="true"/>
+						<mx:DataGridColumn headerText="测试状态" width="100" dataField="cszt" sortable="true"/>
+						<mx:DataGridColumn headerText="测试标准" width="100" dataField="csbz" sortable="true"/>
 						 <mx:DataGridColumn headerText="备注" width="120" dataField="memo" sortable="true"/>
 						<!--<mx:DataGridColumn headerText="转速(rpm)" width="80" dataField="speed" sortable="true"/>
 						<mx:DataGridColumn headerText="噪声(Db)" width="110" dataField="noise" sortable="true"/>-->

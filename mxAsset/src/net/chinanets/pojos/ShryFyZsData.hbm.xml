@@ -20,6 +20,11 @@
                 <comment>测试标准</comment>
             </column>
         </property>
+         <property name="cszt" type="java.lang.String">
+            <column name="cszt" length="100">
+                <comment>测试状态</comment>
+            </column>
+        </property>
         <property name="speed" type="java.lang.String">
             <column name="speed" length="100">
                 <comment>转速</comment>

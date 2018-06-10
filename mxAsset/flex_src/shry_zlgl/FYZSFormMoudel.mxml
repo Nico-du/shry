@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:s="library://ns.adobe.com/flex/spark" 
 				xmlns:dataPick="cn.cnspagemoduel.date.*"  creationPolicy="all" horizontalScrollPolicy="off" verticalScrollPolicy="off"
-				title="噪声数据信息" layout="absolute" width="1024"  showCloseButton="true" fontSize="12" 
+				title="单条噪声数据信息" layout="absolute" width="1024"  showCloseButton="true" fontSize="12" 
 				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()" 
 				xmlns:numberInput="cn.cnspagemoduel.textinput.*"  xmlns:shryChart="cn.cnspagemoduel.chartline.*" >
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
@@ -279,6 +279,7 @@
 				this.fyxh.data=tempObj["fyid"];
 				this.fyxh.text=tempObj["fyxh"];
 				this.csbz.text=tempObj["csbz"];
+				this.cszt.text=tempObj["cszt"];
 				this.speed.text=tempObj["speed"];
 				this.noise.text=tempObj["noise"];
 				
@@ -298,6 +299,21 @@
 				var isCheckSuccess:Boolean=true;
 				if(ASStringHelper.isNullOrEmpty(this.fyxh.data+"")){
 					errorMsg="[风叶型号]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.cszt.text)){
+					errorMsg="[测试状态]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.csbz.text)){
+					errorMsg="[测试标准]不允许为空";
+					showCheckErrors(errorMsg);
+					isCheckSuccess=false;
+				}
+				if(ASStringHelper.isNullOrEmpty(this.speed.text)){
+					errorMsg="[转速]不允许为空";
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
 				}
@@ -340,6 +356,7 @@
 		//  	dataJson.fyxh=this.fyxh.text;
 				dataJson.fyid=this.fyxh.data;
 				dataJson.csbz=this.csbz.text;
+				dataJson.cszt=this.cszt.text;
 				dataJson.speed=this.speed.text;
 				dataJson.noise=this.noise.text;
 				
@@ -479,6 +496,21 @@
 											</mx:HBox>
 										</mx:FormItem>
 									</mx:GridItem>
+									
+									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
+										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
+											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+											<mx:Label text="测试状态:" fontWeight="bold" height="{aboutheight}"/>
+										</mx:HBox>
+									</mx:GridItem>
+									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
+										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
+											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="left" verticalAlign="middle">
+												<mx:TextInput id="cszt" width="100%" height="{aboutheight}"/>
+											</mx:HBox>
+										</mx:FormItem>
+									</mx:GridItem>
+									
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
 											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
@@ -491,7 +523,10 @@
 												<mx:TextInput id="csbz" width="100%" height="{aboutheight}"/>
 											</mx:HBox>
 										</mx:FormItem>
-									</mx:GridItem>
+									</mx:GridItem>									
+								</mx:GridRow>
+								
+								<mx:GridRow width="100%" height="{aboutheight}">
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
 											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
@@ -503,9 +538,6 @@
 											<numberInput:NumberTextInput width="100%" height="{aboutheight}" id="speed"/>
 										</mx:FormItem>
 									</mx:GridItem>
-									
-								</mx:GridRow>
-								<mx:GridRow width="100%" height="{aboutheight}">
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
 											<mx:Label text="噪声:" fontWeight="bold" height="{aboutheight}"/>
@@ -516,12 +548,7 @@
 											<numberInput:NumberTextInput width="100%" height="{aboutheight}" id="noise"/>
 										</mx:FormItem>
 									</mx:GridItem>
-									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
-									</mx:GridItem>
-									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
-										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-										</mx:FormItem>
-									</mx:GridItem>
+									
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
 										</mx:HBox>

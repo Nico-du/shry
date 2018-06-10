@@ -55,6 +55,11 @@
                 <comment>适用车型</comment>
             </column>
         </property>
+        <property name="jsyq" type="java.lang.String">
+            <column name="jsyq" length="200">
+                <comment>技术要求</comment>
+            </column>
+        </property>
         <property name="syzt" type="java.lang.String">
             <column name="syzt" length="200">
                 <comment>试验状态</comment>

@@ -21,6 +21,7 @@ public class ShryZcData implements java.io.Serializable {
 	private String zl;
 	private String fslx;
 	private String sycx;
+	private String jsyq;
 	private String syzt;
 	private String memo;
 	private Date inputdate;
@@ -36,7 +37,7 @@ public class ShryZcData implements java.io.Serializable {
 
 	/** full constructor */
 	public ShryZcData(Long fyid, String djid, String xh, String pp,
-			String jqfs, String wxcc, String zl, String fslx, String sycx,
+			String jqfs,String jsyq, String wxcc, String zl, String fslx, String sycx,
 			String memo, Date inputdate, String inputuser,
 			Date updatedate, String updateuser) {
 		this.fyid = fyid;
@@ -44,6 +45,7 @@ public class ShryZcData implements java.io.Serializable {
 		this.xh = xh;
 		this.pp = pp;
 		this.jqfs = jqfs;
+		this.jsyq = jsyq;
 		this.wxcc = wxcc;
 		this.zl = zl;
 		this.fslx = fslx;
@@ -135,6 +137,14 @@ public class ShryZcData implements java.io.Serializable {
 
 	public void setSycx(String sycx) {
 		this.sycx = sycx;
+	}
+
+	public String getJsyq() {
+		return jsyq;
+	}
+
+	public void setJsyq(String jsyq) {
+		this.jsyq = jsyq;
 	}
 
 	public String getMemo() {
