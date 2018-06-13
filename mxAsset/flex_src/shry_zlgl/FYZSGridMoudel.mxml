@@ -95,8 +95,8 @@
 			
 			//初始化页面之前调用
 			public function beforeInitPage():void{
-				this.width = Application.application.width * 0.85;
-				this.height = Application.application.height * 0.85;
+				this.width = Application.application.width * 0.8;
+				this.height = Application.application.height * 0.8;
 				
 			}
 			
@@ -801,7 +801,7 @@
 				<mx:LinkButton label="" width="20" height="20" icon="@Embed(source='images/pg_next1.gif')"/>
 			</mx:HBox>
 			<!--快捷搜索-->
-			<mx:HBox id="qukilySearchBox" width="100%" height="{aboutheight}" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
+			<mx:HBox id="qukilySearchBox" width="100%" height="{aboutheight}" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left" visible="false" includeInLayout="false">
 				<mx:HBox id="qukilySearchBar" width="80%" height="{aboutheight}" horizontalGap="1" horizontalAlign="left" borderStyle="none">
 					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="风叶型号" textAlign="right"/>
 					<mx:TextInput id="qukilySearchTxt" enter="searchClickAction()" width="150" height="{aboutheight}"/>
