@@ -17,6 +17,7 @@
 			import com.adobe.serialization.json.JSON;
 			import com.benstucki.utilities.IconUtility;
 			import com.commonpages.UploadWindow;
+			
 			import flex.util.CommonMethod;
 			
 			import mx.collections.ArrayCollection;
@@ -319,12 +320,14 @@
 				return conditionJson;
 			}
 			
+			var removeDataString:String;
 			//删除数据
 			protected function removeDataAction(doEvent:CloseEvent):void{
 				if(doEvent.detail==Alert.CANCEL){
 					return;
 				}
 				var dataids:String=this.getRemoveDataArray();
+				removeDataString = dataids;
 				if(ASStringHelper.isNullOrEmpty(dataids)){
 					return;
 				}
@@ -334,6 +337,28 @@
 			//删除数据回调方法
 			protected function removeDataActionBack(rmtResult:ResultEvent):void{
 				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,removeDataActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					Alert.show(doResult.strErrorInfo);
+					return;
+				}else{
+					//	Alert.show("数据删除成功");
+					removeDataJsyqAction();
+				}
+			}
+			
+			//删除数据技术要求
+			protected function removeDataJsyqAction():void{
+				var dataids:String = removeDataString;
+				if(ASStringHelper.isNullOrEmpty(dataids)){
+					return;
+				}
+				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_ZC_JSYQ_DATA","RF_ZCID","技术要求"); 
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataJsyqActionBack);
+			}
+			//删除数据回调方法
+			protected function removeDataJsyqActionBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,removeDataJsyqActionBack);
 				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
 				if(doResult!=null && doResult.nRetCode!=Errors.OK){
 					Alert.show(doResult.strErrorInfo);

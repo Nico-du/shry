@@ -8,8 +8,8 @@ package flex.util
 	public class CommonXMLData
 	{
 		public static var UploadFile_BasePath:String = "sysArgFiles/";
-		
-		
+		public static var InitData:Object = "";
+		public static var WebAbsPath:String = "";
 		
 		public static var Bgdj_AddPage_FpSearch_CmbXml:XML = 
 			<root>

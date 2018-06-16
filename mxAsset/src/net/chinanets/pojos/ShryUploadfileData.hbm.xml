@@ -50,6 +50,11 @@
                 <comment>所属数据主键ID</comment>
             </column>
         </property>
+         <property name="datatype" type="java.lang.String">
+            <column name="datatype" length="50">
+                <comment>数据类型(图示图片:1,原始数据图:2)</comment>
+            </column>
+        </property>
         <property name="memo" type="java.lang.String">
             <column name="memo" length="2000">
                 <comment>备注</comment>

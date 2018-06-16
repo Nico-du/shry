@@ -293,20 +293,15 @@
 		<mapping resource="net/chinanets/pojos/DicBookheritage.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/DicSpecialequ.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/DicStructures.hbm.xml" />
-		<mapping
-			resource="net/chinanets/pojos/DicIntangibleasset.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicIntangibleasset.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/DicInstrument.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/DicLand.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/DicSportsequ.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/DicTransportequ.hbm.xml" />
-		<mapping
-			resource="net/chinanets/pojos/DicElectricalequ.hbm.xml" />
-		<mapping
-			resource="net/chinanets/pojos/DicCommunicationequ.hbm.xml" />
-		<mapping
-			resource="net/chinanets/pojos/CnstAssetbgjlData.hbm.xml" />
-		<mapping
-			resource="net/chinanets/pojos/CnstLydmxLyslData.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicElectricalequ.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/DicCommunicationequ.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/CnstAssetbgjlData.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/CnstLydmxLyslData.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/CnstCpfkdjData.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/CnstCpwhdjData.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/CnstCompactData.hbm.xml" />
@@ -318,6 +313,8 @@
 		<mapping resource="net/chinanets/pojos/ShryFyData.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/ShryDjxnData.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/ShryFyZsData.hbm.xml" />
+		
+		<mapping resource="net/chinanets/pojos/ShryZcJsyqData.hbm.xml" />
 
 	</session-factory>
 </hibernate-configuration>

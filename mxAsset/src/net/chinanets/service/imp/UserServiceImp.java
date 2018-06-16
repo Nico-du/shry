@@ -53,6 +53,15 @@ public class UserServiceImp extends CommonServiceImp implements UserService {
 	public void setUsersDao(UsersDao usersDao) {
 		this.usersDao = usersDao;
 	}
+	
+	public Map initSysData(){
+		Map initMap = new HashMap();
+		String sysPath = System.getProperty("user.dir");
+		initMap.put("tomcatPath", sysPath);
+		String disk = sysPath.substring(0, 3);
+		initMap.put("diskPath", disk);
+		return initMap;
+	}
 
 	/**
 	 * 查询用户

@@ -8,8 +8,9 @@
 			import com.benstucki.utilities.IconUtility;
 			
 			import flex.pojos.FileUploadVo;
-			import flex.util.CommonXMLData;
 			import flex.util.CommonMethod;
+			import flex.util.CommonUIMethod;
+			import flex.util.CommonXMLData;
 			
 			import mx.collections.ArrayCollection;
 			import mx.collections.CursorBookmark;
@@ -35,14 +36,22 @@
 			[Bindable] public var paretnId:String = "";
 			[Bindable] public var tablename:String = null;
 			[Bindable] public var columnname:String = null;
+			//原始图片数据
+			[Bindable] public var isOriginPage:Boolean = false;
+			[Bindable] public var originData:Object = null;
 			
 			protected function initializeHandler(event:FlexEvent):void
 			{
-				
-				this.width = Application.application.width * 0.9;
-				this.height = Application.application.height * 0.9;
-				
-				initializeData();
+				if(isOriginPage){
+					this.showOriginImage();
+					this.nextOneBtn.visible = false; this.nextOneBtn.includeInLayout = false;
+					this.previousBtn.visible = false; this.previousBtn.includeInLayout = false;
+				}else{
+					this.width = Application.application.width * 0.9;
+					this.height = Application.application.height * 0.9;
+					
+					initializeData();
+				}
 				initializeImgStyle();
 			}
 			
@@ -149,6 +158,22 @@
 				 mapImg.width = mainCanvas.width * 0.95;
 				mapImg.x=(this.width - mapImg.width)/2 ; 
 			    mapImg.y=(this.height - mapImg.height)/2 - 30;
+				mapImg.validateNow();
+			}
+			
+			//展示下一张图片
+			private function showOriginImage():void{
+				var filePath:String= this.originData.filepath;
+				if(filePath == null || filePath.length < 1){
+					Alert.show("数据错误,文件路径为空！",CommonXMLData.Alert_Title);
+					return;
+				}
+				this.title = "图片："+this.originData.filename + "." +this.originData.filetype;
+				mapImg.source  = CommonXMLData.UploadFile_BasePath + filePath;
+				mapImg.height = mainCanvas.height * 0.95;
+				mapImg.width = mainCanvas.width * 0.95;
+				mapImg.x=(this.width - mapImg.width)/2 ; 
+				mapImg.y=(this.height - mapImg.height)/2 - 30;
 				mapImg.validateNow();
 			}
 			

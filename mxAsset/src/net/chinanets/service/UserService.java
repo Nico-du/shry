@@ -1,6 +1,7 @@
 package net.chinanets.service;
 
 import java.util.List;
+import java.util.Map;
 
 import net.chinanets.pojos.Menus;
 import net.chinanets.pojos.Users;
@@ -11,6 +12,11 @@ import net.chinanets.vo.RuleVo;
 import net.chinanets.vo.UserVo;
 
 public interface UserService extends CommonService {
+	/**
+	 * 初始化系统参数
+	 * @return
+	 */
+	public Map initSysData();
 	/**
 	 * 查询用户
 	 * @return

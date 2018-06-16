@@ -53,6 +53,8 @@
 			
 			//数据ID
 			public var dataId:String="";
+			//数据ID
+			public var jsyqid:String="";
 			//默认操作实体名称
 			public var tempObjBeanName:String="SHRY_ZC_DATA";
 			//视图名称
@@ -242,6 +244,7 @@
 				this.afterLoadData();
 				this.loadUserPower();
 			}
+			
 			//加载数据成功之后调用
 			protected function afterLoadData():void{
 				if(this.dataArray==null || this.dataArray.length<1){
@@ -265,6 +268,39 @@
 				this.jsyq.text=tempObj["jsyq"];
 				
 				this.memo.text=tempObj["memo"];
+				
+				//JSYQ
+				this.jsyqid = tempObj["jsyqid"];
+					
+				this.whkckzfs.text=tempObj["whkckzfs"];
+				this.whkczkb1.text=tempObj["whkczkb1"];
+				this.whkczs1.text=tempObj["whkczs1"];
+				this.whkcdl1.text=tempObj["whkcdl1"];
+				this.whkczkb2.text=tempObj["whkczkb2"];
+				
+				this.whkczs2.text=tempObj["whkczs2"];
+				this.whkcdl2.text=tempObj["whkcdl2"];
+				this.whkczkb3.text=tempObj["whkczkb3"];
+				this.whkczs3.text=tempObj["whkczs3"];
+				this.whkcdl3.text=tempObj["whkcdl3"];
+				
+				this.gzdjy1.text= tempObj["gzdjy1"];
+				this.gzdll1.text= tempObj["gzdll1"];
+				this.gzdjy2.text= tempObj["gzdjy2"];
+				this.gzdll2.text= tempObj["gzdll2"];
+				this.gzdjy3.text= tempObj["gzdjy3"];
+				
+				this.gzdll3.text= tempObj["gzdll3"];
+				this.zszt.text=   tempObj["zszt"];
+				this.zsgsed.text= tempObj["zsgsed"];
+				this.zsgssc.text= tempObj["zsgssc"];
+				this.zsdsed.text= tempObj["zsdsed"];
+				
+				this.zsdssc.text= tempObj["zsdssc"];
+				this.phjph.text=  tempObj["phjph"];
+				this.phdph.text=  tempObj["phdph"];
+				
+				
 				
 				this.dqdlhzjinput.text=tempObj["dlhzj"];
 				this.hsdlhzjinput.text=tempObj["dlhzj"];
@@ -372,6 +408,53 @@
 				dataJson.assetid = ypfb.data; */
 				return JSON.encode(dataJson);
 			}
+			
+			//得到保存数据-技术要求
+			protected function getSaveOrUpdatetDataJsyq():String{
+				var userid:String=FlexGlobals.topLevelApplication.userVo.id.toString();
+				var dataJson:Object=new Object();
+				if(ASStringHelper.isNullOrEmpty(this.dataId)){
+					dataJson.INPUTUSER=userid;
+				}
+				dataJson.rfzcid=this.dataId;
+				dataJson.jsyqid=this.jsyqid;
+				
+				dataJson.whkckzfs=this.whkckzfs.text;
+				dataJson.whkczkb1=this.whkczkb1.text;
+				dataJson.whkczs1=this.whkczs1.text;
+				dataJson.whkcdl1=this.whkcdl1.text;
+				dataJson.whkczkb2=this.whkczkb2.text;
+				
+				dataJson.whkczs2=this.whkczs2.text;
+				dataJson.whkcdl2=this.whkcdl2.text;
+				dataJson.whkczkb3=this.whkczkb3.text;
+				dataJson.whkczs3=this.whkczs3.text;
+				dataJson.whkcdl3=this.whkcdl3.text;
+				
+				dataJson.gzdjy1= this.gzdjy1.text;
+				dataJson.gzdll1= this.gzdll1.text;
+				dataJson.gzdjy2= this.gzdjy2.text;
+				dataJson.gzdll2= this.gzdll2.text;
+				dataJson.gzdjy3= this.gzdjy3.text;
+				
+				dataJson.gzdll3= this.gzdll3.text;
+				dataJson.zszt=   this.zszt.text;
+				dataJson.zsgsed= this.zsgsed.text;
+				dataJson.zsgssc= this.zsgssc.text;
+				dataJson.zsdsed= this.zsdsed.text;
+				
+				dataJson.zsdssc= this.zsdssc.text;
+				dataJson.phjph=  this.phjph.text;
+				dataJson.phdph=  this.phdph.text;
+				
+				dataJson.memo=this.memo.text;
+				dataJson.UPDATEUSER=userid;
+				
+				/* dataJson.assettablename = jqfs.data;
+				dataJson.assetidcolumn = ypsm.data;
+				dataJson.assetid = ypfb.data; */
+				return JSON.encode(dataJson);
+			}
 			//保存数据
 			protected function dataSaveOrUpdateAction():void{
 				if(!beforeSaveData()){
@@ -392,8 +475,30 @@
 				if(doResult!=null && doResult.nRetCode!=Errors.OK){
 					this.resultmsg.text=doResult.strErrorInfo;
 				}else{
-					this.resultmsg.text="数据操作成功";
+					//this.resultmsg.text="数据操作成功";
 					this.dataId=doResult.strErrorInfo;
+					//this.afterDoAction();
+					dataSaveOrUpdateJsyq();
+				}
+				//this.resultmsg.alpha=1;
+				//this.fadeEffect.stop();
+				//this.fadeEffect.play(null,false);
+			}
+			
+			public function dataSaveOrUpdateJsyq():void{
+				var submitjson:String=getSaveOrUpdatetDataJsyq();
+				AllAssetServiceRmt.SaveOrUpdateObject(submitjson,"net.chinanets.pojos.ShryZcJsyqData","jsyqid","技术要求数据");
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataSaveOrUpdateJsyqActionBack);
+			}
+			//保存数据回调方法
+			protected function dataSaveOrUpdateJsyqActionBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSaveOrUpdateJsyqActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					this.resultmsg.text=doResult.strErrorInfo;
+				}else{
+					this.resultmsg.text="数据操作成功";
+					this.jsyqid=doResult.strErrorInfo;
 					this.afterDoAction();
 				}
 				this.resultmsg.alpha=1;
@@ -417,10 +522,31 @@
 					this.resultmsg.text=doResult.strErrorInfo;
 					return;
 				}else{
+					//this.resultmsg.text="数据删除成功";
+					//this.afterDoAction();
+					dataRemoveJsyqAction();
+				}
+			}
+			//删除当前数据
+			protected function dataRemoveJsyqAction():void{
+				AllAssetServiceRmt.RemoveObject(this.jsyqid,"SHRY_ZC_JSYQ_DATA","JSYQID","已选择数据记录");
+				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataRemoveJsyqActionBack);
+			}
+			//删除当前数据回调方法
+			protected function dataRemoveJsyqActionBack(rmtResult:ResultEvent):void{
+				AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataRemoveJsyqActionBack);
+				var doResult:DoResult=ASJsonHelper.stringJsonConverToDoResult(rmtResult.result.toString());
+				if(doResult!=null && doResult.nRetCode!=Errors.OK){
+					this.resultmsg.text=doResult.strErrorInfo;
+					return;
+				}else{
 					this.resultmsg.text="数据删除成功";
 					this.afterDoAction();
 				}
 			}
+			
+			
+			
 			//所有Action操作之后
 			protected function afterDoAction():void{
 				this.tempFunction.call(this);
@@ -586,8 +712,10 @@
 					datumFormTabNV.height = (this.height - 80);
 					if(chartMultiPanel.getChildren().length < 1){
 						nvPage2.setChildIndex(hsHbox,1);
-						blogModel.selectedIndex = 1;
+						blogModel.selectedIndex = 0;
 						getCbxData(Number(hszsblinput.text),Number(dqdlhzjinput.text));
+						
+						loadOriginPictures();
 					}
 				}else{
 					datumFormTabNV.height = datumFormTabNVPHeight;
@@ -602,11 +730,14 @@
 			//性能数据/多曲线/单曲线 切换时触发
 			protected function blogModel_tabIndexChangeHandler(event:Event):void
 			{
-				if(blogModel.selectedIndex == 0){
+				if(blogModel.selectedIndex == 0 || blogModel.selectedIndex == 1){
 					hsHbox.visible =false;
 				}else{
 					hsHbox.visible=true;
 				}
+				
+				
+				
 			}
 				
 				
@@ -784,7 +915,7 @@
 									</mx:GridItem>
 								</mx:GridRow>
 								
-								<mx:GridRow width="100%" height="{aboutheight}">
+								<mx:GridRow width="100%" height="{aboutheight}" visible="false" includeInLayout="false">
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:Label text="技术要求:"  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
@@ -826,7 +957,7 @@
 										<mx:HBox id="fyts" width="100%" height="{aboutheight*5}" borderStyle="none" verticalAlign="middle" horizontalAlign="left">
 											<!--<mx:Image id="image1" source="{imgFileNameT}"   height="{aboutheight*5}" width="{aboutheight*5}"/>
 											<mx:Image id="image2" source="{imgFileNameB}"    height="{aboutheight*5}" width="{aboutheight*5}"/>-->
-											<mx:Button label="添加文件" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,this.idColumnName,this.dataId)"/>
+											<mx:Button  label="添加文件" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,this.idColumnName,this.dataId)"/>
 										</mx:HBox>
 									</mx:GridItem>
 								</mx:GridRow>
@@ -864,7 +995,7 @@
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="95%" colSpan="3">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
 											<mx:Label text="控制方式:" fontWeight="normal" height="{aboutheight}" paddingRight="4"/>
-											<mx:TextInput width="40%" height="{aboutheight}" id="whkc_kzfs"/>
+											<mx:TextInput width="40%" height="{aboutheight}" id="whkckzfs"/>
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow> 
@@ -888,13 +1019,13 @@
 										<mx:Label text="1."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkc_zkb1" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="whkczkb1" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkc_zs1" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="whkczs1" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkc_dl1" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="whkcdl1" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								
@@ -903,13 +1034,13 @@
 										<mx:Label text="2."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkc_zkb2" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="whkczkb2" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkc_zs2" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="whkczs2" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkc_dl2" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="whkcdl2" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								
@@ -918,13 +1049,13 @@
 										<mx:Label text="3."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkc_zkb3" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="whkczkb3" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkc_zs3" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="whkczs3" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkc_dl3" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="whkcdl3" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								
@@ -976,10 +1107,10 @@
 										<mx:Label text="1."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzd_jy1" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="gzdjy1" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzd_ll1" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="gzdll1" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								
@@ -988,10 +1119,10 @@
 										<mx:Label text="2."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzd_jy2" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="gzdjy2" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzd_ll2" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="gzdll2" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								
@@ -1000,10 +1131,10 @@
 										<mx:Label text="3."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzd_jy3" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="gzdjy3" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzd_ll3" width="70%" height="{aboutheight}"/>
+											<numberInput:NumberTextInput  id="gzdll3" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 							</mx:Grid>
@@ -1027,7 +1158,7 @@
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%" colSpan="2">
 											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<mx:TextInput width="80%" height="{aboutheight}" id="zs_zt"/>
+												<mx:TextInput width="80%" height="{aboutheight}" id="zszt"/>
 											</mx:FormItem>
 										</mx:GridItem>
 									</mx:GridRow>
@@ -1044,7 +1175,7 @@
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
 											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<numberInput:NumberTextInput  id="zs_gs_ed" width="80%" height="{aboutheight}"/>
+												<numberInput:NumberTextInput  id="zsgsed" width="80%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="20%">
@@ -1052,7 +1183,7 @@
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
 											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<numberInput:NumberTextInput  id="zs_gs_sc" width="80%" height="{aboutheight}"/>
+												<numberInput:NumberTextInput  id="zsgssc" width="80%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
 									</mx:GridRow>
@@ -1069,7 +1200,7 @@
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
 											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<numberInput:NumberTextInput  id="zs_ds_ed" width="80%" height="{aboutheight}"/>
+												<numberInput:NumberTextInput  id="zsdsed" width="80%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="20%">
@@ -1077,7 +1208,7 @@
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
 											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<numberInput:NumberTextInput  id="zs_ds_sc" width="80%" height="{aboutheight}"/>
+												<numberInput:NumberTextInput  id="zsdssc" width="80%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
 									</mx:GridRow>
@@ -1108,7 +1239,7 @@
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="70%">
 											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<mx:TextInput  id="ph_jph" width="70%" height="{aboutheight}"/>
+												<mx:TextInput  id="phjph" width="70%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
 									</mx:GridRow>
@@ -1127,7 +1258,7 @@
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="70%">
 											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<mx:TextInput  id="ph_dph" width="70%" height="{aboutheight}"/>
+												<mx:TextInput  id="phdph" width="70%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
 									</mx:GridRow>
@@ -1140,7 +1271,7 @@
 					</mx:VBox>
 					<mx:Panel id="nvPage2" label="性能图" width="100%"  borderStyle="none" headerHeight="0" layout="absolute"
 							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-						<mx:HBox horizontalGap="2" x="250" y="3" id="hsHbox">
+						<mx:HBox horizontalGap="2" x="340" y="3" id="hsHbox">
 							<mx:Label paddingTop="2" text="试验目的_日期:"/>
 							<mx:ComboBox id="hsCbx" labelFunction="getColumnText" width="200" labelField="symd" change="getChartDataAndAddChart(Number(hszsblinput.text),Number(hsdlhzjinput.text))"/>
 							<mx:Label paddingLeft="2" text="转速换算比例(%):" paddingTop="2"/>
@@ -1154,6 +1285,10 @@
 						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0"  verticalGap="2" cornerRadius="2" borderStyle="none">
 							<mx:LinkBar dataProvider="{blogModel}"  styleName="LinkBarStyle01"/>
 							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 140}" change="blogModel_tabIndexChangeHandler(event)">
+								<mx:Panel id="originPicPanel" label="原始数据图"  width="100%"  borderStyle="none" headerHeight="0" 
+										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0" horizontalAlign="left">
+									
+								</mx:Panel>
 								<mx:Panel id="perfDataPanel" label="性能数据"  width="100%"  borderStyle="none" headerHeight="0" 
 										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
 									

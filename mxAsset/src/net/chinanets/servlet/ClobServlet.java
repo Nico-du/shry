@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.chinanets.pojos.ShryUploadfileData;
 import net.chinanets.service.CommonService;
+import net.chinanets.utils.CommonMethods;
 import net.chinanets.utils.Hanzi2Pinyin;
 
 import java.sql.Blob;
@@ -27,6 +28,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
 @SuppressWarnings("unused")
 public class ClobServlet extends HttpServlet {
@@ -124,17 +126,16 @@ public class ClobServlet extends HttpServlet {
 					String docNr=time+value;
 					//写入文件
 					//float l=item.getSize()/1024;
-					File fldir = new File(path+"/sysArgFiles/"+docNr.substring(0,4));
+					File fldir = new File(path + CommonMethods.UploadFile_BasePath+docNr.substring(0,4));
 					fldir.mkdirs();
-					item.write(new File(path+"/sysArgFiles/" + docNr.substring(0,4),docNr));
+					item.write(new File(path +CommonMethods.UploadFile_BasePath + docNr.substring(0,4),docNr));
 					
 					//获得dao对象
 					ServletContext servletContext = request.getSession()
 							.getServletContext();
 					ApplicationContext app = org.springframework.web.context.support.WebApplicationContextUtils
 							.getWebApplicationContext(servletContext);
-					CommonService cs = (CommonService) app
-							.getBean("commonService");
+					CommonService cs = (CommonService) app.getBean("commonService");
 					
 					/*
 					 * 初始pojo对象并赋值
@@ -153,7 +154,9 @@ public class ClobServlet extends HttpServlet {
 					if(pid != null && pid.length() > 0)doc.setDataid(pid);
 					String fjColumnname=request.getParameter("columnname");
 					if(fjColumnname != null && fjColumnname.length() > 0)doc.setColumnname(fjColumnname);
-					
+					String datatype=request.getParameter("datatype");
+					if(StringUtils.isBlank(datatype))datatype="1";
+					doc.setDatatype(datatype);
 				//	System.out.println("pid="+pid);
 				//	System.out.println("xmid="+xmid);
 					//dao添加

@@ -4,7 +4,6 @@ package flex.util
 	import com.commonpages.DetailDocument;
 	import com.commonpages.EditDocument;
 	
-	import mx.core.IUIComponent;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
@@ -15,6 +14,7 @@ package flex.util
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	import flash.net.navigateToURL;
+	import flash.system.System;
 	
 	import flex.pojos.DeptVo;
 	import flex.pojos.FileUploadVo;
@@ -34,6 +34,7 @@ package flex.util
 	import mx.controls.dataGridClasses.DataGridColumn;
 	import mx.core.Application;
 	import mx.core.IFlexDisplayObject;
+	import mx.core.IUIComponent;
 	import mx.events.FlexEvent;
 	import mx.formatters.DateFormatter;
 	import mx.managers.PopUpManager;
@@ -103,7 +104,7 @@ package flex.util
 		}
 		
 		//上传图片 文件上传的公共方法
-		public static function modifyUploadFile(parentWd:DisplayObject,tablename:String,columnname:String,dataid:String,isDetailPage:Boolean=false ):void
+		public static function modifyUploadFile(parentWd:DisplayObject,tablename:String,columnname:String,dataid:String,isDetailPage:Boolean=false,datatype:String="1" ):void
 		{
 			var editDoc:Object;
 			if(isDetailPage){
@@ -111,6 +112,7 @@ package flex.util
 			}else{
 				editDoc = new EditDocument();
 			}
+			editDoc.datatype = datatype;
 			editDoc.columnname = columnname.toLowerCase();
 			editDoc.paretnId = dataid;
 			editDoc.tablename = tablename.toLowerCase();
@@ -120,7 +122,7 @@ package flex.util
 		}
 		
 		
-		public static function loadTablePictures(tablename:String,columnname:String,dataid:String,parentPage:Object,callBackFunc:Function,args:Array=null):void{
+		public static function loadTablePictures(tablename:String,columnname:String,dataid:String,datatype:String,parentPage:Object,callBackFunc:Function,args:Array=null):void{
 			var docRem:RemoteObject = new RemoteObject();
 			docRem.destination = "commonService";
 			docRem.endpoint = "/mxAsset/messagebroker/amf";
@@ -129,6 +131,7 @@ package flex.util
 			xmdoc.dataid = dataid;
 			xmdoc.tablename = tablename;
 			xmdoc.columnname = columnname;
+			xmdoc.datatype = datatype;
 			docRem.getObjectList(xmdoc);
 			docRem.addEventListener(ResultEvent.RESULT,doLoadTablePictures(parentPage,callBackFunc,args));
 		}

@@ -38,6 +38,7 @@
 			[Bindable] public var paretnId:String = "";
 			[Bindable] public var tablename:String = null;
 			[Bindable] public var columnname:String = null;
+			[Bindable] public var datatype:String = "1";//数据类型(图示图片:1,原始数据图:2)
 			public var uploadFileList:FileReferenceList=null;
 			
 			public var parentWindow:Object;
@@ -47,6 +48,8 @@
 				xmdoc.dataid = paretnId+"";
 				xmdoc.tablename = tablename;
 				xmdoc.columnname = columnname;
+				xmdoc.datatype = datatype;
+				
 				commonService.getObjectList(xmdoc);
 				commonService.addEventListener(ResultEvent.RESULT,initBack);
 				
@@ -58,8 +61,14 @@
 			
 			private function closePage(){
 				PopUpManager.removePopUp(this);
-				if(parentWindow != null && parentWindow.hasOwnProperty("loadPictures")){
-					parentWindow.loadPictures();
+				if(this.datatype=="2"){
+					if(parentWindow != null && parentWindow.hasOwnProperty("loadOriginPictures")){
+						parentWindow.loadOriginPictures();
+					}
+				}else{
+					if(parentWindow != null && parentWindow.hasOwnProperty("loadPictures")){
+						parentWindow.loadPictures();
+					}
 				}
 			}
 			
@@ -96,6 +105,7 @@
 				xmdoc.uploaddate = nowData;
 				xmdoc.filesize = file.size+"";
 				xmdoc.filetype = file.type;
+				
 				existedFiles.addItem(xmdoc);
 				}
 				}
@@ -117,6 +127,7 @@
 						data.dataid = paretnId;
 						data.tablename = tablename;
 						data.columnname = columnname;
+						data.datatype = this.datatype;
 						var request:URLRequest= new URLRequest("/mxAsset/servlet/ClobServlet");
 						request.data=data;
 						
