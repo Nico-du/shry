@@ -32,6 +32,7 @@ import net.chinanets.utils.Sort;
 import net.chinanets.vo.DeptVo;
 import net.sf.json.JSONArray;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -841,6 +842,9 @@ public class CommonServiceImp implements CommonService {
 		public List getInfoByHql(String sql) {
 			return commonDao.getInfoByHql(sql);
 		}
+		
+		
+		
 		 /**
 	    * 总成性能导入，查询是否存在重复记录
 	    * param:   试验单号 +试验性质+试验日期
@@ -871,5 +875,27 @@ public class CommonServiceImp implements CommonService {
 			}
 			
 		}
+		
+		/**
+		 * 获取数据字典值
+		 * @param dictType
+		 * @param dictKey
+		 * @return
+		 */
+		public String getDictionaryByKey(String dictType,String dictKey){
+			if(StringUtils.isBlank(dictType) || StringUtils.isBlank(dictKey)){
+				return null;
+			}
+			String value = null;
+			String sql  = "select ATTRIBUTE1 from cnst_codelist_data where CODETYPE='"+dictType+"' and CODEBS='"+dictKey+"' ";
+			List queryList = commonDao.getObjectBySql(sql);
+			if(queryList != null && !queryList.isEmpty()){
+				value = (queryList.get(0)+"").trim();
+			}
+			return value;
+		}
+		
+		
+		
 }
 

@@ -519,7 +519,7 @@
 				}else{
 				    hszsbl = hszsbl/Number(hsCbx.selectedItem.zzs+"") * 100;
 				}
-				chartService.getFYXNChartList(sSql,dataId,hszsbl,hsdlhzj);
+				chartService.getFYXNInsertChartList(sSql,dataId,hszsbl,hsdlhzj);
 				chartService.addEventListener(ResultEvent.RESULT,resultBack);
 			}
 			
@@ -528,13 +528,16 @@
 				if(event.result == null)return;
 				//添加多曲线
 				chartMultiPanel.removeAllChildren();
-				var objList:ArrayCollection = new ArrayCollection();
-				objList = event.result as ArrayCollection;
-				chartDataList = objList;
-				var objList2:ArrayCollection = ObjectUtil.copy(event.result) as ArrayCollection;
+				var rstObj:Object = event.result as Object;
+				var objList:ArrayCollection = rstObj.convertList as ArrayCollection;//转换后的数据
+				var insertList:ArrayCollection = rstObj.insertList as ArrayCollection;//插值数据
+				
+				chartDataList = insertList;
+				
+				var objList2:ArrayCollection = ObjectUtil.copy(insertList) as ArrayCollection;
 				var multiChart:LinueChartMultiModel = new LinueChartMultiModel();
 				multiChart.modelTitle="风叶流量—静压/输入功率/扭矩/效率曲线图";  multiChart.xAxisTitle="流量(m^3/h)"; multiChart.xToolTipTiltle="流量";
-				 multiChart.yAxisTitle="静压/输入功率/扭矩/效率"; multiChart.yToolTipTiltle="Y";
+				multiChart.yAxisTitle="静压/输入功率/扭矩/效率"; multiChart.yToolTipTiltle="Y";
 				multiChart.serialLineName1="静压*(Pa)";  multiChart.serialLineName2="输入*(W)";  multiChart.serialLineName3="扭矩*(N·m)";  multiChart.serialLineName4="效率*(%)" ;
 				multiChart.height=this.height - 140;
 				multiChart.dpArray = objList2;
@@ -546,25 +549,25 @@
 				lineChart1.modelTitle="风叶流量—效率曲线图"; lineChart1.height=this.height - 140; 
 				lineChart1._xField = "ll"; lineChart1._yField = "xl";
 				lineChart1.xToolTipTiltle = lineChart1.xAxisTitle= "流量";lineChart1.yToolTipTiltle= lineChart1.yAxisTitle= "效率";
-				lineChart1.dpArray = objList;
+				lineChart1.dpArray = insertList;
 				var lineChart2:LinueChartModel = new LinueChartModel();
 				lineChart2.modelTitle="风叶流量—扭矩曲线图"; lineChart2.height=this.height - 140; 
 				lineChart2._xField = "ll"; lineChart2._yField = "nj";
 				lineChart2.xToolTipTiltle = lineChart2.xAxisTitle= "流量";lineChart2.yToolTipTiltle= lineChart2.yAxisTitle= "扭矩";
-				lineChart2.dpArray = objList;
+				lineChart2.dpArray = insertList;
 				var lineChart3:LinueChartModel = new LinueChartModel();
 				lineChart3.modelTitle="风叶流量—输入功率曲线图"; lineChart3.height=this.height - 140;
 				lineChart3._xField = "ll"; lineChart3._yField = "zgl";
 				lineChart3.xToolTipTiltle = lineChart3.xAxisTitle= "流量";lineChart3.yToolTipTiltle= lineChart3.yAxisTitle= "功率";
-				lineChart3.dpArray = objList;
+				lineChart3.dpArray = insertList;
 				var lineChart4:LinueChartModel = new LinueChartModel();
 				lineChart4.modelTitle="风叶流量—静压曲线图"; lineChart4.height=this.height - 140;
 				lineChart4.xToolTipTiltle = lineChart4.xAxisTitle= "流量";lineChart4.yToolTipTiltle= lineChart4.yAxisTitle= "静压";
 				lineChart4._xField = "ll"; lineChart4._yField = "jyl";
-				lineChart4.dpArray = objList;
+				lineChart4.dpArray = insertList;
 				
 				//添加数据表格
-				 var dataGrid:Grid = CommonUIMethod.generateTable("fyxn",objList);
+				 var dataGrid:Grid = CommonUIMethod.generateTable("fyxn",insertList);
 				var vbx:VBox = new VBox();
 				vbx.setStyle("horizontalAlign","center");	vbx.setStyle("borderColor","#99CCFF"); vbx.setStyle("borderStyle","solid");  
 				vbx.percentWidth = 100;

@@ -245,4 +245,6 @@ public interface CommonService {
 		 */
 		public int getCountShryFy(String xh);
 		
+		
+		public String getDictionaryByKey(String dictType,String dictKey);
 }

@@ -118,7 +118,39 @@ public class CommonMethods {
         return false; 
     } 
 	
-	
+    /**
+	 * 转换为double数组
+	 * @param ary
+	 * @return
+	 */
+    public static  double[] toDoubleAry(String[] ary) {
+    	double[] dAry = new double[ary.length];
+    	for(int i=0;i<ary.length;i++){
+    		dAry[i] = Double.parseDouble(ary[i]);
+    	}
+    	return dAry;
+    }
+    
+    
+	/**
+	 * 判断是否double数组
+	 * @param ary
+	 * @return
+	 */
+    public static  boolean isDoubleAry(Object[] ary) 
+    { 
+    	if(ary == null || ary.length <1){ return true;}
+    	try 
+    	{ 
+    		for(Object ch:ary){
+    			if(!isDouble(ch+"")){ return false;}
+    		}
+    		return true;
+    	} 
+    	catch(Exception ex){} 
+    	return false; 
+    }
+    
 	/**
 	 * @方法作用描述：判断是否是double类型
 	 * @param:

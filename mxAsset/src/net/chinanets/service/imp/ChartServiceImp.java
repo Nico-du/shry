@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.chinanets.data.DataEntity;
 import net.chinanets.pojos.ShryFyData;
 import net.chinanets.pojos.ShryFyZsData;
@@ -18,17 +16,23 @@ import net.chinanets.service.ChartService;
 import net.chinanets.utils.Arith;
 import net.chinanets.utils.CommonMethods;
 import net.chinanets.utils.Guass;
+import net.chinanets.utils.MatlabInterp1Util;
 import net.chinanets.utils.common.DoResult;
 import net.chinanets.utils.common.Errors;
 import net.chinanets.vo.UserVo;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.log4j.Logger;
+
 
 
 @SuppressWarnings("unchecked")
 public class ChartServiceImp extends CommonServiceImp implements ChartService {
-	
+	private Logger logger = Logger.getLogger(this.getClass().getName());
 	
 	public String selectFYAction(String selectionJson){
 		DoResult doResult = new DoResult();
@@ -391,12 +395,124 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		return listOut;
 	}
 	
+	
 	/**
 	 * 风叶性能数据图 换算
 	 * 等比利换算
 	 * 根据转速变换 取其他性能参数
 	 * @param sSql
-	 * @param hsbl 换算比利，%数
+	 * @param fyid 风叶id
+	 * @param hszsbl 转速换算比利，%数
+	 * @param hsdlhzj 导流环直径 换算值
+	 * @return
+	 * @throws Exception 
+	 */
+	public Map<String,List<ShryFyxnData>> getFYXNInsertChartList(String sSql,String fyid,Double hszsbl,Double hsdlhzj) throws Exception{
+		logger.info("风叶性能数据图 换算 参数:sSql="+sSql+",fyid="+fyid+",hszsbl="+hszsbl+",hsdlhzj="+hsdlhzj);
+		Map<String,List<ShryFyxnData>> outMap = new HashMap<String, List<ShryFyxnData>>();
+		List<ShryFyxnData> insertList = new ArrayList<ShryFyxnData>();
+		List<ShryFyxnData> convertList= this.getFYXNChartList(sSql, fyid, hszsbl, hsdlhzj);
+		//是否进行插值计算
+		boolean isInsert = "是".equals(super.getDictionaryByKey("INTERP1_PARAMS", "IS_FY_INSERT"));
+		String insertAValue = null;
+		if(isInsert && convertList != null && !convertList.isEmpty()){
+			//总成插值指定点,分隔符为,
+			insertAValue = super.getDictionaryByKey("INTERP1_PARAMS", "FY_INSERT_VALUE");
+			if(StringUtils.isBlank(insertAValue)){ throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-未配置!");}
+			String[] insertAry = insertAValue.split(",");
+			if(!CommonMethods.isDoubleAry(insertAry)){	throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-格式错误/非数字!");	}
+			
+			insertList = convertFYXNInsertChartList(convertList,insertAry);
+		}else{
+			insertList = convertList;
+		}
+		logger.info("fyid="+fyid+"是否进行插值计算："+isInsert+"总成插值指定点："+insertAValue);
+		outMap.put("insertList", insertList);
+		outMap.put("convertList", convertList);
+		
+		return outMap;
+	}
+	/**
+	 * 风叶性能数据插值
+	 * @param convertList
+	 * @param insertAry
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<ShryFyxnData> convertFYXNInsertChartList(List<ShryFyxnData> convertList,String[] insertAry) throws Exception{
+		insertAry = convertFyMaxValue(convertList,insertAry);
+		List<ShryFyxnData> outList =  new ArrayList<ShryFyxnData>();
+		//流量、扭矩、轴功率、效率
+		double[] xAry,aAry,yLlAry,yZglAry,yXlAry,yZzsAry,yNjAry;
+		xAry = new double[convertList.size()];  aAry = CommonMethods.toDoubleAry(insertAry); yLlAry = new double[convertList.size()]; 
+		yZzsAry = new double[convertList.size()]; yZglAry = new double[convertList.size()]; yXlAry = new double[convertList.size()];
+		yNjAry = new double[convertList.size()];
+		for(int i=0;i<convertList.size();i++){
+			ShryFyxnData ch = convertList.get(i);
+			xAry[i] = Double.parseDouble(ch.getJyl());
+			
+			yLlAry[i] = Double.parseDouble(ch.getLl());
+//			yZzsAry[i] = Double.parseDouble(ch.getZzs());
+			yZglAry[i] = Double.parseDouble(ch.getZgl());
+			yXlAry[i] = Double.parseDouble(ch.getXl());
+			yNjAry[i] = Double.parseDouble(ch.getNj());
+		}
+		Double[] yVLlAry = MatlabInterp1Util.InterpOneX(xAry, yLlAry, aAry);
+		Double[] yVZglAry = MatlabInterp1Util.InterpOneX(xAry, yZglAry, aAry);
+		Double[] yVXlAry = MatlabInterp1Util.InterpOneX(xAry, yXlAry, aAry);
+		Double[] yVNjAry = MatlabInterp1Util.InterpOneX(xAry, yNjAry, aAry);
+		
+		//拟合四个值 添加转速插值
+		for(int i=0;i<insertAry.length;i++){
+			ShryFyxnData ch = new ShryFyxnData();
+			ch.setJyl(new Double(aAry[i]).toString());
+			
+			ch.setLl(new Double(yVLlAry[i]).toString());
+			ch.setZgl(new Double(yVZglAry[i]).toString());
+			ch.setXl(new Double(yVXlAry[i]).toString());
+			ch.setNj(new Double(yVNjAry[i]).toString());
+			ch.setZzs(convertList.get(i).getZzs());
+			ch.setFzs(convertList.get(i).getFzs());
+			outList.add(ch);
+		}
+		return outList;
+	}
+	/**
+	 * 如果实验数据表静压(Pa)最大值大于指定“静压数据”某点数值，仅显示小于该点静压下的数据
+	 * 基于insertAry 从小到大排序,非有序则数据显示错误。
+	 * @param convertList
+	 * @param insertAry
+	 * @return
+	 */
+	private String[] convertFyMaxValue(List<ShryFyxnData> convertList,String[] insertAry) {
+		double maxInsert = 0d;
+		double maxJy = 0D;
+		for(ShryFyxnData ch : convertList){
+			if(NumberUtils.toDouble(ch.getJyl()) > maxJy){ maxJy = NumberUtils.toDouble(ch.getJyl());}
+		}
+		
+		int insertI = 0;
+		for(int i=0;i<insertAry.length-1;i++){
+			if(NumberUtils.toDouble(insertAry[i]) < maxJy && NumberUtils.toDouble(insertAry[i+1]) > maxJy){
+				maxInsert = maxJy;//NumberUtils.toDouble(insertAry[i]);
+				insertI = i;
+			}
+		}
+		if( maxInsert ==0d){ maxInsert = NumberUtils.toDouble(insertAry[insertAry.length-1]);}
+		insertAry = (String[]) ArrayUtils.subarray(insertAry, 0, insertI+1);
+		insertAry[insertAry.length-1] = maxInsert+"";
+		
+		return insertAry;
+	}
+	
+	/**
+	 * 风叶性能数据图 换算
+	 * 等比利换算
+	 * 根据转速变换 取其他性能参数
+	 * @param sSql
+	 * @param fyid 风叶id
+	 * @param hszsbl 转速换算比利，%数
+	 * @param hsdlhzj 导流环直径 换算值
 	 * @return
 	 */
 	public List<ShryFyxnData> getFYXNChartList(String sSql,String fyid,Double hszsbl,Double hsdlhzj){
@@ -442,12 +558,128 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		return listOut;
 	}
 	
+	
+	
+	/**
+	 * 总成性能数据图 换算-->1.性能数据换算 2.matlab插值计算
+	 * 等比利换算
+	 * 根据转速变换 取其他性能参数
+	 * @param sSql
+	 * @param hsbl 换算比利，%数
+	 * @param hszsbl 转速换算比利，%数
+	 * @param hsdlhzj 导流环直径 换算值
+	 * @return
+	 * @throws Exception 
+	 */
+	public Map<String,List<ShryZcxnData>> getZCXNInsertChartList(String sSql,String zcid,Double hszsbl,Double hsdlhzj) throws Exception{
+		logger.info("总成性能数据图 换算 参数:sSql="+sSql+",zcid="+zcid+",hszsbl="+hszsbl+",hsdlhzj="+hsdlhzj);
+		Map<String,List<ShryZcxnData>> outMap = new HashMap<String, List<ShryZcxnData>>();
+		List<ShryZcxnData> insertList = new ArrayList<ShryZcxnData>();
+		List<ShryZcxnData> convertList= this.getZCXNChartList(sSql, zcid, hszsbl, hsdlhzj);
+		//是否进行插值计算
+		boolean isInsert = "是".equals(super.getDictionaryByKey("INTERP1_PARAMS", "IS_ZC_INSERT"));
+		String insertAValue = null;
+		if(isInsert && convertList != null && !convertList.isEmpty()){
+			//总成插值指定点,分隔符为,
+			insertAValue = super.getDictionaryByKey("INTERP1_PARAMS", "ZC_INSERT_VALUE");
+			if(StringUtils.isBlank(insertAValue)){ throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-未配置!");}
+			String[] insertAry = insertAValue.split(",");
+			if(!CommonMethods.isDoubleAry(insertAry)){	throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-格式错误/非数字!");	}
+			
+			insertList = convertZCXNInsertChartList(convertList,insertAry);
+			
+		}else{
+			insertList = convertList;
+		}
+		logger.info("zcid="+zcid+"是否进行插值计算："+isInsert+"总成插值指定点："+insertAValue);
+		outMap.put("insertList", insertList);
+		outMap.put("convertList", convertList);
+		
+		return outMap;
+	}
+	
+	/**
+	 * 总成性能数据插值
+	 * @param convertList
+	 * @param insertAry
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<ShryZcxnData> convertZCXNInsertChartList(List<ShryZcxnData> convertList,String[] insertAry) throws Exception{
+		insertAry = convertZcMaxValue(convertList,insertAry);
+		List<ShryZcxnData> outList =  new ArrayList<ShryZcxnData>();
+		//流量、扭矩、轴功率、效率
+		double[] xAry,aAry,yLlAry,yZglAry,yXlAry,yZzsAry;
+		xAry = new double[convertList.size()];  aAry = CommonMethods.toDoubleAry(insertAry); yLlAry = new double[convertList.size()]; 
+		yZzsAry = new double[convertList.size()]; yZglAry = new double[convertList.size()]; yXlAry = new double[convertList.size()];
+		for(int i=0;i<convertList.size();i++){
+			ShryZcxnData ch = convertList.get(i);
+			xAry[i] = Double.parseDouble(ch.getJyl());
+			
+			yLlAry[i] = Double.parseDouble(ch.getLl());
+			yZzsAry[i] = Double.parseDouble(ch.getZzs());
+			yZglAry[i] = Double.parseDouble(ch.getSrgl());
+			yXlAry[i] = Double.parseDouble(ch.getXl());
+		}
+		Double[] yVLlAry = MatlabInterp1Util.InterpOneX(xAry, yLlAry, aAry);
+		Double[] yVZzsAry = MatlabInterp1Util.InterpOneX(xAry, yZzsAry, aAry);
+		Double[] yVZglAry = MatlabInterp1Util.InterpOneX(xAry, yZglAry, aAry);
+		Double[] yVXlAry = MatlabInterp1Util.InterpOneX(xAry, yXlAry, aAry);
+		
+		//拟合四个值 添加转速插值
+		for(int i=0;i<insertAry.length;i++){
+			ShryZcxnData ch = new ShryZcxnData();
+			ch.setJyl(new Double(aAry[i]).toString());
+			
+			ch.setLl(new Double(yVLlAry[i]).toString());
+			ch.setZzs(new Double(yVZzsAry[i]).toString());
+			ch.setSrgl(new Double(yVZglAry[i]).toString());
+			ch.setXl(new Double(yVXlAry[i]).toString());
+			ch.setFzs(convertList.get(i).getFzs());
+			outList.add(ch);
+		}
+		return outList;
+	}
+	
+	/**
+	 * 如果实验数据表静压(Pa)最大值大于指定“静压数据”某点数值，仅显示小于该点静压下的数据
+	 * 基于insertAry 从小到大排序,非有序则数据显示错误。
+	 * @param convertList
+	 * @param insertAry
+	 * @return
+	 */
+	private String[] convertZcMaxValue(List<ShryZcxnData> convertList,String[] insertAry) {
+		double maxInsert = 0d;
+		double maxJy = 0D;
+		for(ShryZcxnData ch : convertList){
+			if(NumberUtils.toDouble(ch.getJyl()) > maxJy){ maxJy = NumberUtils.toDouble(ch.getJyl());}
+		}
+		
+		int insertI = 0;
+		for(int i=0;i<insertAry.length-1;i++){
+			if(NumberUtils.toDouble(insertAry[i]) < maxJy && NumberUtils.toDouble(insertAry[i+1]) > maxJy){
+				maxInsert = maxJy;//NumberUtils.toDouble(insertAry[i]);
+				insertI = i;
+			}
+		}
+		if( maxInsert ==0d){ maxInsert = NumberUtils.toDouble(insertAry[insertAry.length-1]);}
+		insertAry = (String[]) ArrayUtils.subarray(insertAry, 0, insertI+1);
+		insertAry[insertAry.length-1] = maxInsert+"";
+		
+		return insertAry;
+	}
+
+
+
+
 	/**
 	 * 总成性能数据图 换算
 	 * 等比利换算
 	 * 根据转速变换 取其他性能参数
 	 * @param sSql
 	 * @param hsbl 换算比利，%数
+	 * @param hszsbl 转速换算比利，%数
+	 * @param hsdlhzj 导流环直径 换算值
 	 * @return
 	 */
 	public List<ShryZcxnData> getZCXNChartList(String sSql,String zcid,Double hszsbl,Double hsdlhzj){

@@ -107,6 +107,11 @@
 					lggd.enabled = true; lggd.editable = true;
 				} */
 				ProcessMethods.changeCNSTModuelState(this,parentPage.newAction.visible,parentPage.editAction.visible ,parentPage.removeAction.visible,this.dataId=="");
+				if(!this.saveAction.visible){
+					this.whkczkb1.visible = false;
+					this.whkczkb2.visible = false;
+					this.whkczkb3.visible = false;
+				}
 			}
 			
 			//初始化页面之后调用
@@ -299,8 +304,6 @@
 				this.zsdssc.text= tempObj["zsdssc"];
 				this.phjph.text=  tempObj["phjph"];
 				this.phdph.text=  tempObj["phdph"];
-				
-				
 				
 				this.dqdlhzjinput.text=tempObj["dlhzj"];
 				this.hsdlhzjinput.text=tempObj["dlhzj"];
@@ -602,7 +605,7 @@
 				//var sSql:String = "select * from SHRY_ZCXN_DATA where zcid = '"+dataId+"' order by (ll+0) asc";
 				var sSql:String = "select * from SHRY_ZCXN_DATA where zcid = '"+dataId+"' and lxdid='"+sLxdid+"' order by (ll+0) asc";
 				
-				chartService.getZCXNChartList(sSql,dataId,hszsbl,hsdlhzj);  
+				chartService.getZCXNInsertChartList(sSql,dataId,hszsbl,hsdlhzj);//  getZCXNChartList
 				chartService.addEventListener(ResultEvent.RESULT,resultBack);
 			}
 			var isInit:Boolean = true;//是否首次初始化图表
@@ -615,10 +618,14 @@
 				height="{this.height - 140}" id="lineChart" /> */
 				//添加多曲线
 				chartMultiPanel.removeAllChildren();
-				var objList:ArrayCollection = event.result as ArrayCollection;
-				chartDataList = objList;
+				var rstObj:Object = event.result as Object;
+				var objList:ArrayCollection = rstObj.convertList as ArrayCollection;//转换后的数据
+				var insertList:ArrayCollection = rstObj.insertList as ArrayCollection;//插值数据
 				
-				var objList2:ArrayCollection = ObjectUtil.copy(event.result) as ArrayCollection;
+				chartDataList = insertList;
+				
+				//TODO >>
+				var objList2:ArrayCollection = ObjectUtil.copy(insertList) as ArrayCollection;
 				var multiChart:LinueChartMultiModel = new LinueChartMultiModel();
 				multiChart._yField3 = "zzs"; multiChart._yField2 = "srgl";
 				multiChart.modelTitle="总成流量—静压/输入功率/转速/效率曲线图";  multiChart.xAxisTitle="流量(m^3/h)"; multiChart.xToolTipTiltle="流量";
@@ -638,25 +645,25 @@
 				lineChart1.modelTitle="总成流量—效率曲线图"; lineChart1.height=this.height - 140; 
 				lineChart1._xField = "ll"; lineChart1._yField = "xl";
 				lineChart1.xToolTipTiltle = lineChart1.xAxisTitle= "流量";lineChart1.yToolTipTiltle= lineChart1.yAxisTitle= "效率";
-				lineChart1.dpArray = objList;
+				lineChart1.dpArray = insertList;
 				var lineChart2:LinueChartModel = new LinueChartModel();
 				lineChart2.modelTitle="总成流量—转速曲线图"; lineChart2.height=this.height - 140; 
 				lineChart2._xField = "ll"; lineChart2._yField = "zzs";
 				lineChart2.xToolTipTiltle = lineChart2.xAxisTitle= "流量";lineChart2.yToolTipTiltle= lineChart2.yAxisTitle= "转速";
-				lineChart2.dpArray = objList;
+				lineChart2.dpArray = insertList;
 				var lineChart3:LinueChartModel = new LinueChartModel();
 				lineChart3.modelTitle="风叶流量—输入功率曲线图"; lineChart3.height=this.height - 140;
 				lineChart3._xField = "ll"; lineChart3._yField = "srgl";
 				lineChart3.xToolTipTiltle = lineChart3.xAxisTitle= "流量";lineChart3.yToolTipTiltle= lineChart3.yAxisTitle= "功率";
-				lineChart3.dpArray = objList;
+				lineChart3.dpArray = insertList;
 				var lineChart4:LinueChartModel = new LinueChartModel();
 				lineChart4.modelTitle="风叶流量—静压曲线图"; lineChart4.height=this.height - 140;
 				lineChart4.xToolTipTiltle = lineChart4.xAxisTitle= "流量";lineChart4.yToolTipTiltle= lineChart4.yAxisTitle= "静压";
 				lineChart4._xField = "ll"; lineChart4._yField = "jyl";
-				lineChart4.dpArray = objList;
+				lineChart4.dpArray = insertList;
 				
 				//添加可换算数据表格
-				var dataGrid:Grid = CommonUIMethod.generateTable("zcxn",objList);
+				var dataGrid:Grid = CommonUIMethod.generateTable("zcxn",insertList);
 				var vbx:VBox = new VBox();
 				vbx.setStyle("horizontalAlign","center");	vbx.setStyle("borderColor","#99CCFF"); vbx.setStyle("borderStyle","solid");  
 				vbx.percentWidth = 100;

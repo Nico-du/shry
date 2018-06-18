@@ -17,6 +17,31 @@ public interface ChartService {
 	public String selectFYAction(String selectionJson);
 	
 	/**
+	 * 总成性能数据图 换算-->1.性能数据换算 2.matlab插值计算
+	 * 等比利换算
+	 * 根据转速变换 取其他性能参数
+	 * @param sSql
+	 * @param hsbl 换算比利，%数
+	 * @param hszsbl 转速换算比利，%数
+	 * @param hsdlhzj 导流环直径 换算值
+	 * @return
+	 * @throws Exception 
+	 */
+	public Map<String,List<ShryZcxnData>> getZCXNInsertChartList(String sSql,String zcid,Double hszsbl,Double hsdlhzj) throws Exception;
+	/**
+	 * 风叶性能数据图 换算
+	 * 等比利换算
+	 * 根据转速变换 取其他性能参数
+	 * @param sSql
+	 * @param fyid 风叶id
+	 * @param hszsbl 转速换算比利，%数
+	 * @param hsdlhzj 导流环直径 换算值
+	 * @return
+	 * @throws Exception 
+	 */
+	public Map<String,List<ShryFyxnData>> getFYXNInsertChartList(String sSql,String fyid,Double hszsbl,Double hsdlhzj) throws Exception;
+	
+	/**
 	 * 数据换算
 	 * @param jsonArrayStrIn
 	 * @param type
