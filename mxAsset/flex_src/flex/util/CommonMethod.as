@@ -104,7 +104,7 @@ package flex.util
 		}
 		
 		//上传图片 文件上传的公共方法
-		public static function modifyUploadFile(parentWd:DisplayObject,tablename:String,columnname:String,dataid:String,isDetailPage:Boolean=false,datatype:String="1" ):void
+		public static function modifyUploadFile(parentWd:DisplayObject,tablename:String,columnname:String,dataid:String,isDetailPage:Boolean=false,datatype:String="1",sydid:String=null):void
 		{
 			var editDoc:Object;
 			if(isDetailPage){
@@ -116,13 +116,14 @@ package flex.util
 			editDoc.columnname = columnname.toLowerCase();
 			editDoc.paretnId = dataid;
 			editDoc.tablename = tablename.toLowerCase();
+			editDoc.sydId = sydid;
 			editDoc.parentWindow = parentWd;
 			PopUpManager.addPopUp(editDoc as IFlexDisplayObject,parentWd as DisplayObject,true);
 			PopUpManager.centerPopUp(editDoc as IFlexDisplayObject); 
 		}
 		
 		
-		public static function loadTablePictures(tablename:String,columnname:String,dataid:String,datatype:String,parentPage:Object,callBackFunc:Function,args:Array=null):void{
+		public static function loadTablePictures(tablename:String,columnname:String,dataid:String,datatype:String,parentPage:Object,callBackFunc:Function,sydid:String=null,args:Array=null):void{
 			var docRem:RemoteObject = new RemoteObject();
 			docRem.destination = "commonService";
 			docRem.endpoint = "/mxAsset/messagebroker/amf";
@@ -132,6 +133,7 @@ package flex.util
 			xmdoc.tablename = tablename;
 			xmdoc.columnname = columnname;
 			xmdoc.datatype = datatype;
+			xmdoc.sydid = sydid;
 			docRem.getObjectList(xmdoc);
 			docRem.addEventListener(ResultEvent.RESULT,doLoadTablePictures(parentPage,callBackFunc,args));
 		}

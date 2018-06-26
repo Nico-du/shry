@@ -52,7 +52,11 @@ private function loadPicturesBack(result:Object):void{
 
 public function loadOriginPictures():void{
 	if(this.hasOwnProperty("originPicPanel")){
-	   CommonMethod.loadTablePictures(this.tempObjBeanName,idColumnName,dataId,"2",this,loadOriginPicturesBack);
+		var sydid:String = null;
+		if(this.hasOwnProperty("hsCbx")){
+			sydid = this["hsCbx"].selectedItem.lxdid;
+		}
+	   CommonMethod.loadTablePictures(this.tempObjBeanName,idColumnName,dataId,"2",this,loadOriginPicturesBack,sydid);
 	}
 }
 private function loadOriginPicturesBack(result:Object):void{
@@ -73,7 +77,7 @@ private function loadOriginPicturesBack(result:Object):void{
 			eachImg.showCloseButton=false;
 			
 			eachImg.width = this["originPicPanel"].width - 20;
-			eachImg.height = this.height;
+			eachImg.height = 1050;//this.height;
 			eachImg.isOriginPage = true;
 			eachImg.originData = eachObj;
 			
@@ -98,7 +102,11 @@ private function isPICFile(filepath:String):Boolean{
 }
 
 private function addMoreOriginBtnClick(evt:Event):void{
-	CommonMethod.modifyUploadFile(this,tempObjBeanName,idColumnName,this.dataId,false,"2");
+	var sydid:String = null;
+	if(this.hasOwnProperty("originPicPanel") && this.hasOwnProperty("hsCbx")){
+		sydid = this["hsCbx"].selectedItem.lxdid;
+	}
+	CommonMethod.modifyUploadFile(this,tempObjBeanName,idColumnName,this.dataId,false,"2",sydid);
 }
 private function addMoreBtnClick(evt:Event):void{
 	CommonMethod.modifyUploadFile(this,tempObjBeanName,idColumnName,this.dataId,false,"1");

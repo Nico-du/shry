@@ -523,7 +523,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="symd" width="100%" height="{aboutheight}"/>
+											<mx:TextInput  id="symd" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -531,7 +531,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput  id="sply"  width="100%" height="{aboutheight}"/>
+											<mx:TextInput  id="sply"  width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -539,7 +539,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="syry" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="syry" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow>

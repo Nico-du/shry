@@ -17,7 +17,8 @@ public class ShryUploadfileData implements java.io.Serializable {
 	private String tablename;
 	private String columnname;
 	private String dataid;
-	private String datatype;//数据类型(图示图片:1,原始数据图:2)
+	private String datatype;//数据类型(图示图片:1,原始数据截图:2)
+	private Long sydid;
 	private String memo;
 
 	// Constructors
@@ -29,7 +30,7 @@ public class ShryUploadfileData implements java.io.Serializable {
 	/** full constructor */
 	public ShryUploadfileData(String uploaddate, String filename,
 			String filetype, String filepath, String filesize,
-			String tablename, String columnname, String dataid, String memo) {
+			String tablename, String columnname, String dataid,String datatype,Long sydid, String memo) {
 		this.uploaddate = uploaddate;
 		this.filename = filename;
 		this.filetype = filetype;
@@ -38,6 +39,8 @@ public class ShryUploadfileData implements java.io.Serializable {
 		this.tablename = tablename;
 		this.columnname = columnname;
 		this.dataid = dataid;
+		this.datatype = datatype;
+		this.sydid = sydid;
 		this.memo = memo;
 	}
 
@@ -121,6 +124,14 @@ public class ShryUploadfileData implements java.io.Serializable {
 
 	public void setDatatype(String datatype) {
 		this.datatype = datatype;
+	}
+
+	public Long getSydid() {
+		return sydid;
+	}
+
+	public void setSydid(Long sydid) {
+		this.sydid = sydid;
 	}
 
 	public String getMemo() {

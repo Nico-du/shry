@@ -601,6 +601,7 @@
 			 * */
 			public function getChartDataAndAddChart(hszsbl:Number,hsdlhzj:Number):void{
 				if(hsCbx.selectedItem == null ){ return; }
+				loadOriginPictures();
 				var sLxdid:String = hsCbx.selectedItem.lxdid;
 				//var sSql:String = "select * from SHRY_ZCXN_DATA where zcid = '"+dataId+"' order by (ll+0) asc";
 				var sSql:String = "select * from SHRY_ZCXN_DATA where zcid = '"+dataId+"' and lxdid='"+sLxdid+"' order by (ll+0) asc";
@@ -631,7 +632,7 @@
 				multiChart.modelTitle="总成流量—静压/输入功率/转速/效率曲线图";  multiChart.xAxisTitle="流量(m^3/h)"; multiChart.xToolTipTiltle="流量";
 				multiChart.yAxisTitle="静压/输入功率/转速/效率"; multiChart.yToolTipTiltle="Y";
 				multiChart.serialLineName1="静压*(Pa)";  multiChart.serialLineName2="输入*(W)";  multiChart.serialLineName3="转速*(rpm)";  multiChart.serialLineName4="效率*(%)" ;
-				multiChart.height=this.height - 140;
+				multiChart.height=this.height - 170;
 				multiChart.dpArray = objList2;
 				chartMultiPanel.addChild(multiChart);
 				
@@ -663,21 +664,21 @@
 				lineChart4.dpArray = insertList;
 				
 				//添加可换算数据表格
-				var dataGrid:Grid = CommonUIMethod.generateTable("zcxn",insertList);
-				var vbx:VBox = new VBox();
-				vbx.setStyle("horizontalAlign","center");	vbx.setStyle("borderColor","#99CCFF"); vbx.setStyle("borderStyle","solid");  
-				vbx.percentWidth = 100;
-				var hbx:HBox = new HBox();
-				hbx.percentWidth = 100;
-				hbx.height = 20;
-				hbx.setStyle("borderStyle","none"); hbx.setStyle("backgroundColor","#99CCFF"); 
-				hbx.setStyle("horizontalGap","0"); hbx.setStyle("verticalAlign","middle"); hbx.setStyle("verticalGap","0");
-				var hbxLabel:Label = new Label(); hbxLabel.text="转换性能数据表";hbxLabel.height = 20; hbx.setStyle("fontWeight","bold"); hbx.setStyle("fontSize","13");
-				hbx.addChild(hbxLabel);
-				vbx.addChild(hbx);
-				vbx.addChild(dataGrid);
+//				var dataGrid:Grid = CommonUIMethod.generateTable("zcxn",insertList);
+//				var vbx:VBox = new VBox();
+//				vbx.setStyle("horizontalAlign","center");	vbx.setStyle("borderColor","#99CCFF"); vbx.setStyle("borderStyle","solid");  
+//				vbx.percentWidth = 100;
+//				var hbx:HBox = new HBox();
+//				hbx.percentWidth = 100;
+//				hbx.height = 20;
+//				hbx.setStyle("borderStyle","none"); hbx.setStyle("backgroundColor","#99CCFF"); 
+//				hbx.setStyle("horizontalGap","0"); hbx.setStyle("verticalAlign","middle"); hbx.setStyle("verticalGap","0");
+//				var hbxLabel:Label = new Label(); hbxLabel.text="转换性能数据表";hbxLabel.height = 20; hbx.setStyle("fontWeight","bold"); hbx.setStyle("fontSize","13");
+//				hbx.addChild(hbxLabel);
+//				vbx.addChild(hbx);
+//				vbx.addChild(dataGrid);
+//				chartPanel.addChild(vbx);
 				
-				chartPanel.addChild(vbx);
 				chartPanel.addChild(lineChart1);
 				chartPanel.addChild(lineChart2);
 				chartPanel.addChild(lineChart3);
@@ -721,8 +722,6 @@
 						nvPage2.setChildIndex(hsHbox,1);
 						blogModel.selectedIndex = 0;
 						getCbxData(Number(hszsblinput.text),Number(dqdlhzjinput.text));
-						
-						loadOriginPictures();
 					}
 				}else{
 					datumFormTabNV.height = datumFormTabNVPHeight;
@@ -738,12 +737,10 @@
 			protected function blogModel_tabIndexChangeHandler(event:Event):void
 			{
 				if(blogModel.selectedIndex == 0 || blogModel.selectedIndex == 1){
-					hsHbox.visible =false;
+//					hsHbox.visible =false;
 				}else{
-					hsHbox.visible=true;
+//					hsHbox.visible=true;
 				}
-				
-				
 				
 			}
 				
@@ -1171,8 +1168,11 @@
 									</mx:GridRow>
 									
 									<mx:GridRow width="100%" height="{aboutheight}">
-										<mx:GridItem horizontalAlign="center" verticalAlign="bottom" width="100%" colSpan="4">
+										<mx:GridItem horizontalAlign="center" verticalAlign="bottom" width="50%" colSpan="2">
 											<mx:Label text="高速(dB)"  fontWeight="normal" height="{aboutheight}"/>
+										</mx:GridItem>
+										<mx:GridItem horizontalAlign="center" verticalAlign="bottom" width="50%" colSpan="2">
+											<mx:Label text="低速(dB)"  fontWeight="normal" height="{aboutheight}"/>
 										</mx:GridItem>
 									</mx:GridRow>
 									
@@ -1185,23 +1185,7 @@
 												<numberInput:NumberTextInput  id="zsgsed" width="80%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
-										<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="20%">
-											<mx:Label text="实测"  fontWeight="normal" height="{aboutheight}"/>
-										</mx:GridItem>
-										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<numberInput:NumberTextInput  id="zsgssc" width="80%" height="{aboutheight}"/>
-											</mx:FormItem>
-										</mx:GridItem>
-									</mx:GridRow>
-									
-									<mx:GridRow width="100%" height="{aboutheight}">
-										<mx:GridItem horizontalAlign="center" verticalAlign="bottom" width="100%" colSpan="4">
-											<mx:Label text="低速(dB)"  fontWeight="normal" height="{aboutheight}"/>
-										</mx:GridItem>
-									</mx:GridRow>
-									
-									<mx:GridRow width="100%" height="{aboutheight}">
+										
 										<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="20%">
 											<mx:Label text="额定"  fontWeight="normal" height="{aboutheight}"/>
 										</mx:GridItem>
@@ -1210,6 +1194,24 @@
 												<numberInput:NumberTextInput  id="zsdsed" width="80%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
+									</mx:GridRow>
+									
+									<!--<mx:GridRow width="100%" height="{aboutheight}">
+										<mx:GridItem horizontalAlign="center" verticalAlign="bottom" width="100%" colSpan="4">
+											<mx:Label text="低速(dB)"  fontWeight="normal" height="{aboutheight}"/>
+										</mx:GridItem>
+									</mx:GridRow>-->
+									
+									<mx:GridRow width="100%" height="{aboutheight}">
+										<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="20%">
+											<mx:Label text="实测"  fontWeight="normal" height="{aboutheight}"/>
+										</mx:GridItem>
+										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
+											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+												<numberInput:NumberTextInput  id="zsgssc" width="80%" height="{aboutheight}"/>
+											</mx:FormItem>
+										</mx:GridItem>
+										
 										<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="20%">
 											<mx:Label text="实测"  fontWeight="normal" height="{aboutheight}"/>
 										</mx:GridItem>
@@ -1278,20 +1280,23 @@
 					</mx:VBox>
 					<mx:Panel id="nvPage2" label="性能图" width="100%"  borderStyle="none" headerHeight="0" layout="absolute"
 							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-						<mx:HBox horizontalGap="2" x="340" y="3" id="hsHbox">
+						<mx:HBox horizontalGap="2" x="4" y="5" id="hsHbox">
 							<mx:Label paddingTop="2" text="试验目的_日期:"/>
 							<mx:ComboBox id="hsCbx" labelFunction="getColumnText" width="200" labelField="symd" change="getChartDataAndAddChart(Number(hszsblinput.text),Number(hsdlhzjinput.text))"/>
-							<mx:Label paddingLeft="2" text="转速换算比例(%):" paddingTop="2"/>
-							<numberInput:NumberTextInput width="40" id="hszsblinput" text="100"/>
-							<mx:Label paddingTop="2" text="当前导流环直径(mm):"/><mx:TextInput width="25" id="dqdlhzjinput" paddingTop="2" editable="false" borderStyle="none"/>
-							<mx:Label paddingTop="2"  text="换算到(mm):"/><numberInput:NumberTextInput  width="40" id="hsdlhzjinput"/>
 							
-							<mx:Button paddingLeft="5" label="转换" click="button1_clickHandler(event)"/>
-							<mx:Button  label="导出" click="exportHSJG_clickHandler()"/>
+							<mx:Label paddingLeft="2" text="转速换算比例(%):" paddingTop="2" visible="false" includeInLayout="false"/>
+							<numberInput:NumberTextInput width="40" id="hszsblinput" text="100" visible="false" includeInLayout="false"/>
+							<mx:Label paddingTop="2" text="当前导流环直径(mm):" visible="false" includeInLayout="false"/>
+							<mx:TextInput width="25" id="dqdlhzjinput" paddingTop="2" editable="false" borderStyle="none" visible="false" includeInLayout="false"/>
+							<mx:Label paddingTop="2"  text="换算到(mm):" visible="false" includeInLayout="false"/>
+							<numberInput:NumberTextInput  width="40" id="hsdlhzjinput" visible="false" includeInLayout="false"/>
+							<mx:Button paddingLeft="5" label="转换" click="button1_clickHandler(event)" visible="false" includeInLayout="false"/>
+							
+							<mx:Button  label="导出" paddingLeft="10" click="exportHSJG_clickHandler()"/>
 						</mx:HBox>
-						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0"  verticalGap="2" cornerRadius="2" borderStyle="none">
+						<mx:VBox id="nvPage1Group2" width="100%" y="30" horizontalGap="0"  verticalGap="2" cornerRadius="2" borderStyle="none">
 							<mx:LinkBar dataProvider="{blogModel}"  styleName="LinkBarStyle01"/>
-							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 140}" change="blogModel_tabIndexChangeHandler(event)">
+							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 170}" change="blogModel_tabIndexChangeHandler(event)">
 								<mx:Panel id="originPicPanel" label="原始数据图"  width="100%"  borderStyle="none" headerHeight="0" 
 										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0" horizontalAlign="left">
 									

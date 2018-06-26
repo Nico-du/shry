@@ -29,6 +29,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.hibernate.Hibernate;
 @SuppressWarnings("unused")
 public class ClobServlet extends HttpServlet {
@@ -157,6 +158,8 @@ public class ClobServlet extends HttpServlet {
 					String datatype=request.getParameter("datatype");
 					if(StringUtils.isBlank(datatype))datatype="1";
 					doc.setDatatype(datatype);
+					String sydid=request.getParameter("sydid");
+					if(StringUtils.isNotBlank(datatype)){doc.setSydid(NumberUtils.toLong(sydid));}
 				//	System.out.println("pid="+pid);
 				//	System.out.println("xmid="+xmid);
 					//dao添加

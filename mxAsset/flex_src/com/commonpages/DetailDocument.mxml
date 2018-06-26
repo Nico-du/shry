@@ -40,6 +40,7 @@
 			[Bindable] public var parentTable:String = null;
 			[Bindable] public var fjColumnname:String = null;
 			[Bindable] public var datatype:String = "1";//数据类型(图示图片:1,原始数据图:2)
+			[Bindable] public var sydId:String = "";//试验单ID,原始数据截图关联试验单
 			
 			public var parentWindow:Object;
 			protected function initializeHandler(event:FlexEvent):void
@@ -49,6 +50,7 @@
 				xmdoc.tablename = parentTable;
 				xmdoc.columnname = fjColumnname;
 				xmdoc.datatype = datatype;
+				xmdoc.sydid = sydId;
 				
 				commonService.getObjectList(xmdoc);
 				commonService.addEventListener(ResultEvent.RESULT,initBack);

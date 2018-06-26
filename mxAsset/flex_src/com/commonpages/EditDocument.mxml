@@ -38,7 +38,8 @@
 			[Bindable] public var paretnId:String = "";
 			[Bindable] public var tablename:String = null;
 			[Bindable] public var columnname:String = null;
-			[Bindable] public var datatype:String = "1";//数据类型(图示图片:1,原始数据图:2)
+			[Bindable] public var datatype:String = "1";//数据类型(图示图片:1,原始数据截图:2)
+			[Bindable] public var sydId:String = "";//试验单ID,原始数据截图关联试验单
 			public var uploadFileList:FileReferenceList=null;
 			
 			public var parentWindow:Object;
@@ -49,6 +50,7 @@
 				xmdoc.tablename = tablename;
 				xmdoc.columnname = columnname;
 				xmdoc.datatype = datatype;
+				xmdoc.sydid = sydId;
 				
 				commonService.getObjectList(xmdoc);
 				commonService.addEventListener(ResultEvent.RESULT,initBack);
@@ -105,6 +107,7 @@
 				xmdoc.uploaddate = nowData;
 				xmdoc.filesize = file.size+"";
 				xmdoc.filetype = file.type;
+				xmdoc.sydid = sydId;
 				
 				existedFiles.addItem(xmdoc);
 				}
@@ -128,6 +131,7 @@
 						data.tablename = tablename;
 						data.columnname = columnname;
 						data.datatype = this.datatype;
+						data.sydid = this.sydId;
 						var request:URLRequest= new URLRequest("/mxAsset/servlet/ClobServlet");
 						request.data=data;
 						
