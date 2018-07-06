@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--单曲线模版-->
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:iframe="http://code.google.com/p/flex-iframe/"
+		   initialize="initPage()" creationComplete="module1_creationCompleteHandler(event)" 
+		   width="100%" height="100%" horizontalGap="0" verticalGap="0" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="12">
+	<mx:RemoteObject id="ChartService" destination="chartService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+			import flex.util.CommonMethod;
+			import flex.util.CommonXMLData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.graphics.SolidColorStroke;
+			import mx.rpc.events.ResultEvent;
+			import com.adobe.serialization.json.JSON;
+			
+			[Bindable]
+			protected var strokeffect:SolidColorStroke=null;
+			
+			public var tableName:String = "";
+			public var dataId:String = "";
+			public var modelTitle:String = "模块标题";
+			/**
+			 * 垂直虚线是否可见
+			 * */
+			public var xdashLineVisible:Boolean = false;
+			public var serialLineName:String = "曲线名";
+			public var _xField:String = "ll";
+			public var _yField:String = "xl";
+			/**
+			 * X轴标题
+			 * */
+			public var xAxisTitle:String = "X轴标题";
+			public var xAxisUnit:String = "X轴单位";
+			public var xToolTipTiltle:String = "X ToolTip";
+			/**
+			 * Y轴标题
+			 * */
+			public var yAxisTitle:String = "Y轴标题";
+			public var yAxisUnit:String = "Y轴单位";
+			public var yToolTipTiltle:String = "Y ToolTip";
+			public var legendVisible:Boolean = false;
+			/**
+			 *X 坐标轴的最大值 
+			 **/
+			[Bindable]
+			private var _xMaximum:int = 0;
+			/**
+			 * Y坐标轴的最大值 
+			 **/
+			[Bindable]
+			private var _yMaximum:int = 0;
+			/**
+			 *minorInterval:y轴线条的间隔  interval:y轴数值的间隔 
+			 **/
+			[Bindable]
+			private var _yMinorInterval:Number = NaN;
+			[Bindable]
+			private var _yInterval:Number = NaN;
+			[Bindable]
+			private var _xInterval:Number = NaN;
+			/**
+			 *曲线数据源 
+			 **/
+			[Bindable]
+			public var dpArray:ArrayCollection = new ArrayCollection([  
+				{ll:0.0   ,jyl:374.3 ,zzs:2796 ,dy:15.2 ,dl:36.8 ,zgl:559.4 ,xl:0.00  },
+				{ll:309.2 ,jyl:279.6 ,zzs:2796 ,dy:13.8 ,dl:27.4 ,zgl:378.1 ,xl:6.35  },
+				{ll:692.8 ,jyl:230.7 ,zzs:2796 ,dy:13.1 ,dl:22.8 ,zgl:298.7 ,xl:14.86 },
+				{ll:1365.0,jyl:199.5 ,zzs:2795 ,dy:12.8 ,dl:20.4 ,zgl:261.1 ,xl:28.97 },
+				{ll:1505.3,jyl:180.3 ,zzs:2795 ,dy:12.7 ,dl:19.5 ,zgl:247.7 ,xl:30.44 },
+				
+				{ll:1634.7,jyl:150.2 ,zzs:2794 ,dy:12.4 ,dl:18.0 ,zgl:223.2 ,xl:30.56 },
+				{ll:1829.6,jyl:119.8 ,zzs:2798 ,dy:12.3 ,dl:17.0 ,zgl:209.1 ,xl:29.12 },
+				{ll:1949.1,jyl:100.3 ,zzs:2795 ,dy:12.2 ,dl:16.3 ,zgl:198.9 ,xl:27.31 },
+				{ll:2284.0,jyl:51.1  ,zzs:2795 ,dy:11.9 ,dl:14.7 ,zgl:174.9 ,xl:18.53 },
+				{ll:2603.2,jyl:0.6   ,zzs:2797 ,dy:11.7 ,dl:13.1 ,zgl:153.3 ,xl:0.28  },
+			]);
+			public var tgX:String = "-1";
+			public var tgY:String = "-1";
+			var targetObject:Object = new Object();
+			var tgPonitVisible:Boolean = true;
+			//初始化页面
+			public function initPage():void{
+				if(tgX == "-1" || tgY == "-1"){
+					tgPonitVisible = false;
+				}else{
+					targetObject.tgX = tgX;
+					targetObject.tgY = tgY;
+				}
+			
+				if(false){
+					beforeInitPage();
+				}
+			this.initPageStyle();
+			this.convertData();
+			}
+			
+			/**
+			 *初始化页面样式 
+			 **/
+			private function initPageStyle():void{
+				this.calculateAxisData();	
+			}
+			//初始化页面之前调用
+			public function beforeInitPage():void{
+				strokeffect=new SolidColorStroke();
+				strokeffect.color=0xFFFFFF;
+				strokeffect.weight=1;
+				var sClassPath:String = "";
+				var idColumn:String = "";
+				if(tableName.toUpperCase() == "SHRY_FYXN_DATA"){
+					sClassPath = "net.chinanets.pojos.ShryFyxnData";
+					idColumn = "fyid";
+				}else if(tableName.toUpperCase() == "SHRY_ZCXN_DATA"){
+					sClassPath = "net.chinanets.pojos.ShryZcxnData";
+					idColumn = "zcid";
+				}
+				if(CommonMethod.isNullOrWhitespace(tableName) || CommonMethod.isNullOrWhitespace(dataId) 
+					|| CommonMethod.isNullOrWhitespace(idColumn) || CommonMethod.isNullOrWhitespace(sClassPath)){
+					Alert.show("曲线表关联的表字段数据为空！",CommonXMLData.Alert_Title);
+					return;
+				}
+				var sSql:String = "select * from "+tableName+" where "+idColumn+" = '"+dataId+"' order by (ll+0) asc";
+				
+				
+				ChartService.RunSelectClassBySql(sSql,sClassPath);
+				ChartService.addEventListener(ResultEvent.RESULT,resultBack);
+			}
+			private function resultBack(event:ResultEvent):void {
+				ChartService.removeEventListener(ResultEvent.RESULT,resultBack);
+				if(event.result == null)return;
+				var objList:ArrayCollection = event.result as ArrayCollection;
+				var objCell:Object;
+				dpArray.removeAll();
+				for(var i:int=0;i<objList.length;i++){
+					objCell = objList.getItemAt(i);
+					var arrItem:Object = new Object();
+					arrItem.year = objCell[0];
+					arrItem.buycount = objCell[1];
+					dpArray.addItem(arrItem);
+				}
+				
+				this.initPageStyle();
+			}
+			
+			/**
+			 *计算坐标轴的相关数据 以设置样式 
+			 **/
+			private function calculateAxisData():void{
+				//计算X Y坐标轴最大值
+				if(dpArray != null && dpArray.length > 0){
+					var maxYValue:Number = 0; 				 var maxXValue:Number = 0;
+					var eachXDataValue:String = "";   var eachYDataValue:String = "";
+					for(var idx:int=0; idx<dpArray.length; idx++ ){
+						eachXDataValue = 	dpArray.getItemAt(idx)[_xField];
+						eachYDataValue = 	dpArray.getItemAt(idx)[_yField];
+						
+						if( eachXDataValue != null && eachXDataValue != undefined &&  eachXDataValue != ""
+							&& Number(eachXDataValue) > maxXValue){
+							maxXValue =  Number(eachXDataValue);
+							}
+						if( eachYDataValue != null && eachYDataValue != undefined &&  eachYDataValue != ""
+							&& Number(eachYDataValue) > maxYValue){
+							maxYValue =  Number(eachYDataValue);
+						}
+				   }
+					
+					var vLength:int = (Math.floor(maxXValue) + "").length;
+					_xMaximum = Math.ceil( maxXValue/Math.pow(10,vLength-1) ) *  Math.pow(10,vLength-1);
+					_xInterval = _xMaximum/(2*_xMaximum/Math.pow(10,vLength-1));
+					
+					vLength = (Math.floor(maxYValue) + "").length;
+					_yMaximum = Math.ceil( maxYValue/Math.pow(10,vLength-1) ) *  Math.pow(10,vLength-1);
+					
+					if(_yMaximum / (Math.pow(10,vLength-2) * 5) > 4  &&  _yMaximum / (Math.pow(10,vLength-2) * 5)  < 17 ){
+					_yMinorInterval = Math.pow(10,vLength-2);
+					_yInterval = _yMinorInterval * 5;
+					}
+					
+				}
+			}
+			
+			/**
+			 *过滤数据 过滤Y轴  小于0的数据   Y轴 0到-2直接转换为0 小于-2的数据不显示
+			 **/
+			private function convertData():void{
+				var dpArrayNew:ArrayCollection = new ArrayCollection();
+				for each(var eachObj:Object in  dpArray){
+					if(eachObj[_yField] < 0){
+						if(eachObj[_yField] < 0 && eachObj[_yField] >= -2){
+							eachObj[_yField]  = 0;
+						}else{ continue; }
+					}
+					dpArrayNew.addItem(eachObj);
+				}
+				this.dpArray = dpArrayNew;
+			}
+			
+			//iframeChart.callIFrameFunction js只能接收单个参数,用json传送数据
+			private function getJsonParams():String{
+				var jsonObj:Object = new Object();
+				
+				jsonObj.title_text = "";//"一天用电量分布1";
+				jsonObj.title_subtext =  "";//"纯属虚构2";
+				jsonObj.title_left = "left";
+				jsonObj.title_show = false;
+				
+				jsonObj.series_line_name = serialLineName;//"用电量5";
+				jsonObj.series_x_name = xAxisTitle;//"用电量5";
+				jsonObj.series_y_name = yAxisTitle;//"用电量5";
+				jsonObj.formatter_x = xAxisUnit;//"Pa3";
+				jsonObj.formatter_y = yAxisUnit;//"W4";
+				jsonObj.x_maxInterval = _xInterval;
+				jsonObj.y_maxInterval = _yInterval;
+				
+				jsonObj.dataAry = CommonMethod.getNumberArray(dpArray,[_xField,_yField]);
+				return JSON.encode(jsonObj);
+			}
+			
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
+				
+			}
+			//调用html中js方法并回调
+			public function onSendParamToHtml2(event:Event):void
+			{
+				//showIFrameHandler(event);
+				//ExternalInterface.call("loadIFrame", "charts/shry/echart3-singleline-model.html");
+				//iframeChart.callIFrameFunction("refreshCwd");
+				
+				var jsonStr:String = this.getJsonParams();
+				
+				iframeChart.callIFrameFunction("setParamsAndRun",[jsonStr],callback);
+//				 ExternalInterface.call("eval", "(function(){" +
+//					"testAlert();" +
+//					"})()"); 
+				// 调用当前iframe嵌入页面中的flexSendParam2 的JS方法，并传入2个参数。
+				//flexSendParam2方法会返回一个字符串，最后一个回调就是输出值的函数
+				//iframeChart.callIFrameFunction("flexSendParam2",["Frost.Yen","来自于四川"],callback);
+				
+				function callback(data:*):void
+				{
+				//	Alert.show(data); 
+				}
+			}
+			
+			private function showIFrameHandler(event:Event):void
+			{
+				iframeCanvas.setFocus();
+				
+				ExternalInterface.call("eval", "(function(){document.getElementById('iframe00').style.zIndex='10';})()");
+			}
+
+			protected function module1_creationCompleteHandler(event:FlexEvent):void
+			{
+				onSendParamToHtml2(null);
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0" 
+			 mouseOver="showIFrameHandler" click="showIFrameHandler" doubleClickEnabled="false">
+		<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#99CCFF" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0" 
+				 mouseOver="showIFrameHandler" click="showIFrameHandler" doubleClickEnabled="false">
+			<mx:Label text="{modelTitle}" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13" 
+					  mouseOver="showIFrameHandler" click="showIFrameHandler" doubleClickEnabled="false"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="100%" borderStyle="none" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0">
+			<mx:Canvas id="iframeCanvas" width="100%" height="100%" borderStyle="none" 
+					   mouseOver="showIFrameHandler" click="showIFrameHandler" doubleClickEnabled="false">
+<!--									source="http://www.soso.com"-->
+				<iframe:IFrame  id="iframeChart"
+									source="charts/shry/echart3-singleline-model.html"
+									width="100%"
+									height="100%"/>
+				
+			</mx:Canvas>
+		</mx:HBox>
+	</mx:VBox>
+</mx:Module>

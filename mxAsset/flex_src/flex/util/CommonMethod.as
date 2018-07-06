@@ -60,6 +60,34 @@ package flex.util
 		}
 		
 		/**
+		 *  将 ArrayCollection 转换为 number数组
+		 *  keyAry:srcAry中包含的key
+		 **/
+		public static function getNumberArray(srcAry:ArrayCollection,keyAry:Array):Array{
+			if(srcAry == null || srcAry.length<1 || keyAry==null || keyAry.length <1){
+				return new Array();
+			}
+			//判断是否多维数组
+			var isMutlAry:Boolean = keyAry.length >1;
+			var rstAry:Array = new Array();
+			for(var i:int = 0; i < srcAry.length; i++){
+				var ch:Object = srcAry.getItemAt(i);
+				if(isMutlAry){
+					var sonAry:Array = new Array();
+					for(var j:int = 0;j<keyAry.length;j++){
+						sonAry.push(ch[keyAry[j]]);
+					}
+					rstAry.push(sonAry);
+				}else{
+					rstAry.push(keyAry[0]);
+				}
+			}
+			
+			return rstAry;
+		}
+		
+		
+		/**
 		 *选择 一个 风叶/电机/总成数据 
 		 **/
 		/**

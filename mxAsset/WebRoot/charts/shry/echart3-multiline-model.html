@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+<meta charset="utf-8">
+</head>
+<body style="height: 100%; margin: 0">
+	<div id="container" style="height: 100%"></div>
+	<script type="text/javascript" src="../../js/echarts.min.multiY.js"></script>
+	<!--        <script type="text/javascript" src="../../js/echarts.js"></script> -->
+	<!-- <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+       <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script></script> -->
+	<!--        <script type="text/javascript" src="../../js/simplex.js"> -->
+	<script type="text/javascript">
+		//API地址:http://echarts.baidu.com/option3.html#toolbox
+		//曲线图参数表
+		//标题设置
+		var title_text;
+		var title_subtext;
+		var title_left = 'left';
+		var title_show = false;
+		//X轴设置
+		var formatter_x;
+		var series_x_name;
+		//X轴刻度最小最大间隔
+		//var x_minInterval;
+		var x_maxInterval;
+		//Y轴名
+		var series_y1_name, series_y2_name, series_y3_name, series_y4_name;
+		//Y轴刻度最小最大间隔
+		//var y1_minInterval,y2_minInterval,y3_minInterval,y4_minInterval;
+		var y1_maxInterval, y2_maxInterval, y3_maxInterval, y4_maxInterval;
+		//Y轴刻度最小最大值
+		var y1_yAxis_min, y2_yAxis_min, y3_yAxis_min, y4_yAxis_min;
+		var y1_yAxis_max, y2_yAxis_max, y3_yAxis_max, y4_yAxis_max;
+		//Y轴单位
+		var formatter_y1, formatter_y2, formatter_y3, formatter_y4;
+		//Y3、Y4轴偏离值
+		var y3_yAxis_offset, y4_yAxis_offset;
+
+		//曲线名
+		var series_line1_name, series_line2_name, series_line3_name, series_line4_name;
+		//原始数组
+		var dataJsonAry1, dataJsonAry2, dataJsonAry3, dataJsonAry4;
+
+		//初始化数据做默认展示,后面会被覆盖
+		setDefaultValue();
+		setDefaultArray();
+
+		var colors = [ '#5793f3', '#d14a61', '#675bba', '#9ACBB4' ];
+
+		var dom = document.getElementById("container");
+		var myChart = echarts.init(dom);
+		var app = {};
+		option = null;
+
+		function createOption() {
+			option = null;
+
+			option = {
+				color : colors,
+				title : {
+					text : title_text,//'一天用电量分布',
+					subtext : title_subtext,//'纯属虚构',
+					left : title_left,//'left',
+					show : title_show
+				},
+				tooltip : {
+					trigger : 'axis',
+					axisPointer : {
+						type : 'cross',
+					}
+				},
+				grid : {
+					right : '230'
+				},
+				toolbox : {
+					show : true,
+					feature : {
+						dataZoom : {
+							yAxisIndex : 'none'
+						},
+						dataView : {
+							readOnly : false
+						},
+						magicType : {
+							type : [ 'line', 'bar' ]
+						},
+						restore : {},
+						saveAsImage : {}
+					}
+				},
+				legend : {
+					data : [ series_line1_name, series_line2_name,series_line3_name, series_line4_name ]
+				},
+				xAxis : [ {
+					type : 'value',
+					name : series_x_name,
+					boundaryGap : false,
+					//minInterval : x_minInterval,
+					maxInterval : x_maxInterval,
+					axisLabel : {
+						formatter : '{value} ' + formatter_x
+					},
+					axisTick : {
+						alignWithLabel : true
+					},
+					splitLine : {
+						show : true,
+						lineStyle : {
+							width : 1,
+							type : 'solid',
+							color : '#CCCCCC',
+						}
+					},
+					axisPointer : {
+						show : true,
+						snap : false,
+						triggerTooltip : true,
+						type : 'line',
+						lineStyle : {
+							type : 'dashed'
+						}
+					},
+				} ],
+				yAxis : [ {
+					name : series_y1_name,
+					//	minInterval : y1_minInterval,//自动计算的坐标轴最小间隔大小。
+					maxInterval : y1_maxInterval,//自动计算的坐标轴最大间隔大小。
+					type : 'value',
+// 					min : y1_yAxis_min,
+// 					max : y1_yAxis_max,
+					splitNumber:5,
+					position : 'left',
+					axisLabel : {
+						formatter : '{value} ' + formatter_y1
+					},
+					axisLine : {
+						onZeroAxisIndex : 0,
+						show : true,
+						lineStyle : {
+							color : colors[0]
+						}
+					},
+					splitLine : {
+						show : true,
+						lineStyle : {
+							width : 1,
+							type : 'solid',
+							color : '#CCCCCC',
+						}
+					},
+				}, {
+					name : series_y2_name,
+					//	minInterval : y2_minInterval,//自动计算的坐标轴最小间隔大小。
+// 					maxInterval : y2_maxInterval,//自动计算的坐标轴最大间隔大小。
+					type : 'value',
+// 					min : y2_yAxis_min,
+// 					max : y2_yAxis_max,
+					splitNumber:5,
+					position : 'right',
+					axisLabel : {
+						formatter : '{value} ' + formatter_y2
+					},
+					axisLine : {
+						onZeroAxisIndex : 1,
+						show : true,
+						lineStyle : {
+							color : colors[1]
+						}
+					},
+					splitLine : {
+						show : false,
+					},
+				}, {
+					name : series_y3_name,
+					//	minInterval : y3_minInterval,//自动计算的坐标轴最小间隔大小。
+// 					maxInterval : y3_maxInterval,//自动计算的坐标轴最大间隔大小。
+					type : 'value',
+// 					min : y3_yAxis_min,
+// 					max : y3_yAxis_max,
+					splitNumber:5,
+					position : 'right',
+					axisLabel : {
+						formatter : '{value} ' + formatter_y3
+					},
+					offset : y3_yAxis_offset, //Y轴间距,最少75
+					axisLine : {
+						onZeroAxisIndex : 2,
+						show : true,
+						lineStyle : {
+							color : colors[2]
+						}
+					},
+					splitLine : {
+						 show : false,
+					},
+				}, {
+					name : series_y4_name,
+					//	minInterval : y4_minInterval,//自动计算的坐标轴最小间隔大小。
+// 					maxInterval : y4_maxInterval,//自动计算的坐标轴最大间隔大小。
+					type : 'value',
+// 					min : y4_yAxis_min,
+// 					max : y4_yAxis_max,
+					splitNumber:5,
+					position : 'right',
+					axisLabel : {
+						formatter : '{value} ' + formatter_y4
+					},
+					offset : y4_yAxis_offset, //Y轴间距,最少75
+					axisLine : {
+						onZeroAxisIndex : 3,
+						show : true,
+						lineStyle : {
+							color : colors[3]
+						}
+					},
+					splitLine : {
+						show : false,
+					},
+				} ],
+				series : [ {
+					name : series_line1_name,
+					type : 'line',
+					smooth : true,
+					data : dataJsonAry1
+				}, {
+					name : series_line2_name,
+					type : 'line',
+					smooth : true,
+					yAxisIndex : 1,
+					data : dataJsonAry2
+				}, {
+					name : series_line3_name,
+					type : 'line',
+					smooth : true,
+					yAxisIndex : 2,
+					data : dataJsonAry3
+				}, {
+					name : series_line4_name,
+					type : 'line',
+					smooth : true,
+					yAxisIndex : 3,
+					data : dataJsonAry4
+				} ]
+			};
+		}
+
+		//setOption默认展示
+		if (option && typeof option === "object") {
+			myChart.setOption(option, true);
+		}
+
+		// 多个参数 并返回值,只能接收单个参数,用json传送数据
+		function flexSendParam2(name, message) {
+			alert(name + "-" + message);
+			return "来自于js的消息：" + name + " " + message;
+		}
+
+		function initOpionStyle() {
+
+		}
+
+		//3步走重置默认值:1.clear 2.initParams 3.setCwdOption
+		function setParamsAndRun(jsonStr) {
+			cleanCwdOption();
+			initParams(jsonStr);
+			setCwdOption();
+		}
+
+		function cleanCwdOption() {
+			myChart.clear();
+		}
+		function setCwdOption() {
+			// 			myChart.dispose();
+			createOption();
+			if (option && typeof option === "object") {
+				myChart.setOption(option, true);
+			}
+		}
+		//设置报表值
+		function initParams(jsonStr) {
+			var jsonObj = JSON.parse(jsonStr);
+
+			title_text    =   jsonObj.title_text     ;
+			title_subtext =   jsonObj.title_subtext  ;
+			title_left    =   jsonObj.title_left     ;
+			title_show    =   jsonObj.title_show     ;
+			
+			formatter_x   =   jsonObj.formatter_x;
+			series_x_name =   jsonObj.series_x_name;
+
+			x_maxInterval =   jsonObj.x_maxInterval;
+
+			y1_maxInterval=  jsonObj.y1_maxInterval;
+			y2_maxInterval=  jsonObj.y2_maxInterval;
+			y3_maxInterval=  jsonObj.y3_maxInterval;
+			y4_maxInterval = jsonObj.y4_maxInterval;
+
+			y1_yAxis_min= jsonObj.y1_yAxis_min;
+			y2_yAxis_min= jsonObj.y2_yAxis_min;
+			y3_yAxis_min= jsonObj.y3_yAxis_min;
+			y4_yAxis_min= jsonObj.y4_yAxis_min;
+
+			y1_yAxis_max= jsonObj.y1_yAxis_max;
+			y2_yAxis_max= jsonObj.y2_yAxis_max;
+			y3_yAxis_max= jsonObj.y3_yAxis_max;
+			y4_yAxis_max= jsonObj.y4_yAxis_max;
+
+			formatter_y1=jsonObj.formatter_y1;
+			formatter_y2=jsonObj.formatter_y2;
+			formatter_y3=jsonObj.formatter_y3;
+			formatter_y4=jsonObj.formatter_y4;
+
+			y3_yAxis_offset=70;
+			y4_yAxis_offset = 140;
+
+			series_line1_name=jsonObj.series_line1_name;
+			series_line2_name=jsonObj.series_line2_name;
+			series_line3_name=jsonObj.series_line3_name;
+			series_line4_name=jsonObj.series_line4_name;
+
+			series_y1_name = jsonObj.series_y1_name;
+			series_y2_name = jsonObj.series_y2_name;
+			series_y3_name = jsonObj.series_y3_name;
+			series_y4_name = jsonObj.series_y4_name;
+			
+// 			alert(jsonObj.dataAry1);
+			dataJsonAry1 = jsonObj.dataAry1;
+			dataJsonAry2 = jsonObj.dataAry2;
+			dataJsonAry3 = jsonObj.dataAry3;
+			dataJsonAry4 = jsonObj.dataAry4;
+		}
+
+		function testAlert() {
+			alert("testAlert");
+
+		}
+
+		function refreshCwd() {
+			window.location.reload();
+		}
+
+		setCwdOption();
+		
+		function setDefaultValue() {
+			//########设置默认值########
+			title_text = 'title_text';
+			title_subtext = 'title_subtext';
+			title_left = 'left';
+			title_show = true;
+
+			formatter_x = 'formatter_x';
+			series_x_name = 'series_x_name';
+
+			x_maxInterval = 'x_maxInterval';
+
+			y1_maxInterval = y2_maxInterval = y3_maxInterval = y4_maxInterval = NaN;
+
+			y1_yAxis_min = y2_yAxis_min = y3_yAxis_min = y4_yAxis_min = 0;
+			y1_yAxis_max = y2_yAxis_max = y3_yAxis_max = y4_yAxis_max = 1000;
+
+			formatter_y1 = 'formatter_y1';
+			formatter_y2 = 'formatter_y2';
+			formatter_y3 = 'formatter_y3';
+			formatter_y4 = 'formatter_y4';
+
+			y3_yAxis_offset = 70;
+			y4_yAxis_offset = 140;
+
+			series_line1_name = 'series_line1_name';
+			series_line2_name = 'series_line2_name';
+			series_line3_name = 'series_line3_name';
+			series_line4_name = 'series_line4_name';
+			
+			series_y1_name = 'series_y1_name';
+			series_y2_name = 'series_y2_name';
+			series_y3_name = 'series_y3_name';
+			series_y4_name = 'series_y4_name';
+		}
+		//设置数组默认值
+		function setDefaultArray() {
+			dataJsonAry1 = [ [ 10, 300 ], [ 22, 280 ], [ 30, 250 ],
+					[ 42, 260 ], [ 50, 270 ], [ 66, 300 ], [ 70, 550 ],
+					[ 87, 503 ], [ 90, 404 ], [ 103, 390 ], [ 110, 380 ],
+					[ 120, 390 ], [ 134, 401 ], [ 150, 500 ], [ 158, 600 ],
+					[ 164, 750 ], [ 173, 800 ], [ 180, 700 ], [ 193, 600 ],
+					[ 200, 400 ] ];
+			dataJsonAry2 = [ [ 10, 399 ], [ 22, 289 ], [ 30, 259 ],
+					[ 42, 269 ], [ 50, 279 ], [ 66, 399 ], [ 70, 559 ],
+					[ 87, 593 ], [ 90, 494 ], [ 103, 399 ], [ 110, 389 ],
+					[ 120, 399 ], [ 134, 491 ], [ 150, 599 ], [ 158, 699 ],
+					[ 164, 759 ], [ 173, 899 ], [ 180, 799 ], [ 193, 699 ],
+					[ 200, 499 ] ];
+			dataJsonAry3 = [ [ 10, 366 ], [ 22, 286 ], [ 30, 256 ],
+					[ 42, 266 ], [ 50, 276 ], [ 66, 366 ], [ 70, 556 ],
+					[ 87, 563 ], [ 90, 464 ], [ 103, 366 ], [ 110, 386 ],
+					[ 120, 366 ], [ 134, 461 ], [ 150, 566 ], [ 158, 666 ],
+					[ 164, 756 ], [ 173, 866 ], [ 180, 766 ], [ 193, 666 ],
+					[ 200, 466 ] ];
+			dataJsonAry4 = [ [ 10, 333 ], [ 22, 283 ], [ 30, 253 ],
+					[ 42, 233 ], [ 50, 273 ], [ 66, 333 ], [ 70, 553 ],
+					[ 87, 533 ], [ 90, 434 ], [ 103, 333 ], [ 110, 383 ],
+					[ 120, 333 ], [ 134, 431 ], [ 150, 533 ], [ 158, 333 ],
+					[ 164, 753 ], [ 173, 833 ], [ 180, 733 ], [ 193, 333 ],
+					[ 200, 433 ] ];
+		}
+	</script>
+</body>
+</html>

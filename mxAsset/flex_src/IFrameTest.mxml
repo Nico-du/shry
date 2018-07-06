@@ -3,22 +3,38 @@
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx" 
 			   xmlns:flexiframe="http://code.google.com/p/flex-iframe/"
+			   xmlns:echart="cn.cnspagemoduel.echart3.*"
 			   minWidth="955" minHeight="600" >
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	
-	<mx:VBox width="100%" height="100%" backgroundAlpha="0">
+	<mx:VBox width="100%" height="100%" backgroundAlpha="0" click="showIFrameHandler">
 		<mx:Canvas id="menuCanvas" width="100%" height="4%" backgroundColor="0x003a39" 
-				   horizontalScrollPolicy="off"	 verticalScrollPolicy="off">
+				   horizontalScrollPolicy="off"	 verticalScrollPolicy="off" visible="false" includeInLayout="false">
 			<mx:MenuBar id="menubar" width="100%" height="100%" dataProvider="{xmlList}" 
-						styleName="yahei" mouseOver="menubar1_mouseOverHandler(event)"
+						styleName="yahei" 
 						labelField="@label" showRoot="false"/>
 		</mx:Canvas>
+		<!--mouseOver="return ; menubar1_mouseOverHandler(event)"-->
 		
-		<mx:TabNavigator id="stnContent"
+		<mx:TabNavigator id="stnContent" click="showIFrameHandler"
 						 width="100%" backgroundAlpha="0"
 						 height="100%">
+			
+			
+			<mx:Canvas id="test2" label="line-sections2" mouseOver="showIFrameHandler(event)" width="100%" height="100%">
+				<flexiframe:IFrame  id="iframe2"
+									source="charts/shry/line-sections2.html"
+									width="100%"
+									height="100%"/>
+			</mx:Canvas>
+			<mx:Canvas id="test0" label="echart3-flex" mouseOver="showIFrameHandler(event)" backgroundAlpha="0.0" width="100%" height="100%">
+				<echart:LineChartModel  id ="lineChart" width="100%" height="100%" />
+			</mx:Canvas>
+			<mx:Canvas id="test6" label="echart3-flex-multi" mouseOver="showIFrameHandler(event)" backgroundAlpha="0.0" width="100%" height="100%">
+				<echart:LineChartMultiModel  id ="lineChartMulti" width="100%" height="100%" />
+			</mx:Canvas>
 			
 			<mx:Canvas id="test1" label="soso" mouseOver="showIFrameHandler(event)" backgroundAlpha="0.0" width="100%" height="100%">
 				<flexiframe:IFrame id="iframe1" source="http://www.soso.com"
@@ -26,15 +42,9 @@
 								   height="100%"/>
 			</mx:Canvas>
 			
-			<mx:Canvas id="test2" label="line-sections" mouseOver="showIFrameHandler(event)" width="100%" height="100%">
-				<flexiframe:IFrame  id="iframe2"
-									source="charts/shry/line-sections.html"
-									width="100%"
-									height="100%"/>
-			</mx:Canvas>
 			<mx:Canvas id="test3" label="line-stack" mouseOver="showIFrameHandler(event)" width="100%" height="100%">
 				<flexiframe:IFrame  id="iframe3"
-									source="charts/shry/line-stack.html"
+									source="charts/shry/echart3-singleline-model.html"
 									width="100%"
 									height="100%"/>
 			</mx:Canvas>
@@ -88,7 +98,7 @@
 				if(stnContent.length  > 0)
 				{
 					var id:String = (stnContent.selectedChild as Object).id;
-					ExternalInterface.call("eval", "(function(){document.getElementById('iframe10').style.zIndex='1';})()");
+					ExternalInterface.call("eval", "(function(){document.getElementById('iframe00').style.zIndex='1';})()");
 				}
 			}
 		]]>

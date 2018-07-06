@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+<meta charset="utf-8">
+</head>
+<body style="height: 100%; margin: 0">
+	<div id="container" style="height: 100%"></div>
+	<script type="text/javascript" src="../../js/echarts.min.js"></script>
+	<!--        <script type="text/javascript" src="../../js/echarts.js"></script> -->
+	<!-- <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+       <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script></script> -->
+	<!--        <script type="text/javascript" src="../../js/simplex.js"> -->
+	<script type="text/javascript">
+		//API地址:http://echarts.baidu.com/option3.html#toolbox
+		//曲线图参数表
+		//title
+		var title_text, title_subtext, title_left, title_show;
+		//x轴单位,y轴单位
+		var formatter_x, formatter_y;
+		//间距interval
+		//x y轴name
+		var series_x_name,series_y_name;
+		//曲线名
+		var series_line_name;
+		//Grid网格稀疏程度 //自动计算的坐标轴最大间隔大小。
+		var x_maxInterval,y_maxInterval; //y轴最大间隔 数
+		//XY轴对应数据 二维JSON数组
+		var dataJsonAry;
+		
+		//初始化数据做默认展示,后面会被覆盖
+		initDataJsonAry();
+		
+		
+		var dom = document.getElementById("container");
+		var myChart = echarts.init(dom);
+		var app = {};
+		option = null;
+		
+		function createOption(){
+			option = null;
+		option = {
+			title : {
+				text : title_text,//'一天用电量分布',
+				subtext : title_subtext,//'纯属虚构',
+				left : title_left,//'left',
+				show : title_show	//false
+			},
+
+			tooltip : {//提示框组件。提示框组件可以设置在多种地方：
+				trigger : 'none',
+			//	formatter:'{c0}<br />{b0}: {c1}',//'{a0}: {c0}<br />{b0}: {c1}'
+				formatter: function (params) {//使用axisPointer的提示,不使用XY提示
+			   //alert(JSON.stringify(params));
+			      return 'Closest Point:<br/>'+series_x_name+': ' + params[0].data[0] + '<br/>'+ series_y_name+': ' + params[0].data[1];
+			   }
+
+			},
+			toolbox : {//工具栏。内置有导出图片，数据视图，动态类型切换，数据区域缩放，重置五个工具。
+				show : true,
+				feature : {
+					dataZoom : {
+						yAxisIndex : 'none'
+					},
+					dataView : {
+						readOnly : false
+					},
+					magicType : {
+						type : [ 'line', 'bar' ]
+					},
+					restore : {},
+					saveAsImage : {}
+				}
+			},
+			xAxis : {//直角坐标系 grid 中的 x 轴，一般情况下单个 grid 组件最多只能放上下两个 x 轴，多于两个 x 轴需要通过配置 offset 属性防止同个位置多个 x 轴的重叠。
+				type : 'value',
+				name : series_x_name,
+				boundaryGap : false,
+				//minInterval : x_minInterval,
+				maxInterval : x_maxInterval,
+				axisLabel : {
+					formatter : '{value} ' + formatter_x
+				},
+				splitLine : {
+					show : true,
+					lineStyle : {
+						width : 1,
+						type : 'solid',
+						color : '#CCCCCC',
+					}
+				},
+
+				axisPointer : {
+					show : true,
+					snap : false,
+					triggerTooltip : true,
+					type : 'line',
+					lineStyle : {
+						type : 'dashed'
+					}
+				},
+			},
+
+			yAxis : {//直角坐标系 grid 中的 y 轴，一般情况下单个 grid 组件最多只能放左右两个 y 轴，多于两个 y 轴需要通过配置 offset 属性防止同个位置多个 Y 轴的重叠。
+				type : 'value',
+				name : series_y_name,
+			//	minInterval : y_minInterval,//自动计算的坐标轴最小间隔大小。
+				maxInterval : y_maxInterval,//自动计算的坐标轴最大间隔大小。
+				axisLabel : {
+					formatter : '{value} ' + formatter_y
+				},
+				splitLine : {//坐标轴在 grid 区域中的分隔线。
+					show : true,
+					lineStyle : {
+						width : 1,
+						type : 'solid',
+						color : '#CCCCCC',
+					}
+				},
+				axisPointer : {//标尺线相关设置。
+					show : true,
+					snap : false,//坐标轴指示器是否自动吸附到点上。默认自动判断。
+					triggerTooltip : false,//是否触发 tooltip。如果不想触发 tooltip 可以关掉。
+					type : 'line',
+					lineStyle : {
+						type : 'dashed'
+					}
+				}
+			},
+			series : [ { //系列列表。每个系列通过 type 决定自己的图表类型
+				name : series_line_name,//'用电量',
+				type : 'line',
+				smooth : true,
+				lineStyle : {
+				    width : 1
+				},
+				data : dataJsonAry
+
+			} ]
+		};
+    }
+		
+		//setOption默认展示
+		if (option && typeof option === "object") {
+			myChart.setOption(option, true);
+		}
+
+
+		 // 多个参数 并返回值,只能接收单个参数,用json传送数据
+        function flexSendParam2(name,message) {
+            alert(name+ "-" +message);
+            return "来自于js的消息："+name+" "+message;
+        }
+		
+		function initOpionStyle(){
+			
+			
+		}
+		
+		//3步走重置默认值:1.clear 2.initParams 3.setCwdOption
+       function setParamsAndRun(jsonStr){
+    	 cleanCwdOption();
+    	 initParams(jsonStr);
+    	 setCwdOption();
+		}
+		
+		
+		function cleanCwdOption(){
+			 myChart.clear();
+		}
+		function setCwdOption(){
+// 			myChart.dispose();
+			createOption();
+			if (option && typeof option === "object") {
+				myChart.setOption(option, true);
+			}
+		}
+		//设置报表值
+		function initParams(jsonStr){
+			var jsonObj = JSON.parse(jsonStr);
+			
+			title_text    =   jsonObj.title_text     ;
+			title_subtext =   jsonObj.title_subtext  ;
+			title_left    =   jsonObj.title_left     ;
+			title_show    =   jsonObj.title_show     ;
+			formatter_x   =   jsonObj.formatter_x    ;
+			formatter_y   =   jsonObj.formatter_y    ;
+			series_x_name =   jsonObj.series_x_name  ;
+			series_y_name =   jsonObj.series_y_name  ;
+			series_line_name = jsonObj.series_line_name  ;
+			
+			x_maxInterval =   jsonObj.x_maxInterval  ;
+			y_maxInterval =   jsonObj.y_maxInterval  ;
+			
+			
+			//alert(jsonObj.dataAry);
+			dataJsonAry =  (jsonObj.dataAry);
+		}
+		
+		
+		
+		function initDataJsonAry() {
+			title_text = "一天用电量分布";
+			title_subtext = "纯属虚构";
+			title_left = "left";
+			title_show = true;
+			formatter_x = "Pa";
+	        formatter_y = "W";
+	        series_y_name = "用电量";
+			dataJsonAry = [ [ 10, 300 ], [ 22, 280 ], [ 30, 250 ], [ 42, 260 ],
+					[ 50, 270 ], [ 66, 300 ], [ 70, 550 ], [ 87, 500 ],
+					[ 90, 400 ], [ 103, 390 ], [ 110, 380 ], [ 120, 390 ],
+					[ 134, 400 ], [ 150, 500 ], [ 158, 600 ], [ 164, 750 ],
+					[ 173, 800 ], [ 180, 700 ], [ 193, 600 ], [ 200, 400 ] ];
+
+		}
+		
+		
+		function testAlert(){
+			alert("testAlert");
+			
+		}
+		
+		function refreshCwd()
+		{
+		   window.location.reload();
+		}
+		
+		setCwdOption();
+	</script>
+</body>
+</html>
