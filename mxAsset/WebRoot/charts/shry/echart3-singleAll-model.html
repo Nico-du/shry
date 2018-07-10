@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ECharts Demo</title>
+<script type="text/javascript">
+	window.EC_DEMO_LANG = 'cn';
+</script>
+
+</head>
+<body height="100%">
+    <div id="page1">
+        <iframe id="iframe1" align="center" width="100%" height="150" src="echart3-singleline-model.html"  frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+   </div>
+   <div id="page2">
+        <iframe id="iframe2" align="center" width="100%" height="150" src="echart3-singleline-model.html"  frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+   </div>
+   <div id="page3">
+        <iframe id="iframe3" align="center" width="100%" height="150" src="echart3-singleline-model.html"  frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+   </div>
+   <div id="page4">
+        <iframe id="iframe4" align="center" width="100%" height="150" src="echart3-singleline-model.html"  frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>
+   </div>
+   
+   
+<script type="text/javascript">
+var showLog = false;
+
+var iframeHeight = 500;
+
+function setIFrameHeight(){
+//alert("1");
+//alert(document.getElementById("page1"));
+document.getElementById("iframe1").height=iframeHeight;
+document.getElementById("iframe2").height=iframeHeight;
+document.getElementById("iframe3").height=iframeHeight;
+document.getElementById("iframe4").height=iframeHeight;
+}
+
+function setParamsAndRun1(jsonStr){
+	//alert("call run 1");
+	 if(showLog)console.log("iframe1 :"+jsonStr);
+     document.getElementById("iframe1").contentWindow.setParamsAndRun(jsonStr);
+}
+function setParamsAndRun2(jsonStr){
+	if(showLog)console.log("iframe2 :"+jsonStr);
+     document.getElementById("iframe2").contentWindow.setParamsAndRun(jsonStr);
+}
+function setParamsAndRun3(jsonStr){
+	if(showLog)console.log("iframe3 :"+jsonStr);
+     document.getElementById("iframe3").contentWindow.setParamsAndRun(jsonStr);
+}
+function setParamsAndRun4(jsonStr){
+	if(showLog)console.log("iframe4 :"+jsonStr);
+     document.getElementById("iframe4").contentWindow.setParamsAndRun(jsonStr);
+}
+
+
+function refreshCwd(){
+	document.getElementById("iframe1").contentWindow.refreshCwd();
+	document.getElementById("iframe2").contentWindow.refreshCwd();
+	document.getElementById("iframe3").contentWindow.refreshCwd();
+	document.getElementById("iframe4").contentWindow.refreshCwd();
+}
+
+function testCallSon(jsonStr){
+//document.getElementById("iframe").contentWindow.func(data1,data2...);
+//alert(window.frames["iframe1"].contentWindow);
+setTimeout(callSon,300);
+//window.frames["iframe1"].document.testAlert();
+}
+
+function callSon(){
+alert("callson");
+document.getElementById("iframe1").contentWindow.testAlert();
+}
+
+setIFrameHeight();
+//testCallSon();
+
+</script>
+</body>
+</html>

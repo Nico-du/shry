@@ -17,6 +17,7 @@
 	<!--        <script type="text/javascript" src="../../js/simplex.js"> -->
 	<script type="text/javascript">
 		//API地址:http://echarts.baidu.com/option3.html#toolbox
+		var showLog = false;
 		//曲线图参数表
 		//标题设置
 		var title_text;
@@ -104,7 +105,7 @@
 					//minInterval : x_minInterval,
 					maxInterval : x_maxInterval,
 					axisLabel : {
-						formatter : '{value} ' + formatter_x
+						formatter : '{value}' + formatter_x
 					},
 					axisTick : {
 						alignWithLabel : true
@@ -137,7 +138,7 @@
 					splitNumber:5,
 					position : 'left',
 					axisLabel : {
-						formatter : '{value} ' + formatter_y1
+						formatter : '{value}' + formatter_y1
 					},
 					axisLine : {
 						onZeroAxisIndex : 0,
@@ -164,7 +165,7 @@
 					splitNumber:5,
 					position : 'right',
 					axisLabel : {
-						formatter : '{value} ' + formatter_y2
+						formatter : '{value}' + formatter_y2
 					},
 					axisLine : {
 						onZeroAxisIndex : 1,
@@ -186,7 +187,7 @@
 					splitNumber:5,
 					position : 'right',
 					axisLabel : {
-						formatter : '{value} ' + formatter_y3
+						formatter : '{value}' + formatter_y3
 					},
 					offset : y3_yAxis_offset, //Y轴间距,最少75
 					axisLine : {
@@ -209,7 +210,7 @@
 					splitNumber:5,
 					position : 'right',
 					axisLabel : {
-						formatter : '{value} ' + formatter_y4
+						formatter : '{value}' + formatter_y4
 					},
 					offset : y4_yAxis_offset, //Y轴间距,最少75
 					axisLine : {
@@ -251,9 +252,9 @@
 		}
 
 		//setOption默认展示
-		if (option && typeof option === "object") {
-			myChart.setOption(option, true);
-		}
+// 		if (option && typeof option === "object") {
+// 			myChart.setOption(option, true);
+// 		}
 
 		// 多个参数 并返回值,只能接收单个参数,用json传送数据
 		function flexSendParam2(name, message) {
@@ -267,23 +268,43 @@
 
 		//3步走重置默认值:1.clear 2.initParams 3.setCwdOption
 		function setParamsAndRun(jsonStr) {
+			//refreshCwd();
 			cleanCwdOption();
 			initParams(jsonStr);
 			setCwdOption();
+			if(showLog)console.log("after init4-run over:"+dataJsonAry4);
 		}
 
 		function cleanCwdOption() {
+			//alert(1);
 			myChart.clear();
+// 			myChart.dispose();
+// 			myChart = null;
+// 			myChart = echarts.init(dom);
+// 			var data0 = option.series[0].data;
+// 		    var data1 = option.series[1].data;
+// 		    var data2 = option.series[2].data;
+// 		    var data3 = option.series[3].data;
+// 		    data0.shift();
+// 		    data1.shift();
+// 		    data2.shift();
+// 		    data3.shift();
+// 		    dataJsonAry1 = null;
+// 		    dataJsonAry2 = null;
+// 		    dataJsonAry3 = null;
+// 		    dataJsonAry4 = null;
 		}
 		function setCwdOption() {
-			// 			myChart.dispose();
 			createOption();
 			if (option && typeof option === "object") {
 				myChart.setOption(option, true);
+				if(showLog)console.log("after init3-setOption:"+dataJsonAry4);
 			}
 		}
 		//设置报表值
 		function initParams(jsonStr) {
+			//alert(2);
+			if(showLog)console.log("init0-setParams");
 			var jsonObj = JSON.parse(jsonStr);
 
 			title_text    =   jsonObj.title_text     ;
@@ -329,11 +350,14 @@
 			series_y3_name = jsonObj.series_y3_name;
 			series_y4_name = jsonObj.series_y4_name;
 			
-// 			alert(jsonObj.dataAry1);
+			if(showLog)console.log("before init:"+dataJsonAry4);
+			
 			dataJsonAry1 = jsonObj.dataAry1;
 			dataJsonAry2 = jsonObj.dataAry2;
 			dataJsonAry3 = jsonObj.dataAry3;
 			dataJsonAry4 = jsonObj.dataAry4;
+			
+			if(showLog)console.log("after init1:"+dataJsonAry4);
 		}
 
 		function testAlert() {
@@ -342,12 +366,23 @@
 		}
 
 		function refreshCwd() {
+			if(showLog)console.log("before reload:");
 			window.location.reload();
+			if(showLog)console.log("after reload:");
+		}
+		function alertVal() {
+			alert(dataJsonAry1);
 		}
 
-		setCwdOption();
+		//setCwdOption();
+		
+		
+		//var t1 = window.setTimeout(setCwdOption,5000); 
+		//var t2 = window.setTimeout(alertVal,3000); 
+		
 		
 		function setDefaultValue() {
+			if(showLog)console.log("init0-setDefaultValue");
 			//########设置默认值########
 			title_text = 'title_text';
 			title_subtext = 'title_subtext';
@@ -384,6 +419,7 @@
 		}
 		//设置数组默认值
 		function setDefaultArray() {
+			if(showLog)console.log("init0-setDefaultArray");
 			dataJsonAry1 = [ [ 10, 300 ], [ 22, 280 ], [ 30, 250 ],
 					[ 42, 260 ], [ 50, 270 ], [ 66, 300 ], [ 70, 550 ],
 					[ 87, 503 ], [ 90, 404 ], [ 103, 390 ], [ 110, 380 ],
@@ -409,6 +445,8 @@
 					[ 164, 753 ], [ 173, 833 ], [ 180, 733 ], [ 193, 333 ],
 					[ 200, 433 ] ];
 		}
+		
+		if(showLog)console.log("multi-init over");
 	</script>
 </body>
 </html>

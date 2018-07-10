@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 </head>
-<body style="height: 100%; margin: 0">
+<body style="height: 100%; margin: 0" scoll=auto>
 	<div id="container" style="height: 100%"></div>
 	<script type="text/javascript" src="../../js/echarts.min.js"></script>
 	<!--        <script type="text/javascript" src="../../js/echarts.js"></script> -->
@@ -17,6 +17,7 @@
 	<!--        <script type="text/javascript" src="../../js/simplex.js"> -->
 	<script type="text/javascript">
 		//API地址:http://echarts.baidu.com/option3.html#toolbox
+		var showLog = false;
 		//曲线图参数表
 		//title
 		var title_text, title_subtext, title_left, title_show;
@@ -83,7 +84,7 @@
 				//minInterval : x_minInterval,
 				maxInterval : x_maxInterval,
 				axisLabel : {
-					formatter : '{value} ' + formatter_x
+					formatter : '{value}' + formatter_x
 				},
 				splitLine : {
 					show : true,
@@ -111,7 +112,7 @@
 			//	minInterval : y_minInterval,//自动计算的坐标轴最小间隔大小。
 				maxInterval : y_maxInterval,//自动计算的坐标轴最大间隔大小。
 				axisLabel : {
-					formatter : '{value} ' + formatter_y
+					formatter : '{value}' + formatter_y
 				},
 				splitLine : {//坐标轴在 grid 区域中的分隔线。
 					show : true,
@@ -163,9 +164,12 @@
 		
 		//3步走重置默认值:1.clear 2.initParams 3.setCwdOption
        function setParamsAndRun(jsonStr){
+    	  if(showLog)console.log("son json:"+jsonStr);
+    	 //refreshCwd();
     	 cleanCwdOption();
     	 initParams(jsonStr);
     	 setCwdOption();
+    	 if(showLog)console.log("dataJsonAry:"+dataJsonAry);
 		}
 		
 		
@@ -227,10 +231,12 @@
 		
 		function refreshCwd()
 		{
+		   if(showLog)console.log("before refreshCwd");
 		   window.location.reload();
 		}
 		
-		setCwdOption();
+		//setCwdOption();
+		 if(showLog)console.log("init over");
 	</script>
 </body>
 </html>

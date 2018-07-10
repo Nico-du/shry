@@ -19,8 +19,8 @@
 			import cn.cnsasfram.helper.ASDateHelper;
 			import cn.cnsasfram.helper.ASJsonHelper;
 			import cn.cnsasfram.helper.ASStringHelper;
-			import cn.cnspagemoduel.chartline.LinueChartModel;
-			import cn.cnspagemoduel.chartline.LinueChartMultiModel;
+			import cn.cnspagemoduel.echart3.LineChartModel;
+			import cn.cnspagemoduel.echart3.LineChartMultiModel;
 			
 			import com.adobe.serialization.json.JSON;
 			
@@ -73,6 +73,10 @@
 			public var tempFunction:Function=null;
 			//图表数据
 			var chartDataList:ArrayCollection = new ArrayCollection();
+			//多曲线Model
+			var multiChart:LineChartMultiModel;
+			//但曲线Model
+			var lineChart1:LineChartModel;var lineChart2:LineChartModel;var lineChart3:LineChartModel;var lineChart4:LineChartModel;
 			//页面初始化调用
 			public function initPage():void{
 				if(true){
@@ -82,8 +86,8 @@
 			
 			//初始化页面之前调用
 			public function beforeInitPage():void{
-				this.width = Application.application.width * 0.85;
-				this.height = Application.application.height * 0.85;
+				this.width = Application.application.width * 0.9;
+				this.height = Application.application.height * 0.9;
 				
 				if(pageIsLoadPoer){
 					loadUserPower();
@@ -619,6 +623,8 @@
 				height="{this.height - 140}" id="lineChart" /> */
 				//添加多曲线
 				chartMultiPanel.removeAllChildren();
+				index2Clicked = index3Clicked = false;
+				blogModel.selectedIndex = 0;
 				var rstObj:Object = event.result as Object;
 				var objList:ArrayCollection = rstObj.convertList as ArrayCollection;//转换后的数据
 				var insertList:ArrayCollection = rstObj.insertList as ArrayCollection;//插值数据
@@ -627,41 +633,31 @@
 				
 				//TODO >>
 				var objList2:ArrayCollection = ObjectUtil.copy(insertList) as ArrayCollection;
-				var multiChart:LinueChartMultiModel = new LinueChartMultiModel();
+				multiChart = new LineChartMultiModel();
+				multiChart.modelTitle="总成流量—静压/输入功率/转速/效率曲线图";  
+				multiChart.xAxisTitle="流量";multiChart.formatter_x = "m^3/h";
+				
 				multiChart._yField3 = "zzs"; multiChart._yField2 = "srgl";
-				multiChart.modelTitle="总成流量—静压/输入功率/转速/效率曲线图";  multiChart.xAxisTitle="流量(m^3/h)"; multiChart.xToolTipTiltle="流量";
-				multiChart.yAxisTitle="静压/输入功率/转速/效率"; multiChart.yToolTipTiltle="Y";
-				multiChart.serialLineName1="静压*(Pa)";  multiChart.serialLineName2="输入*(W)";  multiChart.serialLineName3="转速*(rpm)";  multiChart.serialLineName4="效率*(%)" ;
+				multiChart.serialLineName1="静压";  multiChart.serialLineName2="输入";  multiChart.serialLineName3="转速";  multiChart.serialLineName4="效率" ;
+				multiChart.formatter_y1 = "Pa"; multiChart.formatter_y2 = "W"; multiChart.formatter_y3 = "rpm"; multiChart.formatter_y4 = "%";
+				
 				multiChart.height=this.height - 170;
 				multiChart.dpArray = objList2;
 				chartMultiPanel.addChild(multiChart);
 				
-				/* <shryChart:LinueChartModel modelTitle="总成流量—效率曲线图" height="{this.height - 140}" id="lineChart02" />
-					<shryChart:LinueChartModel modelTitle="总成流量—主转速曲线图" height="{this.height - 140}" id="lineChart03" />
-					<shryChart:LinueChartModel modelTitle="总成流量—输入功率曲线图" height="{this.height - 140}" id="lineChart04" />
-					<shryChart:LinueChartModel modelTitle="总成流量—静压曲线图" height="{this.height - 140}" id="lineChart05" /> */
-				//添加单曲线
+				/* <shryChart:LineChartModel modelTitle="总成流量—效率曲线图" height="{this.height - 140}" id="lineChart02" />
+					<shryChart:LineChartModel modelTitle="总成流量—主转速曲线图" height="{this.height - 140}" id="lineChart03" />
+					<shryChart:LineChartModel modelTitle="总成流量—输入功率曲线图" height="{this.height - 140}" id="lineChart04" />
+					<shryChart:LineChartModel modelTitle="总成流量—静压曲线图" height="{this.height - 140}" id="lineChart05" /> */
+				
+				//添加单曲线 单个model嵌套HTML,html中嵌套4个html曲线图,
 				chartPanel.removeAllChildren();
-				var lineChart1:LinueChartModel = new LinueChartModel();
-				lineChart1.modelTitle="总成流量—效率曲线图"; lineChart1.height=this.height - 140; 
-				lineChart1._xField = "ll"; lineChart1._yField = "xl";
-				lineChart1.xToolTipTiltle = lineChart1.xAxisTitle= "流量";lineChart1.yToolTipTiltle= lineChart1.yAxisTitle= "效率";
+				lineChart1 = new LineChartModel();
+				lineChart1.height=this.height - 170;
 				lineChart1.dpArray = insertList;
-				var lineChart2:LinueChartModel = new LinueChartModel();
-				lineChart2.modelTitle="总成流量—转速曲线图"; lineChart2.height=this.height - 140; 
-				lineChart2._xField = "ll"; lineChart2._yField = "zzs";
-				lineChart2.xToolTipTiltle = lineChart2.xAxisTitle= "流量";lineChart2.yToolTipTiltle= lineChart2.yAxisTitle= "转速";
-				lineChart2.dpArray = insertList;
-				var lineChart3:LinueChartModel = new LinueChartModel();
-				lineChart3.modelTitle="风叶流量—输入功率曲线图"; lineChart3.height=this.height - 140;
-				lineChart3._xField = "ll"; lineChart3._yField = "srgl";
-				lineChart3.xToolTipTiltle = lineChart3.xAxisTitle= "流量";lineChart3.yToolTipTiltle= lineChart3.yAxisTitle= "功率";
-				lineChart3.dpArray = insertList;
-				var lineChart4:LinueChartModel = new LinueChartModel();
-				lineChart4.modelTitle="风叶流量—静压曲线图"; lineChart4.height=this.height - 140;
-				lineChart4.xToolTipTiltle = lineChart4.xAxisTitle= "流量";lineChart4.yToolTipTiltle= lineChart4.yAxisTitle= "静压";
-				lineChart4._xField = "ll"; lineChart4._yField = "jyl";
-				lineChart4.dpArray = insertList;
+				lineChart1.chartType = "ZC";
+				chartPanel.addChild(lineChart1);
+				
 				
 				//添加可换算数据表格
 //				var dataGrid:Grid = CommonUIMethod.generateTable("zcxn",insertList);
@@ -679,10 +675,10 @@
 //				vbx.addChild(dataGrid);
 //				chartPanel.addChild(vbx);
 				
-				chartPanel.addChild(lineChart1);
-				chartPanel.addChild(lineChart2);
-				chartPanel.addChild(lineChart3);
-				chartPanel.addChild(lineChart4);
+				
+//				chartPanel.addChild(lineChart2);
+//				chartPanel.addChild(lineChart3);
+//				chartPanel.addChild(lineChart4);
 				
 				//添加原始性能数据表格
 				//只显示初始化数据，首次初始化时才设置
@@ -733,13 +729,30 @@
 				}
 			}
 			
+			private var index2Clicked:Boolean = false;
+			private var index3Clicked:Boolean = false;
 			//性能数据/多曲线/单曲线 切换时触发
 			protected function blogModel_tabIndexChangeHandler(event:Event):void
 			{
 				if(blogModel.selectedIndex == 0 || blogModel.selectedIndex == 1){
+					
 //					hsHbox.visible =false;
-				}else{
+				}else if(blogModel.selectedIndex == 2){
+					//multiChart.creationCompleteHandler(null);
+					if(!index2Clicked){
+					    callLater(multiChart.onSendParamToHtml,[null]);
+					    index2Clicked = true;
+					}
 //					hsHbox.visible=true;
+				}else if(blogModel.selectedIndex == 3){
+					if(!index3Clicked){
+						callLater(lineChart1.creationCompleteHandler,[null]);
+//						callLater(lineChart1.onSendParamToHtml,[1]);
+//						callLater(lineChart2.onSendParamToHtml,[null]);
+//						callLater(lineChart3.onSendParamToHtml,[null]);
+//						callLater(lineChart4.onSendParamToHtml,[null]);
+						index3Clicked = true;
+						}
 				}
 				
 			}
@@ -1307,17 +1320,17 @@
 									</mx:Panel>
 								<mx:Panel id="chartMultiPanel" label="多曲线性能图"  width="100%"  borderStyle="none" headerHeight="0" 
 										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-									<!--<shryChart:LinueChartMultiModel modelTitle="总成流量—静压/输入功率/主转速/效率曲线图"
+									<!--<shryChart:LineChartMultiModel modelTitle="总成流量—静压/输入功率/主转速/效率曲线图"
 																	xAxisTitle="流量(m^3/h)" xToolTipTiltle="流量" yAxisTitle="静压/输入功率/主转速/效率" yToolTipTiltle="Y"
 																	serialLineName1="静压*(Pa)"  serialLineName2="输入*(W)"  serialLineName3="主转速*(r/min)"  serialLineName4="效率*(%)" 
 																	height="{this.height - 140}" id="lineChart" />-->
 								</mx:Panel>
 								<mx:Panel  id="chartPanel"  label="单曲线线性能图" width="100%"  borderStyle="none" headerHeight="0" 
-										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-									<!--<shryChart:LinueChartModel modelTitle="总成流量—效率曲线图" height="{this.height - 140}" id="lineChart02" />
-									<shryChart:LinueChartModel modelTitle="总成流量—主转速曲线图" height="{this.height - 140}" id="lineChart03" />
-									<shryChart:LinueChartModel modelTitle="总成流量—输入功率曲线图" height="{this.height - 140}" id="lineChart04" />
-									<shryChart:LinueChartModel modelTitle="总成流量—静压曲线图" height="{this.height - 140}" id="lineChart05" />-->
+										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+									<!--<shryChart:LineChartModel modelTitle="总成流量—效率曲线图" height="{this.height - 140}" id="lineChart02" />
+									<shryChart:LineChartModel modelTitle="总成流量—主转速曲线图" height="{this.height - 140}" id="lineChart03" />
+									<shryChart:LineChartModel modelTitle="总成流量—输入功率曲线图" height="{this.height - 140}" id="lineChart04" />
+									<shryChart:LineChartModel modelTitle="总成流量—静压曲线图" height="{this.height - 140}" id="lineChart05" />-->
 								</mx:Panel>
 							</mx:ViewStack>
 						</mx:VBox>		

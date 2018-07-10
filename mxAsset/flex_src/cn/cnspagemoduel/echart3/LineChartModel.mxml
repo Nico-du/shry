@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--单曲线模版-->
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:iframe="http://code.google.com/p/flex-iframe/"
-		   initialize="initPage()" creationComplete="module1_creationCompleteHandler(event)" 
+		   initialize="initPage()"  mouseOver="showIFrameHandler" click="showIFrameHandler"
 		   width="100%" height="100%" horizontalGap="0" verticalGap="0" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="12">
 	<mx:RemoteObject id="ChartService" destination="chartService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
+			import com.adobe.serialization.json.JSON;
+			
 			import flex.util.CommonMethod;
 			import flex.util.CommonXMLData;
 			
@@ -14,7 +16,6 @@
 			import mx.events.FlexEvent;
 			import mx.graphics.SolidColorStroke;
 			import mx.rpc.events.ResultEvent;
-			import com.adobe.serialization.json.JSON;
 			
 			[Bindable]
 			protected var strokeffect:SolidColorStroke=null;
@@ -201,12 +202,13 @@
 			
 			//iframeChart.callIFrameFunction js只能接收单个参数,用json传送数据
 			private function getJsonParams():String{
+				this.initPage();
 				var jsonObj:Object = new Object();
 				
-				jsonObj.title_text = "";//"一天用电量分布1";
+				jsonObj.title_text = modelTitle;//"一天用电量分布1";
 				jsonObj.title_subtext =  "";//"纯属虚构2";
 				jsonObj.title_left = "left";
-				jsonObj.title_show = false;
+				jsonObj.title_show = true;
 				
 				jsonObj.series_line_name = serialLineName;//"用电量5";
 				jsonObj.series_x_name = xAxisTitle;//"用电量5";
@@ -225,16 +227,15 @@
 			public function afterInitPage():void{
 				
 			}
+			
 			//调用html中js方法并回调
-			public function onSendParamToHtml2(event:Event):void
+			public function onSendParamToHtml(frameId:int):void
 			{
 				//showIFrameHandler(event);
 				//ExternalInterface.call("loadIFrame", "charts/shry/echart3-singleline-model.html");
-				//iframeChart.callIFrameFunction("refreshCwd");
 				
-				var jsonStr:String = this.getJsonParams();
+				flash.utils.setTimeout(refeshCallback,100,frameId);//refreshCwd方法刷新会延迟,到账覆盖赋值,所以这里要等待刷新结束在赋值
 				
-				iframeChart.callIFrameFunction("setParamsAndRun",[jsonStr],callback);
 //				 ExternalInterface.call("eval", "(function(){" +
 //					"testAlert();" +
 //					"})()"); 
@@ -242,10 +243,18 @@
 				//flexSendParam2方法会返回一个字符串，最后一个回调就是输出值的函数
 				//iframeChart.callIFrameFunction("flexSendParam2",["Frost.Yen","来自于四川"],callback);
 				
-				function callback(data:*):void
-				{
+			}
+			
+			
+			function refeshCallback(frameId:int):void
+			{
+				var jsonStr:String = this.getJsonParams();
+				
+				iframeChart.callIFrameFunction("setParamsAndRun"+frameId,[jsonStr],callback);
+			}
+			function callback(data:*):void
+			{
 				//	Alert.show(data); 
-				}
 			}
 			
 			private function showIFrameHandler(event:Event):void
@@ -254,28 +263,70 @@
 				
 				ExternalInterface.call("eval", "(function(){document.getElementById('iframe00').style.zIndex='10';})()");
 			}
-
-			protected function module1_creationCompleteHandler(event:FlexEvent):void
+			
+			//生成总成性能图
+			public function initChartZC():void
 			{
-				onSendParamToHtml2(null);
+				iframeChart.callIFrameFunction("refreshCwd");
+				
+				flash.utils.setTimeout(initChartZCLater,200);
 			}
-
+			public function initChartZCLater():void
+			{
+				this.modelTitle="总成流量—效率曲线图"; 
+				this._xField = "ll"; this._yField = "xl";
+				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "效率";
+				this.refeshCallback(1);
+				
+				this.modelTitle="总成流量—转速曲线图";
+				this._xField = "ll"; this._yField = "zzs";
+				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "转速";
+				this.refeshCallback(2);
+				
+				this.modelTitle="风叶流量—输入功率曲线图"; 
+				this._xField = "ll"; this._yField = "srgl";
+				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "功率";
+				this.refeshCallback(3);
+				
+				this.modelTitle="风叶流量—静压曲线图"; 
+				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "静压";
+				this._xField = "ll"; this._yField = "jyl";
+				this.refeshCallback(4);
+				//onSendParamToHtml(1);
+			}
+			
+			////生成风叶性能图
+			public function initChartFY():void
+			{
+				
+				
+			}
+			
+			public var chartType:String = "ZC";
+			public function creationCompleteHandler(event:FlexEvent):void
+			{
+				if("ZC" == chartType){
+					callLater(initChartZC);
+				}else if("FY" == chartType){
+					callLater(initChartFY);
+				}
+			}
+			
+			
 		]]>
 	</mx:Script>
 	
-	<mx:VBox width="100%" height="100%" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0" 
-			 mouseOver="showIFrameHandler" click="showIFrameHandler" doubleClickEnabled="false">
+	<mx:VBox width="100%" height="100%" borderStyle="solid" borderColor="#99CCFF" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0">
 		<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#99CCFF" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0" 
-				 mouseOver="showIFrameHandler" click="showIFrameHandler" doubleClickEnabled="false">
-			<mx:Label text="{modelTitle}" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13" 
-					  mouseOver="showIFrameHandler" click="showIFrameHandler" doubleClickEnabled="false"/>
+				 visible="false" includeInLayout="false">
+			<mx:Label text="{modelTitle}" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13"/>
 		</mx:HBox>
 		<mx:HBox width="100%" height="100%" borderStyle="none" horizontalAlign="center" horizontalGap="0" verticalAlign="middle" verticalGap="0">
 			<mx:Canvas id="iframeCanvas" width="100%" height="100%" borderStyle="none" 
 					   mouseOver="showIFrameHandler" click="showIFrameHandler" doubleClickEnabled="false">
 <!--									source="http://www.soso.com"-->
 				<iframe:IFrame  id="iframeChart"
-									source="charts/shry/echart3-singleline-model.html"
+									source="charts/shry/echart3-singleAll-model.html"
 									width="100%"
 									height="100%"/>
 				

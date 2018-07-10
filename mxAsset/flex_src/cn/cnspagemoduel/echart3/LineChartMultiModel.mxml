@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--固定资产废弃情况,展示近10年-->
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:iframe="http://code.google.com/p/flex-iframe/"
-		   initialize="initPage()" creationComplete="module1_creationCompleteHandler(event)" 
+		   initialize="initPage()" creationComplete="creationCompleteHandler(event)" mouseOver="showIFrameHandler" click="showIFrameHandler"
 		   width="100%" height="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="12">
 	<mx:RemoteObject id="ChartService" destination="chartService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
@@ -307,15 +307,25 @@
 			}
 			
 			//调用html中js方法并回调
-			public function onSendParamToHtml2(event:Event):void
+			public function onSendParamToHtml(event:Event):void
 			{
 				//showIFrameHandler(event);
 				//ExternalInterface.call("loadIFrame", "charts/shry/echart3-singleline-model.html");
-				//iframeChart.callIFrameFunction("refreshCwd");
 				
-				var jsonStr:String = this.getJsonParams();
+				//iframeChart.callIFrameFunction("refreshCwd",[],refeshCallback);
 				
-				iframeChart.callIFrameFunction("setParamsAndRun",[jsonStr],callback);
+				iframeChart.callIFrameFunction("refreshCwd");
+				
+				//callLater(refeshCallback);
+				flash.utils.setTimeout(refeshCallback,100);//refreshCwd方法刷新会延迟,到账覆盖赋值,所以这里要等待刷新结束在赋值
+				//var jsonStr:String = this.getJsonParams();
+				
+				//iframeChart.callIFrameFunction("setParamsAndRun",[jsonStr],callback);
+				
+				//this.showIFrameHandler(null);
+				
+				
+				
 				//				 ExternalInterface.call("eval", "(function(){" +
 				//					"testAlert();" +
 				//					"})()"); 
@@ -323,10 +333,18 @@
 				//flexSendParam2方法会返回一个字符串，最后一个回调就是输出值的函数
 				//iframeChart.callIFrameFunction("flexSendParam2",["Frost.Yen","来自于四川"],callback);
 				
-				function callback(data:*):void
-				{
-					//	Alert.show(data); 
-				}
+			}
+			
+			function refeshCallback():void
+			{
+				var jsonStr:String = this.getJsonParams();
+				
+				iframeChart.callIFrameFunction("setParamsAndRun",[jsonStr],callback);
+			}
+			
+			function callback(data:*):void
+			{
+				//	Alert.show(data); 
 			}
 			
 			private function showIFrameHandler(event:Event):void
@@ -336,9 +354,10 @@
 				ExternalInterface.call("eval", "(function(){document.getElementById('iframe00').style.zIndex='10';})()");
 			}
 			
-			protected function module1_creationCompleteHandler(event:Event):void
+			public function creationCompleteHandler(event:Event):void
 			{
-				onSendParamToHtml2(null);
+				//onSendParamToHtml2(null);
+				//iframeChart.callIFrameFunction("refreshCwd");
 			}
 			
 
