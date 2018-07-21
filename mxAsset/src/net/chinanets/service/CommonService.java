@@ -230,13 +230,13 @@ public interface CommonService {
 		    * 总成性能导入，查询是否存在重复记录
 		    * param:   试验单号 +试验性质+试验日期
 		    */
-		public List<ShrySydData> getZCSydByParam(Long syId, String syxz,Date syrq) ;
+		public List<ShrySydData> getZCSydByParam(String sydh, String syxz,Date syrq) ;
 
 		/**
 		 * 风叶性能导入，查询是否存在重复记录
 		 * param：试验单号 + 风叶id
 		 */
-		public List<ShrySydData> getFYSydByParam(Long syId, Long fyxh) ;
+		public List<ShrySydData> getFYSydByParam(String sydh, Long fyxh) ;
 		
 		/**
 		 * 根据风叶型号查询是否存在重复记录

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="PopUpManager.removePopUp(this);" layout="absolute" width="496" height="182" fontSize="12" title="信息框" showCloseButton="true">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" close="PopUpManager.removePopUp(this);" layout="absolute" width="496" height="182" fontSize="12" title="文件上传" showCloseButton="true">
 	<mx:Script source="../../flex/util/Upload.as">
 	</mx:Script>
 	<mx:Button x="13" y="99" label="导入文件" click="uploadExcel();inBtn.enabled=false;" id="inBtn"/>

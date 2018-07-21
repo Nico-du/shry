@@ -422,6 +422,7 @@
 				datumFormTabNV.height += aboutheight;
 			}
 			private var datumFormTabNVPHeight:Number = -1;
+			var lxdForm:SYDFormDataMoudel = null;//CommonMethod.pageCacheObj.ZCXNForm_lxdForm;
 			protected function datumFormTabNV_tabIndexChangeHandler(event:Event):void
 			{
 				if(datumFormTabNVPHeight == -1){
@@ -429,18 +430,16 @@
 				}
 				if(datumFormTabNV.selectedIndex == 1){
 					datumFormTabNV.height = (this.height - 80);
-					nvPage1Group2.removeAllChildren();
 					//ZCXNForm_lxdForm
-					var lxdForm:SYDFormDataMoudel = CommonMethod.pageCacheObj.ZCXNForm_lxdForm;
 					if(lxdForm == null ){
+						nvPage1Group2.removeAllChildren();
 						lxdForm = new SYDFormDataMoudel();
 						lxdForm.dataId = this.lxdh.data+"";
-						lxdForm.width = this.width - 30;
+						lxdForm.width = this.width - 10;
 						lxdForm.height = (this.height - 130);
 						CommonMethod.pageCacheObj.ZCXNForm_lxdForm = lxdForm;
 						nvPage1Group2.addChild(lxdForm);
 					}else{
-						nvPage1Group2.addChild(lxdForm);
 						lxdForm.loadData();
 					}
 					
@@ -626,8 +625,8 @@
 						</mx:VBox>
 					</mx:Canvas>
 					<mx:Panel id="nvPage2" label="联系单信息" width="100%"  borderStyle="none" headerHeight="0" 
-							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
-						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none">
+							  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0" horizontalScrollPolicy="off">
+						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none" horizontalScrollPolicy="off">
 							 
 						</mx:VBox>		
 					</mx:Panel>

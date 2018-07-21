@@ -975,10 +975,10 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao,Seria
 	    * 总成性能导入，查询是否存在重复记录
 	    * param:   试验单号 +试验性质+试验日期
 	    */
-		public List<ShrySydData>  getZCSydByParam(Long syId,String syxz,Date syrq){
+		public List<ShrySydData>  getZCSydByParam(String sydh,String syxz,Date syrq){
 			DetachedCriteria dc = DetachedCriteria.forClass(ShrySydData.class);
-			if(syId!=null){
-				dc.add(Restrictions.eq("lxdid", syId));
+			if(sydh!=null){
+				dc.add(Restrictions.eq("lxdh", sydh));
 			}
 			if(StringUtils.isNotBlank(syxz)){
 				dc.add(Restrictions.eq("symd", syxz));
@@ -993,11 +993,11 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao,Seria
 		 * 风叶性能导入，查询是否存在重复记录
 		 * param：试验单号 + 风叶id 
 		 */
-		public List<ShrySydData>getFYSydByParam(Long syId,Long fyid){
+		public List<ShrySydData>getFYSydByParam(String sydh,Long fyid){
 			
 			DetachedCriteria dc = DetachedCriteria.forClass(ShrySydData.class);
-			if(syId!=null){
-				dc.add(Restrictions.eq("lxdid", syId));
+			if(sydh!=null){
+				dc.add(Restrictions.eq("lxdh", sydh));
 			}
 			if(fyid!=null){
 				dc.add(Restrictions.eq("fyid", fyid));

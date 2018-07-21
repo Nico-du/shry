@@ -84,7 +84,7 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 					    * 总成性能导入，查询是否存在重复记录
 					    * param:   试验单号 +试验性质+试验日期
 					    */
-					List<ShrySydData>  listData = comService.getZCSydByParam(listxnVo.getSydData().getLxdid(), listxnVo.getSydData().getSymd(), listxnVo.getSydData().getSyrq());
+					List<ShrySydData>  listData = comService.getZCSydByParam(listxnVo.getSydData().getLxdh(), listxnVo.getSydData().getSymd(), listxnVo.getSydData().getSyrq());
 					   if(listData.isEmpty() || listData==null){
 						   //不存在则保存实验单数据，并返回试验单id 用于总成性能表中试验单id保存
 						   listxnVo.getSydData().setInputdate(new Date());
@@ -157,6 +157,7 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
             String zfsName = st.getCell(3,13).getContents().trim();
             String ffsName = st.getCell(4,13).getContents().trim();
             String dyName = st.getCell(5, 13).getContents().trim();
+            listxnVo = new ListZcxnVo();
             if(!"主风扇".equals(zfsName) || !"辅风扇".equals(ffsName) || !"电压".equals(dyName)){
          	   listxnVo.setResult("该模版不符合总成性能导入模版格式！请检查导入模版");
          	   return listxnVo;
@@ -172,9 +173,30 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 			String sply = st.getCell(1, 9).getContents().trim();//试品来源
 			String yps = st.getCell(7, 6).getContents().trim();//叶片数
 			String  fyzj = st.getCell(7, 5).getContents().trim();//风叶直径
-			String  fyxs = st.getCell(7, 3).getContents().trim();//风叶型式
+			String  fjxs = st.getCell(6, 3).getContents().trim();//风机型式
 			String bz = st.getCell(1, 11).getContents().trim();//备注
 			String symd = st.getCell(1,8).getContents().trim();//试验性质
+			
+			String syfd = st.getCell(1,4).getContents().trim();//试验风洞:
+			String ckmj = st.getCell(7,4).getContents().trim();//出口面积
+			String syfs = st.getCell(1,5).getContents().trim();//试验方式
+			
+			String dqy = st.getCell(7,7).getContents().trim();//大气压
+			String kqwd = st.getCell(7,8).getContents().trim();//空气温度(℃)	
+
+			String xdsd = st.getCell(7,9).getContents().trim();//相对湿度(%RH)	
+			String skqbz = st.getCell(7,10).getContents().trim();//湿空气比重(kg/m3)	
+
+			
+			if(StringUtils.isBlank(lxdh)){
+				 listxnVo.setResult("联系单号为空(截取“/”后面作为联系单号)！请检查导入模版");
+	         	   return listxnVo;
+			}
+			if(StringUtils.isBlank(zcxh)){
+				 listxnVo.setResult("风扇型号为空！请检查导入模版");
+	         	   return listxnVo;
+			}
+			
 			
           	/*实验单数据*/
 		   sydData = new ShrySydData();
@@ -183,13 +205,26 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 			sydData.setZcxh(zcxh);
 			sydData.setSyry(syry);
 			sydData.setYps(yps);
+			
 			sydData.setFyzj(fyzj);
-			sydData.setFjxs(fyxs);
+			sydData.setFjxs(fjxs);
 			sydData.setSply(sply);
 			sydData.setSymd(symd);
 			sydData.setSyrq(StringDateUtil.stringToDate(syrq, 3));
 			sydData.setMemo(bz);
 		    sydData.setSydx("总成");
+		    
+		    sydData.setSyfd(syfd);
+		    sydData.setCkmj(ckmj);
+		    sydData.setSyfs(syfs);
+		    sydData.setDqy(dqy);
+		    
+		    sydData.setSymd(symd);
+		    sydData.setKqwd(kqwd);
+		    sydData.setXdsd(xdsd);
+		    sydData.setSkqbz(skqbz);
+		    
+		    
 			for(int i=15;i<rows;i++){
 				zcxnData = new ShryZcxnData();
 				listxnVo = new ListZcxnVo();

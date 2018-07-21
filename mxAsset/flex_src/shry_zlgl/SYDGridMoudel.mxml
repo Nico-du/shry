@@ -103,6 +103,8 @@
 				ASCommonHelper.controlVisible(this.otherAction,otherAction.visible);
 				ASCommonHelper.controlVisible(this.exportAction,exportAction.visible);
 				
+				ASCommonHelper.controlVisible(this.otherAction,false);
+				
 				ProcessMethods.changeCNSTModuelState(this,newAction.visible,editAction.visible,removeAction.visible);
 			}
 			

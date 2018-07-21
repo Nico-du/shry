@@ -16,9 +16,11 @@
 			
 			import com.adobe.serialization.json.JSON;
 			import com.benstucki.utilities.IconUtility;
-			import com.commonpages.UploadWindow;
+			import com.commonpages.UploadMultipleWindow;
+			
 			import flex.util.CommonMethod;
 			
+			import mx.utils.*;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.CheckBox;
@@ -30,6 +32,7 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectProxy;
+			import mx.utils.StringUtil;
 			//页面标题icon路径
 			[Bindable]
 			protected var pagetitleIcon:String="";
@@ -206,9 +209,10 @@
 			
 			//上传数据事件
 			protected function importDataActionClick():void{
-				var upw:UploadWindow= new UploadWindow();
+				var upw:UploadMultipleWindow= new UploadMultipleWindow();
 				upw.url="/mxAsset/servlet/FYXNExcelUploadServlet";
 				upw.parentPage = this;
+				upw.updType = "FYXN";
 				PopUpManager.addPopUp(upw,this.parentApplication as DisplayObject,true);
 				PopUpManager.centerPopUp(upw);
 			}
@@ -309,14 +313,14 @@
 				}else{
 					var quklytext:String=this.qukilySearchTxt.text;
 					if(!ASStringHelper.isNullOrEmpty(quklytext)){
-						condition.s_fyxh_string_like=quklytext;
+						condition.s_fyxh_string_like=StringUtil.trim(quklytext);
 					}
 				}
 				if(lxdid != ""){
 					condition.s_lxdid_string_eq=lxdid;	
 				}
 				
-				var conditionJson:String=JSON.encode(condition);
+				var conditionJson:String=JSON.encode(condition); 
 				return conditionJson;
 			}
 			

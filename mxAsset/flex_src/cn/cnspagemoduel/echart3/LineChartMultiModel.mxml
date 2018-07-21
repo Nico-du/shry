@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--固定资产废弃情况,展示近10年-->
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:iframe="http://code.google.com/p/flex-iframe/"
-		   initialize="initPage()" creationComplete="creationCompleteHandler(event)" mouseOver="showIFrameHandler" click="showIFrameHandler"
+		   initialize="initPage()" mouseOver="showIFrameHandler" click="showIFrameHandler"
 		   width="100%" height="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="12">
 	<mx:RemoteObject id="ChartService" destination="chartService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
@@ -107,6 +107,8 @@
 					beforeInitPage();
 				}
 				this.initPageStyle();
+				
+				ExternalInterface.addCallback("creationCompleteHandler",creationCompleteHandler);
 			}
 			
 			//初始化页面之前调用
@@ -317,7 +319,7 @@
 				iframeChart.callIFrameFunction("refreshCwd");
 				
 				//callLater(refeshCallback);
-				flash.utils.setTimeout(refeshCallback,100);//refreshCwd方法刷新会延迟,到账覆盖赋值,所以这里要等待刷新结束在赋值
+				flash.utils.setTimeout(refeshCallback,1000);//refreshCwd方法刷新会延迟,到账覆盖赋值,所以这里要等待刷新结束在赋值
 				//var jsonStr:String = this.getJsonParams();
 				
 				//iframeChart.callIFrameFunction("setParamsAndRun",[jsonStr],callback);

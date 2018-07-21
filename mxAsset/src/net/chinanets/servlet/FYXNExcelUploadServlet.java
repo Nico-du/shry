@@ -83,7 +83,7 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 							if (listfyData.size() > 0) {
 								if (listfyData.get(0).getFyid() != null) {
 									Long fyId = listfyData.get(0).getFyid();
-									List<ShrySydData> listFyxn = comService.getFYSydByParam(listFyxnVo.getSydData().getLxdid(), fyId);
+									List<ShrySydData> listFyxn = comService.getFYSydByParam(listFyxnVo.getSydData().getLxdh(), fyId);
 									if(listFyxn!=null && !listFyxn.isEmpty()){
 										 str = "该风叶性能表中已存在，风叶型号为:"+listFyxnVo.getSydData().getFyxh()+",联系单号为:"+listFyxnVo.getSydData().getLxdid()+"的数据！";
 									}
@@ -155,9 +155,30 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 			String sply = st.getCell(1, 9).getContents().trim();//试品来源
 			String yps = st.getCell(7, 6).getContents().trim();//叶片数
 			String  fyzj = st.getCell(7, 5).getContents().trim();//风叶直径
-			String  fyxs = st.getCell(7, 3).getContents().trim();//风叶型式
+			String  fyxs = st.getCell(6, 3).getContents().trim();//风叶型式
 			String symd = st.getCell(1,8).getContents().trim();//试验性质
 			String memo = st.getCell(1, 11).getContents().trim();//备注 
+			
+			String syfd = st.getCell(1,4).getContents().trim();//试验风洞:
+			String ckmj = st.getCell(7,4).getContents().trim();//出口面积
+			String syfs = st.getCell(1,5).getContents().trim();//试验方式
+			
+			String dqy = st.getCell(7,7).getContents().trim();//大气压
+			String kqwd = st.getCell(7,8).getContents().trim();//空气温度(℃)	
+
+			String xdsd = st.getCell(7,9).getContents().trim();//相对湿度(%RH)	
+			String skqbz = st.getCell(7,10).getContents().trim();//湿空气比重(kg/m3)	
+			
+			
+			listFyxnVo = new ListFyxnVo();
+			if(StringUtils.isBlank(lxdh)){
+				listFyxnVo.setResult("联系单号为空(截取“/”后面作为联系单号)！请检查导入模版");
+	         	   return listFyxnVo;
+			}
+			if(StringUtils.isBlank(fyxh)){
+				listFyxnVo.setResult("风叶型号为空！请检查导入模版");
+	         	   return listFyxnVo;
+			}
 			
 	      	/*实验单数据*/
     		sydData.setLxdh(lxdh);
@@ -172,6 +193,16 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 			sydData.setSymd(symd);
 			sydData.setSyrq(StringDateUtil.stringToDate(syrq, 3));
 			sydData.setMemo(memo);
+			
+			sydData.setSyfd(syfd);
+		    sydData.setCkmj(ckmj);
+		    sydData.setSyfs(syfs);
+		    sydData.setDqy(dqy);
+		    
+		    sydData.setSymd(symd);
+		    sydData.setKqwd(kqwd);
+		    sydData.setXdsd(xdsd);
+		    sydData.setSkqbz(skqbz);
 			
 			for(int i=15;i<rows;i++){
 				fyxnData = new ShryFyxnData();

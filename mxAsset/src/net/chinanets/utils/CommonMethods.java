@@ -7,12 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.servlet.ServletContext;
-
-import org.apache.commons.lang.StringUtils;
-import org.dom4j.DocumentHelper;
-import org.springframework.context.ApplicationContext;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import flex.messaging.MessageBroker;
 import flex.messaging.messages.AsyncMessage;
@@ -24,6 +20,23 @@ public class CommonMethods {
 	public static final int MinRyhcsl = 20;//日用耗材数量提醒的阀值
 	public static ArrayList<String> LoginedUserArray = new ArrayList<String>();//单点登录， 验证成功的UserId
 	public static final String  UploadFile_BasePath = "/sysArgFiles/";
+	
+	
+	
+	/**
+	 * 正则替换所有特殊字符
+	 * @param orgStr
+	 * @return
+	 */
+	public static String replaceSpecStr(String orgStr){
+		if (null!=orgStr&&!"".equals(orgStr.trim())) {
+			String regEx="[\\s~·`!！@#￥$%^……&*（()）\\-——\\-_=+【\\[\\]】｛{}｝\\|、\\\\；;：:‘'“”\"，,《<。.》>、/？?]";
+			Pattern p = Pattern.compile(regEx);
+			Matcher m = p.matcher(orgStr);
+			return m.replaceAll("");
+		}
+		return null;
+	}
 	
 	/**
 	 * 四舍五入保留 scale位小数

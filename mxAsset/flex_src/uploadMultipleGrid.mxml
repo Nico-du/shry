@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   creationComplete="group_creationCompleteHandler(event)"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="500" height="250">
+	<mx:layout>
+		<mx:BasicLayout/>
+	</mx:layout>
+	<fx:Declarations>
+		<mx:NumberFormatter id="filesizeFormatter" useThousandsSeparator="true"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.FlexEvent;
+			import mx.formatters.CurrencyFormatter;
+			import mx.formatters.NumberFormatter;
+			
+			
+			[Bindable]
+			public var deleteenabled:Boolean=true;
+			
+			//文件列表
+			[Bindable]
+			private var fileRefs: FileReferenceList = new FileReferenceList();
+			
+			//这个地址是我测试用的服务器地址
+			[Bindable]
+			public var url:String ;///mxAsset/servlet/ZCXNExcelUploadServlet
+			
+			//文件列表中的文件
+			[Bindable]
+			public var selectedFiles: ArrayCollection = new ArrayCollection([]);
+			
+			//上传的文件
+			private var singleThreadFiles: Array = [];
+			
+			//逐个上传文件
+			private function singleThreadUploadFile(): void
+			{
+				var urlrequest: URLRequest = new URLRequest(url);
+				//FIFO：逐个从列表中取出，进行上传
+				if (singleThreadFiles.length > 0)
+				{
+					var mf: MyFile = singleThreadFiles.pop() as MyFile ;
+					var f:FileReference=mf.fr;
+					f.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, doSingleUploadFileComplete);
+					f.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+					f.upload(urlrequest);
+				}
+				else
+				{
+					uploadbutton.enabled=false;
+					uploadtext.text="全部上传成功！";
+					showuploadjar();
+					
+				}
+			}
+			
+			private function doSingleUploadFileComplete(event: Event): void
+			{
+				var uploadInfo:String=event.data;
+				var uploadInfoArray:Array = uploadInfo.split("#");	
+				if(uploadInfoArray[0]=="true")
+				{
+					var f: FileReference = event.target as FileReference;
+					f.removeEventListener(Event.COMPLETE, doSingleUploadFileComplete);
+					singleThreadUploadFile();
+				}else
+				{
+					Alert.show(uploadInfoArray[1]+"请检查网络或程序是否正常，目录是否正确并创建，请删除上传不成功的jar，重新选择后上传！");
+					selectFileButton.enabled=true;
+					cleanAll.enabled=true;
+					deleteenabled=true;
+				}
+			}
+			
+			//初始化
+			private function init(): void
+			{
+				Security.allowDomain("*");
+				fileRefs.addEventListener(Event.SELECT, fileSelectHandler);
+				fileRefs.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+				addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);   
+			}
+			
+			//要上传的文件类型，我这里是jar文件
+			private function selectFile(): void
+			{
+				
+				var jarfile:FileFilter = new FileFilter("jar文件(*.jar)", "*.jar*"); 
+				var allfile:FileFilter = new FileFilter("所有文件(*.*)", "*.*"); 
+				var excelFilter:FileFilter= new FileFilter("Office2003文件(*.xls)","*.xls");
+				var textTypes:FileFilter = new FileFilter("Office2007文件(*.xls)","*.xls");
+				var allTypes:Array = new Array(); 
+				allTypes.push(excelFilter):
+				allTypes.push(textTypes):
+//				allTypes.push(jarfile);
+//				allTypes.push(allfile);
+				fileRefs.browse(allTypes); 
+				
+			}
+			
+			//用户选择的文件，如果需要判断是否可以多次选择同名的文件可以在这里判断
+			private function fileSelectHandler(event: Event): void
+			{
+				for each (var f: FileReference in fileRefs.fileList)
+				{
+					var mf:MyFile = new MyFile(f);
+					selectedFiles.addItem(mf);
+				}
+			}
+			
+			//出错后的处理
+			private function ioErrorHandler(e:IOErrorEvent): void
+			{
+				Alert.show(e.text);
+				Alert.show("请检查网络或程序是否正常，请删除上传不成功的jar，重新选择后上传！");
+				selectFileButton.enabled=true;
+				cleanAll.enabled=true;
+				deleteenabled=true;
+			}
+			
+			//删除列表中的文件
+			public function removeFile(mf: MyFile): void
+			{
+				var index: int = selectedFiles.getItemIndex(mf);
+				if (index != -1)
+					selectedFiles.removeItemAt(index);
+			}
+			
+			//初始化组件或应用程序
+			protected function group_creationCompleteHandler(event:FlexEvent):void
+			{
+				init();
+			}
+			
+			//确认上传的文件
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				Alert.show("开始上传后不能更改选择的jar包 ，确定上传?", 
+					"确认上传", 
+					Alert.YES|Alert.NO, 
+					null, 
+					startUpload); 
+			}
+			
+			//根据业务的需求上传后不能更改，可以根据自己的业务逻辑去改相应的处理
+			private function startUpload(e: CloseEvent): void{ 
+				
+				if (e.detail == Alert.YES){ 
+					selectFileButton.enabled=false;
+					cleanAll.enabled=false;
+					deleteenabled=false;
+					singleThreadFiles = selectedFiles.toArray().concat();
+					
+					for(var i:int=0;i<mxingleThreadFiles.length;i++)
+					{
+						if(singleThreadFiles[i] is MyFile)
+						{
+							var mf:MyFile= singleThreadFiles[i] as MyFile;
+							var f:FileReference=mf.fr;
+							trace(f.name);
+						}
+					}
+					singleThreadFiles.reverse();
+					singleThreadUploadFile();
+				}
+			}
+			
+			//输出上传后的jar的信息，如果需要更多的信息可以在MyFlie类里找到
+			private function showuploadjar():void
+			{
+				for(var i:int=0; i<mxelectedFiles.length;i++)
+				{
+					var mf:MyFile=selectedFiles.getItemAt(i) as MyFile;
+					//					Alert.show(mf.uploadFilePath+mf.uploadFileName);
+					trace("上传后的路径："+mf.uploadFilePath+mf.uploadFileName);
+					mf.removeDateEvent();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:VGroup paddingTop="10">
+		<mx:VBox>
+			<mx:HBox width="100%">
+				<mx:Button id="selectFileButton" label="浏览" click="selectFile()"/>
+				<mx:Box width="100%" horizontalAlign="right">
+					<mx:Button  id="cleanAll" click="selectedFiles.removeAll();" label="清空"/>
+				</mx:Box>
+			</mx:HBox>
+			<mx:DataGrid id="files" dataProvider="{selectedFiles}" >
+				<mx:columns>
+					<mx:DataGridColumn width="200" headerText="文件名" dataField="fr.name" />
+					<mx:DataGridColumn width="100" headerText="大小(字节)" dataField="fr.size">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:Label text="{outerDocument.filesizeFormatter.format(data.size)}" textAlign="right"/>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>					
+					<mx:DataGridColumn width="100" headerText="状态" dataField="uploadlable" />
+					<mx:DataGridColumn headerText="删除" width="80">
+						<mx:itemRenderer>
+							<fx:Component>
+								<mx:HBox fontSize="10" fontWeight="normal" fontThickness="1">
+									<fx:Script>
+										<![CDATA[
+											protected function linkbutton1_clickHandler(event:MouseEvent):void
+											{
+												var mf:MyFile = data as MyFile;
+												outerDocument.removeFile(mf);
+											}
+											
+										]]>
+									</fx:Script>
+									<mx:LinkButton label="Delete"  click="linkbutton1_clickHandler(event)" enabled="{outerDocument.deleteenabled}">
+									</mx:LinkButton>
+								</mx:HBox>
+							</fx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:HBox>
+				<mx:Button label="上传" id="uploadbutton" click="button1_clickHandler(event)" />
+				<mx:Label paddingTop="7" id="uploadtext" text="" />
+			</mx:HBox>
+		</mx:VBox>
+	</mx:VGroup>
+</mx:Application>

@@ -125,6 +125,7 @@ public class ClobServlet extends HttpServlet {
 					Hanzi2Pinyin hanziPinyin = new Hanzi2Pinyin();
 					value = java.net.URLEncoder.encode(hanziPinyin.getPinYin(value));//转意中文和特殊字符 下载使用URL下载，需要进行URL转意
 					String docNr=time+value;
+					docNr = CommonMethods.replaceSpecStr(docNr.substring(0,docNr.lastIndexOf(".")))+docNr.substring(docNr.lastIndexOf("."));
 					//写入文件
 					//float l=item.getSize()/1024;
 					File fldir = new File(path + CommonMethods.UploadFile_BasePath+docNr.substring(0,4));

@@ -202,7 +202,7 @@
 			
 			//下载模板事件
 			protected function exportModelActionClick():void{
-				CommonMethod.downloadExcel(encodeURI("sysArgFiles/template/template_zccs.xls"));
+				CommonMethod.downloadExcel(encodeURI("sysArgFiles/template/template_zccs_jsyq.xls"));
 			}
 			
 			//上传数据事件

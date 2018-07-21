@@ -26,17 +26,23 @@
    
    
 <script type="text/javascript">
-var showLog = false;
+var showLog = true;
 
 var iframeHeight = 500;
 
 function setIFrameHeight(){
 //alert("1");
 //alert(document.getElementById("page1"));
+//alert("setIFrameHeight--"+iframeHeight);
 document.getElementById("iframe1").height=iframeHeight;
 document.getElementById("iframe2").height=iframeHeight;
 document.getElementById("iframe3").height=iframeHeight;
 document.getElementById("iframe4").height=iframeHeight;
+}
+
+function setEachIFrameHeight(eachHeight){
+	iframeHeight = eachHeight;
+	setIFrameHeight();
 }
 
 function setParamsAndRun1(jsonStr){
@@ -63,6 +69,8 @@ function refreshCwd(){
 	document.getElementById("iframe2").contentWindow.refreshCwd();
 	document.getElementById("iframe3").contentWindow.refreshCwd();
 	document.getElementById("iframe4").contentWindow.refreshCwd();
+	if(showLog)console.log("Login.creationCompleteHandler");
+	document.getElementById("Login").creationCompleteHandler();
 }
 
 function testCallSon(jsonStr){

@@ -277,7 +277,7 @@
 			//得到搜索条件
 			protected function getDataSeacrchCondition():String{
 				var condition:Object=new Object();
-				condition.s_codetype_string_eq = "FYXX_PARAMS";
+				condition.s_codetype_string_in = "FYXX_PARAMS,INTERP1_PARAMS";
 					if(!searchFormIsOpen){
 						var codetype:String=this.CODETYPE.getValue();
 						var codename:String=this.CODENAME.text;

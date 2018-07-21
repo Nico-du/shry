@@ -12,7 +12,6 @@
 
         //父窗口
 	    public var parentPage:Object = null;
-        //上传参数 var data:URLVariables = new URLVariables(); data.dataid = paretnId; servlet中 request.getParameter("dataid");
 		public var variables:URLVariables = new URLVariables(); 
 		public var excelFile:FileReference = new FileReference();
 		public var url:String;

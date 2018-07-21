@@ -97,6 +97,9 @@
 				}
 			this.initPageStyle();
 			this.convertData();
+			
+			ExternalInterface.addCallback("creationCompleteHandler",creationCompleteHandler);
+			
 			}
 			
 			/**
@@ -234,7 +237,7 @@
 				//showIFrameHandler(event);
 				//ExternalInterface.call("loadIFrame", "charts/shry/echart3-singleline-model.html");
 				
-				flash.utils.setTimeout(refeshCallback,100,frameId);//refreshCwd方法刷新会延迟,到账覆盖赋值,所以这里要等待刷新结束在赋值
+				flash.utils.setTimeout(refeshCallback,1500,frameId);//refreshCwd方法刷新会延迟,到账覆盖赋值,所以这里要等待刷新结束在赋值
 				
 //				 ExternalInterface.call("eval", "(function(){" +
 //					"testAlert();" +
@@ -248,6 +251,8 @@
 			
 			function refeshCallback(frameId:int):void
 			{
+				iframeChart.callIFrameFunction("setEachIFrameHeight",[this.height]);
+				
 				var jsonStr:String = this.getJsonParams();
 				
 				iframeChart.callIFrameFunction("setParamsAndRun"+frameId,[jsonStr],callback);
@@ -264,32 +269,37 @@
 				ExternalInterface.call("eval", "(function(){document.getElementById('iframe00').style.zIndex='10';})()");
 			}
 			
+			private var waitRefeshTime:Number = 1000;
 			//生成总成性能图
 			public function initChartZC():void
 			{
 				iframeChart.callIFrameFunction("refreshCwd");
 				
-				flash.utils.setTimeout(initChartZCLater,200);
+				flash.utils.setTimeout(initChartZCLater,waitRefeshTime);
 			}
 			public function initChartZCLater():void
 			{
 				this.modelTitle="总成流量—效率曲线图"; 
 				this._xField = "ll"; this._yField = "xl";
 				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "效率";
+				this.xAxisUnit = "m^3/h"; this.yAxisUnit = "%";
 				this.refeshCallback(1);
 				
 				this.modelTitle="总成流量—转速曲线图";
 				this._xField = "ll"; this._yField = "zzs";
 				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "转速";
+				this.xAxisUnit = "m^3/h"; this.yAxisUnit = "rpm";
 				this.refeshCallback(2);
 				
-				this.modelTitle="风叶流量—输入功率曲线图"; 
+				this.modelTitle="总成流量—输入功率曲线图"; 
 				this._xField = "ll"; this._yField = "srgl";
 				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "功率";
+				this.xAxisUnit = "m^3/h"; this.yAxisUnit = "W";
 				this.refeshCallback(3);
 				
-				this.modelTitle="风叶流量—静压曲线图"; 
+				this.modelTitle="总成流量—静压曲线图"; 
 				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "静压";
+				this.xAxisUnit = "m^3/h"; this.yAxisUnit = "Pa";
 				this._xField = "ll"; this._yField = "jyl";
 				this.refeshCallback(4);
 				//onSendParamToHtml(1);
@@ -298,12 +308,40 @@
 			////生成风叶性能图
 			public function initChartFY():void
 			{
+				iframeChart.callIFrameFunction("refreshCwd");
 				
+				flash.utils.setTimeout(initChartFYLater,waitRefeshTime);
+			}
+			public function initChartFYLater():void
+			{
+				this.modelTitle="风叶流量-效率曲线图"; 
+				this._xField = "ll"; this._yField = "xl";
+				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "效率";
+				this.xAxisUnit = "m^3/h"; this.yAxisUnit = "%";
+				this.refeshCallback(1);
 				
+				this.modelTitle="风叶流量-扭矩曲线图";
+				this._xField = "ll"; this._yField = "nj";
+				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "扭矩";
+				this.xAxisUnit = "m^3/h"; this.yAxisUnit = "N·m";
+				this.refeshCallback(2);
+				
+				this.modelTitle="风叶流量-输入功率曲线图"; 
+				this._xField = "ll"; this._yField = "zgl";
+				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "功率";
+				this.xAxisUnit = "m^3/h"; this.yAxisUnit = "W";
+				this.refeshCallback(3);
+				
+				this.modelTitle="风叶流量-静压曲线图"; 
+				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "静压";
+				this.xAxisUnit = "m^3/h"; this.yAxisUnit = "Pa";
+				this._xField = "ll"; this._yField = "jyl";
+				this.refeshCallback(4);
+				//onSendParamToHtml(1);
 			}
 			
 			public var chartType:String = "ZC";
-			public function creationCompleteHandler(event:FlexEvent):void
+			public function creationCompleteHandler():void
 			{
 				if("ZC" == chartType){
 					callLater(initChartZC);

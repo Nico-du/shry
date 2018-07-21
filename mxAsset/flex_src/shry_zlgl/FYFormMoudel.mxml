@@ -42,8 +42,8 @@
 			import cn.cnsasfram.helper.ASDateHelper;
 			import cn.cnsasfram.helper.ASJsonHelper;
 			import cn.cnsasfram.helper.ASStringHelper;
-			import cn.cnspagemoduel.chartline.LinueChartModel;
-			import cn.cnspagemoduel.chartline.LinueChartMultiModel;
+			import cn.cnspagemoduel.echart3.LineChartModel;
+			import cn.cnspagemoduel.echart3.LineChartMultiModel;
 			
 			import com.adobe.serialization.json.JSON;
 			import com.commonpages.DetailDocument;
@@ -61,6 +61,7 @@
 			import mx.core.IFlexDisplayObject;
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
+			import mx.events.IndexChangedEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
@@ -103,6 +104,10 @@
 			private var imgFileNameT:String = "sysArgFiles/fyts/RY5.437.131_T.png";
 			[Bindable]
 			private var imgFileNameB:String = "sysArgFiles/fyts/RY5.437.131_B.png";
+			//多曲线Model
+			var multiChart:LineChartMultiModel;
+			//但曲线Model
+			var lineChart1:LineChartModel;
 			//图表数据
 			var chartDataList:ArrayCollection = new ArrayCollection();
 			//页面初始化调用
@@ -114,8 +119,8 @@
 			
 			//初始化页面之前调用
 			public function beforeInitPage():void{
-				this.width = Application.application.width * 0.8;
-				this.height = Application.application.height * 0.8;
+				this.width = Application.application.width * 0.9;
+				this.height = Application.application.height * 0.9;
 				
 				if(pageIsLoadPoer){
 					loadUserPower();
@@ -519,38 +524,54 @@
 				}else{
 				    hszsbl = hszsbl/Number(hsCbx.selectedItem.zzs+"") * 100;
 				}
+				isInit = true;
 				chartService.getFYXNInsertChartList(sSql,dataId,hszsbl,hsdlhzj);
 				chartService.addEventListener(ResultEvent.RESULT,resultBack);
 			}
 			
+			var isInit:Boolean = true;//是否首次初始化图表
 			private function resultBack(event:ResultEvent):void {
 				chartService.removeEventListener(ResultEvent.RESULT,resultBack);
 				if(event.result == null)return;
 				//添加多曲线
 				chartMultiPanel.removeAllChildren();
+				index2Clicked = index3Clicked = false;
+				blogModel.selectedIndex = 0;
+				
 				var rstObj:Object = event.result as Object;
 				var objList:ArrayCollection = rstObj.convertList as ArrayCollection;//转换后的数据
 				var insertList:ArrayCollection = rstObj.insertList as ArrayCollection;//插值数据
 				
-				chartDataList = insertList;
+				chartDataList = CommonMethod.filterZeroData(insertList,["ll","jyl","zzs","fzs","nj","xl","zgl"]);
 				
 				var objList2:ArrayCollection = ObjectUtil.copy(insertList) as ArrayCollection;
-				var multiChart:LinueChartMultiModel = new LinueChartMultiModel();
-				multiChart.modelTitle="风叶流量—静压/输入功率/扭矩/效率曲线图";  multiChart.xAxisTitle="流量(m^3/h)"; multiChart.xToolTipTiltle="流量";
+				multiChart = new LineChartMultiModel();
+				multiChart.modelTitle="风叶流量—静压/输入功率/扭矩/效率曲线图"; 
+				multiChart.xAxisTitle="流量"; multiChart.xToolTipTiltle="流量";	multiChart.formatter_x = "m^3/h";
 				multiChart.yAxisTitle="静压/输入功率/扭矩/效率"; multiChart.yToolTipTiltle="Y";
-				multiChart.serialLineName1="静压*(Pa)";  multiChart.serialLineName2="输入*(W)";  multiChart.serialLineName3="扭矩*(N·m)";  multiChart.serialLineName4="效率*(%)" ;
-				multiChart.height=this.height - 140;
+				multiChart._yField3 = "nj";
+				multiChart.serialLineName1="静压";  multiChart.serialLineName2="输入";  multiChart.serialLineName3="扭矩";  multiChart.serialLineName4="效率" ;
+				multiChart.formatter_y1 = "Pa"; multiChart.formatter_y2 = "W"; multiChart.formatter_y3 = "N·m"; multiChart.formatter_y4 = "%";
+				multiChart.height=this.height - 135;
 				multiChart.dpArray = objList2;
 				chartMultiPanel.addChild(multiChart);
 				
-				//添加单曲线
+				//添加单曲线 单个model嵌套HTML,html中嵌套4个html曲线图,
 				chartPanel.removeAllChildren();
+				lineChart1 = new LineChartModel();
+				lineChart1.height=this.height - 135;
+				lineChart1.dpArray = insertList;
+				lineChart1.chartType = "FY";
+				chartPanel.addChild(lineChart1);
+				
+				//添加单曲线
+				/*chartPanel.removeAllChildren();
 				var lineChart1:LinueChartModel = new LinueChartModel();
 				lineChart1.modelTitle="风叶流量—效率曲线图"; lineChart1.height=this.height - 140; 
 				lineChart1._xField = "ll"; lineChart1._yField = "xl";
 				lineChart1.xToolTipTiltle = lineChart1.xAxisTitle= "流量";lineChart1.yToolTipTiltle= lineChart1.yAxisTitle= "效率";
 				lineChart1.dpArray = insertList;
-				var lineChart2:LinueChartModel = new LinueChartModel();
+				 var lineChart2:LinueChartModel = new LinueChartModel();
 				lineChart2.modelTitle="风叶流量—扭矩曲线图"; lineChart2.height=this.height - 140; 
 				lineChart2._xField = "ll"; lineChart2._yField = "nj";
 				lineChart2.xToolTipTiltle = lineChart2.xAxisTitle= "流量";lineChart2.yToolTipTiltle= lineChart2.yAxisTitle= "扭矩";
@@ -564,29 +585,34 @@
 				lineChart4.modelTitle="风叶流量—静压曲线图"; lineChart4.height=this.height - 140;
 				lineChart4.xToolTipTiltle = lineChart4.xAxisTitle= "流量";lineChart4.yToolTipTiltle= lineChart4.yAxisTitle= "静压";
 				lineChart4._xField = "ll"; lineChart4._yField = "jyl";
-				lineChart4.dpArray = insertList;
+				lineChart4.dpArray = insertList; */
 				
 				//添加数据表格
-				 var dataGrid:Grid = CommonUIMethod.generateTable("fyxn",insertList);
-				var vbx:VBox = new VBox();
-				vbx.setStyle("horizontalAlign","center");	vbx.setStyle("borderColor","#99CCFF"); vbx.setStyle("borderStyle","solid");  
-				vbx.percentWidth = 100;
-				var hbx:HBox = new HBox();
-				hbx.percentWidth = 100;
-				hbx.height = 20;
-				hbx.setStyle("borderStyle","none"); hbx.setStyle("backgroundColor","#99CCFF"); 
-				hbx.setStyle("horizontalGap","0"); hbx.setStyle("verticalAlign","middle"); hbx.setStyle("verticalGap","0");
-				var hbxLabel:Label = new Label(); hbxLabel.text="性能数据表";hbxLabel.height = 20; hbx.setStyle("fontWeight","bold"); hbx.setStyle("fontSize","13");
-				hbx.addChild(hbxLabel);
-				vbx.addChild(hbx);
-				vbx.addChild(dataGrid);
 				
-				chartPanel.addChild(vbx); 
 				chartPanel.addChild(lineChart1);
-				chartPanel.addChild(lineChart2);
+				/* chartPanel.addChild(lineChart2);
 				chartPanel.addChild(lineChart3);
-				chartPanel.addChild(lineChart4);
-				
+				chartPanel.addChild(lineChart4); */
+				if(isInit){
+					perfDataPanel.removeAllChildren();
+					//添加可换算数据表格
+					var dataGrid:Grid = CommonUIMethod.generateTable("fyxn",CommonMethod.filterZeroData(chartDataList,["ll","jyl","zzs","fzs","nj","xl","zgl"]));
+					var vbx:VBox = new VBox();
+					vbx.setStyle("horizontalAlign","center");	vbx.setStyle("borderColor","#99CCFF"); vbx.setStyle("borderStyle","solid");  
+					vbx.percentWidth = 100;
+					var hbx:HBox = new HBox();
+					hbx.percentWidth = 100;
+					hbx.height = 20;
+					hbx.setStyle("borderStyle","none"); hbx.setStyle("backgroundColor","#99CCFF"); 
+					hbx.setStyle("horizontalGap","0"); hbx.setStyle("verticalAlign","middle"); hbx.setStyle("verticalGap","0");
+					var hbxLabel:Label = new Label(); hbxLabel.text="性能数据表";hbxLabel.height = 20; hbx.setStyle("fontWeight","bold"); hbx.setStyle("fontSize","13");
+					hbx.addChild(hbxLabel);
+					vbx.addChild(hbx);
+					vbx.addChild(dataGrid);
+					
+					perfDataPanel.addChild(vbx); 
+					isInit = false;
+				}
 			}
 			
 			public function exportHSJG_clickHandler():void{
@@ -625,7 +651,7 @@
 								<shryChart:LinueChartModel modelTitle="风叶流量—输入功率曲线图" height="{this.height - 140}" id="lineChart04" />
 								<shryChart:LinueChartModel modelTitle="风叶流量—静压曲线图" height="{this.height - 140}" id="lineChart05" />-->			 
 			 * */
-			
+			//基本信息/性能图/其他信息tab index更改时触发
 			private var datumFormTabNVPHeight:Number = -1;
 			protected function datumFormTabNV_tabIndexChangeHandler(event:Event):void
 			{
@@ -653,6 +679,28 @@
 				if(hsCbx.selectedItem == null){return ;}
 		//		hszsbl =  (Number(hszsbl)/Number(hsCbx.selectedItem.zzs))*100 + ""; 
 				getChartDataAndAddChart(Number(hszsbl),Number(hsdlhzj));
+			}
+
+
+			private var index2Clicked:Boolean = false;
+			private var index3Clicked:Boolean = false;
+			//性能数据/多曲线/单曲线 切换时触发
+			protected function blogModel_tabIndexChangeHandler(event:Event):void
+			{
+				if(blogModel.selectedIndex == 0 ){
+					
+				}else if(blogModel.selectedIndex == 1){
+					if(!index2Clicked && multiChart != null){
+						callLater(multiChart.onSendParamToHtml,[null]);
+						index2Clicked = true;
+					}
+				}else if(blogModel.selectedIndex == 2){
+					if(!index3Clicked && lineChart1 != null){
+						callLater(lineChart1.creationCompleteHandler); 
+						index3Clicked = true;
+					}
+				}
+				
 			}
 
 		]]>
@@ -888,8 +936,13 @@
 						</mx:HBox>-->
 						<mx:VBox id="nvPage1Group2" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="none" horizontalAlign="left">
 							<mx:LinkBar dataProvider="{blogModel}"  styleName="LinkBarStyle01"/>
-							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 140}">
+							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 140}" change="blogModel_tabIndexChangeHandler(event)">
+								<mx:Panel id="perfDataPanel" label="性能数据"  width="100%"  borderStyle="none" headerHeight="0" 
+										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
+									
+								</mx:Panel>
 								<mx:Panel id="chartMultiPanel" label="多曲线性能图"  width="100%"  borderStyle="none" headerHeight="0" 
+										  verticalScrollPolicy="off"
 										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
 							<!--<shryChart:LinueChartMultiModel modelTitle="风叶流量—静压/输入功率/主转速/效率曲线图" tableName="shry_fyxn_data" idColumn="fyid" dataId="4"
 															xAxisTitle="流量(m^3/h)" xToolTipTiltle="流量" yAxisTitle="静压/输入功率/主转速/效率" yToolTipTiltle="Y"
@@ -897,6 +950,7 @@
 															height="{this.height - 140}" id="lineChart" />-->
 									</mx:Panel>
 								<mx:Panel id="chartPanel" label="单曲线线性能图" width="100%"  borderStyle="none" headerHeight="0" 
+										  verticalScrollPolicy="off"
 										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
 								<!--<shryChart:LinueChartModel modelTitle="风叶流量—效率曲线图" height="{this.height - 140}" id="lineChart02" />
 								<shryChart:LinueChartModel modelTitle="风叶流量—主转速曲线图" height="{this.height - 140}" id="lineChart03" />

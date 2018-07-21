@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,8 +21,10 @@ import net.chinanets.pojos.ListVo;
 import net.chinanets.pojos.ShryDjData;
 import net.chinanets.pojos.ShryFyData;
 import net.chinanets.pojos.ShryZcData;
+import net.chinanets.pojos.ShryZcJsyqData;
 import net.chinanets.service.CommonService;
 import net.chinanets.utils.CommonMethods;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -38,6 +41,8 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String SUCCESS = "success";
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	/* 是否技术要求导入 */
+	boolean isJsyqImp = false;
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
                this.doPost(request, response);
@@ -46,6 +51,10 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String outPutMsg ="导入失败：";
 		try {
+			//上传类型 FY/ZC/DJ
+//			String updType = request.getParameter("updType");
+//			if(StringUtils.isBlank(updType)){doResponse(response, outPutMsg+"上传参数异常:updType为空"); return; }
+			
 			// 获取上传文件流，写入到服务器文件
 			List<String> uploadFileList = readUploadFile(request);
 			if(uploadFileList == null || uploadFileList.size() < 1){ doResponse(response, outPutMsg+"读取上传文件异常"); return;}
@@ -67,10 +76,11 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 				return;
 			}
 		   
+		   this.isJsyqImp(listVo);
+		   
 		   //Step 2:数据准备,数据校验
 		   outPutMsg = doPrepareData(comService, listVo);
 		   if(!SUCCESS.equals(outPutMsg)){ doResponse(response, outPutMsg);	return;}
-		   
 		   //Step 3:保存数据库
 		   outPutMsg = doSaveAllData(comService, listVo);
 		   if(!SUCCESS.equals(outPutMsg)){ doResponse(response, outPutMsg);	return;}
@@ -88,6 +98,31 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 	}
 
 	
+	//判断是否技术要求数据导入:
+	//以风扇型号、风叶型号为校验字段，判断总成其他参数字段为空时，走技术要求字段导入，只上传技术要求，并且覆盖 电机型号 字段。否则会校验是否已存在数据、已存在则不能导入。
+	private void isJsyqImp(ListVo listVo){
+		if(listVo == null || listVo.getFyDataList() == null || listVo.getFyDataList().isEmpty()){return;}
+		ShryFyData chFy = listVo.getFyDataList().get(0);
+		ShryZcData chZc = listVo.getZcDataList().get(0);
+		if(StringUtils.isBlank(chFy.getDlhzj()) &&
+				StringUtils.isBlank(chFy.getFbzj() ) &&
+				StringUtils.isBlank(chFy.getJqfs() ) &&
+				StringUtils.isBlank(chFy.getLggd() ) &&
+				StringUtils.isBlank(chFy.getLgzj() ) &&
+				StringUtils.isBlank(chFy.getQj()   ) &&
+				StringUtils.isBlank(chFy.getYpsm() ) &&
+				StringUtils.isBlank(chFy.getZl()   ) &&
+				StringUtils.isBlank(chFy.getCl()   ) &&
+				StringUtils.isBlank(chFy.getClbz() ) &&
+				StringUtils.isBlank(chZc.getWxcc() ) &&
+				StringUtils.isBlank(chZc.getSycx() ) &&
+				StringUtils.isBlank(chZc.getJqfs() )){
+			this.isJsyqImp = true;
+		}else{
+			this.isJsyqImp = false;
+		}
+	}
+	
 	/**
 	 * 数据准备,数据校验
 	 * 1.总成数据校验：总成型号是否已存在
@@ -97,16 +132,31 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 	 */
 	private String doPrepareData(CommonService comService,ListVo listVo){
 		String validateResult = "导入失败：";
+		if(this.isJsyqImp){validateResult = "技术要求导入-"+validateResult;}
 		String sql; 
 		for (int i = 0; i <listVo.getFyDataList().size(); i++) {
-			  sql = " select count(0) from shry_zc_data where  xh='"+listVo.getZcDataList().get(i).getXh()+"' ";
-			   int djCount = comService.getOneBysql(sql);
-			   if(djCount>0){
-				   validateResult +=  "\n该总成型号："+listVo.getZcDataList().get(i).getXh()+"的参数数据已经存在！";
-			   }
+			if(!this.isJsyqImp){
+				sql = " select count(0) from shry_zc_data where  xh='"+listVo.getZcDataList().get(i).getXh()+"' ";
+				int djCount = comService.getOneBysql(sql);
+				if(djCount>0){
+					validateResult +=  "\n该总成型号："+listVo.getZcDataList().get(i).getXh()+"的参数数据已经存在！";
+				}
+			}else{//技术要求导入 必须总成已经导入过 补充技术要求数据
+				sql = " select count(0) from shry_zc_data where  xh='"+listVo.getZcDataList().get(i).getXh()+"' ";
+				int djCount = comService.getOneBysql(sql);
+				if(djCount<1){
+					validateResult +=  "\n该总成型号："+listVo.getZcDataList().get(i).getXh()+"的参数数据不存在,不能直接导入技术要求数据！";
+				}
+				
+				sql = " select count(0) from shry_fy_data where  xh='"+listVo.getFyDataList().get(i).getXh()+"' ";
+				djCount = comService.getOneBysql(sql);
+				if(djCount<1){
+					validateResult +=  "\n该风叶型号："+listVo.getZcDataList().get(i).getXh()+"的参数数据不存在,不能直接导入技术要求数据！";
+				}
+			}
 		}
-		
 		if(validateResult.length() < 10){ validateResult = SUCCESS;}
+
 		return validateResult;
 	}
 	
@@ -116,14 +166,18 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 	 * 2.电机数据如果已存在,直接使用
 	 * @param listVo
 	 * @return
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
 	 */
 	@SuppressWarnings("unchecked")
-	private String doSaveAllData(CommonService comService,ListVo listVo){
+	private String doSaveAllData(CommonService comService,ListVo listVo) throws IllegalAccessException, InvocationTargetException{
 		List<Long> savedZcList = new ArrayList<Long>();
 		
 		List<ShryFyData> fydataList; 
-		List<ShryDjData> djdataList; 
-		Long lFyid,lDjid,lZcid; 
+		List<ShryDjData> djdataList;
+		List<ShryZcData> zcdataList;
+		List<ShryZcJsyqData> zcjsyqList; 
+		Long lFyid,lDjid,lZcid; lZcid = null;
 		for (int i = 0; i <listVo.getFyDataList().size(); i++) {
 			//根据风叶型号查询风叶数据表。判断该风叶型号是已经存在，如果已经存在则在该风叶型号前面加1#，若再有重复一次递增
 //			   int fyCount = comService.getCountShryFy(listVo.getFyDataList().get(i).getXh());
@@ -140,10 +194,18 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 		   listVo.getFyDataList().get(i).setUpdatedate(new Date());
 		   listVo.getFyDataList().get(i).setUpdateuser("1");
 		   
-		   listVo.getZcDataList().get(i).setInputdate(new Date());
-		   listVo.getZcDataList().get(i).setInputuser("1");
-		   listVo.getZcDataList().get(i).setUpdatedate(new Date());
-		   listVo.getZcDataList().get(i).setUpdateuser("1");
+		   if(this.isJsyqImp){
+			   zcdataList= comService.getObjectList(new ShryZcData()," xh='"+listVo.getZcDataList().get(i).getXh()+"' order by inputdate asc limit 1 ");
+			   lZcid = zcdataList.get(0).getZcid();
+			   listVo.getZcDataList().set(i, zcdataList.get(0));
+			   listVo.getZcDataList().get(i).setUpdatedate(new Date());
+			   listVo.getZcDataList().get(i).setUpdateuser("1");
+		   }else{
+			   listVo.getZcDataList().get(i).setUpdatedate(new Date());
+			   listVo.getZcDataList().get(i).setUpdateuser("1");
+			   listVo.getZcDataList().get(i).setInputdate(new Date());
+			   listVo.getZcDataList().get(i).setInputuser("1");
+		   }
 			
 			fydataList = comService.getObjectList(new ShryFyData(), " xh='"+listVo.getFyDataList().get(i).getXh()+"' order by inputdate asc limit 1 ");
 			
@@ -176,10 +238,23 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 			   listVo.getZcDataList().get(i).setFyid(lFyid);
 			   //保存总成数据
 			   listVo.getZcDataList().get(i).setDjid(String.valueOf(lDjid));
-			   lZcid = comService.saveObject(listVo.getZcDataList().get(i));
-			   
+			   if(this.isJsyqImp){
+				  comService.updateObject(listVo.getZcDataList().get(i));
+			   }else{
+				   lZcid = comService.saveObject(listVo.getZcDataList().get(i));
+			   }
 			   //在第一条数据报错失败时立即返回
 			   if(lZcid == null ){ return "执行数据保存时报错";}
+			   listVo.getZcjsyqList().get(i).setRfZcid(lZcid);
+
+			   zcjsyqList = comService.getObjectList(new ShryZcJsyqData(), " rf_Zcid='"+listVo.getZcjsyqList().get(i).getRfZcid()+"' order by jsyqid asc limit 1 ");
+				if(zcjsyqList == null || zcjsyqList.isEmpty()){
+					comService.saveObject(listVo.getZcjsyqList().get(i));
+				}else{
+					listVo.getZcjsyqList().get(i).setJsyqid(zcjsyqList.get(0).getJsyqid());
+					org.springframework.beans.BeanUtils.copyProperties(listVo.getZcjsyqList().get(i), zcjsyqList.get(0));
+					comService.updateObject(zcjsyqList.get(0));
+				}
 			   
 			   savedZcList.add(lZcid);
 			   
@@ -191,15 +266,18 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 	
 
 	    // 解析excel文件转换成对象
+	//以风扇型号、风叶型号为校验字段，判断总成其他参数字段为空时，走技术要求字段导入，只上传技术要求，并且覆盖 电机型号 字段。否则会校验是否已存在数据、已存在则不能导入。
 		private  ListVo parseExcel(String fileName) {
 			       ListVo  vo  = null;
 					FileInputStream input = null;
 					Workbook wbk = null;
 					ShryFyData fyData;
 					ShryZcData zcData;
+					ShryZcJsyqData zcjsyqData;
 					ShryDjData djData;
 					List<ShryFyData> fyList=  new ArrayList<ShryFyData>();
 					List<ShryZcData> zcList=  new ArrayList<ShryZcData>();
+					List<ShryZcJsyqData>  zcjsyqList = new ArrayList<ShryZcJsyqData>();
 					List<ShryDjData>  djList = new ArrayList<ShryDjData>();
 					String name = fileName.substring(fileName.lastIndexOf(".")+1,fileName.length());
 					if(!"xls".equals(name)){
@@ -215,7 +293,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 						int rows = st.getRows();// 得到所有的行
 						vo =  new  ListVo();
 						/**
-						 * 因excel中数据包含三张表的数据，故针对不同表分别导入（总成数据表、风叶数据表、电机数据表（暂不考虑））
+						 * 因excel中数据包含4张表的数据，故针对不同表分别导入（总成数据表、风叶数据表、电机数据表（暂不考虑））
 						 * Cell getCell(int column, int row) 注意第一个是列数 第二个是行数
 						 */
 							for (int i = 1; i < rows; i++) {
@@ -223,7 +301,9 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 								if(StringUtils.isNotBlank(st.getCell(3,i).getContents())){
 									fyData = new ShryFyData();
 									zcData = new ShryZcData();
+									zcjsyqData = new ShryZcJsyqData();
 									djData = new ShryDjData();
+									
 									//对参数模版格式进行校验
 									String djxhName = st.getCell(1, 0).getContents().trim();
 									String fsccName = st.getCell(2, 0).getContents().trim();
@@ -249,13 +329,47 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 									/*总成对象数据*/
 									String zcxh = st.getCell(0, i).getContents().trim(); //总成型号
 									String zccc = st.getCell(2, i).getContents().trim();//外形尺寸
-									String sycx = st.getCell(15, i).getContents().trim();//使用车型
+									String sycx = st.getCell(15, i).getContents().trim();//适用车型
 						           /*电机对象数据*/
 									String djxh = st.getCell(1, i).getContents().trim(); //电机型号
+								   /*技术要求对象数据*/
+									String whkc_kzfs = st.getCell(16, i).getContents().trim();// 控制方式
+									String whkc_zkb1 = st.getCell(17, i).getContents().trim();//占空比1（%）  
+									String whkc_zs1  = st.getCell(18, i).getContents().trim();//转速1（rpm)   
+									String whkc_dl1  = st.getCell(18, i).getContents().trim();//电流1(A)      
+									String whkc_zkb2 = st.getCell(19, i).getContents().trim();//占空比2（%）  
+									String whkc_zs2  = st.getCell(20, i).getContents().trim();//转速2（rpm)   
+									String whkc_dl2  = st.getCell(21, i).getContents().trim();//电流2(A)      
+									String whkc_zkb3 = st.getCell(22, i).getContents().trim();//占空比3（%）  
+									String whkc_zs3  = st.getCell(23, i).getContents().trim();//转速3（rpm)   
+									String whkc_dl3  = st.getCell(24, i).getContents().trim();//电流3(A)      
+									String gzd_jy1   = st.getCell(25, i).getContents().trim();//静压1（Pa)    
+									String gzd_ll1   = st.getCell(26, i).getContents().trim();//流量1（m3/h)  
+									String gzd_jy2   = st.getCell(27, i).getContents().trim();//静压2（Pa)    
+									String gzd_ll2   = st.getCell(28, i).getContents().trim();//流量2（m3/h)  
+									String gzd_jy3   = st.getCell(29, i).getContents().trim();//静压3（Pa)    
+									String gzd_ll3   = st.getCell(30, i).getContents().trim();//流量3（m3/h)  
+									String zs_zt     = st.getCell(31, i).getContents().trim();//状态          
+									String zs_gs_ed  = st.getCell(32, i).getContents().trim();//额定（dB）    
+									String zs_gs_sc  = st.getCell(33, i).getContents().trim();//实测（dB）    
+									String zs_ds_ed  = st.getCell(34, i).getContents().trim();//额定（dB）    
+									String zs_ds_sc  = st.getCell(35, i).getContents().trim();//实测（dB）    
+									String ph_jph    = st.getCell(36, i).getContents().trim();//静平衡（g.mm) 
+									String ph_dph    = st.getCell(37, i).getContents().trim();//动平衡（g.mm)  
+									
+									
 									if(CommonMethods.isBlank(xh) ){
-										vo.setResult("第"+i+"行型号为空!");
+										vo.setResult("第"+i+"行风叶型号为空!");
 										return vo;
 									} 
+									if(CommonMethods.isBlank(zcxh) ){
+										vo.setResult("第"+i+"行总成型号为空!");
+										return vo;
+									} 
+									if(!"无刷".equals(whkc_kzfs) && !"有刷".equals(whkc_kzfs) && !"有刷PWM".equals(whkc_kzfs)){
+										vo.setResult("第"+i+"行技术要求-控制方式必须是[无刷/有刷/有刷PWM]中一个!");
+										return vo;
+									}
 							/*		if(CommonMethods.isBlank(fbzj)&& !CommonMethods.isDouble(fbzj)){
 									 vo.setResult("第"+i+"行翻边外径为空或者不是数值类型");
 					        		 return vo;
@@ -280,14 +394,14 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 					        		 vo.setResult("第"+i+"行叶片数为空或者不是数值类型");
 					        		 return vo;
 					        	 }*/
-									if(CommonMethods.isBlank(jqfs) ){
-										vo.setResult("第"+i+"行风叶型式为空!");
-										return  vo;
-									}
-									if(CommonMethods.isBlank(cl) ){
-										vo.setResult("第"+i+"行材料为空!");
-										return  vo;
-									}
+//									if(CommonMethods.isBlank(jqfs) ){
+//										vo.setResult("第"+i+"行风叶型式为空!");
+//										return  vo;
+//									}
+//									if(CommonMethods.isBlank(cl) ){
+//										vo.setResult("第"+i+"行材料为空!");
+//										return  vo;
+//									}
 									/* if(CommonMethods.isBlank(clbz) ){
 					        		vo.setResult("第"+i+"行材料标准为空!");
 					        		 return  vo;
@@ -334,14 +448,40 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 									
 									djData.setXh(djxh);
 									
+									zcjsyqData.setWhkcKzfs(whkc_kzfs);
+									zcjsyqData.setWhkcZkb1(whkc_zkb1);
+									zcjsyqData.setWhkcZs1 (whkc_zs1 );
+									zcjsyqData.setWhkcDl1 (whkc_dl1 );
+									zcjsyqData.setWhkcZkb2(whkc_zkb2);
+									zcjsyqData.setWhkcZs2 (whkc_zs2 );
+									zcjsyqData.setWhkcDl2 (whkc_dl2 );
+									zcjsyqData.setWhkcZkb3(whkc_zkb3);
+									zcjsyqData.setWhkcZs3 (whkc_zs3 );
+									zcjsyqData.setWhkcDl3 (whkc_dl3 );
+									zcjsyqData.setGzdJy1  (gzd_jy1  );
+									zcjsyqData.setGzdLl1  (gzd_ll1  );
+									zcjsyqData.setGzdJy2  (gzd_jy2  );
+									zcjsyqData.setGzdLl2  (gzd_ll2  );
+									zcjsyqData.setGzdJy3  (gzd_jy3  );
+									zcjsyqData.setGzdLl3  (gzd_ll3  );
+									zcjsyqData.setZsZt    (zs_zt    );
+									zcjsyqData.setZsGsEd (zs_gs_ed );
+									zcjsyqData.setZsGsSc (zs_gs_sc );
+									zcjsyqData.setZsDsEd (zs_ds_ed );
+									zcjsyqData.setZsDsSc (zs_ds_sc );
+									zcjsyqData.setPhJph   (ph_jph   );
+									zcjsyqData.setPhDph   (ph_dph   );
+									
 									fyList.add(fyData);
 									zcList.add(zcData);
 									djList.add(djData);
+									zcjsyqList.add(zcjsyqData);
 								}
 							}
 					    vo.setFyDataList(fyList);
 					    vo.setZcDataList(zcList);
 					    vo.setDjDataList(djList);
+					    vo.setZcjsyqList(zcjsyqList);
 						wbk.close();
 						input.close();
 					} catch (Exception ex) {
@@ -365,9 +505,9 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 			factory.setSizeThreshold(1024 * 1024); // 设置上传文件大小临界值
 			ServletFileUpload upload = new ServletFileUpload(factory);
 			upload.setHeaderEncoding("utf-8");    //设置编码格式
-			upload.setSizeMax(100*1024*1024L); // 限制文件的上传大小100za
+			upload.setSizeMax(100*1024*1024L); // 限制文件的上传大小100M
 			
-			//取得servlet传入的对象参数 --多个文件上传 TODO 可否改成单文件
+			//取得servlet传入的对象参数 --多个文件上传
 			List list = upload.parseRequest(request);
 			String opName = "";
 			for (Iterator iterator = list.iterator(); iterator.hasNext();) {

@@ -3,7 +3,7 @@
 				xmlns:dataPick="cn.cnspagemoduel.date.*"  creationPolicy="all" horizontalScrollPolicy="off"
 				title="总成数据信息" layout="absolute" width="1024"  showCloseButton="true" fontSize="12" 
 				initialize="initPage()" creationComplete="afterInitPage()" close="closePage()" 
-				xmlns:numberInput="cn.cnspagemoduel.textinput.*" xmlns:shryChart="cn.cnspagemoduel.chartline.*" >
+				xmlns:cnscombox="cn.cnspagemoduel.combox.*"	xmlns:numberInput="cn.cnspagemoduel.textinput.*" xmlns:shryChart="cn.cnspagemoduel.chartline.*" >
 	<mx:RemoteObject id="AllAssetServiceRmt" destination="allAssetService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:RemoteObject id="commonService" destination="commonService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:RemoteObject id="chartService" destination="chartService"  endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
@@ -33,6 +33,7 @@
 			import mx.core.FlexGlobals;
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
@@ -252,6 +253,7 @@
 				this.dataArray=new ArrayCollection(items as Array);
 				this.afterLoadData();
 				this.loadUserPower();
+				this.afterLoadDataView();
 			}
 			
 			//加载数据成功之后调用
@@ -281,7 +283,8 @@
 				//JSYQ
 				this.jsyqid = tempObj["jsyqid"];
 					
-				this.whkckzfs.text=tempObj["whkckzfs"];
+				//this.whkckzfs.text=tempObj["whkckzfs"];
+				this.whkckzfs.setText(tempObj["whkckzfs"]);
 				this.whkczkb1.text=tempObj["whkczkb1"];
 				this.whkczs1.text=tempObj["whkczs1"];
 				this.whkcdl1.text=tempObj["whkcdl1"];
@@ -321,6 +324,12 @@
 				this.UPDATEUSER.text=tempObj[this.UPDATEUSER.id.toLowerCase()+"name"];
 				this.INPUTDATE.text=tempObj[this.INPUTDATE.id.toLowerCase()];
 				this.INPUTUSER.text=tempObj[this.INPUTUSER.id.toLowerCase()+"name"];
+			}
+			
+			//加载数据成功之后调用
+			protected function afterLoadDataView():void{
+				kzfs_changeHandler(null);
+				
 			}
 			
 			//保存数据之前验证数据
@@ -426,7 +435,7 @@
 				dataJson.rfzcid=this.dataId;
 				dataJson.jsyqid=this.jsyqid;
 				
-				dataJson.whkckzfs=this.whkckzfs.text;
+				dataJson.whkckzfs=this.whkckzfs.selectedItem.value;
 				dataJson.whkczkb1=this.whkczkb1.text;
 				dataJson.whkczs1=this.whkczs1.text;
 				dataJson.whkcdl1=this.whkcdl1.text;
@@ -629,7 +638,7 @@
 				var objList:ArrayCollection = rstObj.convertList as ArrayCollection;//转换后的数据
 				var insertList:ArrayCollection = rstObj.insertList as ArrayCollection;//插值数据
 				
-				chartDataList = insertList;
+				chartDataList = CommonMethod.filterZeroData(insertList,["ll","jyl","zzs","fzs","srgl","xl","dy","dl"]);
 				
 				//TODO >>
 				var objList2:ArrayCollection = ObjectUtil.copy(insertList) as ArrayCollection;
@@ -641,7 +650,7 @@
 				multiChart.serialLineName1="静压";  multiChart.serialLineName2="输入";  multiChart.serialLineName3="转速";  multiChart.serialLineName4="效率" ;
 				multiChart.formatter_y1 = "Pa"; multiChart.formatter_y2 = "W"; multiChart.formatter_y3 = "rpm"; multiChart.formatter_y4 = "%";
 				
-				multiChart.height=this.height - 170;
+				multiChart.height=this.height - 165;
 				multiChart.dpArray = objList2;
 				chartMultiPanel.addChild(multiChart);
 				
@@ -653,7 +662,7 @@
 				//添加单曲线 单个model嵌套HTML,html中嵌套4个html曲线图,
 				chartPanel.removeAllChildren();
 				lineChart1 = new LineChartModel();
-				lineChart1.height=this.height - 170;
+				lineChart1.height=this.height - 165;
 				lineChart1.dpArray = insertList;
 				lineChart1.chartType = "ZC";
 				chartPanel.addChild(lineChart1);
@@ -685,7 +694,7 @@
 				if(isInit){
 					perfDataPanel.removeAllChildren();
 					//添加可换算数据表格
-					var dataGrid:Grid = CommonUIMethod.generateTable("zcxnsrc",objList);
+					var dataGrid:Grid = CommonUIMethod.generateTable("zcxn",CommonMethod.filterZeroData(chartDataList,["ll","jyl","zzs","fzs","srgl","xl","dy","dl"]));
 					var vbx:VBox = new VBox();
 					vbx.setStyle("horizontalAlign","center");	vbx.setStyle("borderColor","#99CCFF"); vbx.setStyle("borderStyle","solid");  
 					vbx.percentWidth = 100;
@@ -739,18 +748,14 @@
 //					hsHbox.visible =false;
 				}else if(blogModel.selectedIndex == 2){
 					//multiChart.creationCompleteHandler(null);
-					if(!index2Clicked){
+					if(!index2Clicked && multiChart != null){
 					    callLater(multiChart.onSendParamToHtml,[null]);
 					    index2Clicked = true;
 					}
 //					hsHbox.visible=true;
 				}else if(blogModel.selectedIndex == 3){
-					if(!index3Clicked){
-						callLater(lineChart1.creationCompleteHandler,[null]);
-//						callLater(lineChart1.onSendParamToHtml,[1]);
-//						callLater(lineChart2.onSendParamToHtml,[null]);
-//						callLater(lineChart3.onSendParamToHtml,[null]);
-//						callLater(lineChart4.onSendParamToHtml,[null]);
+					if(!index3Clicked && lineChart1 != null){
+						callLater(lineChart1.creationCompleteHandler);
 						index3Clicked = true;
 						}
 				}
@@ -792,6 +797,19 @@
 			protected function getColumnText(item:Object):String{
 				return item.symd+"_"+item.syrq ;
 			}
+
+			protected function kzfs_changeHandler(event:ListEvent):void
+			{
+				//除了有刷 都显示
+				if(whkckzfs.getValue() == "YS"){
+					whkczkb1.visible =whkczkb2.visible = whkczkb3.visible = zkblabel.visible = false;  
+					whkczkb1.includeInLayout =whkczkb2.includeInLayout = whkczkb3.includeInLayout = zkblabel.includeInLayout = false;
+				}else{
+					whkczkb1.visible =whkczkb2.visible = whkczkb3.visible = zkblabel.visible = true;  
+					whkczkb1.includeInLayout =whkczkb2.includeInLayout = whkczkb3.includeInLayout = zkblabel.includeInLayout = true;
+				}
+			}
+
 		]]>
 	</mx:Script>
 	<mx:Fade id="fadeEffect" target="{resultmsg}" alphaFrom="1"  alphaTo="0" duration="10000"/>
@@ -1012,7 +1030,7 @@
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="95%" colSpan="3">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
 											<mx:Label text="控制方式:" fontWeight="normal" height="{aboutheight}" paddingRight="4"/>
-											<mx:TextInput width="40%" height="{aboutheight}" id="whkckzfs"/>
+											<cnscombox:CNSCombox typename="ZC_JSYQ_KZFS" isnullable="false" id="whkckzfs" width="40%" height="{aboutheight}" change="kzfs_changeHandler(event)"/>
 										</mx:FormItem>
 									</mx:GridItem>
 								</mx:GridRow> 
@@ -1021,7 +1039,7 @@
 										<mx:Label text=""  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="bottom" width="32%">
-										<mx:Label text="占空比(%)"  fontWeight="normal" height="{aboutheight}"/>
+										<mx:Label text="占空比(%)" id="zkblabel"  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="bottom" width="32%">
 										<mx:Label text="转速(rpm)" height="{aboutheight}"/>
@@ -1319,6 +1337,7 @@
 									
 									</mx:Panel>
 								<mx:Panel id="chartMultiPanel" label="多曲线性能图"  width="100%"  borderStyle="none" headerHeight="0" 
+										  verticalScrollPolicy="off" horizontalScrollPolicy="off"
 										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
 									<!--<shryChart:LineChartMultiModel modelTitle="总成流量—静压/输入功率/主转速/效率曲线图"
 																	xAxisTitle="流量(m^3/h)" xToolTipTiltle="流量" yAxisTitle="静压/输入功率/主转速/效率" yToolTipTiltle="Y"
@@ -1326,7 +1345,8 @@
 																	height="{this.height - 140}" id="lineChart" />-->
 								</mx:Panel>
 								<mx:Panel  id="chartPanel"  label="单曲线线性能图" width="100%"  borderStyle="none" headerHeight="0" 
-										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+										   verticalScrollPolicy="off" horizontalScrollPolicy="off"
+										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
 									<!--<shryChart:LineChartModel modelTitle="总成流量—效率曲线图" height="{this.height - 140}" id="lineChart02" />
 									<shryChart:LineChartModel modelTitle="总成流量—主转速曲线图" height="{this.height - 140}" id="lineChart03" />
 									<shryChart:LineChartModel modelTitle="总成流量—输入功率曲线图" height="{this.height - 140}" id="lineChart04" />

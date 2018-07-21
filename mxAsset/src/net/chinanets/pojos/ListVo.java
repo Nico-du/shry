@@ -7,7 +7,7 @@ public class ListVo {
 	private  List<ShryFyData>  fyDataList;
 	private  List<ShryZcData>  zcDataList;
 	private  List<ShryDjData>  djDataList;
-	
+	private  List<ShryZcJsyqData>  zcjsyqList;
  	private  String result;
 	
 	
@@ -35,4 +35,11 @@ public class ListVo {
 	public void setDjDataList(List<ShryDjData> djDataList) {
 		this.djDataList = djDataList;
 	}
+	public List<ShryZcJsyqData> getZcjsyqList() {
+		return zcjsyqList;
+	}
+	public void setZcjsyqList(List<ShryZcJsyqData> zcjsyqList) {
+		this.zcjsyqList = zcjsyqList;
+	}
+	
 }

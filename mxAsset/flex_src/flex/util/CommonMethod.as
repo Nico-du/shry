@@ -86,6 +86,30 @@ package flex.util
 			return rstAry;
 		}
 		
+		/**
+		 *过滤数据 过滤Y轴  小于0的数据   Y轴 0到-2直接转换为0 小于-2的数据不显示
+		 * 保留两位小数,并且四舍五入
+		 **/
+		public static function filterZeroData(dpArray:ArrayCollection,fileds:Array):ArrayCollection{
+			if(dpArray == null || dpArray.length < 1){ return null;}
+			var dpArrayNew:ArrayCollection = new ArrayCollection();
+			for each(var eachObj:Object in  dpArray){
+				var isCtu:Boolean = false;
+				for each(var eachFd:String in fileds){
+					if(eachObj[eachFd] == null || eachObj[eachFd] ==  undefined){ continue;}
+					if(eachObj[eachFd] < 0){
+						if(eachObj[eachFd] < 0 && eachObj[eachFd] >= -2){
+							eachObj[eachFd]  = 0;
+						}else{ isCtu=true;}
+					}
+					
+				    eachObj[eachFd] = Math.round(new Number(eachObj[eachFd])*100)/100
+				}
+				if(isCtu){continue;}
+				dpArrayNew.addItem(eachObj);
+			}
+			return dpArrayNew;
+		}
 		
 		/**
 		 *选择 一个 风叶/电机/总成数据 

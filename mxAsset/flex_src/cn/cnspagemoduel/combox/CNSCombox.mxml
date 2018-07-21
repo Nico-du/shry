@@ -146,6 +146,7 @@
 						return;
 					}
 				}
+				this.selectedIndex=0;
 			}
 		]]>
 	</mx:Script>
