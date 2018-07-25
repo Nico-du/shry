@@ -56,11 +56,11 @@
 						break;
 					case "FY": 
 						vsb1 = false; vsb2 = true; vsb3 = false;vsb4 = false;
-						pageTitle = "选择总成型号";
+						pageTitle = "选择风叶型号";
 						break;
 					case "DJ": 
 						vsb1 = false; vsb2 = false; vsb3 = true;vsb4 = false;
-						pageTitle = "选择总成型号";
+						pageTitle = "选择电机型号";
 						break;
 					case "FYLXD": 
 						pageTitle = "选择风叶联系单号";
@@ -88,6 +88,7 @@
 					case "DJ": 
 						chooseTypeName="电机"; 
 						idColumnName = "djid";
+						curTypeMd = djWd;
 						break;
 					case "FYLXD": 
 						chooseTypeName="风叶联系单"; 
@@ -221,7 +222,7 @@
 		</mx:VBox>
 		<ns:ZCGridMoudel id="zcWd"  width="100%" height="100%"  visible="{vsb1}" includeInLayout="{vsb1}"/>
 		<ns:FYGridMoudel id="fyWd"  width="100%" height="100%"  visible="{vsb2}" includeInLayout="{vsb2}"/>
-		
+		<ns:DJGridMoudel id="djWd"  width="100%" height="100%"  visible="{vsb3}" includeInLayout="{vsb3}"/>
 		<ns:SYDGridMoudel id="lxdWd"  width="100%" height="100%"  visible="{vsb4}" includeInLayout="{vsb4}"/>
 	</mx:VBox>
 	<mx:HBox horizontalGap="180" width="100%" horizontalAlign="center">

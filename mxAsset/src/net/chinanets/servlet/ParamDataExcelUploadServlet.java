@@ -35,6 +35,7 @@ import org.springframework.context.ApplicationContext;
 public class ParamDataExcelUploadServlet extends HttpServlet {
 	/**
 	 * @作用描述：参数数据导入包含：总成数据表、风叶数据表、电机数据表
+	 * 电机数据导入，先找是否存在，存在获取djid保存;不存在做新增，只insert djxh，在电机数据导入时判断 isysdj(是否有刷电机)字段来判断是否覆盖已有数据。
 	 * @author: 徐超
 	 * @date:2016-3-17下午10:24:33
 	 */
@@ -195,7 +196,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 		   listVo.getFyDataList().get(i).setUpdateuser("1");
 		   
 		   if(this.isJsyqImp){
-			   zcdataList= comService.getObjectList(new ShryZcData()," xh='"+listVo.getZcDataList().get(i).getXh()+"' order by inputdate asc limit 1 ");
+			   zcdataList= comService.getObjectList(new ShryZcData()," xh='"+listVo.getZcDataList().get(i).getXh()+"' order by inputdate desc limit 1 ");
 			   lZcid = zcdataList.get(0).getZcid();
 			   listVo.getZcDataList().set(i, zcdataList.get(0));
 			   listVo.getZcDataList().get(i).setUpdatedate(new Date());
@@ -207,7 +208,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 			   listVo.getZcDataList().get(i).setInputuser("1");
 		   }
 			
-			fydataList = comService.getObjectList(new ShryFyData(), " xh='"+listVo.getFyDataList().get(i).getXh()+"' order by inputdate asc limit 1 ");
+			fydataList = comService.getObjectList(new ShryFyData(), " xh='"+listVo.getFyDataList().get(i).getXh()+"' order by inputdate desc limit 1 ");
 			
 			if(fydataList != null && fydataList.size() > 0){
 				lFyid = fydataList.get(0).getFyid();
@@ -227,11 +228,11 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 //			   //保存电机数据
 //			   Long  djId = comService.saveObject( listVo.getDjDataList().get(i));
 			   
-			   djdataList = comService.getObjectList(new ShryDjData(), " xh='"+listVo.getDjDataList().get(i).getXh()+"' order by inputdate asc limit 1 ");
+			   djdataList = comService.getObjectList(new ShryDjData(), " djxh='"+listVo.getDjDataList().get(i).getDjxh()+"' order by inputdate desc limit 1 ");
 				if(djdataList != null && djdataList.size() > 0){
 					lDjid = djdataList.get(0).getDjid();
 				}else{
-				/* 保存风叶对象后返回的id，用于赋值给总成表中的风叶id */
+				/* 保存风叶对象后返回的id，用于赋值给总成表中的电机id */
 					lDjid = comService.saveObject(listVo.getDjDataList().get(i));
 				}
 				
@@ -247,7 +248,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 			   if(lZcid == null ){ return "执行数据保存时报错";}
 			   listVo.getZcjsyqList().get(i).setRfZcid(lZcid);
 
-			   zcjsyqList = comService.getObjectList(new ShryZcJsyqData(), " rf_Zcid='"+listVo.getZcjsyqList().get(i).getRfZcid()+"' order by jsyqid asc limit 1 ");
+			   zcjsyqList = comService.getObjectList(new ShryZcJsyqData(), " rf_Zcid='"+listVo.getZcjsyqList().get(i).getRfZcid()+"' order by jsyqid desc limit 1 ");
 				if(zcjsyqList == null || zcjsyqList.isEmpty()){
 					comService.saveObject(listVo.getZcjsyqList().get(i));
 				}else{
@@ -446,7 +447,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 									zcData.setSycx(sycx);
 									zcData.setJqfs(jqfs);
 									
-									djData.setXh(djxh);
+									djData.setDjxh(djxh);
 									
 									zcjsyqData.setWhkcKzfs(whkc_kzfs);
 									zcjsyqData.setWhkcZkb1(whkc_zkb1);

@@ -610,7 +610,7 @@
 		</mx:Canvas>
 		
 		<!--风叶基本信息-->
-		<mx:Canvas id="nvPageFyFrom1" label="风叶基本信息 " width="100%" borderStyle="none" >
+		<mx:Canvas id="nvPageFyFrom1" label="风叶基本信息 " width="100%" borderStyle="none" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 			<mx:VBox id="nvPageFyFrom1Group1" width="100%" horizontalGap="0" verticalGap="2" cornerRadius="2" borderStyle="solid" borderColor="#99CCFF">
 				<mx:HBox width="100%" height="20" horizontalGap="0" verticalGap="0" backgroundColor="#99CCFF" borderStyle="none">
 					<mx:Label text="风叶基本信息" width="100%" height="20" textAlign="left"/>

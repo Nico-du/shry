@@ -338,7 +338,7 @@
 <mx:VBox id="dataFormBox" borderStyle="none" width="100%" horizontalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off"
 				 verticalGap="2" paddingTop="2" paddingLeft="2" paddingBottom="2" paddingRight="2">
 			<mx:Form id="dataForm1" width="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" horizontalGap="0" verticalGap="0" indicatorGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
-					<mx:Canvas id="nvPage1" label="基本信息 " width="100%" borderStyle="none" >
+					<mx:Canvas id="nvPage1" label="基本信息 " width="100%" borderStyle="none"  horizontalScrollPolicy="off" verticalScrollPolicy="off">
 						<mx:VBox id="nvPage1Group1" width="100%" horizontalGap="0" verticalGap="0"  borderStyle="none" >
 							
 							<mx:Grid id="nvPage1Grid1" width="100%" horizontalGap="0" verticalGap="5" paddingTop="5" paddingBottom="5" paddingLeft="3" paddingRight="3">

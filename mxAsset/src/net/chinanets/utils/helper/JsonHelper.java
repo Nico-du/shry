@@ -190,14 +190,19 @@ public class JsonHelper {
 			
 			Class<?> tempClass=tempObj.getClass();
 			for(Field tempField:tempClass.getDeclaredFields()){
-				String fieldName=tempField.getName().toLowerCase();
-				if(!tempJsonObj.containsKey(fieldName) && !tempJsonObj.containsKey(fieldName.toUpperCase())){
+				String fieldName=tempField.getName();//.toLowerCase()
+				if(!tempJsonObj.containsKey(fieldName) && !tempJsonObj.containsKey(fieldName.toUpperCase()) 
+						&& !tempJsonObj.containsKey(fieldName.toLowerCase())){
 					continue;
 				}
 				Object objValue=tempJsonObj.get(fieldName);
 				if(objValue == null){
 					objValue=tempJsonObj.get(fieldName.toUpperCase());
 				}
+				if(objValue == null){
+					objValue=tempJsonObj.get(fieldName.toLowerCase());
+				}
+				
 				String strObjVlue="";
 				if(objValue!=null){
 					strObjVlue=objValue.toString();
