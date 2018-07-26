@@ -74,7 +74,7 @@ public class NoiseInfoImportServlet extends HttpServlet {
 							//根据风叶型号查询风叶数据表。判断该风叶型号是已经存在,如果不存在则给出提示，
 							String hql = "From ShryFyData where xh="+listVo.getFyList().get(0).getXh();
 							List<ShryFyData> fys = comService.getAllObjectByHql(hql);
-							   if(fys.size()>0){
+							   if(fys.size()<1){
 								   str ="该型号对应的风叶数据不存在，请检查型号为："+listVo.getFyList().get(i).getXh()+"的数据";
 								   listVo.setResult(str);
 								   break;

@@ -214,7 +214,6 @@ public interface CommonService {
 	 public List<String> geNu(String[] a);
 	 public List<String> getFu(String[] a,String txtName);
 	 public void Delt();
-	 public List pt(String fileName,String txtName);
 	 public void deleteByHql(String hql);
 		/**
 		 * hibernate QBC 查询

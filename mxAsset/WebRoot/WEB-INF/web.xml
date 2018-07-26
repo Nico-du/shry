@@ -628,13 +628,23 @@
     <servlet-name>NoiseInfoImportServlet</servlet-name>
     <servlet-class>net.chinanets.servlet.NoiseInfoImportServlet</servlet-class>
   </servlet>
-
-
   <!-- 噪声导入 -->
    <servlet-mapping>
     <servlet-name>NoiseInfoImportServlet</servlet-name>
     <url-pattern>/servlet/NoiseInfoImportServlet</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>DjInfoImportServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.DJInfoImportServlet</servlet-class>
+  </servlet>
+  <!-- 电机导入 -->
+   <servlet-mapping>
+    <servlet-name>DjInfoImportServlet</servlet-name>
+    <url-pattern>/servlet/DjInfoImportServlet</url-pattern>
+  </servlet-mapping>
+  
+  
 <servlet-mapping> 
 <servlet-name>BarcodeServlet</servlet-name> 
 <url-pattern>/barcode</url-pattern> 

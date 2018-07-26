@@ -12,7 +12,9 @@ public class ShryDjData implements java.io.Serializable {
 
 	private Long djid;
 	private Long zcid;
+	private String zcxh;
 	private Long fyid;
+	private String fyxh;
 	private String djxh;
 	private String djth;
 	private String sjxh;
@@ -429,6 +431,22 @@ public class ShryDjData implements java.io.Serializable {
 
 	public void setUpdateuser(String updateuser) {
 		this.updateuser = updateuser;
+	}
+
+	public String getZcxh() {
+		return zcxh;
+	}
+
+	public void setZcxh(String zcxh) {
+		this.zcxh = zcxh;
+	}
+
+	public String getFyxh() {
+		return fyxh;
+	}
+
+	public void setFyxh(String fyxh) {
+		this.fyxh = fyxh;
 	}
 
 }
