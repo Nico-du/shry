@@ -41,8 +41,10 @@ import net.chinanets.utils.helper.JsonHelper;
 import net.chinanets.utils.helper.StringHelper;
 import net.chinanets.utils.helper.WFHelper;
 import net.chinanets.vo.UserVo;
+import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.util.JSONUtils;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -1584,6 +1586,36 @@ public class AllAssetServiceImp extends CommonServiceImp implements AllAssetServ
 		String sql = "select count(0) from "+tableName+" where "+bhColumn+" = '"+wfbh+"' ";
 		if(!CommonMethods.isNullOrWhitespace(dataId)){
 			sql += " and "+idColumn+" <> '"+dataId+"'";
+		}
+		List list = allAssetDao.getObjectBySql(sql);
+		if(list!= null && !list.isEmpty() && Integer.parseInt(list.get(0).toString()) > 0){
+			flag = true;
+		}
+		return flag;
+	}
+	
+	/**
+	 * 验证编号WFBH+其他字段 是否重复
+	 * @param idColumn ID字段名
+	 * @param tableName 表名
+	 * @param dataId id值
+	 * @param jsonStr jsonObjectSting
+	 * @return true 重复
+	 */
+	public boolean validateWFBHS(String idColumn,String tableName,String dataId,String jsonStr){
+		boolean flag = false;
+		if(CommonMethods.isNullOrWhitespace(jsonStr) || JSONObject.fromObject(jsonStr).isEmpty() || CommonMethods.isNullOrWhitespace(idColumn)
+				|| CommonMethods.isNullOrWhitespace(tableName)){return true;}
+		Map<String,Object> columnAndValMap = JSONObject.fromObject(jsonStr);
+		String whereCnd = "";
+		for(String chk : columnAndValMap.keySet()){
+			String val = columnAndValMap.get(chk)+"";
+			whereCnd += chk+" = '"+val+"' and ";
+		}
+		
+		String sql = "select count(0) from "+tableName+" where "+whereCnd;
+		if(!CommonMethods.isNullOrWhitespace(dataId)){
+			sql += "  "+idColumn+" <> '"+dataId+"'";
 		}
 		List list = allAssetDao.getObjectBySql(sql);
 		if(list!= null && !list.isEmpty() && Integer.parseInt(list.get(0).toString()) > 0){

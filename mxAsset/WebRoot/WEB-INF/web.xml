@@ -644,6 +644,16 @@
     <url-pattern>/servlet/DjInfoImportServlet</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+    <servlet-name>DjxnInfoImportServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.DJXNInfoImportServlet</servlet-class>
+  </servlet>
+  <!-- 电机性能数据导入 -->
+   <servlet-mapping>
+    <servlet-name>DjxnInfoImportServlet</servlet-name>
+    <url-pattern>/servlet/DjxnInfoImportServlet</url-pattern>
+  </servlet-mapping>
+  
   
 <servlet-mapping> 
 <servlet-name>BarcodeServlet</servlet-name> 

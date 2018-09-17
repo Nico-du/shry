@@ -1,10 +1,9 @@
 package net.chinanets.pojos;
 
-import java.lang.Long;
 import java.util.Date;
 
 /**
- * ShryDjxnData entity. @author dzj
+ * ShryDjxnData entity. @author MyEclipse Persistence Tools
  */
 
 public class ShryDjxnData implements java.io.Serializable {
@@ -13,14 +12,22 @@ public class ShryDjxnData implements java.io.Serializable {
 
 	private Long djxnid;
 	private Long djid;
-	private String nj;
-	private String dy;
-	private String dl;
-	private String zs;
-	private String srgl;
-	private String scgl;
-	private String xl;
-	private String memo;
+	private Long lxdid;
+	private String data;
+	private String input;
+	private String torqueNm;
+	private String torqueOzIn;
+	private String speed;
+	private String voltage;
+	private String current;
+	private String powIn;
+	private String powOut;
+	private String eff;
+	private String remark;
+	private String wsPf1;
+	private String wsHorsepower;
+	private String wsTime;
+	private String wsDirection;
 	private Date inputdate;
 	private String inputuser;
 	private Date updatedate;
@@ -33,19 +40,29 @@ public class ShryDjxnData implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public ShryDjxnData(Long djid, String nj, String dy, String dl,
-			String zs, String srgl, String scgl, String xl, String memo,
-			Date inputdate, String inputuser, Date updatedate,
-			String updateuser) {
+	public ShryDjxnData(Long djid, Long lxdid, String data,
+			String input, String torqueNm, String torqueOzIn, String speed,
+			String voltage, String current, String powIn, String powOut,
+			String eff, String remark, String wsPf1, String wsHorsepower,
+			String wsTime, String wsDirection, Date inputdate,
+			String inputuser, Date updatedate, String updateuser) {
 		this.djid = djid;
-		this.nj = nj;
-		this.dy = dy;
-		this.dl = dl;
-		this.zs = zs;
-		this.srgl = srgl;
-		this.scgl = scgl;
-		this.xl = xl;
-		this.memo = memo;
+		this.lxdid = lxdid;
+		this.data = data;
+		this.input = input;
+		this.torqueNm = torqueNm;
+		this.torqueOzIn = torqueOzIn;
+		this.speed = speed;
+		this.voltage = voltage;
+		this.current = current;
+		this.powIn = powIn;
+		this.powOut = powOut;
+		this.eff = eff;
+		this.remark = remark;
+		this.wsPf1 = wsPf1;
+		this.wsHorsepower = wsHorsepower;
+		this.wsTime = wsTime;
+		this.wsDirection = wsDirection;
 		this.inputdate = inputdate;
 		this.inputuser = inputuser;
 		this.updatedate = updatedate;
@@ -70,68 +87,132 @@ public class ShryDjxnData implements java.io.Serializable {
 		this.djid = djid;
 	}
 
-	public String getNj() {
-		return this.nj;
+	public Long getLxdid() {
+		return this.lxdid;
 	}
 
-	public void setNj(String nj) {
-		this.nj = nj;
+	public void setLxdid(Long lxdid) {
+		this.lxdid = lxdid;
 	}
 
-	public String getDy() {
-		return this.dy;
+	public String getData() {
+		return this.data;
 	}
 
-	public void setDy(String dy) {
-		this.dy = dy;
+	public void setData(String data) {
+		this.data = data;
 	}
 
-	public String getDl() {
-		return this.dl;
+	public String getInput() {
+		return this.input;
 	}
 
-	public void setDl(String dl) {
-		this.dl = dl;
+	public void setInput(String input) {
+		this.input = input;
 	}
 
-	public String getZs() {
-		return this.zs;
+	public String getTorqueNm() {
+		return this.torqueNm;
 	}
 
-	public void setZs(String zs) {
-		this.zs = zs;
+	public void setTorqueNm(String torqueNm) {
+		this.torqueNm = torqueNm;
 	}
 
-	public String getSrgl() {
-		return this.srgl;
+	public String getTorqueOzIn() {
+		return this.torqueOzIn;
 	}
 
-	public void setSrgl(String srgl) {
-		this.srgl = srgl;
+	public void setTorqueOzIn(String torqueOzIn) {
+		this.torqueOzIn = torqueOzIn;
 	}
 
-	public String getScgl() {
-		return this.scgl;
+	public String getSpeed() {
+		return this.speed;
 	}
 
-	public void setScgl(String scgl) {
-		this.scgl = scgl;
+	public void setSpeed(String speed) {
+		this.speed = speed;
 	}
 
-	public String getXl() {
-		return this.xl;
+	public String getVoltage() {
+		return this.voltage;
 	}
 
-	public void setXl(String xl) {
-		this.xl = xl;
+	public void setVoltage(String voltage) {
+		this.voltage = voltage;
 	}
 
-	public String getMemo() {
-		return this.memo;
+	public String getCurrent() {
+		return this.current;
 	}
 
-	public void setMemo(String memo) {
-		this.memo = memo;
+	public void setCurrent(String current) {
+		this.current = current;
+	}
+
+	public String getPowIn() {
+		return this.powIn;
+	}
+
+	public void setPowIn(String powIn) {
+		this.powIn = powIn;
+	}
+
+	public String getPowOut() {
+		return this.powOut;
+	}
+
+	public void setPowOut(String powOut) {
+		this.powOut = powOut;
+	}
+
+	public String getEff() {
+		return this.eff;
+	}
+
+	public void setEff(String eff) {
+		this.eff = eff;
+	}
+
+	public String getRemark() {
+		return this.remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public String getWsPf1() {
+		return this.wsPf1;
+	}
+
+	public void setWsPf1(String wsPf1) {
+		this.wsPf1 = wsPf1;
+	}
+
+	public String getWsHorsepower() {
+		return this.wsHorsepower;
+	}
+
+	public void setWsHorsepower(String wsHorsepower) {
+		this.wsHorsepower = wsHorsepower;
+	}
+
+	public String getWsTime() {
+		return this.wsTime;
+	}
+
+	public void setWsTime(String wsTime) {
+		this.wsTime = wsTime;
+	}
+
+	public String getWsDirection() {
+		return this.wsDirection;
+	}
+
+	public void setWsDirection(String wsDirection) {
+		this.wsDirection = wsDirection;
 	}
 
 	public Date getInputdate() {

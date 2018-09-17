@@ -126,7 +126,7 @@ package asset_bfdj
 					if(currentWd.hasOwnProperty("saveAction")){currentWd["saveAction"].visible = true;currentWd["saveAction"].includeInLayout=true;}
 					if(currentWd.hasOwnProperty("saveAndCloseAction")){currentWd["saveAndCloseAction"].visible = true;currentWd["saveAndCloseAction"].includeInLayout=true;}
 					if(currentWd.hasOwnProperty("editAction")){currentWd["editAction"].visible = true;currentWd["editAction"].includeInLayout=true;}
-					if(currentWd.hasOwnProperty("saveAndNewAction")){currentWd["saveAndNewAction"].visible =true;currentWd["saveAndNewAction"].includeInLayout= true;}
+					if(currentWd.hasOwnProperty("saveAndNewAction")){currentWd["saveAndNewAction"].visible =isAddEnable;currentWd["saveAndNewAction"].includeInLayout= isAddEnable;}
 				}
 			}
 			

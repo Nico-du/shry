@@ -297,7 +297,7 @@
 				jsonObj.x_maxInterval = NaN;//_xInterval;
 				jsonObj.y_maxInterval = NaN;//_yInterval;
 				
-				//坐标轴最大最小值
+				//坐标轴最大最小值 y1_maxInterval取消设值,让echart自动设置
 				jsonObj.y1_maxInterval = jsonObj.y2_maxInterval = jsonObj.y3_maxInterval = jsonObj.y4_maxInterval =_yMaximum;
 				jsonObj.y1_yAxis_min=jsonObj.y2_yAxis_min=jsonObj.y3_yAxis_min=jsonObj.y4_yAxis_min=0;
 				

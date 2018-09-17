@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.chinanets.data.DataEntity;
+import net.chinanets.pojos.ShryDjData;
+import net.chinanets.pojos.ShryDjxnData;
 import net.chinanets.pojos.ShryFyData;
 import net.chinanets.pojos.ShryFyZsData;
 import net.chinanets.pojos.ShryFyxnData;
@@ -415,7 +417,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		//是否进行插值计算
 		boolean isInsert = "是".equals(super.getDictionaryByKey("INTERP1_PARAMS", "IS_FY_INSERT"));
 		String insertAValue = null;
-		if(isInsert && convertList != null && !convertList.isEmpty()){
+		if(isInsert && convertList != null &&  convertList.size() > 1){
 			//总成插值指定点,分隔符为,
 			insertAValue = super.getDictionaryByKey("INTERP1_PARAMS", "FY_INSERT_VALUE");
 			if(StringUtils.isBlank(insertAValue)){ throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-未配置!");}
@@ -426,7 +428,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		}else{
 			insertList = convertList;
 		}
-		logger.info("fyid="+fyid+"是否进行插值计算："+isInsert+"总成插值指定点："+insertAValue);
+		logger.info("fyid="+fyid+",是否进行插值计算："+isInsert+",总成插值指定点："+insertAValue);
 		outMap.put("insertList", insertList);
 		outMap.put("convertList", convertList);
 		
@@ -457,6 +459,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			yXlAry[i] = Double.parseDouble(ch.getXl());
 			yNjAry[i] = Double.parseDouble(ch.getNj());
 		}
+		logger.info("--------------开始调用MatlabInterp1Util.InterpOneX进行风叶插值计算----------------");
 		Double[] yVLlAry = MatlabInterp1Util.InterpOneX(xAry, yLlAry, aAry);
 		Double[] yVZglAry = MatlabInterp1Util.InterpOneX(xAry, yZglAry, aAry);
 		Double[] yVXlAry = MatlabInterp1Util.InterpOneX(xAry, yXlAry, aAry);
@@ -579,7 +582,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		//是否进行插值计算
 		boolean isInsert = "是".equals(super.getDictionaryByKey("INTERP1_PARAMS", "IS_ZC_INSERT"));
 		String insertAValue = null;
-		if(isInsert && convertList != null && !convertList.isEmpty()){
+		if(isInsert && convertList != null && convertList.size() > 1){
 			//总成插值指定点,分隔符为,
 			insertAValue = super.getDictionaryByKey("INTERP1_PARAMS", "ZC_INSERT_VALUE");
 			if(StringUtils.isBlank(insertAValue)){ throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-未配置!");}
@@ -621,6 +624,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			yZglAry[i] = Double.parseDouble(ch.getSrgl());
 			yXlAry[i] = Double.parseDouble(ch.getXl());
 		}
+		logger.info("--------------开始调用MatlabInterp1Util.InterpOneX进行总成插值计算----------------");
 		Double[] yVLlAry = MatlabInterp1Util.InterpOneX(xAry, yLlAry, aAry);
 		Double[] yVZzsAry = MatlabInterp1Util.InterpOneX(xAry, yZzsAry, aAry);
 		Double[] yVZglAry = MatlabInterp1Util.InterpOneX(xAry, yZglAry, aAry);
@@ -670,6 +674,138 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 	}
 
 
+	/**
+	 * 总成性能数据图 换算-->1.性能数据换算 2.matlab插值计算
+	 * 等比利换算
+	 * 根据转速变换 取其他性能参数
+	 * @param sSql
+	 * @param hsbl 换算比利，%数
+	 * @param hszsbl 转速换算比利，%数
+	 * @param hsdlhzj 导流环直径 换算值
+	 * @return
+	 * @throws Exception 
+	 */
+	public Map<String,List<ShryDjxnData>> getDJXNInsertChartList(String sSql,String djid) throws Exception{
+		logger.info("总成性能数据图 换算 参数:sSql="+sSql+",djid="+djid);
+		Map<String,List<ShryDjxnData>> outMap = new HashMap<String, List<ShryDjxnData>>();
+		List<ShryDjxnData> insertList = new ArrayList<ShryDjxnData>();
+		
+		ShryDjData djObj =  (ShryDjData) commonDao.getObjectByExample(new ShryDjData(), " djid = '"+djid+"'").get(0);
+		String isysdj = djObj.getIsysdj();//无刷电机不插值
+		
+		List<ShryDjxnData> convertList = (List<ShryDjxnData>) commonDao.RunSelectClassBySql(sSql,"net.chinanets.pojos.ShryDjxnData");
+		
+		
+		//是否进行插值计算
+		boolean isInsert = "是".equals(super.getDictionaryByKey("INTERP1_PARAMS", "IS_DJ_INSERT"));
+		String insertAValue = null;
+		if(isInsert && convertList != null && convertList.size() > 1 && "Y".equalsIgnoreCase(isysdj)){
+			//总成插值指定点,分隔符为,
+			insertAValue = super.getDictionaryByKey("INTERP1_PARAMS", "DJ_INSERT_VALUE");
+			if(StringUtils.isBlank(insertAValue)){ throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-未配置!");}
+			String[] insertAry = insertAValue.split(",");
+			if(!CommonMethods.isDoubleAry(insertAry)){	throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-格式错误/非数字!");	}
+
+			insertList = convertDJXNInsertChartList(convertList,insertAry);
+
+		}else{
+			insertList = convertList;
+		}
+		logger.info("djid="+djid+"是否进行插值计算："+isInsert+"总成插值指定点："+insertAValue);
+		outMap.put("insertList", insertList);
+		outMap.put("convertList", convertList);
+
+		return outMap;
+	}
+	
+	/**
+	 * 总成性能数据插值
+	 * @param convertList
+	 * @param insertAry
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<ShryDjxnData> convertDJXNInsertChartList(List<ShryDjxnData> convertList,String[] insertAry) throws Exception{
+//		insertAry = convertDjMaxValue(convertList,insertAry);
+		List<ShryDjxnData> outList =  new ArrayList<ShryDjxnData>();
+		//流量、扭矩、轴功率、效率
+		double[] xAry,aAry,yLlAry,yZglAry,yXlAry,yZzsAry,yTozAry;
+		xAry = new double[convertList.size()];  aAry = CommonMethods.toDoubleAry(insertAry); yLlAry = new double[convertList.size()]; 
+		yZzsAry = new double[convertList.size()]; yZglAry = new double[convertList.size()]; yXlAry = new double[convertList.size()];yTozAry = new double[convertList.size()];
+		for(int i=0;i<convertList.size();i++){
+			ShryDjxnData ch = convertList.get(i);
+			xAry[i] = Double.parseDouble(ch.getTorqueNm());//按顺序设值
+			
+			yLlAry[i] = Double.parseDouble(ch.getSpeed());
+//			yZzsAry[i] = Double.parseDouble(ch.getEff());
+			yZglAry[i] = Double.parseDouble(ch.getCurrent());
+//			yXlAry[i] = Double.parseDouble(ch.getPowOut());
+			yTozAry[i] = Double.parseDouble(ch.getTorqueOzIn());
+		}
+		logger.info("--------------开始调用MatlabInterp1Util.InterpOneX进行电机插值计算----------------");
+		Double[] yVLlAry = MatlabInterp1Util.InterpOneX(xAry, yLlAry, aAry);
+//		Double[] yVZzsAry = MatlabInterp1Util.InterpOneX(xAry, yZzsAry, aAry);
+		Double[] yVZglAry = MatlabInterp1Util.InterpOneX(xAry, yZglAry, aAry);
+//		Double[] yVXlAry = MatlabInterp1Util.InterpOneX(xAry, yXlAry, aAry);
+		Double[] yVTozAry = MatlabInterp1Util.InterpOneX(xAry, yTozAry, aAry);
+		
+		for(int i=0;i<insertAry.length;i++){
+			ShryDjxnData ch = new ShryDjxnData();
+			ch.setTorqueNm(new Double(aAry[i]).toString());
+			
+			ch.setSpeed(new Double(yVLlAry[i]).toString());
+			ch.setCurrent(new Double(yVZglAry[i]).toString());
+			ch.setTorqueOzIn(new Double(yVTozAry[i]).toString());
+			
+			/**
+			 其他列数据计算方法：
+			“Pow. In”=“Voltage”X“Current”
+			“Pow. Out”=“speed”X “Torque”/9.55
+			“Eff.”=“Pow. In”/“Pow. Out”
+			“Voltage”=“Voltage”
+			Input = TorqueNm;
+			 */
+			ch.setInput(ch.getTorqueNm());
+			ch.setVoltage(convertList.get(convertList.size()/2).getVoltage());
+			Double powIn = NumberUtils.toDouble(ch.getVoltage())*NumberUtils.toDouble(ch.getCurrent());
+			Double powOut = NumberUtils.toDouble(ch.getSpeed())*NumberUtils.toDouble(ch.getTorqueNm())/9.55;
+			
+			ch.setPowIn(CommonMethods.formateDouble(powIn,2));
+			ch.setPowOut(CommonMethods.formateDouble(powOut,2));
+			ch.setEff(CommonMethods.formateDouble(powOut/powIn,4));
+			
+			outList.add(ch);
+		}
+		return outList;
+	}
+	
+	/**
+	 * 如果实验数据表静压(Pa)最大值大于指定“静压数据”某点数值，仅显示小于该点静压下的数据
+	 * 基于insertAry 从小到大排序,非有序则数据显示错误。
+	 * @param convertList
+	 * @param insertAry
+	 * @return
+	 */
+	private String[] convertDjMaxValue(List<ShryDjxnData> convertList,String[] insertAry) {
+		double maxInsert = 0d;
+		double maxJy = 0D;
+		for(ShryDjxnData ch : convertList){
+			if(NumberUtils.toDouble(ch.getTorqueNm()) > maxJy){ maxJy = NumberUtils.toDouble(ch.getTorqueNm());}
+		}
+		
+		int insertI = 0;
+		for(int i=0;i<insertAry.length-1;i++){
+			if(NumberUtils.toDouble(insertAry[i]) < maxJy && NumberUtils.toDouble(insertAry[i+1]) > maxJy){
+				maxInsert = maxJy;//NumberUtils.toDouble(insertAry[i]);
+				insertI = i;
+			}
+		}
+		if( maxInsert ==0d){ maxInsert = NumberUtils.toDouble(insertAry[insertAry.length-1]);}
+		insertAry = (String[]) ArrayUtils.subarray(insertAry, 0, insertI+1);
+		insertAry[insertAry.length-1] = maxInsert+"";
+		
+		return insertAry;
+	}
 
 
 	/**

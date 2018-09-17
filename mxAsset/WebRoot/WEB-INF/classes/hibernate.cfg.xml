@@ -313,8 +313,8 @@
 		<mapping resource="net/chinanets/pojos/ShryFyData.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/ShryDjxnData.hbm.xml" />
 		<mapping resource="net/chinanets/pojos/ShryFyZsData.hbm.xml" />
-		
 		<mapping resource="net/chinanets/pojos/ShryZcJsyqData.hbm.xml" />
+		<mapping resource="net/chinanets/pojos/ShrySydDjData.hbm.xml" />
 
 	</session-factory>
 </hibernate-configuration>

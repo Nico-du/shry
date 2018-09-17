@@ -1,6 +1,9 @@
 package flex.util
 {
 	
+	import cn.cnspagemoduel.date.DateSecondPick;
+	
+	import com.adobe.serialization.json.JSON;
 	import com.commonpages.DetailDocument;
 	import com.commonpages.EditDocument;
 	
@@ -122,7 +125,8 @@ package flex.util
 		 * dwCbx 物品单位Combobox;
 		 * 部门Vo会存储在TextInput.data中和deptIDInput.text中;
 		 **/
-		public static function getAssetBH(currentWd:Object,chooseType:String,mcInput:TextInput,xhInput:TextInput=null,fyInput:TextInput=null):void{
+		public static function getAssetBH(currentWd:Object,chooseType:String,mcInput:TextInput,xhInput:TextInput=null,fyInput:TextInput=null,
+										  datetime:DateSecondPick=null,motorType:ComboBox=null,callBackFunc:Function=null):void{
 			//var ast:SelectAssetBH= pageCacheObj.getAssetBHPage;
 			//if(ast == null){ 
 			var ast:SelectAssetBH = new SelectAssetBH(); 
@@ -133,6 +137,10 @@ package flex.util
 			ast.xhInput = xhInput;
 			ast.fyInput = fyInput;
 			ast.chooseType = chooseType;
+			ast.datetime = datetime;
+			ast.motorType = motorType;
+			ast.parentPage = currentWd;
+			ast.callBackFunc = callBackFunc;
 			ast.changeWdVsb();
 			PopUpManager.addPopUp(ast,currentWd.parentApplication as DisplayObject,true);
 			PopUpManager.centerPopUp(ast);
@@ -711,6 +719,23 @@ package flex.util
 			docRem.validateWFBH(wfbh,idColumn,bhColumn,tableName,dataId);
 			docRem.addEventListener(ResultEvent.RESULT,dovalidateWFBH(parentPage,callBackFunc,args));
 		}
+		/**
+		 *验证WFBH编号是否重复;
+		 * pwd:Object,父窗口;
+		 * callBackFunc:Function,验证结果回调方法,其参数必须为Boolean型;
+		 * args:Array,回调方法的参数;
+		 * true 重复 ;
+		 **/
+		public static function validateWFBHS(idColumn:String,tableName:String,dataId:String,valObj:Object,parentPage:Object,callBackFunc:Function,args:Array=null):void{
+			var docRem:RemoteObject = new RemoteObject();
+			docRem.destination = "allAssetService";
+			docRem.endpoint = "/mxAsset/messagebroker/amf";
+			docRem.showBusyCursor = true;
+			var jsonStr:String = JSON.encode(valObj);
+			docRem.validateWFBHS(idColumn,tableName,dataId,jsonStr);
+			docRem.addEventListener(ResultEvent.RESULT,dovalidateWFBH(parentPage,callBackFunc,args));
+		}
+		
 		private static function dovalidateWFBH(parentPage:Object,callBackFunc:Function,args:Array=null):Function{
 			return function(event:ResultEvent){
 				validateWFBHBack(event,parentPage,callBackFunc,args);

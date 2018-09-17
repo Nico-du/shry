@@ -47,7 +47,19 @@ public class CommonMethods {
 	public static String formateDouble(String doubleIn,int scale){
 		if(!isDouble(doubleIn)){ return "not a number";}
 		if(scale <0 || scale>100){ return "parameter scale must between (1,100) ";}
-		 BigDecimal b = new BigDecimal(Double.parseDouble(doubleIn));
+		BigDecimal b = new BigDecimal(doubleIn);
+		return b.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue()+"";
+	}
+	/**
+	 * 四舍五入保留 scale位小数
+	 * @param doubleIn
+	 * @param scale
+	 * @return
+	 */
+	public static String formateDouble(Double doubleIn,int scale){
+		if(doubleIn == null){ return "null doubleIn ";}
+		if(scale <0 || scale>100){ return "parameter scale must between (1,100) ";}
+		 BigDecimal b = new BigDecimal(doubleIn.toString());
 		return b.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue()+"";
 	}
 	

@@ -1,7 +1,6 @@
 package net.chinanets.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,14 +10,10 @@ import java.util.UUID;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.mortbay.util.ajax.JSON;
 import org.springframework.context.ApplicationContext;
-
 import net.chinanets.pojos.ShryFyData;
 import net.chinanets.pojos.ShrySydData;
 import net.chinanets.pojos.ShryZcData;
@@ -27,13 +22,6 @@ import net.chinanets.utils.DownLoadUtil;
 import net.chinanets.utils.ExcelUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
-import jxl.Workbook;
-import jxl.write.Label;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableFont;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
 
 public class ExportAllExcel extends HttpServlet {
 
@@ -63,36 +51,13 @@ public class ExportAllExcel extends HttpServlet {
 			exportFYXNHSData(request,response, qService, dataid, dataid2, extraData);
 		}else if("ZCXNHS".equals(exportType)){
 			exportZCXNHSData(request,response, qService, dataid, dataid2, extraData);
+		}else if("DJXNCZ".equals(exportType)){
+			exportZCXNHSData(request,response, qService, dataid, dataid2, extraData);
 		}
-		
-		
 		
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-//		
-//		ServletOutputStream out = response.getOutputStream();
-//		WritableWorkbook workbook = Workbook.createWorkbook(out);
-//		WritableSheet sheet = workbook.createSheet("Sheet1", 0);
-//		Label label;
-//			try {
-//				WritableFont wf = new WritableFont(WritableFont.createFont("宋体"), 12, WritableFont.NO_BOLD);
-//				WritableCellFormat wcfF = new WritableCellFormat(wf);
-//				label = new Label(0, 0, title);
-//				
-//		
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			} finally {
-//				try {
-//					workbook.write();
-//					workbook.close();
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		out.flush();
-//		out.close();
 	}
 
 	/**

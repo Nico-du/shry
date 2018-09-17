@@ -3,10 +3,10 @@ package net.chinanets.service;
 import java.util.List;
 import java.util.Map;
 
+import net.chinanets.pojos.ShryDjxnData;
 import net.chinanets.pojos.ShryFyxnData;
 import net.chinanets.pojos.ShryZcxnData;
 import net.chinanets.vo.UserVo;
-import net.sf.json.JSONArray;
 @SuppressWarnings("unchecked")
 public interface ChartService {
 	/**
@@ -40,6 +40,14 @@ public interface ChartService {
 	 * @throws Exception 
 	 */
 	public Map<String,List<ShryFyxnData>> getFYXNInsertChartList(String sSql,String fyid,Double hszsbl,Double hsdlhzj) throws Exception;
+	/**
+	 * 电机性能数据图 插值计算
+	 * @param sSql
+	 * @param djid 电机id
+	 * @return
+	 * @throws Exception 
+	 */
+	public Map<String,List<ShryDjxnData>> getDJXNInsertChartList(String sSql,String djid) throws Exception;
 	
 	/**
 	 * 数据换算

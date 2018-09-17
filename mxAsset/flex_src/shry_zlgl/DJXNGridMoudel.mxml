@@ -8,7 +8,6 @@
 		<![CDATA[
 			import asset_bfdj.ProcessMethods;
 			
-			import com.commonpages.UploadWindow;
 			import cn.cnsasfram.entity.DoResult;
 			import cn.cnsasfram.entity.enum.Errors;
 			import cn.cnsasfram.helper.ASCommonHelper;
@@ -17,9 +16,11 @@
 			
 			import com.adobe.serialization.json.JSON;
 			import com.benstucki.utilities.IconUtility;
+			import com.commonpages.UploadMultipleWindow;
 			
 			import flex.util.CommonMethod;
 			
+			import mx.utils.*;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.CheckBox;
@@ -31,12 +32,13 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectProxy;
+			import mx.utils.StringUtil;
 			//页面标题icon路径
 			[Bindable]
 			protected var pagetitleIcon:String="";
 			//页面默认标题名称
 			[Bindable]
-			protected var pagetitle:String="电机数据";
+			protected var pagetitle:String="电机性能数据";
 			//分页中备注信息
 			[Bindable]
 			protected var dg_pg_othermsg:String="";
@@ -56,17 +58,17 @@
 			//指定linkbutton选中后的颜色,仅供选择
 			public var tempPublicDefaultColor:uint=0xCCFFFF;
 			//默认操作实体名称
-			public var tempObjBeanName:String="SHRY_DJ_DATA";
+			public var tempObjBeanName:String="SHRY_DJXN_DATA";
 			//默认操作视图名称
-			public var tempObjViewName:String="SHRY_DJ_VIEW";
+			public var tempObjViewName:String="SHRY_DJXN_VIEW";
 			//页面初始化是否加载权限
 			public var pageIsLoadPoer:Boolean=true;
 			//页面初始化是否加载数据
 			public var pageIsLoadData:Boolean=true;
 			//搜索表单初始化是否展开
 			public var searchFormIsOpen:Boolean=false;
-			//电机ID
-			public var bfdid:String="";
+			//联系单ID
+			public var lxdid:String="";
 			//父窗口
 			public var parentPage:Object = null;
 			//初始调用方法
@@ -197,29 +199,42 @@
 			
 			//导出数据
 			protected function exportActionClick():void{
-				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"DJID",tempObjViewName,"电机数据信息","电机数据信息");
+				CommonMethod.exportWFExcelData(cns_dg,getDataSeacrchCondition(),"DJXNID",tempObjViewName,"电机数据信息","电机数据信息");
 			}
 			
 			//下载模板事件
-			protected function exportModelActionClick():void{
-				CommonMethod.downloadExcel(encodeURI("sysArgFiles/template/template_djcs.xls"));
+			protected function exportModelActionClick(type:String):void{
+				var fileName:String  = "sysArgFiles/template/template_djxn_"+type+".xls"
+				CommonMethod.downloadExcel(encodeURI(fileName));
 			}
 			
 			//上传数据事件
 			protected function importDataActionClick():void{
-				var upw:UploadWindow= new UploadWindow();
-				upw.url="/mxAsset/servlet/DjInfoImportServlet";
+				var upw:UploadMultipleWindow= new UploadMultipleWindow();
+				upw.url="/mxAsset/servlet/DjxnInfoImportServlet";
 				upw.parentPage = this;
+				upw.updType = "DJXN";
 				PopUpManager.addPopUp(upw,this.parentApplication as DisplayObject,true);
 				PopUpManager.centerPopUp(upw);
 			}
-			
+			//其他操作
+			protected function otherAction_clickHandler(event:Event):void
+			{
+				if(otherAction.selectedIndex != -1 )
+					if(otherAction.selectedItem.value == "exportWsModelAction"){
+						exportModelActionClick("ws");
+					}else if(otherAction.selectedItem.value == "exportYsModelAction"){
+						exportModelActionClick("ys");
+					}else if(otherAction.selectedItem.value == "inportDataAction"){
+						importDataActionClick();
+					}
+			}
 			//查看详细数据
 			protected function lookDataAction(tempSelctedItem:Object=null):void{
-				var tempWindow:DJFormMoudel=new DJFormMoudel();
+				var tempWindow:DJXNFormMoudel=new DJXNFormMoudel();
 				var tempid:String="";
 				if(tempSelctedItem!=null){
-					tempid=tempSelctedItem.djid;
+					tempid=tempSelctedItem.djxnid;
 				}
 				tempWindow.dataId=tempid;
 				tempWindow.parentPage=this;
@@ -235,16 +250,7 @@
 				}
 				this.dataIsSelected=false;
 			}
-			//其他操作
-			protected function otherAction_clickHandler(event:Event):void
-			{
-				if(otherAction.selectedIndex != -1 )
-					if(otherAction.selectedItem.value == "exportModelAction"){
-						exportModelActionClick();
-					}else if(otherAction.selectedItem.value == "inportDataAction"){
-						importDataActionClick();
-					}
-			}
+			
 			//加载相关信息
 			protected function dataSearchAction(tempPageSize:int,tempPageCurrent:int):void{
 				var strcondition:String=getDataSeacrchCondition();
@@ -254,7 +260,6 @@
 			//加载相关信息回调方法
 			protected function dataSearchActionBack(rmtResult:ResultEvent):void{
 				this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
-//				if(this.isDeleteDateComplete){this.removeAssetLSJL(); this.isDeleteDateComplete = false;}
 				var objResult:Object=rmtResult.result;
 				var strresult:String=objResult.toString();
 				var jsonObj:Object=JSON.decode(strresult,true);
@@ -272,50 +277,53 @@
 				
 				this.loadUserPower();
 			}
-			
-			/**
-			 *  得到高级搜索栏里面的查询参数
-			 * */
+			//得到搜索条件
 			protected function getDataSeacrchCondition():String{
 				var condition:Object=new Object();
-				//如果高级搜索栏打开
 				if(!searchFormIsOpen){
-					var DJTypeh:String=this.DJType.text;                 //电机型号
-					var ZCTypeh:String=this.ZCType.text;                 //总成型号
-					var FYTypeh:String=this.FYType.text;                 //风叶型号
-					var v_sh_dy:String=this.sh_dy.text;                //电压
-					var v_sh_dl:String=this.sh_dl.text;             //电流
-					var v_sh_srgl:String=this.sh_srgl.text;     //输入功率
-					var v_sh_bz:String=this.sh_bz.text;           //备注
-					if(!ASStringHelper.isNullOrEmpty(DJTypeh)){
-						condition.s_djxh_string_like=DJTypeh;
+					var project:String=this.project.text;
+					var motor:String=this.motor.text;
+					var dataNo:String=this.dataNo.text;
+					var torquenm:String=this.torquenm.text;
+					var torqueozin:String=this.torqueozin.text;
+					var voltage:String=this.voltage.text;
+					var speed:String=this.speed.text;
+					var eff:String=this.eff.text;
+					if(!ASStringHelper.isNullOrEmpty(motor)){
+						condition.s_motor_string_like=motor;
 					}
-					if(!ASStringHelper.isNullOrEmpty(ZCTypeh)){
-						condition.s_zcxh_string_like=ZCTypeh;
+					if(!ASStringHelper.isNullOrEmpty(dataNo)){
+						condition.s_data_string_like=dataNo;
 					}
-					if(!ASStringHelper.isNullOrEmpty(FYTypeh)){
-						condition.s_fyxh_string_like=FYTypeh;
+					if(!ASStringHelper.isNullOrEmpty(project)){
+						condition.s_project_string_like=project;
 					}
-					if(!ASStringHelper.isNullOrEmpty(v_sh_dy)){
-						condition.s_dy_string_like=v_sh_dy;
+					if(!ASStringHelper.isNullOrEmpty(torquenm)){
+						condition.s_torque_nm_string_like=torquenm;
 					}
-					if(!ASStringHelper.isNullOrEmpty(v_sh_dl)){
-						condition.s_dl_string_like=v_sh_dl;
+					if(!ASStringHelper.isNullOrEmpty(torqueozin)){
+						condition.s_torque_oz_in_string_like=torqueozin;
 					}
-					if(!ASStringHelper.isNullOrEmpty(v_sh_srgl)){
-						condition.s_srgl_string_like=v_sh_srgl;
+					if(!ASStringHelper.isNullOrEmpty(voltage)){
+						condition.s_voltage_string_like=voltage;
 					}
-					if(!ASStringHelper.isNullOrEmpty(v_sh_bz)){
-						condition.s_memo_string_like=v_sh_bz;
+					if(!ASStringHelper.isNullOrEmpty(speed)){
+						condition.s_speed_string_like=speed;
+					}
+					if(!ASStringHelper.isNullOrEmpty(eff)){
+						condition.s_eff_string_like=eff;
 					}
 				}else{
 					var quklytext:String=this.qukilySearchTxt.text;
 					if(!ASStringHelper.isNullOrEmpty(quklytext)){
-						condition.s_djxh_string_like=quklytext;
+						condition.s_motor_string_like=StringUtil.trim(quklytext);
 					}
 				}
-		//		condition.s_bfdid_string_eq=bfdid;
-				var conditionJson:String=JSON.encode(condition);
+				if(lxdid != ""){
+					condition.s_lxdid_string_eq=lxdid;	
+				}
+				
+				var conditionJson:String=JSON.encode(condition); 
 				return conditionJson;
 			}
 			
@@ -328,9 +336,8 @@
 				if(ASStringHelper.isNullOrEmpty(dataids)){
 					return;
 				}
-				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_DJ_DATA","DJID","电机"); 
+				AllAssetServiceRmt.RemoveObject(dataids,"SHRY_DJXN_DATA","DJXNID","电机"); 
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,removeDataActionBack);
-				this.deleteDataIds = dataids;
 			}
 			//删除数据回调方法
 			protected function removeDataActionBack(rmtResult:ResultEvent):void{
@@ -341,16 +348,7 @@
 					return;
 				}else{
 					//	Alert.show("数据删除成功");
-					this.isDeleteDateComplete = true;
 					this.loadData();
-				}
-			}
-			private var isDeleteDateComplete:Boolean = false;
-			private var deleteDataIds:String = "";
-			public function removeAssetLSJL():void{
-				if(!CommonMethod.isNullOrWhitespace(deleteDataIds)){
-					AllAssetServiceRmt.RemoveObject(deleteDataIds,"CNST_ASSETBGJL_DATA","SQDID","报废登记");
-					this.deleteDataIds = "";
 				}
 			}
 			//得到要删除的数据
@@ -358,7 +356,7 @@
 				var dataids:String="";
 				for each(var dataobj:Object in this.dataArray){
 					if(dataobj.selected){
-						dataids+=dataobj.djid+",";
+						dataids+=dataobj.djxnid+",";
 					}
 				}
 				if(!ASStringHelper.isNullOrEmpty(dataids)){
@@ -390,13 +388,14 @@
 			
 			//搜索重置
 			protected function dataSearchResetAction():void{
-				this.DJType.text = "";
-				this.ZCType.text = "";
-				this.FYType.text = "";
-				this.sh_dy.text = "";
-				this.sh_dl.text = "";
-				this.sh_srgl.text = "";
-				this.sh_bz.text = "";
+				this.dataNo.text = "";
+				this.project.text = "";
+				this.motor.text = "";
+				this.torquenm.text = "";
+				this.torqueozin.text = "";
+				this.voltage.text = "";
+				this.speed.text = "";
+				this.eff.text = "";
 			}
 			
 			//得到title的ICON
@@ -411,16 +410,6 @@
 			protected function getColumnIndex(item:Object,column:DataGridColumn):String{
 				return String(this.cns_dg.dataProvider.getItemIndex(item)+1);
 			}
-			//得到表格行号
-			protected function getDjxlStr(item:Object,column:DataGridColumn):String{
-				if(item.isysdj == "Y"){
-					return "有刷";
-				}
-				if(item.isysdj == "N"){
-					return "无刷";
-				}
-				return "";
-			}
 		]]>
 	</mx:Script>
 	<mx:HDividedBox width="100%" height="100%" verticalAlign="middle" verticalGap="0" borderStyle="none" horizontalAlign="center" horizontalGap="3">
@@ -428,7 +417,7 @@
 			<!--快捷搜索-->
 			<mx:HBox id="qukilySearchBox" width="100%" height="{aboutheight}" verticalGap="0" horizontalGap="0"  borderStyle="none" horizontalAlign="left">
 				<mx:HBox id="qukilySearchBar" width="80%" height="{aboutheight}" horizontalGap="1" horizontalAlign="left" borderStyle="none">
-					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="型号" textAlign="right"/>
+					<mx:Label id="qukilySearchLabel" fontWeight="bold" height="{aboutheight}" text="Motor" textAlign="right"/>
 					<mx:TextInput id="qukilySearchTxt" enter="searchClickAction()" width="150" height="{aboutheight}"/>
 					<mx:Button id="qukilySearchBtn" click="searchClickAction()" height="{aboutheight}" label="搜索" icon="@Embed(source='images/find.gif')"/>
 				</mx:HBox>
@@ -442,67 +431,69 @@
 					<mx:Grid width="100%" horizontalGap="0" verticalGap="4" borderStyle="none">
 						<mx:GridRow width="100%" height="{aboutheight}">
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="电机型号:" height="{aboutheight}"/>
+								<mx:Label text="Project:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="DJType" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="project" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="总成型号:" height="{aboutheight}"/>
+								<mx:Label text="Motor:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="ZCType" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="motor" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="风叶型号:" height="{aboutheight}"/>
+								<mx:Label text="Data No.:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="FYType" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="dataNo" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="电压:" height="{aboutheight}"/>
+								<mx:Label text="Torque(Nm):" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="sh_dy" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="torquenm" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 						</mx:GridRow>
 						<mx:GridRow width="100%" height="{aboutheight}">
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="电流:" height="{aboutheight}"/>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="left" width="15%">
-								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="sh_dl" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
-								</mx:FormItem>
-							</mx:GridItem>
-							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="输入功率:" height="{aboutheight}"/>
+								<mx:Label text="Torque(oz-in):" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
-									<mx:TextInput id="sh_srgl" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="torqueozin" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="备注:" height="{aboutheight}"/>
+								<mx:Label text="Speed(RPM):" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-									<mx:TextInput id="sh_bz" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+									<mx:TextInput id="speed" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="Voltage(Volt):" height="{aboutheight}"/>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="left" width="15%">
+								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
+									<mx:TextInput id="voltage" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
+								</mx:FormItem>
+							</mx:GridItem>
+							<mx:GridItem horizontalAlign="right" width="10%">
+								<mx:Label text="Eff.(%):" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}" >
+									<mx:TextInput id="eff" enter="searchClickAction()" width="100%" height="{aboutheight}"/>
 								</mx:FormItem>
 							</mx:GridItem>
 						</mx:GridRow>
@@ -532,7 +523,8 @@
 				<mx:ComboBox id="otherAction" change="otherAction_clickHandler(event)" cornerRadius="2" editable="false" width="90" height="{aboutheight}" blendMode="overlay">
 					<mx:Array id="cbotherchoose">
 						<mx:Object label="其它操作" value="unknow"/>
-						<mx:Object label="导出模板" value="exportModelAction"/>
+						<mx:Object label="导出无刷模板" value="exportWsModelAction"/>
+						<mx:Object label="导出有刷模板" value="exportYsModelAction"/>
 						<mx:Object label="导入数据" value="inportDataAction"/>
 					</mx:Array>
 				</mx:ComboBox>
@@ -540,7 +532,7 @@
 			<!--表格数据-->
 			<mx:VBox width="100%" height="100%" verticalGap="2" borderStyle="none">
 				<mx:DataGrid id="cns_dg" dataProvider="{dataArray}" itemClick="gridItemDataClick(event)" 
-							 itemDoubleClick="CommonMethod.switchGridDoubleClickHandle(this,event)" doubleClickEnabled="true" width="100%" height="100%">
+							 itemDoubleClick="gridItemDataDoubleClick(event)" doubleClickEnabled="true" width="100%" height="100%">
 					<mx:columns>
 						<mx:DataGridColumn headerText="" minWidth="43" width="43" draggable="false" sortable="false" labelFunction="getColumnIndex" textAlign="center">
 							<mx:itemRenderer>
@@ -549,18 +541,20 @@
 								</mx:Component>
 							</mx:itemRenderer> 
 						</mx:DataGridColumn>
-						<mx:DataGridColumn headerText="型号" width="120" dataField="djxh" sortable="true"/>
-						<mx:DataGridColumn headerText="总成型号" width="80" dataField="zcxh" sortable="true"/>
-						<mx:DataGridColumn headerText="风叶型号" width="80" dataField="fyxh" sortable="true"/>
-						<mx:DataGridColumn headerText="电机类型" width="80" dataField="isysdj" labelFunction="getDjxlStr" sortable="true"/>
-						<mx:DataGridColumn headerText="转速(r/min)" width="80" dataField="zs" sortable="true"/>
-						<mx:DataGridColumn headerText="转矩(N·m)" width="80" dataField="zj" sortable="true"/>
-						<mx:DataGridColumn headerText="输入功率(W)" width="110" dataField="srgl" sortable="true"/>
-						<mx:DataGridColumn headerText="电压(V)" width="80" dataField="dy" sortable="true"/>
-						<mx:DataGridColumn headerText="电流(A)" width="80" dataField="dl" sortable="true"/>
-						<!--<mx:DataGridColumn headerText="状态" width="80" dataField="syzt" sortable="true"/>-->				
-						<mx:DataGridColumn headerText="更新人" width="100" dataField="updateusername" sortable="true"/>
-						<mx:DataGridColumn headerText="更新时间" width="155" dataField="updatedate" sortable="true"/>
+						<mx:DataGridColumn headerText="Project" width="120" dataField="project" sortable="true"/>
+						<mx:DataGridColumn headerText="DateTime" width="160" dataField="datetime" sortable="true"/>
+						<mx:DataGridColumn headerText="Motor" width="120" dataField="motor" sortable="true"/>
+						<mx:DataGridColumn headerText="MotorType" width="80" dataField="motortype" sortable="true"/>
+						<mx:DataGridColumn headerText="Data No." width="50" dataField="data" sortable="true"/>
+						<mx:DataGridColumn headerText="Torque(Nm)" width="80" dataField="torque_nm" sortable="true"/>
+						<mx:DataGridColumn headerText="Speed(RPM)" width="80" dataField="speed" sortable="true"/>
+						<mx:DataGridColumn headerText="Voltage(Volt)" width="80" dataField="voltage" sortable="true"/>
+						<mx:DataGridColumn headerText="Current(Amp)" width="80" dataField="current" sortable="true"/>
+						<mx:DataGridColumn headerText="Pow. In(Watt)" width="80" dataField="pow_in" sortable="true"/>
+						<mx:DataGridColumn headerText="Pow. Out(Watt)" width="80" dataField="pow_out" sortable="true"/>				
+						<mx:DataGridColumn headerText="Eff.(%)" width="80" dataField="eff" sortable="true"/>
+						<mx:DataGridColumn headerText="UpdateUser" width="100" dataField="updateusername" sortable="true"/>
+						<mx:DataGridColumn headerText="UpdateTime" width="155" dataField="updatedate" sortable="true"/>
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
 					</mx:columns>
 				</mx:DataGrid>

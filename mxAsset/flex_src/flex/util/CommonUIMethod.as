@@ -62,6 +62,34 @@ package flex.util
 				{title: "输入(W)", columnname: "srgl"},
 				{title: "效率(%)", columnname: "xl"},
 			];
+			var titleDataDjxnys: Array = [
+				{title: "Data No.", columnname: "data"},
+				{title: "Input", columnname: "input"},
+				{title: "Torque(Nm)", columnname: "torqueNm"},
+				{title: "Torque(oz-in)", columnname: "torqueOzIn"},
+				{title: "Speed(RPM)", columnname: "speed"},
+				{title: "Voltage(Volt)", columnname: "voltage"},
+				{title: "Current(Amp)", columnname: "current"},
+				{title: "Pow. In(Watt)", columnname: "powIn"},
+				{title: "Pow. Out(Watt)", columnname: "powOut"},
+				{title: "Eff.(%)", columnname: "eff"},
+			];
+			var titleDataDjxnws: Array = [
+				{title: "Data No.", columnname: "data"},
+//				{title: "Input", columnname: "input"},
+				{title: "Torque(Nm)", columnname: "torqueNm"},
+//				{title: "Torque(oz-in)", columnname: "torqueOzIn"},
+				{title: "Speed(RPM)", columnname: "speed"},
+				{title: "Voltage(Volt)", columnname: "voltage"},
+				{title: "Current(Amp)", columnname: "current"},
+				{title: "Pow. In(Watt)", columnname: "powIn"},
+				{title: "Pow. Out(Watt)", columnname: "powOut"},
+				{title: "Eff.(%)", columnname: "eff"},
+				{title: "PF 1", columnname: "wsPf1"},
+				{title: "Horsepower", columnname: "wsHorsepower"},
+				{title: "Time", columnname: "wsTime"},
+				{title: "Direction", columnname: "wsDirection"},
+			];
 		var curTitleData:Array = null;
 		if(dataType == "fyxn"){
 			curTitleData =  titleDataFyxn;
@@ -69,6 +97,10 @@ package flex.util
 			curTitleData =  titleDataZcxnSrc;
 		}else if(dataType == "zcxn"){
 			curTitleData =  titleDataZcxn;
+		}else if(dataType == "djxnys"){
+			curTitleData =  titleDataDjxnys;
+		}else if(dataType == "djxnws"){
+			curTitleData =  titleDataDjxnws;
 		}else{ return null;}
 		
 		var grid:Grid = new Grid();

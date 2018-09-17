@@ -6,7 +6,6 @@
 	<mx:Script>
 		<![CDATA[
 			import cn.cnsasfram.helper.ASStringHelper;
-			
 			import com.benstucki.utilities.IconUtility;
 			
 			import flex.util.CommonMethod;
@@ -19,13 +18,15 @@
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
 			
-			import shry_zlgl.DJGridMoudel;
 			import shry_zlgl.FYGridMoudel;
 			import shry_zlgl.FYXNGridMoudel;
-			import shry_zlgl.FYZSGridGroupMoudel;
 			import shry_zlgl.SYDGridMoudel;
 			import shry_zlgl.ZCGridMoudel;
+			import shry_zlgl.DJGridMoudel;
 			import shry_zlgl.ZCXNGridMoudel;
+			import shry_zlgl.FYZSGridGroupMoudel;
+			import shry_zlgl.DJXNGridMoudel;
+			import shry_zlgl.SYDDJGridMoudel;
 			
 			
 			//菜单数据
@@ -48,6 +49,10 @@
 			private var FYXN:String="FYXNPage";
 			//试验单
 			private var SYD:String="SYDPage";
+			//电机试验单
+			private var SYDDJ:String="SYDDJPage";
+			//电机性能
+			private var DJXN:String="DJXNPage";
 			
 			public var defaultTreeIndex:int = 1;//跳转到的菜单
 			public var defaultMenuID:String = "";//跳转到的菜单
@@ -158,6 +163,10 @@
 					tempMoudel=new DJGridMoudel();
 				}else if(ASStringHelper.stringCompare(this.ZS,strpageurl,true)==0){
 					tempMoudel=new FYZSGridGroupMoudel();
+				}else if(ASStringHelper.stringCompare(this.SYDDJ,strpageurl,true)==0){
+					tempMoudel=new SYDDJGridMoudel();
+				}else if(ASStringHelper.stringCompare(this.DJXN,strpageurl,true)==0){
+					tempMoudel=new DJXNGridMoudel();
 				}/*else if(ASStringHelper.stringCompare(XJCX,strpageurl,true)==0){
 					tempMoudel=new XjjlList();
 				}else if(ASStringHelper.stringCompare(XJTJ,strpageurl,true)==0){
@@ -336,9 +345,11 @@
 				<node id="204" label="电机数据" url="zlgl_djsj" pageUrl="DJPage" />
 			</item>
 			<item id="bmfw" label="性能数据">
-				<node id="301" label="试验单数据" url="xncs_sydsj" pageUrl="SYDPage"/>
+				<node id="301" label="总成风叶试验单" url="xncs_sydsj" pageUrl="SYDPage"/>
 				<node id="302" label="总成性能" url="xncs_zcxn" pageUrl="ZCXNPage"/>
 				<node id="303" label="风叶性能" url="xncs_fyxn" pageUrl="FYXNPage"/>
+				<node id="304" label="电机试验单" url="xncs_djsydsj" pageUrl="SYDDJPage"/>
+				<node id="305" label="电机性能" url="xncs_djxn" pageUrl="DJXNPage"/>
 			</item>
 		</root>
 	</mx:XML>

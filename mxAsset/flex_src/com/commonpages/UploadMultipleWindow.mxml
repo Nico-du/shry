@@ -63,7 +63,7 @@
            }
            private function singleThreadUploadFile(): void
            {
-			   var urlrequest: URLRequest = new URLRequest(url);
+ 			   var urlrequest: URLRequest = new URLRequest(url);
 			   variables.updType = updType;
 			   urlrequest.data = variables;
                //FIFO：逐个从列表中取出，进行同步上传

@@ -301,4 +301,8 @@ public interface AllAssetService extends CommonService {
 	 */
 	public boolean validateWFBH(String wfbh,String idColumn,String bhColumn,String tableName,String dataId);
 	
+	
+	
+	public boolean validateWFBHS(String idColumn,String tableName,String dataId,String jsonStr);
+	
 }

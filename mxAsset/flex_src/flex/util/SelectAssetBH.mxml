@@ -6,6 +6,7 @@
 		<![CDATA[
 			import cn.cnsasfram.helper.ASCommonHelper;
 			import cn.cnsasfram.helper.ASStringHelper;
+			import cn.cnspagemoduel.date.DateSecondPick;
 			
 			import flex.util.CommonMethod;
 			import flex.util.CommonXMLData;
@@ -51,24 +52,28 @@
 			public function changeWdVsb(){
 				switch(chooseType){
 					case "ZC":
-						vsb1 = true; vsb2 = false; vsb3 = false;vsb4 = false;
+						vsb1 = true; vsb2 = false; vsb3 = false;vsb4 = false; vsb5 = false;
 						pageTitle = "选择总成型号";
 						break;
 					case "FY": 
-						vsb1 = false; vsb2 = true; vsb3 = false;vsb4 = false;
+						vsb1 = false; vsb2 = true; vsb3 = false;vsb4 = false; vsb5 = false;
 						pageTitle = "选择风叶型号";
 						break;
 					case "DJ": 
-						vsb1 = false; vsb2 = false; vsb3 = true;vsb4 = false;
+						vsb1 = false; vsb2 = false; vsb3 = true;vsb4 = false; vsb5 = false;
 						pageTitle = "选择电机型号";
 						break;
 					case "FYLXD": 
 						pageTitle = "选择风叶联系单号";
-						vsb1 = false; vsb2 = false; vsb3 = false;vsb4 = true;
+						vsb1 = false; vsb2 = false; vsb3 = false;vsb4 = true; vsb5 = false;
 						break;
 					case "ZCLXD": 
 						pageTitle = "选择总成联系单号";
-						vsb1 = false; vsb2 = false; vsb3 = false;vsb4 = true;
+						vsb1 = false; vsb2 = false; vsb3 = false;vsb4 = true; vsb5 = false;
+						break;
+					case "DJLXD": 
+						pageTitle = "选择总成联系单号";
+						vsb1 = false; vsb2 = false; vsb3 = false;vsb4 = false; vsb5 = true;
 						break;
 				}
 			}
@@ -88,6 +93,7 @@
 					case "DJ": 
 						chooseTypeName="电机"; 
 						idColumnName = "djid";
+						xhColumnName = "djxh";
 						curTypeMd = djWd;
 						break;
 					case "FYLXD": 
@@ -103,6 +109,13 @@
 						xhColumnName = "zcxh";
 						xhidColumnName =  "zcid";
 						curTypeMd = lxdWd;
+						break;
+					case "DJLXD": 
+						chooseTypeName="电机联系单"; 
+						idColumnName = "lxdid";
+						xhColumnName = "motor";
+						xhidColumnName =  "djid";
+						curTypeMd = djlxdWd;
 						break;
 				}
 				
@@ -159,13 +172,17 @@
 				}
 			}
 			
-			public var mcInput:TextInput = null;
-			public var xhInput:TextInput = null;
-			public var fyInput:TextInput = null;
+			public var mcInput:TextInput = null;//联系单号input
+			public var xhInput:TextInput = null;//型号
+			public var fyInput:TextInput = null;//
+			public var datetime:DateSecondPick = null;//试验时间
+			public var motorType:ComboBox = null;//电机类型
 			public var chooseType:String = null;
 			public var idColumnName:String = null;
 			public var xhColumnName:String = null;
 			public var xhidColumnName:String = null;
+			public var callBackFunc:Function = null;
+			public var parentPage:Object = null;
 			private var curTypeMd:Object;
 			[Bindable]
 			private var chooseTypeName:String = null;
@@ -173,6 +190,7 @@
 			private var vsb2:Boolean = false;
 			private var vsb3:Boolean = false;
 			private var vsb4:Boolean = false;
+			private var vsb5:Boolean = false;
 		//	public var dwCbx:ComboBox = null;
 			
 			public function setInputValue(selectData:Object):void{
@@ -182,6 +200,20 @@
 					if(fyInput != null){
 						fyInput.text = selectData.fyxh;  fyInput.data = selectData.fyid;  
 					}
+				}if(chooseType == "DJLXD"){
+					xhInput.text = selectData[xhColumnName];  xhInput.data = selectData[xhidColumnName];  
+					mcInput.text = selectData.project;  mcInput.data = selectData[idColumnName]; 
+					datetime.setText(selectData["datetime"]);
+					datetime.data = (selectData["isysdj"]=="Y");
+					if(motorType != null){
+						motorType.selectedIndex = CommonMethod.getCbxItemIndex(selectData["isysdj"],motorType,null,"itemno");
+					}
+					if(fyInput != null){
+						fyInput.text = selectData.fyxh;  fyInput.data = selectData.fyid;  
+					}
+				}else if(chooseType == "DJ"){ 
+					mcInput.text = selectData[xhColumnName];  mcInput.data = selectData[idColumnName]; 
+					motorType.selectedIndex = CommonMethod.getCbxItemIndex(selectData["isysdj"],motorType,null,"itemno");
 				}else{
 	             if(mcInput != null){
 					if(chooseType == "ZC" && xhInput != null){
@@ -192,6 +224,9 @@
 				}
 		//		if(lxCbx != null){lxCbx.selectedIndex = CommonMethod.getCbxItemIndex(selectData.ryhcbh,lxCbx,null,"value");}
 		//		if(dwCbx != null){dwCbx.selectedIndex = CommonMethod.getCbxItemIndex(selectData.dw,dwCbx,"label");}
+				if(callBackFunc != null){
+					callBackFunc.call(this.parentPage,selectData);
+				}
 			}
 			
 			private function resetListPage():void{
@@ -224,6 +259,7 @@
 		<ns:FYGridMoudel id="fyWd"  width="100%" height="100%"  visible="{vsb2}" includeInLayout="{vsb2}"/>
 		<ns:DJGridMoudel id="djWd"  width="100%" height="100%"  visible="{vsb3}" includeInLayout="{vsb3}"/>
 		<ns:SYDGridMoudel id="lxdWd"  width="100%" height="100%"  visible="{vsb4}" includeInLayout="{vsb4}"/>
+		<ns:SYDDJGridMoudel id="djlxdWd"  width="100%" height="100%"  visible="{vsb5}" includeInLayout="{vsb5}"/>
 	</mx:VBox>
 	<mx:HBox horizontalGap="180" width="100%" horizontalAlign="center">
 		<mx:Button label="确认" click="selectHandler()" width="80" x="491"/>

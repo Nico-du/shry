@@ -219,7 +219,7 @@
 				jsonObj.formatter_x = xAxisUnit;//"Pa3";
 				jsonObj.formatter_y = yAxisUnit;//"W4";
 				jsonObj.x_maxInterval = _xInterval;
-				jsonObj.y_maxInterval = _yInterval;
+				jsonObj.y_maxInterval = _yInterval;//取消设值,让echart自动设置
 				
 				jsonObj.dataAry = CommonMethod.getNumberArray(dpArray,[_xField,_yField]);
 				return JSON.encode(jsonObj);
@@ -270,6 +270,40 @@
 			}
 			
 			private var waitRefeshTime:Number = 1000;
+			//生成电机性能图
+			public function initChartDJ():void
+			{
+				iframeChart.callIFrameFunction("refreshCwd");
+				
+				flash.utils.setTimeout(initChartDJLater,waitRefeshTime);
+			}
+			public function initChartDJLater():void
+			{
+				this.modelTitle="电机Torque—Speed曲线图"; //同一个变量顺序使用
+				this._xField = "torqueNm"; this._yField = "speed";
+				this.xToolTipTiltle = this.xAxisTitle= "Torque";this.yToolTipTiltle= this.yAxisTitle= "Speed";
+				this.xAxisUnit = "Nm"; this.yAxisUnit = "RPM";
+				this.refeshCallback(1);
+				
+				this.modelTitle="电机Torque—Eff.曲线图";
+				this._xField = "torqueNm"; this._yField = "eff";
+				this.xToolTipTiltle = this.xAxisTitle= "Torque";this.yToolTipTiltle= this.yAxisTitle= "Eff.";
+				this.xAxisUnit = "Nm"; this.yAxisUnit = "%";
+				this.refeshCallback(2);
+				
+				this.modelTitle="电机Torque—Current曲线图"; 
+				this._xField = "torqueNm"; this._yField = "current";
+				this.xToolTipTiltle = this.xAxisTitle= "Torque";this.yToolTipTiltle= this.yAxisTitle= "Current";
+				this.xAxisUnit = "Nm"; this.yAxisUnit = "A";
+				this.refeshCallback(3);
+				
+				this.modelTitle="电机Torque—PowerOut曲线图"; 
+				this._xField = "torqueNm"; this._yField = "powOut";
+				this.xToolTipTiltle = this.xAxisTitle= "Torque";this.yToolTipTiltle= this.yAxisTitle= "PowerOut";
+				this.xAxisUnit = "Nm"; this.yAxisUnit = "W";
+				this.refeshCallback(4);
+				//onSendParamToHtml(1);
+			}
 			//生成总成性能图
 			public function initChartZC():void
 			{
@@ -279,7 +313,7 @@
 			}
 			public function initChartZCLater():void
 			{
-				this.modelTitle="总成流量—效率曲线图"; 
+				this.modelTitle="总成流量—效率曲线图"; //同一个变量顺序使用
 				this._xField = "ll"; this._yField = "xl";
 				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "效率";
 				this.xAxisUnit = "m^3/h"; this.yAxisUnit = "%";
@@ -314,7 +348,7 @@
 			}
 			public function initChartFYLater():void
 			{
-				this.modelTitle="风叶流量-效率曲线图"; 
+				this.modelTitle="风叶流量-效率曲线图"; //同一个变量顺序使用
 				this._xField = "ll"; this._yField = "xl";
 				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "效率";
 				this.xAxisUnit = "m^3/h"; this.yAxisUnit = "%";
@@ -347,6 +381,8 @@
 					callLater(initChartZC);
 				}else if("FY" == chartType){
 					callLater(initChartFY);
+				}else if("DJ" == chartType){
+					callLater(initChartDJ);
 				}
 			}
 			
