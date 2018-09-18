@@ -52,6 +52,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String outPutMsg ="导入失败：";
 		try {
+			String importuser = request.getParameter("importuser");
 			//上传类型 FY/ZC/DJ
 //			String updType = request.getParameter("updType");
 //			if(StringUtils.isBlank(updType)){doResponse(response, outPutMsg+"上传参数异常:updType为空"); return; }
@@ -83,7 +84,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 		   outPutMsg = doPrepareData(comService, listVo);
 		   if(!SUCCESS.equals(outPutMsg)){ doResponse(response, outPutMsg);	return;}
 		   //Step 3:保存数据库
-		   outPutMsg = doSaveAllData(comService, listVo);
+		   outPutMsg = doSaveAllData(comService, listVo,importuser);
 		   if(!SUCCESS.equals(outPutMsg)){ doResponse(response, outPutMsg);	return;}
 		   
 		   //Step 4:失败回滚,只回滚总成数据(风叶/电机数据直接使用已存在数据)
@@ -171,7 +172,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 	 * @throws IllegalAccessException 
 	 */
 	@SuppressWarnings("unchecked")
-	private String doSaveAllData(CommonService comService,ListVo listVo) throws IllegalAccessException, InvocationTargetException{
+	private String doSaveAllData(CommonService comService,ListVo listVo,String importuser) throws IllegalAccessException, InvocationTargetException{
 		List<Long> savedZcList = new ArrayList<Long>();
 		
 		List<ShryFyData> fydataList; 
@@ -186,26 +187,22 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 //				   listVo.getFyDataList().get(i).setXh(i+"#"+listVo.getFyDataList().get(i).getXh());
 //			   }
 		   listVo.getDjDataList().get(i).setInputdate(new Date());
-		   listVo.getDjDataList().get(i).setInputuser("1");
-		   listVo.getDjDataList().get(i).setUpdatedate(new Date());
-		   listVo.getDjDataList().get(i).setUpdateuser("1");
+		   listVo.getDjDataList().get(i).setInputuser(importuser);
 			
 		   listVo.getFyDataList().get(i).setInputdate(new Date());
-		   listVo.getFyDataList().get(i).setInputuser("1");
-		   listVo.getFyDataList().get(i).setUpdatedate(new Date());
-		   listVo.getFyDataList().get(i).setUpdateuser("1");
+		   listVo.getFyDataList().get(i).setInputuser(importuser);
 		   
 		   if(this.isJsyqImp){
 			   zcdataList= comService.getObjectList(new ShryZcData()," xh='"+listVo.getZcDataList().get(i).getXh()+"' order by inputdate desc limit 1 ");
 			   lZcid = zcdataList.get(0).getZcid();
 			   listVo.getZcDataList().set(i, zcdataList.get(0));
 			   listVo.getZcDataList().get(i).setUpdatedate(new Date());
-			   listVo.getZcDataList().get(i).setUpdateuser("1");
+			   listVo.getZcDataList().get(i).setUpdateuser(importuser);
 		   }else{
 			   listVo.getZcDataList().get(i).setUpdatedate(new Date());
-			   listVo.getZcDataList().get(i).setUpdateuser("1");
+			   listVo.getZcDataList().get(i).setUpdateuser(importuser);
 			   listVo.getZcDataList().get(i).setInputdate(new Date());
-			   listVo.getZcDataList().get(i).setInputuser("1");
+			   listVo.getZcDataList().get(i).setInputuser(importuser);
 		   }
 			
 			fydataList = comService.getObjectList(new ShryFyData(), " xh='"+listVo.getFyDataList().get(i).getXh()+"' order by inputdate desc limit 1 ");
@@ -428,14 +425,10 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 									fyData.setXh(xh);
 									fyData.setDlhzj(dlhzj);
 									fyData.setFbzj(fbzj);
-									fyData.setInputdate(new Date());
-									fyData.setInputuser("1");
 									fyData.setJqfs(jqfs);
 									fyData.setLggd(lggd);
 									fyData.setLgzj(lgzj);
 									fyData.setQj(qj);
-									fyData.setUpdatedate(new Date());
-									fyData.setUpdateuser("1");
 									fyData.setXh(xh);
 									fyData.setYpsm(ypsm);
 									fyData.setZl(zl);

@@ -12,6 +12,7 @@ package asset_bfdj
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import flex.pojos.UserSessionVo;
 	import flex.util.CommonMethod;
 	import flex.util.CommonXMLData;
 	
@@ -101,6 +102,26 @@ package asset_bfdj
 			//		CommonMethod.setEnable(currentPwd.dataFormBox as DisplayObjectContainer);
 			}
 		}
+		
+		//判断当前用户,是否创建者,非创建者不可编辑
+		public static function isCreateUserEditable(currentWd:Object,tempSelectedItem:Object=null):Boolean{
+			var isEnable:Boolean = false;
+			if(!CommonXMLData.IsOnlyUpdateUserEditAble){ return true;}
+			var userVo:UserSessionVo =FlexGlobals.topLevelApplication.userVo;
+			var slcItem:Object=null;
+			
+			if(tempSelectedItem != null){
+				slcItem = tempSelectedItem;
+			}else if(currentWd.hasOwnProperty("tempSelectedItem") && currentWd["tempSelectedItem"] != null){
+				slcItem = currentWd["tempSelectedItem"];
+			}
+			if(slcItem == null){ return true;}
+			if((slcItem.inputuser==userVo.id || userVo.ruleName=="超级管理员")){
+				isEnable =  true;
+			}
+			return isEnable;
+		}
+		
 		/**
 		 *隐藏流程页面按钮 
 		 **/
@@ -110,28 +131,32 @@ package asset_bfdj
 			
 			if(currentWd == null){Alert.show("null param currentWd -- changeCNSTPageState() !");return;}
 			
+			var isCrtEditable:Boolean = isCreateUserEditable(currentWd);
+			
 			if(currentWd.hasOwnProperty("newAction")){currentWd["newAction"].visible = isAddEnable;currentWd["newAction"].includeInLayout=isAddEnable;}
 			if(currentWd.hasOwnProperty("historyAction")){currentWd["historyAction"].visible = !isAddEnable;currentWd["historyAction"].includeInLayout= !isAddEnable;}
 			
 			if(isGridPage){
 				if(currentWd.hasOwnProperty("editAction")){currentWd["editAction"].visible = isEditEnable;currentWd["editAction"].includeInLayout=isEditEnable;}
 			}else{
-				if((!isEditEnable && !isAddEnable)  || (!isEditEnable && !isAddDataPage) || (!isAddEnable && isAddDataPage)){
+				if(!isCrtEditable || (!isEditEnable && !isAddEnable)  || (!isEditEnable && !isAddDataPage) || (!isAddEnable && isAddDataPage)){
 					if(currentWd.hasOwnProperty("newAction")){currentWd["newAction"].visible = false;currentWd["newAction"].includeInLayout=false;}
 					if(currentWd.hasOwnProperty("saveAction")){currentWd["saveAction"].visible = false;currentWd["saveAction"].includeInLayout=false;}
 					if(currentWd.hasOwnProperty("saveAndCloseAction")){currentWd["saveAndCloseAction"].visible = false;currentWd["saveAndCloseAction"].includeInLayout=false;}
 					if(currentWd.hasOwnProperty("editAction")){currentWd["editAction"].visible = false;currentWd["editAction"].includeInLayout=false;}
 					if(currentWd.hasOwnProperty("saveAndNewAction")){currentWd["saveAndNewAction"].visible =false;currentWd["saveAndNewAction"].includeInLayout= false;}
+					if(currentWd.hasOwnProperty("removeAndCloseAction")){currentWd["removeAndCloseAction"].visible = false;currentWd["removeAndCloseAction"].includeInLayout=false;}
+					if(currentWd.hasOwnProperty("removeAction")){currentWd["removeAction"].visible = false;currentWd["removeAction"].includeInLayout=false;}
 				}else{
 					if(currentWd.hasOwnProperty("saveAction")){currentWd["saveAction"].visible = true;currentWd["saveAction"].includeInLayout=true;}
 					if(currentWd.hasOwnProperty("saveAndCloseAction")){currentWd["saveAndCloseAction"].visible = true;currentWd["saveAndCloseAction"].includeInLayout=true;}
-					if(currentWd.hasOwnProperty("editAction")){currentWd["editAction"].visible = true;currentWd["editAction"].includeInLayout=true;}
+					if(currentWd.hasOwnProperty("editAction")){currentWd["editAction"].visible = isEditEnable;currentWd["editAction"].includeInLayout=isEditEnable;}
 					if(currentWd.hasOwnProperty("saveAndNewAction")){currentWd["saveAndNewAction"].visible =isAddEnable;currentWd["saveAndNewAction"].includeInLayout= isAddEnable;}
+					if(currentWd.hasOwnProperty("removeAndCloseAction")){currentWd["removeAndCloseAction"].visible = isDelEnable;currentWd["removeAndCloseAction"].includeInLayout=isDelEnable;}
+					if(currentWd.hasOwnProperty("removeAction")){currentWd["removeAction"].visible = isDelEnable;currentWd["removeAction"].includeInLayout=isDelEnable;}
 				}
 			}
 			
-			if(currentWd.hasOwnProperty("removeAndCloseAction")){currentWd["removeAndCloseAction"].visible = isDelEnable;currentWd["removeAndCloseAction"].includeInLayout=isDelEnable;}
-			if(currentWd.hasOwnProperty("removeAction")){currentWd["removeAction"].visible = isDelEnable;currentWd["removeAction"].includeInLayout=isDelEnable;}
 		}
 		
 		/**

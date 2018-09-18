@@ -100,7 +100,6 @@
 				
 				//判断写入权限
 				//	ASCommonHelper.controlVisible(this.otherAction,false);
-				ASCommonHelper.controlVisible(this.otherAction,otherAction.visible);
 				ASCommonHelper.controlVisible(this.exportAction,exportAction.visible);
 				
 				ASCommonHelper.controlVisible(this.otherAction,false);
@@ -124,7 +123,7 @@
 				if(tempSelctedItem==null){
 					return;
 				}
-				tempSelctedItem.selected=!tempSelctedItem.selected;				
+				tempSelctedItem.selected=(!tempSelctedItem.selected && ProcessMethods.isCreateUserEditable(this,tempSelctedItem));				
 				this.cns_dg.invalidateList();
 				checkDataIsSelected();
 			}
@@ -221,6 +220,7 @@
 				}
 				tempWindow.dataId=tempid;
 				tempWindow.parentPage=this;
+				tempWindow.tempSelectedItem = tempSelctedItem;
 				this.cns_dg_pg.openEditPage(tempWindow);
 			}
 			//检测表格是否存在选中数据

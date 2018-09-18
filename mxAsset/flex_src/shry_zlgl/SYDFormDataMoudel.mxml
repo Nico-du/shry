@@ -35,7 +35,8 @@
 			//页面标题
 			[Bindable]
 			public var pageTitle:String="试验单数据";
-			
+			//查看页面的选中数据
+			public var tempSelectedItem:Object = null;
 			//数据标题
 			[Bindable]
 			public var dataTitles:String="";

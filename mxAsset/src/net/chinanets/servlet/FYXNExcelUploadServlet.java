@@ -56,6 +56,7 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 		String str = "";
 		
 		try {
+			String importuser = request.getParameter("importuser");
 			// 获取上传文件流，写入到服务器文件
 			DiskFileItemFactory factory = new DiskFileItemFactory();
 			String path = request.getRealPath("/");
@@ -90,9 +91,9 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 									
 									// 保存试验单数据并返回试验单id
 									listFyxnVo.getSydData().setInputdate(new Date());
-									listFyxnVo.getSydData().setInputuser("1");
+									listFyxnVo.getSydData().setInputuser(importuser);
 									listFyxnVo.getSydData().setUpdatedate(new Date());
-									listFyxnVo.getSydData().setUpdateuser("1");
+									listFyxnVo.getSydData().setUpdateuser(importuser);
 									listFyxnVo.getSydData().setFyid(fyId);
 									returnId = comService.saveObject(listFyxnVo.getSydData());
 									
@@ -100,8 +101,10 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 									for (int i = 0; i < listFyxnVo.getFyxnData().size(); i++) {
 										listFyxnVo.getFyxnData().get(i).setLxdid(returnId);
 										listFyxnVo.getFyxnData().get(i).setFyid(fyId);
+										listFyxnVo.getFyxnData().get(i).setInputdate(new Date());
+										listFyxnVo.getFyxnData().get(i).setInputuser(importuser);
 										listFyxnVo.getFyxnData().get(i).setUpdatedate(new Date());
-										listFyxnVo.getFyxnData().get(i).setUpdateuser("1");
+										listFyxnVo.getFyxnData().get(i).setUpdateuser(importuser);
 										comService.saveObject(listFyxnVo.getFyxnData().get(i));
 									}
 									str="导入成功！";
@@ -267,14 +270,12 @@ public class FYXNExcelUploadServlet extends HttpServlet {
 	        	fyxnData.setZzs(zzs);//主转速
 	        	fyxnData.setFzs(fzs);//副转速
 	        	fyxnData.setInputdate(new Date());
-	        	fyxnData.setInputuser("1"); 
 	        	fyxnData.setJyl(jy);//静压力
 	        	fyxnData.setLl(flow);//流量
 //	        	fyxnData.setLxdid(lxdid); //试验单  TODO
 	        	fyxnData.setMemo(memo); // 备注
 	        	fyxnData.setNj(zj); //扭矩
 	        	fyxnData.setUpdatedate(new Date());
-	        	fyxnData.setUpdateuser("1");
 	        	fyxnData.setXl(xl); //效率
 //	        	fyxnData.setYxgl(yxgl); //有效功率
 	        	fyxnData.setZgl(zgl); //轴功率

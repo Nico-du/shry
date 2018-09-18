@@ -6,6 +6,9 @@ import flex.util.CommonMethod;
 
 import mx.core.FlexGlobals;
 
+//查看页面的选中数据
+public var tempSelectedItem:Object = null;
+
 /**
  *包含到变更登记, 登记关联的固定资产数据的页面
  * 1.包含 操作历史记录的方法

@@ -125,5 +125,13 @@ package flex.util
 		 *角色XML 
 		 **/
 		public static var RulesData:ArrayCollection = null;
+		
+		
+		/**
+		 * 是否只有上传用户才能操作数据
+		 **/
+		public static var IsOnlyUpdateUserEditAble:Boolean = true;
+		
+		
 	}
 }

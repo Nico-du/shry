@@ -59,6 +59,7 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 		String opName = "";
 		String str = "";
 		try {
+			String importuser = request.getParameter("importuser");
 			// 获取上传文件流，写入到服务器文件
 			DiskFileItemFactory factory = new DiskFileItemFactory();
 			String path = request.getRealPath("/");
@@ -88,9 +89,9 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 					   if(listData.isEmpty() || listData==null){
 						   //不存在则保存实验单数据，并返回试验单id 用于总成性能表中试验单id保存
 						   listxnVo.getSydData().setInputdate(new Date());
-						   listxnVo.getSydData().setInputuser("1");
+						   listxnVo.getSydData().setInputuser(importuser);
 						   listxnVo.getSydData().setUpdatedate(new Date());
-						   listxnVo.getSydData().setUpdateuser("1");
+						   listxnVo.getSydData().setUpdateuser(importuser);
 						   
 						   
 						   //取试验单的风叶型号，在总成表中查询风叶信息，取查询记录中的风叶id，总成id，电机id
@@ -108,8 +109,10 @@ public class ZCXNExcelUploadServlet extends HttpServlet {
 									   listxnVo.getZcxnDataList().get(i).setLxdid(returnId);
 									   listxnVo.getZcxnDataList().get(i).setZcid(listZcData.get(0).getZcid());
 									   listxnVo.getZcxnDataList().get(i).setFyid(listZcData.get(0).getFyid());
+									   listxnVo.getZcxnDataList().get(i).setInputdate(new Date());
+									   listxnVo.getZcxnDataList().get(i).setInputuser(importuser);
 									   listxnVo.getZcxnDataList().get(i).setUpdatedate(new Date());
-									   listxnVo.getZcxnDataList().get(i).setUpdateuser("1");
+									   listxnVo.getZcxnDataList().get(i).setUpdateuser(importuser);
 									   comService.saveObject(listxnVo.getZcxnDataList().get(i));
 							    	 }
 								   str="导入数据成功！";

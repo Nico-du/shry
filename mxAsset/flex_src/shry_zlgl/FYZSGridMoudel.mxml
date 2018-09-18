@@ -41,6 +41,8 @@
 			//页面默认标题名称
 			[Bindable]
 			protected var pagetitle:String="噪声数据";
+			//查看页面的选中数据
+			public var tempSelectedItem:Object = null;
 			//分页中备注信息
 			[Bindable]
 			protected var dg_pg_othermsg:String="";
@@ -235,7 +237,7 @@
 				if(tempSelctedItem==null){
 					return;
 				}
-				tempSelctedItem.selected=!tempSelctedItem.selected;				
+				tempSelctedItem.selected=(!tempSelctedItem.selected && ProcessMethods.isCreateUserEditable(this,tempSelctedItem));				
 				this.cns_dg.invalidateList();
 				checkDataIsSelected();
 			}
@@ -364,7 +366,7 @@
 				}
 				tempWindow.dataId=tempid;
 				tempWindow.parentPage=this;
-				tempWindow
+				tempWindow.tempSelectedItem = tempSelctedItem;
 				this.cns_dg_pg.openEditPage(tempWindow);
 			}
 			//检测表格是否存在选中数据

@@ -52,6 +52,7 @@ public class DJXNInfoImportServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		str ="导入成功！";
 		try {
+			String importuser = request.getParameter("importuser");
 			// 获取上传文件流，写入到服务器文件
 			DiskFileItemFactory factory = new DiskFileItemFactory();
 			String path = request.getRealPath("/");
@@ -100,9 +101,9 @@ public class DJXNInfoImportServlet extends HttpServlet {
 
 
 						listVo.getSydData().setInputdate(new Date());
-						listVo.getSydData().setInputuser("1");
+						listVo.getSydData().setInputuser(importuser);
 						listVo.getSydData().setUpdatedate(new Date());
-						listVo.getSydData().setUpdateuser("1");
+						listVo.getSydData().setUpdateuser(importuser);
 						listVo.getSydData().setDjid(djid);
 						Long sydId = comService.saveObject(listVo.getSydData());
 						if(djid == null || djid <1 || sydId == null || sydId <1){
@@ -111,9 +112,9 @@ public class DJXNInfoImportServlet extends HttpServlet {
 						//保存
 						for (int i = 0; i <listVo.getDjxnList().size(); i++) {
 							listVo.getDjxnList().get(i).setInputdate(new Date());
-							listVo.getDjxnList().get(i).setInputuser("1");
+							listVo.getDjxnList().get(i).setInputuser(importuser);
 							listVo.getDjxnList().get(i).setUpdatedate(new Date());
-							listVo.getDjxnList().get(i).setUpdateuser("1");
+							listVo.getDjxnList().get(i).setUpdateuser(importuser);
 							listVo.getDjxnList().get(i).setLxdid(sydId);
 							listVo.getDjxnList().get(i).setDjid(djid);
 							comService.saveObject(listVo.getDjxnList().get(i));

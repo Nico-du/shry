@@ -47,6 +47,7 @@ public class NoiseInfoImportServlet extends HttpServlet {
 		response.setContentType("text/html;charset=utf-8");
 		PrintWriter out = response.getWriter();
 		try {
+			String importuser = request.getParameter("importuser");
 			// 获取上传文件流，写入到服务器文件
 			DiskFileItemFactory factory = new DiskFileItemFactory();
 			String path = request.getRealPath("/");
@@ -82,9 +83,9 @@ public class NoiseInfoImportServlet extends HttpServlet {
 							   //保存噪声表
 							   listVo.getZsList().get(i).setInputdate(new Date());
 							   listVo.getZsList().get(i).setFyid(fys.get(0).getFyid());
-							   listVo.getZsList().get(i).setInputuser("1");
+							   listVo.getZsList().get(i).setInputuser(importuser);
 							   listVo.getZsList().get(i).setUpdatedate(new Date());
-							   listVo.getZsList().get(i).setUpdateuser("1");
+							   listVo.getZsList().get(i).setUpdateuser(importuser);
 							   
 							   comService.saveObject( listVo.getZsList().get(i));
 							   

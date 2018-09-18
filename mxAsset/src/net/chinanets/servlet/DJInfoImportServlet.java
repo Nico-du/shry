@@ -41,7 +41,7 @@ public class DJInfoImportServlet extends HttpServlet {
 	 * @date:2018-7-17上午10:24:33
 	 */
 	private static final long serialVersionUID = 1L;
-	public String str ="导入成功！";
+	public String str ;
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	public void doGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
                this.doPost(request, response);
@@ -50,7 +50,9 @@ public class DJInfoImportServlet extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html;charset=utf-8");
 		PrintWriter out = response.getWriter();
+		str ="导入成功！";
 		try {
+			String importuser = request.getParameter("importuser");
 			// 获取上传文件流，写入到服务器文件
 			DiskFileItemFactory factory = new DiskFileItemFactory();
 			String path = request.getRealPath("/");
@@ -111,9 +113,9 @@ public class DJInfoImportServlet extends HttpServlet {
 						//保存
 						for (int i = 0; i <listVo.getDjList().size(); i++) {
 							   listVo.getDjList().get(i).setInputdate(new Date());
-							   listVo.getDjList().get(i).setInputuser("1");
+							   listVo.getDjList().get(i).setInputuser(importuser);
 							   listVo.getDjList().get(i).setUpdatedate(new Date());
-							   listVo.getDjList().get(i).setUpdateuser("1");
+							   listVo.getDjList().get(i).setUpdateuser(importuser);
 							   
 							   comService.saveObject(listVo.getDjList().get(i));
 							   

@@ -10,6 +10,7 @@
            import mx.collections.ArrayCollection;
 			import mx.managers.PopUpManager;
            import mx.controls.Alert;
+			import mx.core.FlexGlobals;
 			
            private var fileRefs: FileReferenceList = new FileReferenceList();
 		   public var url:String;//servlet地址 /mxAsset/servlet/ZCXNExcelUploadServlet
@@ -46,8 +47,10 @@
            }
            private function uploadFile(): void
            {               
-			   var urlrequest: URLRequest = new URLRequest(url);
+			   
+			   var urlrequest:URLRequest = new URLRequest(url);
 			   variables.updType = updType;
+			   variables.importuser = FlexGlobals.topLevelApplication.userVo.id;
 			   urlrequest.data = variables;
                for each (var f: FileReference in selectedFiles)
                {           

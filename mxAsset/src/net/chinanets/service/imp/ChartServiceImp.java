@@ -772,7 +772,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			
 			ch.setPowIn(CommonMethods.formateDouble(powIn,2));
 			ch.setPowOut(CommonMethods.formateDouble(powOut,2));
-			ch.setEff(CommonMethods.formateDouble(powOut/powIn,4));
+			ch.setEff(CommonMethods.formateDouble(powOut/powIn*100,4));
 			
 			outList.add(ch);
 		}

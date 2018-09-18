@@ -200,7 +200,7 @@
 					if(fyInput != null){
 						fyInput.text = selectData.fyxh;  fyInput.data = selectData.fyid;  
 					}
-				}if(chooseType == "DJLXD"){
+				}else if(chooseType == "DJLXD"){
 					xhInput.text = selectData[xhColumnName];  xhInput.data = selectData[xhidColumnName];  
 					mcInput.text = selectData.project;  mcInput.data = selectData[idColumnName]; 
 					datetime.setText(selectData["datetime"]);
@@ -211,7 +211,7 @@
 					if(fyInput != null){
 						fyInput.text = selectData.fyxh;  fyInput.data = selectData.fyid;  
 					}
-				}else if(chooseType == "DJ"){ 
+				}else if(chooseType == "DJ"){
 					mcInput.text = selectData[xhColumnName];  mcInput.data = selectData[idColumnName]; 
 					motorType.selectedIndex = CommonMethod.getCbxItemIndex(selectData["isysdj"],motorType,null,"itemno");
 				}else{
