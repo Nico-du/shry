@@ -10,8 +10,11 @@
   </compiler>
   <theme themeIsDefault="false" themeIsSDK="true" themeLocation="${SDK_THEMES_DIR}/frameworks/themes/Halo"/>
   <applications>
+    <application path="F:/dzj/DevSoftWareInstall/myeclipse/myeclipse_flex/workspace/shry/mxAsset/WebRoot/Login.html"/>
     <application path="MainWindow.mxml"/>
+    <application path="mxAsset/WebRoot/Login.html"/>
     <application path="Login.mxml"/>
+    <application path="IFrameTest.mxml"/>
   </applications>
   <modules/>
   <buildCSSFiles/>

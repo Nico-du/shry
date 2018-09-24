@@ -165,5 +165,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/InterpOneX.jar"/>
 	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/javabuilder.jar"/>
+	<classpathentry kind="lib" path="WebRoot/WEB-INF/lib/ployfitX.jar"/>
 	<classpathentry kind="output" path="WebRoot/WEB-INF/lib"/>
 </classpath>

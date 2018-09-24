@@ -157,7 +157,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 				}
 			}
 		}
-		if(validateResult.length() < 10){ validateResult = SUCCESS;}
+		if(validateResult.length() < 15){ validateResult = SUCCESS;}
 
 		return validateResult;
 	}

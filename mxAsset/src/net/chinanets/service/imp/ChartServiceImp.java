@@ -69,14 +69,14 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		if(!StringUtils.isBlank(sFbzj)){
 			queryList = commonDao.getObjectBySql("select attribute1 from cnst_codelist_data where codebs='FFZJ_FW' limit 1");
 			if(queryList != null && !queryList.isEmpty()){ sFw = queryList.get(0)+""; }
-			dValMin = Double.parseDouble(sFbzj) - 0.0001  - Double.parseDouble(sFw);
-			dValMax = Double.parseDouble(sFbzj) + Double.parseDouble(sFw);
+			dValMin = NumberUtils.toDouble(sFbzj) - 0.0001  - NumberUtils.toDouble(sFw);
+			dValMax = NumberUtils.toDouble(sFbzj) + NumberUtils.toDouble(sFw);
 			strSQL += "where fyxn.fyid in ( select fy.fyid from shry_fy_data fy where fy.fbzj  between '"+dValMin+"' and '"+dValMax+"' )  ";
 		}else if(!StringUtils.isBlank(sDlhzj)){
 			queryList = commonDao.getObjectBySql("select attribute1 from cnst_codelist_data where codebs='DLHZJ_FW' limit 1");
 			if(queryList != null && !queryList.isEmpty()){ sFw = queryList.get(0)+""; }
-			dValMin = Double.parseDouble(sDlhzj) - 0.0001 - Double.parseDouble(sFw);
-			dValMax = Double.parseDouble(sDlhzj) + Double.parseDouble(sFw);
+			dValMin = NumberUtils.toDouble(sDlhzj) - 0.0001 - NumberUtils.toDouble(sFw);
+			dValMax = NumberUtils.toDouble(sDlhzj) + NumberUtils.toDouble(sFw);
 			strSQL += "where fyxn.fyid in ( select fy.fyid from shry_fy_data fy where fy.dlhzj between '"+dValMin+"' and '"+dValMax+"' )  )  ";
 		}else if(StringUtils.isBlank(sDlhzj) && StringUtils.isBlank(sDlhzj) && !StringUtils.isBlank(sFzid) ){//分组ID
 			strSQL += "where fyxn.fyid in ( select fz.glid from shry_xxfz_data fz where fz.fzid='"+sFzid+"' )  ";
@@ -91,14 +91,14 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		List<ShryFyxnData> fyxnList =	(List<ShryFyxnData>) commonDao.RunSelectClassBySql(strSQL, tempClassPath);
 		System.out.println("搜索范围："+fyxnList.size() +" 条数据！");
 		
-		Double dFbzj = StringUtils.isBlank(sFbzj) ? null : Double.parseDouble(sFbzj);
-		Double dDlhzj = StringUtils.isBlank(sDlhzj) ? null : Double.parseDouble(sDlhzj);
+		Double dFbzj = StringUtils.isBlank(sFbzj) ? null : NumberUtils.toDouble(sFbzj);
+		Double dDlhzj = StringUtils.isBlank(sDlhzj) ? null : NumberUtils.toDouble(sDlhzj);
 		
 		//执行选型
 		List<String> xxjgList = new ArrayList<String>();
 		try {
-			xxjgList = doFySelection(fyxnList,Double.parseDouble(sJy),Double.parseDouble(sLl),
-					Double.parseDouble(sGl),Double.parseDouble(sZs),dDlhzj,dFbzj);
+			xxjgList = doFySelection(fyxnList,NumberUtils.toDouble(sJy),NumberUtils.toDouble(sLl),
+					NumberUtils.toDouble(sGl),NumberUtils.toDouble(sZs),dDlhzj,dFbzj);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -235,7 +235,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 					missDataList.add("联系单号为"+lxdh+"的风叶性能数据中的部分数据缺失,选型忽略该联系单下的风叶"+fyxh);
 					continue label1;
 				}
-				if(Double.parseDouble(eachJy) < 0 || Double.parseDouble(eachJy) < 0 || Double.parseDouble(eachJy) < 0 || Double.parseDouble(eachJy) < 0){
+				if(NumberUtils.toDouble(eachJy) < 0 || NumberUtils.toDouble(eachJy) < 0 || NumberUtils.toDouble(eachJy) < 0 || NumberUtils.toDouble(eachJy) < 0){
 					String fyxh = (String) commonDao.getObjectBySql("SELECT fy.XH FROM shry_fy_data fy WHERE fy.FYID ='"+each.getFyid()+"' ").get(0);
 					String lxdh = (String) commonDao.getObjectBySql("select lxd.lxdh from shry_syd_data lxd where lxd.lxdid ='"+each.getLxdid()+"' ").get(0);
 					missDataList.add("联系单号为"+lxdh+"的风叶性能数据中的部分数据异常(小于0的数据),选型忽略该联系单下的风叶"+fyxh);
@@ -257,11 +257,11 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			for(ShryFyxnData each : eachXnList){
 				eachJy = each.getJyl();
 				eachLl = each.getLl();
-				if(Double.parseDouble(eachJy) >= dJy && Double.parseDouble(eachLl) >= dLl 
-						&& ( (Double.parseDouble(eachJy) - dJy) < minJyRange || (Double.parseDouble(eachLl) - dLl) < minLlRange )){
+				if(NumberUtils.toDouble(eachJy) >= dJy && NumberUtils.toDouble(eachLl) >= dLl 
+						&& ( (NumberUtils.toDouble(eachJy) - dJy) < minJyRange || (NumberUtils.toDouble(eachLl) - dLl) < minLlRange )){
 					startFyxhData = each;
-					minJyRange = Double.parseDouble(eachJy) - dJy;
-					minLlRange = Double.parseDouble(eachLl) - dLl;
+					minJyRange = NumberUtils.toDouble(eachJy) - dJy;
+					minLlRange = NumberUtils.toDouble(eachLl) - dLl;
 				}
 			}
 			if(startFyxhData == null){
@@ -286,8 +286,8 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 					missDataList.add("风叶噪声性能数据中的部分数据异常,选型忽略该风叶"+fyxh);
 					continue label1;
 					}
-				x[i] = Double.parseDouble(each.getSpeed());
-				y[i] = Double.parseDouble(each.getNoise());
+				x[i] = NumberUtils.toDouble(each.getSpeed());
+				y[i] = NumberUtils.toDouble(each.getNoise());
 				i++;
 			}
 			
@@ -296,15 +296,15 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			int startZs = Integer.parseInt(startFyxhData.getZzs());
 			int startIndex = eachXnList.indexOf(startFyxhData);
 			double dEachJy,dEachLl,dEachGl,dEachZs;
-			double zsAry[] = {reversePressure(Double.parseDouble(dlhzj), startZs, Double.parseDouble(startFyxhData.getJyl()), dJy, Double.parseDouble(dlhzj)),
-					                    reverseQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getLl()), dLl)  };
+			double zsAry[] = {reversePressure(NumberUtils.toDouble(dlhzj), startZs, NumberUtils.toDouble(startFyxhData.getJyl()), dJy, NumberUtils.toDouble(dlhzj)),
+					                    reverseQuantity(startZs, NumberUtils.toDouble(dlhzj), NumberUtils.toDouble(dlhzj), NumberUtils.toDouble(startFyxhData.getLl()), dLl)  };
 			int ict = 0;   // 0 : 同静压反推转速  1 : 同流量反推转速
 			//获取较小的功率
 			double dEachGl_part = 0;	int fyid_part = -1; double dSpeed_part = -1; //满足条件的结果
 			for(double zs : zsAry ){
-				dEachJy = translatePressure(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getJyl()), zs, Double.parseDouble(dlhzj));
-				dEachLl = translateQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getLl()), zs, Double.parseDouble(dlhzj));
-				dEachGl = translatePower(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getZgl()), zs, Double.parseDouble(dlhzj));
+				dEachJy = translatePressure(startZs, NumberUtils.toDouble(dlhzj), NumberUtils.toDouble(startFyxhData.getJyl()), zs, NumberUtils.toDouble(dlhzj));
+				dEachLl = translateQuantity(startZs, NumberUtils.toDouble(dlhzj), NumberUtils.toDouble(startFyxhData.getLl()), zs, NumberUtils.toDouble(dlhzj));
+				dEachGl = translatePower(startZs, NumberUtils.toDouble(dlhzj), NumberUtils.toDouble(startFyxhData.getZgl()), zs, NumberUtils.toDouble(dlhzj));
 
 				//目标转速的记录, 显示到前台 zs
 				//Step 4.2:使用最小二乘法 拟合曲线并求值, 满足情况1或情况2都可
@@ -335,9 +335,9 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			if(fyid_part != -1){
 				double minSpeed_part,minGl_part; minSpeed_part = minGl_part = 0;
 				for(double zs = dSpeed_part ; zs > 0 ; zs -= stepRange ){
-					dEachJy = translatePressure(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getJyl()), zs, Double.parseDouble(dlhzj));
-					dEachLl = translateQuantity(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getLl()), zs, Double.parseDouble(dlhzj));
-					dEachGl = translatePower(startZs, Double.parseDouble(dlhzj), Double.parseDouble(startFyxhData.getZgl()), zs, Double.parseDouble(dlhzj));
+					dEachJy = translatePressure(startZs, NumberUtils.toDouble(dlhzj), NumberUtils.toDouble(startFyxhData.getJyl()), zs, NumberUtils.toDouble(dlhzj));
+					dEachLl = translateQuantity(startZs, NumberUtils.toDouble(dlhzj), NumberUtils.toDouble(startFyxhData.getLl()), zs, NumberUtils.toDouble(dlhzj));
+					dEachGl = translatePower(startZs, NumberUtils.toDouble(dlhzj), NumberUtils.toDouble(startFyxhData.getZgl()), zs, NumberUtils.toDouble(dlhzj));
 					
 //					double dCurZs = Guass.getGuassValue(x,y,zs);//暂不考虑噪声
 					if(dEachGl <= dGl && ( (dEachJy >= dJy && dEachLl>=  dLl))){
@@ -360,7 +360,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		for(String each:fylist){
 			eachFyid = each.split(";")[0];
 			for(String eachSn:fylist_temp){
-				if(eachFyid.equals(eachSn.split(";")[0]) && Double.parseDouble(each.split(";")[2]) > Double.parseDouble(eachSn.split(";")[2])){
+				if(eachFyid.equals(eachSn.split(";")[0]) && NumberUtils.toDouble(each.split(";")[2]) > NumberUtils.toDouble(eachSn.split(";")[2])){
 					fylist_temp.remove(each); break;
 				}
 			}
@@ -385,12 +385,12 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		JSONObject jsonObjIn = JSONObject.fromObject(jsonObjectIn);
 		String stdzs = jsonObjIn.getString("stdzs");
 		for(ShryFyxnData each : rstList){
-			each.setJyl(translatePressure(Double.parseDouble(each.getZzs()), Double.parseDouble(jsonObjIn.getString("dlhzj")), 
-					Double.parseDouble(each.getJyl()), Double.parseDouble(stdzs), 
-					Double.parseDouble(jsonObjIn.getString("dlhzj")) )+"");
-			double eachLl = translateQuantity(Double.parseDouble(each.getZzs()), Double.parseDouble(jsonObjIn.getString("dlhzj")),
-					Double.parseDouble(each.getLl()), Double.parseDouble(stdzs),
-					Double.parseDouble(jsonObjIn.getString("dlhzj")));
+			each.setJyl(translatePressure(NumberUtils.toDouble(each.getZzs()), NumberUtils.toDouble(jsonObjIn.getString("dlhzj")), 
+					NumberUtils.toDouble(each.getJyl()), NumberUtils.toDouble(stdzs), 
+					NumberUtils.toDouble(jsonObjIn.getString("dlhzj")) )+"");
+			double eachLl = translateQuantity(NumberUtils.toDouble(each.getZzs()), NumberUtils.toDouble(jsonObjIn.getString("dlhzj")),
+					NumberUtils.toDouble(each.getLl()), NumberUtils.toDouble(stdzs),
+					NumberUtils.toDouble(jsonObjIn.getString("dlhzj")));
 			each.setLl(eachLl<0 ? "0" :  (eachLl+"") );
 			listOut.add(each);
 		}
@@ -451,13 +451,13 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		yNjAry = new double[convertList.size()];
 		for(int i=0;i<convertList.size();i++){
 			ShryFyxnData ch = convertList.get(i);
-			xAry[i] = Double.parseDouble(ch.getJyl());
+			xAry[i] = NumberUtils.toDouble(ch.getJyl());
 			
-			yLlAry[i] = Double.parseDouble(ch.getLl());
-//			yZzsAry[i] = Double.parseDouble(ch.getZzs());
-			yZglAry[i] = Double.parseDouble(ch.getZgl());
-			yXlAry[i] = Double.parseDouble(ch.getXl());
-			yNjAry[i] = Double.parseDouble(ch.getNj());
+			yLlAry[i] = NumberUtils.toDouble(ch.getLl());
+//			yZzsAry[i] = NumberUtils.toDouble(ch.getZzs());
+			yZglAry[i] = NumberUtils.toDouble(ch.getZgl());
+			yXlAry[i] = NumberUtils.toDouble(ch.getXl());
+			yNjAry[i] = NumberUtils.toDouble(ch.getNj());
 		}
 		logger.info("--------------开始调用MatlabInterp1Util.InterpOneX进行风叶插值计算----------------");
 		Double[] yVLlAry = MatlabInterp1Util.InterpOneX(xAry, yLlAry, aAry);
@@ -523,34 +523,34 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		List<ShryFyxnData> rstList = (List<ShryFyxnData>) commonDao.RunSelectClassBySql(sSql,"net.chinanets.pojos.ShryFyxnData");	
 		List<ShryFyxnData> listOut = new ArrayList<ShryFyxnData>();
 		
-		double dlhzj = Double.parseDouble(fyObj.getDlhzj());
+		double dlhzj = NumberUtils.toDouble(fyObj.getDlhzj());
 		
 		double dhsbl = hszsbl/100;
 		if(dhsbl == 1 && dlhzj == hsdlhzj){return rstList;}
 		String djy,dll,dzs,dgl,dnj,dxl;
 		djy = dll = dzs = dgl = "";
 		for(ShryFyxnData each : rstList){
-			dzs = (Double.parseDouble(each.getZzs())*dhsbl)+"";
+			dzs = (NumberUtils.toDouble(each.getZzs())*dhsbl)+"";
 			//静压
-			djy = translatePressure(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()), 
-					Double.parseDouble(each.getJyl()), Double.parseDouble(each.getZzs())*dhsbl, 
+			djy = translatePressure(NumberUtils.toDouble(each.getZzs()), NumberUtils.toDouble(fyObj.getDlhzj()), 
+					NumberUtils.toDouble(each.getJyl()), NumberUtils.toDouble(each.getZzs())*dhsbl, 
 					hsdlhzj) +"";
 			//流量
-			double eachLl = translateQuantity(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()),
-					Double.parseDouble(each.getLl()), Double.parseDouble(each.getZzs())*dhsbl,
+			double eachLl = translateQuantity(NumberUtils.toDouble(each.getZzs()), NumberUtils.toDouble(fyObj.getDlhzj()),
+					NumberUtils.toDouble(each.getLl()), NumberUtils.toDouble(each.getZzs())*dhsbl,
 					hsdlhzj);
 			dll = eachLl<0 ? "0" :  (eachLl+"") ;
 			//功率
-			dgl = translatePower(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()), 
-					Double.parseDouble(each.getZgl()), Double.parseDouble(each.getZzs())*dhsbl, 
+			dgl = translatePower(NumberUtils.toDouble(each.getZzs()), NumberUtils.toDouble(fyObj.getDlhzj()), 
+					NumberUtils.toDouble(each.getZgl()), NumberUtils.toDouble(each.getZzs())*dhsbl, 
 					hsdlhzj) +"";
 			//扭矩
 //			扭矩值=9.55*轴功率/主风扇转速
-			dnj = (9.55 * Double.parseDouble(dgl)/Double.parseDouble(dzs)) + "";
+			dnj = (9.55 * NumberUtils.toDouble(dgl)/NumberUtils.toDouble(dzs)) + "";
 			
 //    		效率值=流量*静压/输入/36
 			//效率 
-			dxl = (Double.parseDouble(dll) * Double.parseDouble(djy) / Double.parseDouble(dgl) / 36 ) +"" ;
+			dxl = (NumberUtils.toDouble(dll) * NumberUtils.toDouble(djy) / NumberUtils.toDouble(dgl) / 36 ) +"" ;
 			
 			each.setZzs(CommonMethods.formateDouble(dzs,2)); each.setJyl(CommonMethods.formateDouble(djy,2)); 
 			each.setLl(CommonMethods.formateDouble(dll,2)); each.setZgl(CommonMethods.formateDouble(dgl,2)); 
@@ -617,12 +617,12 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		yZzsAry = new double[convertList.size()]; yZglAry = new double[convertList.size()]; yXlAry = new double[convertList.size()];
 		for(int i=0;i<convertList.size();i++){
 			ShryZcxnData ch = convertList.get(i);
-			xAry[i] = Double.parseDouble(ch.getJyl());
+			xAry[i] = NumberUtils.toDouble(ch.getJyl());
 			
-			yLlAry[i] = Double.parseDouble(ch.getLl());
-			yZzsAry[i] = Double.parseDouble(ch.getZzs());
-			yZglAry[i] = Double.parseDouble(ch.getSrgl());
-			yXlAry[i] = Double.parseDouble(ch.getXl());
+			yLlAry[i] = NumberUtils.toDouble(ch.getLl());
+			yZzsAry[i] = NumberUtils.toDouble(ch.getZzs());
+			yZglAry[i] = NumberUtils.toDouble(ch.getSrgl());
+			yXlAry[i] = NumberUtils.toDouble(ch.getXl());
 		}
 		logger.info("--------------开始调用MatlabInterp1Util.InterpOneX进行总成插值计算----------------");
 		Double[] yVLlAry = MatlabInterp1Util.InterpOneX(xAry, yLlAry, aAry);
@@ -728,24 +728,24 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 	public List<ShryDjxnData> convertDJXNInsertChartList(List<ShryDjxnData> convertList,String[] insertAry) throws Exception{
 //		insertAry = convertDjMaxValue(convertList,insertAry);
 		List<ShryDjxnData> outList =  new ArrayList<ShryDjxnData>();
-		//流量、扭矩、轴功率、效率
+		//Speed 、 Current、Torque oz-in  通过以Torque为自变量步长0.1插值拟合而来
 		double[] xAry,aAry,yLlAry,yZglAry,yXlAry,yZzsAry,yTozAry;
 		xAry = new double[convertList.size()];  aAry = CommonMethods.toDoubleAry(insertAry); yLlAry = new double[convertList.size()]; 
 		yZzsAry = new double[convertList.size()]; yZglAry = new double[convertList.size()]; yXlAry = new double[convertList.size()];yTozAry = new double[convertList.size()];
 		for(int i=0;i<convertList.size();i++){
 			ShryDjxnData ch = convertList.get(i);
-			xAry[i] = Double.parseDouble(ch.getTorqueNm());//按顺序设值
+			xAry[i] = NumberUtils.toDouble(ch.getTorqueNm());//按顺序设值
 			
-			yLlAry[i] = Double.parseDouble(ch.getSpeed());
-//			yZzsAry[i] = Double.parseDouble(ch.getEff());
-			yZglAry[i] = Double.parseDouble(ch.getCurrent());
-//			yXlAry[i] = Double.parseDouble(ch.getPowOut());
-			yTozAry[i] = Double.parseDouble(ch.getTorqueOzIn());
+			yLlAry[i] = NumberUtils.toDouble(ch.getSpeed());
+//			yZzsAry[i] = NumberUtils.toDouble(ch.getEff());
+			yZglAry[i] = NumberUtils.toDouble(ch.getCurrent());
+//			yXlAry[i] = NumberUtils.toDouble(ch.getPowOut());
+			yTozAry[i] = NumberUtils.toDouble(ch.getTorqueOzIn());
 		}
 		logger.info("--------------开始调用MatlabInterp1Util.InterpOneX进行电机插值计算----------------");
-		Double[] yVLlAry = MatlabInterp1Util.InterpOneX(xAry, yLlAry, aAry);
+		Double[] yVLlAry = MatlabInterp1Util.PolyfitX(xAry, yLlAry, aAry);
 //		Double[] yVZzsAry = MatlabInterp1Util.InterpOneX(xAry, yZzsAry, aAry);
-		Double[] yVZglAry = MatlabInterp1Util.InterpOneX(xAry, yZglAry, aAry);
+		Double[] yVZglAry = MatlabInterp1Util.PolyfitX(xAry, yZglAry, aAry);
 //		Double[] yVXlAry = MatlabInterp1Util.InterpOneX(xAry, yXlAry, aAry);
 		Double[] yVTozAry = MatlabInterp1Util.InterpOneX(xAry, yTozAry, aAry);
 		
@@ -824,31 +824,31 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		List<ShryZcxnData> rstList = (List<ShryZcxnData>) commonDao.RunSelectClassBySql(sSql,"net.chinanets.pojos.ShryZcxnData");	
 		List<ShryZcxnData> listOut = new ArrayList<ShryZcxnData>();
 		
-		double dlhzj = Double.parseDouble(fyObj.getDlhzj());
+		double dlhzj = NumberUtils.toDouble(fyObj.getDlhzj());
 		
 		double dhsbl = hszsbl/100;
 		if(dhsbl == 1 && dlhzj == hsdlhzj){return rstList;}
 		String djy,dll,dzs,dgl,dxl;
 		djy = dll = dzs = dgl = "";
 		for(ShryZcxnData each : rstList){
-			dzs = (Double.parseDouble(each.getZzs())*dhsbl)+"";
+			dzs = (NumberUtils.toDouble(each.getZzs())*dhsbl)+"";
 			//静压
-			djy = translatePressure(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()), 
-					Double.parseDouble(each.getJyl()), Double.parseDouble(each.getZzs())*dhsbl, 
+			djy = translatePressure(NumberUtils.toDouble(each.getZzs()), NumberUtils.toDouble(fyObj.getDlhzj()), 
+					NumberUtils.toDouble(each.getJyl()), NumberUtils.toDouble(each.getZzs())*dhsbl, 
 					hsdlhzj) +"";
 			//流量
-			double eachLl = translateQuantity(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()),
-					Double.parseDouble(each.getLl()), Double.parseDouble(each.getZzs())*dhsbl,
+			double eachLl = translateQuantity(NumberUtils.toDouble(each.getZzs()), NumberUtils.toDouble(fyObj.getDlhzj()),
+					NumberUtils.toDouble(each.getLl()), NumberUtils.toDouble(each.getZzs())*dhsbl,
 					hsdlhzj);
 			dll = eachLl<0 ? "0" :  (eachLl+"") ;
 			//功率
-			dgl = translatePower(Double.parseDouble(each.getZzs()), Double.parseDouble(fyObj.getDlhzj()), 
-					Double.parseDouble(each.getSrgl()), Double.parseDouble(each.getZzs())*dhsbl, 
+			dgl = translatePower(NumberUtils.toDouble(each.getZzs()), NumberUtils.toDouble(fyObj.getDlhzj()), 
+					NumberUtils.toDouble(each.getSrgl()), NumberUtils.toDouble(each.getZzs())*dhsbl, 
 					hsdlhzj) +"";
 			
 //    		效率值=流量*静压/输入/36
 	     //效率 
-			dxl = (Double.parseDouble(dll) * Double.parseDouble(djy) / Double.parseDouble(dgl) / 36 ) +"" ;
+			dxl = (NumberUtils.toDouble(dll) * NumberUtils.toDouble(djy) / NumberUtils.toDouble(dgl) / 36 ) +"" ;
 			
 			each.setZzs(CommonMethods.formateDouble(dzs,2)); each.setJyl(CommonMethods.formateDouble(djy,2)); 
 			each.setLl(CommonMethods.formateDouble(dll,2)); each.setSrgl(CommonMethods.formateDouble(dgl,2)); 
@@ -881,11 +881,11 @@ public String translateData(String jsonArrayStrIn,String jsonObjectIn,String typ
 //			stdzs = eachJson.getString("stdzs");
 			zzs = eachJson.getString("zzs");
 			
-			eachJson.put("jy", translatePressure(Double.parseDouble(zzs), Double.parseDouble(jsonObjIn.getString("dlhzj")), 
-					Double.parseDouble(eachJson.getString("jyl")), Double.parseDouble(stdzs), 
-					Double.parseDouble(jsonObjIn.getString("dlhzj")) ));
-			eachJson.put("ll", translateQuantity(Double.parseDouble(zzs), Double.parseDouble(jsonObjIn.getString("dlhzj")),
-					Double.parseDouble(eachJson.getString("ll")), Double.parseDouble(stdzs), Double.parseDouble(jsonObjIn.getString("dlhzj"))));
+			eachJson.put("jy", translatePressure(NumberUtils.toDouble(zzs), NumberUtils.toDouble(jsonObjIn.getString("dlhzj")), 
+					NumberUtils.toDouble(eachJson.getString("jyl")), NumberUtils.toDouble(stdzs), 
+					NumberUtils.toDouble(jsonObjIn.getString("dlhzj")) ));
+			eachJson.put("ll", translateQuantity(NumberUtils.toDouble(zzs), NumberUtils.toDouble(jsonObjIn.getString("dlhzj")),
+					NumberUtils.toDouble(eachJson.getString("ll")), NumberUtils.toDouble(stdzs), NumberUtils.toDouble(jsonObjIn.getString("dlhzj"))));
 			jsonAryOut.add(eachJson);
 		}
 	}

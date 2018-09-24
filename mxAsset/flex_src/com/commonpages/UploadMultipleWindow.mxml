@@ -68,6 +68,7 @@
            {
  			   var urlrequest: URLRequest = new URLRequest(url);
 			   variables.updType = updType;
+			   variables.importuser = FlexGlobals.topLevelApplication.userVo.id;
 			   urlrequest.data = variables;
                //FIFO：逐个从列表中取出，进行同步上传
                if (singleThreadFiles.length > 0)

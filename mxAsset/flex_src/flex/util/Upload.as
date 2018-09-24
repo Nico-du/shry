@@ -5,7 +5,7 @@
 	import flash.events.ProgressEvent;
 	import flash.net.FileReference;
 	import flash.net.URLRequest;
-	
+    import mx.core.FlexGlobals;
 	import flex.util.InDataBack;
 	
 	import mx.managers.PopUpManager;
@@ -36,6 +36,7 @@
         //连接后台服务
         public function selectHandler(evt:Event):void
         {
+			variables.importuser = FlexGlobals.topLevelApplication.userVo.id;
         	var request:URLRequest= new URLRequest(url);
         	request.data = variables;
         	try{

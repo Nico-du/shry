@@ -551,7 +551,7 @@
 			 * */
 			public function getChartDataAndAddChart():void{
 				if(hsCbx.selectedItem == null ){ return; }
-				loadOriginPictures();
+				callLater(loadOriginPictures);
 				var sLxdid:String = hsCbx.selectedItem.lxdid;
 				//var sSql:String = "select * from SHRY_ZCXN_DATA where zcid = '"+dataId+"' order by (ll+0) asc";
 				var sSql:String = "select * from SHRY_DJXN_DATA where djid = '"+dataId+"' and lxdid='"+sLxdid+"' order by (data+0) asc";
@@ -654,8 +654,11 @@
 			//性能数据/多曲线/单曲线 切换时触发
 			protected function blogModel_tabIndexChangeHandler(event:Event):void
 			{
-				if(blogModel.selectedIndex == 0 || blogModel.selectedIndex == 1){
+				if(blogModel.selectedIndex == 0){
 					
+					
+				}else if(blogModel.selectedIndex == 1){
+					loadOriginPictures();
 					//					hsHbox.visible =false;
 				}else if(blogModel.selectedIndex == 2){
 					//multiChart.creationCompleteHandler(null);
@@ -1040,7 +1043,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="rzZs" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="rzZs" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -1079,7 +1082,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="sjbh" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="sjbh" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -1141,12 +1144,12 @@
 						<mx:VBox id="nvPage1Group2" width="100%" y="30" horizontalGap="0"  verticalGap="2" cornerRadius="2" borderStyle="none">
 							<mx:LinkBar dataProvider="{blogModel}"  styleName="LinkBarStyle01"/>
 							<mx:ViewStack id="blogModel" width="100%" height="{this.height - 170}" change="blogModel_tabIndexChangeHandler(event)">
-								<mx:Panel id="originPicPanel" label="原始数据图"  width="100%"  borderStyle="none" headerHeight="0" 
-										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0" horizontalAlign="left">
-									
-								</mx:Panel>
 								<mx:Panel id="perfDataPanel" label="性能数据"  width="100%"  borderStyle="none" headerHeight="0" 
 										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0">
+									
+								</mx:Panel>
+								<mx:Panel id="originPicPanel" label="原始数据图"  width="100%"  borderStyle="none" headerHeight="0" 
+										  borderThicknessLeft="0" borderThicknessTop="0" borderThicknessBottom="0" borderThicknessRight="0" horizontalAlign="left">
 									
 								</mx:Panel>
 								<mx:Panel id="chartMultiPanel" label="多曲线性能图"  width="100%"  borderStyle="none" headerHeight="0" 
