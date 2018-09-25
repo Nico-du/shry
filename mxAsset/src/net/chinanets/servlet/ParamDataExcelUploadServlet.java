@@ -143,7 +143,14 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 				if(djCount>0){
 					validateResult +=  "\n该总成型号："+listVo.getZcDataList().get(i).getXh()+"的参数数据已经存在！";
 				}
+				if(StringUtils.isBlank(listVo.getFyDataList().get(i).getJqfs())){
+					validateResult += "\n第"+(i+4)+"行[风叶型式]不能为空！";
+				}
 			}else{//技术要求导入 必须总成已经导入过 补充技术要求数据
+				if(!"无刷".equals(listVo.getZcjsyqList().get(i).getWhkcKzfs()) && !"有刷".equals(listVo.getZcjsyqList().get(i).getWhkcKzfs()) 
+						&& !"有刷PWM".equals(listVo.getZcjsyqList().get(i).getWhkcKzfs())){
+					validateResult += "\n第"+(i+4)+"行技术要求-控制方式必须是[无刷/有刷/有刷PWM]中一个！";
+				}
 				sql = " select count(0) from shry_zc_data where  xh='"+listVo.getZcDataList().get(i).getXh()+"' ";
 				int djCount = comService.getOneBysql(sql);
 				if(djCount<1){
@@ -161,6 +168,8 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 
 		return validateResult;
 	}
+	
+	
 	
 	/**
 	 * 保存总成/风叶/电机数据
@@ -296,7 +305,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 						 */
 							for (int i = 1; i < rows; i++) {
 								//过滤掉为空的行
-								if(StringUtils.isNotBlank(st.getCell(3,i).getContents())){
+								if(StringUtils.isNotBlank(st.getCell(0,i).getContents())){
 									fyData = new ShryFyData();
 									zcData = new ShryZcData();
 									zcjsyqData = new ShryZcJsyqData();
@@ -357,60 +366,56 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 									
 									
 									if(CommonMethods.isBlank(xh) ){
-										vo.setResult("第"+i+"行风叶型号为空!");
+										vo.setResult("第"+(i+1)+"行风叶型号为空!");
 										return vo;
 									} 
 									if(CommonMethods.isBlank(zcxh) ){
-										vo.setResult("第"+i+"行总成型号为空!");
+										vo.setResult("第"+(i+1)+"行总成型号为空!");
 										return vo;
 									} 
-									if(!"无刷".equals(whkc_kzfs) && !"有刷".equals(whkc_kzfs) && !"有刷PWM".equals(whkc_kzfs)){
-										vo.setResult("第"+i+"行技术要求-控制方式必须是[无刷/有刷/有刷PWM]中一个!");
-										return vo;
-									}
 							/*		if(CommonMethods.isBlank(fbzj)&& !CommonMethods.isDouble(fbzj)){
-									 vo.setResult("第"+i+"行翻边外径为空或者不是数值类型");
+									 vo.setResult("第"+(i+1)+"行翻边外径为空或者不是数值类型");
 					        		 return vo;
 					        	 }
 					       	      if(CommonMethods.isBlank(dlhzj)&& !CommonMethods.isDouble(dlhzj)){
-					        		vo.setResult("第"+i+"行导环流外径为空或者不是数值类型");
+					        		vo.setResult("第"+(i+1)+"行导环流外径为空或者不是数值类型");
 					        		 return vo;
 					        	 }
 					       	/* if(CommonMethods.isBlank(lgzj)&& !CommonMethods.isDouble(lgzj)){
-					        		vo.setResult("第"+i+"行轮毂直径为空或者不是数值类型");
+					        		vo.setResult("第"+(i+1)+"行轮毂直径为空或者不是数值类型");
 					        		 return vo;
 					        	 }
 					        	 if(CommonMethods.isBlank(lggd)&& !CommonMethods.isDouble(lggd)){
-					        		vo.setResult("第"+i+"行轮毂高度为空或者不是数值类型");
+					        		vo.setResult("第"+(i+1)+"行轮毂高度为空或者不是数值类型");
 					        		 return vo;
 					        	 }
 					        	 if(CommonMethods.isBlank(zl)&& !CommonMethods.isDouble(zl)){
-					        		vo.setResult("第"+i+"行风叶重量为空或者不是数值类型");
+					        		vo.setResult("第"+(i+1)+"行风叶重量为空或者不是数值类型");
 					        		 return vo;
 					        	 }
 					        	 if(CommonMethods.isBlank(ypsm)&& !CommonMethods.isDouble(ypsm)){
-					        		 vo.setResult("第"+i+"行叶片数为空或者不是数值类型");
+					        		 vo.setResult("第"+(i+1)+"行叶片数为空或者不是数值类型");
 					        		 return vo;
 					        	 }*/
 //									if(CommonMethods.isBlank(jqfs) ){
-//										vo.setResult("第"+i+"行风叶型式为空!");
+//										vo.setResult("第"+(i+1)+"行风叶型式为空!");
 //										return  vo;
 //									}
 //									if(CommonMethods.isBlank(cl) ){
-//										vo.setResult("第"+i+"行材料为空!");
+//										vo.setResult("第"+(i+1)+"行材料为空!");
 //										return  vo;
 //									}
 									/* if(CommonMethods.isBlank(clbz) ){
-					        		vo.setResult("第"+i+"行材料标准为空!");
+					        		vo.setResult("第"+(i+1)+"行材料标准为空!");
 					        		 return  vo;
 					        	 }
 					        	 if(CommonMethods.isBlank(qj) ){
-					        		 vo.setResult("第"+i+"行嵌件为空!");
+					        		 vo.setResult("第"+(i+1)+"行嵌件为空!");
 					        		 return  vo;
 					        	 }
 					        	 
 					        	  if(CommonMethods.isBlank(zcxh) ){
-					        		 vo.setResult("第"+i+"行总成型号为空!");
+					        		 vo.setResult("第"+(i+1)+"行总成型号为空!");
 					        		 return  vo;
 					        	 }
 					        	  if(CommonMethods.isBlank(djxh) ){

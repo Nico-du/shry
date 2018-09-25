@@ -16,6 +16,7 @@ import flex.messaging.util.UUIDUtils;
 
 public class CommonMethods {
 	public static SimpleDateFormat commonDateFormate = new SimpleDateFormat("yyyy-MM-dd");
+	public static SimpleDateFormat commonFullDateFormate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public static SimpleDateFormat longDateFormate = new SimpleDateFormat("yyyy年MM月dd日");
 	public static final int MinRyhcsl = 20;//日用耗材数量提醒的阀值
 	public static ArrayList<String> LoginedUserArray = new ArrayList<String>();//单点登录， 验证成功的UserId
