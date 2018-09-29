@@ -41,6 +41,7 @@ document.getElementById("iframe4").height=iframeHeight;
 }
 
 function setEachIFrameHeight(eachHeight){
+	if(iframeHeight == eachHeight){return;}
 	iframeHeight = eachHeight;
 	setIFrameHeight();
 }

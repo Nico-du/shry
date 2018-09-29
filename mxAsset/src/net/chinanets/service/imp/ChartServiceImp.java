@@ -418,7 +418,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		boolean isInsert = "是".equals(super.getDictionaryByKey("INTERP1_PARAMS", "IS_FY_INSERT"));
 		String insertAValue = null;
 		if(isInsert && convertList != null &&  convertList.size() > 1){
-			//总成插值指定点,分隔符为,
+			//风叶插值指定点,分隔符为,
 			insertAValue = super.getDictionaryByKey("INTERP1_PARAMS", "FY_INSERT_VALUE");
 			if(StringUtils.isBlank(insertAValue)){ throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-未配置!");}
 			String[] insertAry = insertAValue.split(",");
@@ -428,7 +428,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		}else{
 			insertList = convertList;
 		}
-		logger.info("fyid="+fyid+",是否进行插值计算："+isInsert+",总成插值指定点："+insertAValue);
+		logger.info("fyid="+fyid+",是否进行插值计算："+isInsert+",风叶插值指定点："+insertAValue);
 		outMap.put("insertList", insertList);
 		outMap.put("convertList", convertList);
 		
@@ -700,7 +700,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		boolean isInsert = "是".equals(super.getDictionaryByKey("INTERP1_PARAMS", "IS_DJ_INSERT"));
 		String insertAValue = null;
 		if(isInsert && convertList != null && convertList.size() > 1 && "Y".equalsIgnoreCase(isysdj)){
-			//总成插值指定点,分隔符为,
+			//电机插值指定点,分隔符为,
 			insertAValue = super.getDictionaryByKey("INTERP1_PARAMS", "DJ_INSERT_VALUE");
 			if(StringUtils.isBlank(insertAValue)){ throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-未配置!");}
 			String[] insertAry = insertAValue.split(",");
@@ -711,7 +711,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		}else{
 			insertList = convertList;
 		}
-		logger.info("djid="+djid+"是否进行插值计算："+isInsert+"总成插值指定点："+insertAValue);
+		logger.info("djid="+djid+"是否进行插值计算："+isInsert+"电机插值指定点："+insertAValue);
 		outMap.put("insertList", insertList);
 		outMap.put("convertList", convertList);
 

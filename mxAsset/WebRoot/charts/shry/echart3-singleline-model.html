@@ -42,10 +42,15 @@
 		initDataJsonAry();
 		
 		
-		var dom = document.getElementById("container");
-		var myChart = echarts.init(dom);
+		var myChart={};
 		var app = {};
 		option = null;
+		
+		function initMyChart(){
+		var dom = document.getElementById("container");
+		myChart = echarts.init(dom);
+		app = {};
+		}
 		
 		function createOption(){
 			option = null;
@@ -171,6 +176,7 @@
        function setParamsAndRun(jsonStr){
     	  if(showLog)console.log("son json:"+jsonStr);
     	 //refreshCwd();
+    	 initMyChart();
     	 cleanCwdOption();
     	 initParams(jsonStr);
     	 setCwdOption();
