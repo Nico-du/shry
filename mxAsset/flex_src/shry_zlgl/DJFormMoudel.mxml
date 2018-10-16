@@ -484,7 +484,7 @@
 				if(doEvent.detail==Alert.CANCEL){
 					return;
 				}
-				AllAssetServiceRmt.RemoveObject(this.dataId,"SHRY_FY_DATA","FYID","已选择数据记录");
+				AllAssetServiceRmt.RemoveObject(this.dataId,"SHRY_DJ_DATA","DJID","已选择数据记录");
 				AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,dataRemoveActionBack);
 			}
 			//删除当前数据回调方法

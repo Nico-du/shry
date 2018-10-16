@@ -2,7 +2,7 @@ package net.chinanets.dao;
 
 /**
  * 框架支持的数据库
- * @author RLiuyong
+ * @author dzj
  *
  */
 public final class DaoType{

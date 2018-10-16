@@ -6,6 +6,7 @@
 	<mx:Script>
 		<![CDATA[
 			import cn.cnsasfram.helper.ASStringHelper;
+			
 			import com.benstucki.utilities.IconUtility;
 			
 			import flex.util.CommonMethod;
@@ -18,15 +19,16 @@
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
 			
+			import shry_zlgl.CJSJGridMoudel;
+			import shry_zlgl.DJGridMoudel;
+			import shry_zlgl.DJXNGridMoudel;
 			import shry_zlgl.FYGridMoudel;
 			import shry_zlgl.FYXNGridMoudel;
+			import shry_zlgl.FYZSGridGroupMoudel;
+			import shry_zlgl.SYDDJGridMoudel;
 			import shry_zlgl.SYDGridMoudel;
 			import shry_zlgl.ZCGridMoudel;
-			import shry_zlgl.DJGridMoudel;
 			import shry_zlgl.ZCXNGridMoudel;
-			import shry_zlgl.FYZSGridGroupMoudel;
-			import shry_zlgl.DJXNGridMoudel;
-			import shry_zlgl.SYDDJGridMoudel;
 			
 			
 			//菜单数据
@@ -43,6 +45,8 @@
 			private var ZS:String="FYZSPage";
 			//电机
 			private var DJ:String="DJPage";
+			//插件
+			private var CJ:String="CJPage";
 			//总成性能
 			private var ZCXN:String="ZCXNPage";
 			//风叶性能
@@ -161,6 +165,8 @@
 						tempMoudel=new ZCXNGridMoudel();
 				}else if(ASStringHelper.stringCompare(this.DJ,strpageurl,true)==0){
 					tempMoudel=new DJGridMoudel();
+				}else if(ASStringHelper.stringCompare(this.CJ,strpageurl,true)==0){
+					tempMoudel=new CJSJGridMoudel();
 				}else if(ASStringHelper.stringCompare(this.ZS,strpageurl,true)==0){
 					tempMoudel=new FYZSGridGroupMoudel();
 				}else if(ASStringHelper.stringCompare(this.SYDDJ,strpageurl,true)==0){
@@ -300,6 +306,7 @@
 					case "zlgl_fysj": selectIndex= 2;  selectItem= <node id="202" label="风叶数据" url="zlgl_fysj" pageUrl="FYPage"/>; break;
 					case "zlgl_zssj": selectIndex= 3;  selectItem= <node id="203" label="噪声数据" url="zlgl_zssj" pageUrl="FYZSPage"/>; break;
 					case "zlgl_djsj": selectIndex= 4;  selectItem= <node id="204" label="电机数据" url="zlgl_djsj" pageUrl="DJPage"/>; break;
+					case "zlgl_cjsj": selectIndex= 5;  selectItem= <node id="205" label="插件数据" url="zlgl_cjsj" pageUrl="CJPage"/>; break;
 					case "xncs_sydsj": selectIndex= 6;  selectItem= <node id="301" label="总成风叶试验单" url="xncs_sydsj" pageUrl="SYDPage"/>; break;
 					case "xncs_zcxn": selectIndex= 7;  selectItem= <node id="302" label="总成性能" url="xncs_zcxn" pageUrl="ZCXNPage"/>; break;
 					case "xncs_fyxn": selectIndex= 8;  selectItem= <node id="303" label="风叶性能" url="xncs_fyxn" pageUrl="FYXNPage"/>; break;
@@ -345,6 +352,7 @@
 				<node id="202" label="风叶数据" url="zlgl_fysj" pageUrl="FYPage"/>
 				<node id="203" label="噪声数据" url="zlgl_zssj" pageUrl="FYZSPage" />
 				<node id="204" label="电机数据" url="zlgl_djsj" pageUrl="DJPage" />
+				<node id="205" label="插件数据" url="zlgl_cjsj" pageUrl="CJPage" />
 			</item>
 			<item id="bmfw" label="性能数据">
 				<node id="301" label="总成风叶试验单" url="xncs_sydsj" pageUrl="SYDPage"/>

@@ -11,7 +11,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * 处理条件辅助类
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class ConditionHelper{

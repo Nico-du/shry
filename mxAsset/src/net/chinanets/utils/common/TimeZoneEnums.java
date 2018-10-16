@@ -2,7 +2,7 @@ package net.chinanets.utils.common;
 
 /**
  * 时区类型
- * @author RLiuyong
+ * @author dzj
  *
  */
 public enum TimeZoneEnums {

@@ -25,7 +25,7 @@ import org.dom4j.Element;
 
 /**
  * 相关资料服务接口实现
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class DatumServiceImp extends CommonServiceImp implements DatumService{	

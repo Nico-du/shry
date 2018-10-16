@@ -2,7 +2,7 @@ package cn.cnsasfram.helper{
 	
 	/**
 	 *Flex中工作流辅助类
-	 *@author RLiuyong
+	 *@author dzj
 	 */
 	public class ASWFHelper{
 		

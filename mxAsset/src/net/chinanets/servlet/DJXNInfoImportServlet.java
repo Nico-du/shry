@@ -262,7 +262,7 @@ public class DJXNInfoImportServlet extends HttpServlet {
 							if( !"Project".equals(namePj) ||!"Motor".equals(nameMt) ||!"Data".equals(nameData) || !"Current".equals(name2) 
 									|| !"Voltage".equals(name3)|| !"Eff.".equals(name4)|| !"Speed".equals(name5)|| !"Torque".equals(name6)
 									|| !name11.contains("PF") || !name12.contains("Horsepower") || !name13.contains("Time")){
-								vo.setResult("Sheet1无刷电机参数模版格式不正确！请检查参数导入模版");
+								vo.setResult("Sheet1无刷电机参数模版格式不正确！请检查参数导入模版(检查方式：1.只支持2003.xls格式版本,2.下载模版对比表头)");
 								return vo;
 							}
 							String valPj = st1.getCell(1, 0).getContents().trim(); 

@@ -2,7 +2,7 @@ package cn.cnsasfram.helper{
 	
 	/**
 	 *String辅助类
-	 *@author RLiuyong
+	 *@author dzj
 	 */
 	public class ASStringHelper{
 		public function ASStringHelper(){

@@ -1,7 +1,7 @@
 package cn.cnsasfram.helper{
 	/**
 	 *日期帮助类
-	 * @author RLiuyong 
+	 * @author dzj 
 	 */
 	public class ASDateHelper{
 		

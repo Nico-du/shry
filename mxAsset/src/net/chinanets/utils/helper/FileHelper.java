@@ -11,7 +11,7 @@ import org.dom4j.io.SAXReader;
 
 /**
  * 文件辅助类
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class FileHelper{

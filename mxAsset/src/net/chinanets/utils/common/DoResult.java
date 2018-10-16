@@ -6,7 +6,7 @@ import net.sf.json.JSONObject;
 
 /**
  * 调用返回结果
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class DoResult{

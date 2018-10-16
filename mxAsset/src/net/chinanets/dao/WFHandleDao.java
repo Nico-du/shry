@@ -6,7 +6,7 @@ import net.chinanets.entity.CnstWfstepData;
 
 /**
  * 工作流相关操作DAO层
- * @author RLiuyong
+ * @author dzj
  *
  */
 public interface WFHandleDao extends CommonDao {

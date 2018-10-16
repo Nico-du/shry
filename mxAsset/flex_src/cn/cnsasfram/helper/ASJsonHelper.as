@@ -7,7 +7,7 @@ package cn.cnsasfram.helper{
 
 	/**
 	 *FlexJSON辅助类 
-	 * @author RLiuyong
+	 * @author dzj
 	 */
 	public class ASJsonHelper{
 		

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /**
  * 字符辅助类
- * @author RLiuyong
+ * @author dzj
  *
  */
 public final class StringHelper{

@@ -8,7 +8,7 @@ package cn.cnsasfram.helper{
 
 	/**
 	 *Flex中common辅助类
-	 *@author RLiuyong
+	 *@author dzj
 	 */
 	public class ASCommonHelper{
 		

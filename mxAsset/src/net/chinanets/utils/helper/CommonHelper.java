@@ -7,7 +7,7 @@ import java.util.UUID;
 
 /**
  * 自定辅助类
- * @author RLiuyong
+ * @author dzj
  *
  */
 public final class CommonHelper{

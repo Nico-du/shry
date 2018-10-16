@@ -5,7 +5,7 @@ package cn.cnsasfram.entity{
 	
 	/**
 	 *自定义FLEX中错误信息类
-	 *@author RLiuyong
+	 *@author dzj
 	 */
 	public class DoResult{
 		

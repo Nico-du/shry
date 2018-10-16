@@ -11,7 +11,7 @@ import net.sf.json.JSONObject;
 
 /**
  * 相关资料DAO层接口实现
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class DatumDaoImp extends CommonDaoImp implements DatumDao {

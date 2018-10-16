@@ -7,7 +7,7 @@ package cn.cnsasfram.datagrid{
 	
 	/**
 	 *自定义FLEX中DataGrid
-	 *@author RLiuyong
+	 *@author dzj
 	 */
 	public class CNSASBaseDataGrid extends DataGrid{
 		

@@ -316,7 +316,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 									String fsccName = st.getCell(2, 0).getContents().trim();
 									String fyxhName = st.getCell(3,0).getContents().trim();
 									if( !"电机型号".equals(djxhName) || !"风扇尺寸(mm)".equals(fsccName) || !"风叶型号".equals(fyxhName)){
-										vo.setResult("参数模版格式不正确！请检查参数导入模版");
+										vo.setResult("参数模版格式不正确！请检查参数导入模版(检查方式：1.只支持2003.xls格式版本,2.下载模版对比表头)");
 										break;
 									}
 									

@@ -13,7 +13,7 @@ import net.chinanets.utils.helper.StringHelper;
 
 /**
  * 工作流service接口实现类
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class WFHandleServiceImp extends CommonServiceImp implements WFHandleService {

@@ -6,7 +6,7 @@ import net.chinanets.pojos.CnstDatumData;
 
 /**
  * 相关资料服务接口
- * @author RLiuyong
+ * @author dzj
  *
  */
 public interface DatumService extends CommonService {

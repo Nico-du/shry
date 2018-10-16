@@ -2,7 +2,7 @@ package cn.cnsasfram.entity.enum{
 	
 	/**
 	 * 权限类型
-	 * @author RLiuyong
+	 * @author dzj
 	 *
 	 */
 	public class PoerType{

@@ -7,7 +7,7 @@ import net.chinanets.utils.helper.StringHelper;
 
 /**
  * 根据表达式转换为数据库能识别的表达式
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class ConditionMates {

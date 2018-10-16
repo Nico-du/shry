@@ -17,7 +17,7 @@ import net.sf.json.JSONObject;
 
 /**
  * 保存数据值
- * @author RLiuyong
+ * @author dzj
  *
  */
 @SuppressWarnings("serial")

@@ -3,7 +3,7 @@ package cn.cnsasfram.utilty{
 
 	/**
 	 *Flex中自定义LegendItem
-	 *@author RLiuyong
+	 *@author dzj
 	 */
 	public class ASLegendItem extends LegendItem{
 		public function ASLegendItem(){

@@ -132,7 +132,7 @@ public class NoiseInfoImportServlet extends HttpServlet {
 						String fyxhName = st.getCell(0, 0).getContents().trim(); //风叶型号
 						String cebzName = st.getCell(0, 1).getContents().trim(); //测试标准
 						if( !"风叶型号".equals(fyxhName) || !"测试标准".equals(cebzName)){
-							vo.setResult("参数模版格式不正确！请检查参数导入模版");
+							vo.setResult("参数模版格式不正确！请检查参数导入模版(检查方式：1.只支持2003.xls格式版本,2.下载模版对比表头)");
 							return vo;
 						}
 						//保存风叶对象数据

@@ -7,7 +7,7 @@ import net.chinanets.pojos.CnstDirectoryData;
 
 /**
  * 相关资料DAO层接口
- * @author RLiuyong
+ * @author dzj
  *
  */
 public interface DatumDao extends CommonDao {

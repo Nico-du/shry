@@ -5,7 +5,7 @@ import org.dom4j.Element;
 
 /**
  * 工作流辅助类
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class WFHelper {

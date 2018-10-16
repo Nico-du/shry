@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * 相关资料实体
  * 
- * @author RLiuyong
+ * @author dzj
  * 
  */
 @SuppressWarnings("serial")

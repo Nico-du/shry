@@ -6,7 +6,7 @@ import java.util.TimeZone;
 
 /**
  * 日期类型数据辅助类
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class DateHelper {

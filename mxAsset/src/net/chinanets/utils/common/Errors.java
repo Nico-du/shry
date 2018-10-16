@@ -2,7 +2,7 @@ package net.chinanets.utils.common;
 
 /**
  * 系统错误信息
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class Errors{

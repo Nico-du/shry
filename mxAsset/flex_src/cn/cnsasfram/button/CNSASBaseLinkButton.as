@@ -3,7 +3,7 @@ package cn.cnsasfram.button{
 	
 	/**
 	 *自定义FLEX中LinkButton
-	 *@author RLiuyong
+	 *@author dzj
 	 */
 	public class CNSASBaseLinkButton extends LinkButton{
 		

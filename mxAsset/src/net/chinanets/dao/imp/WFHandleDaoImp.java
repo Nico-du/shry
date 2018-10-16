@@ -9,7 +9,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 /**
  * 工作流相关操作实现类
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class WFHandleDaoImp extends CommonDaoImp implements WFHandleDao {

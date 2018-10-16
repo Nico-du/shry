@@ -179,7 +179,7 @@ public class DJInfoImportServlet extends HttpServlet {
 						
 						if( !"总成型号".equals(name2) || !"风扇型号".equals(name3)|| !"电机型号".equals(name4)
 								|| !name11.contains("效率") || !name12.contains("槽满") || !name13.contains("极数")){
-							vo.setResult("Sheet1有刷电机参数模版格式不正确！请检查参数导入模版");
+							vo.setResult("Sheet1有刷电机参数模版格式不正确！请检查参数导入模版(检查方式：1.只支持2003.xls格式版本,2.下载模版对比表头)");
 							return vo;
 						}
 						
@@ -232,7 +232,7 @@ public class DJInfoImportServlet extends HttpServlet {
 							
 							if( !"总成型号".equals(name2) || !"风扇型号".equals(name3)|| !"电机型号".equals(name4)
 									|| !name11.contains("控制类型 ") || !name12.contains("输入频率") || !name13.contains("PWM定义")){
-								vo.setResult("Sheet2无刷电机参数模版格式不正确！请检查参数导入模版");
+								vo.setResult("Sheet2无刷电机参数模版格式不正确！请检查参数导入模版(检查方式：1.只支持2003.xls格式版本,2.下载模版对比表头)");
 								return vo;
 							}
 							

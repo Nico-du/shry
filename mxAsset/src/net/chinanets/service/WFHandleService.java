@@ -2,7 +2,7 @@ package net.chinanets.service;
 
 /**
  * 工作流数据Service接口
- * @author RLiuyong
+ * @author dzj
  *
  */
 public interface WFHandleService extends CommonService {

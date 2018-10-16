@@ -645,6 +645,16 @@
   </servlet-mapping>
   
   <servlet>
+    <servlet-name>CJSJInfoImportServlet</servlet-name>
+    <servlet-class>net.chinanets.servlet.CJSJInfoImportServlet</servlet-class>
+  </servlet>
+  <!-- 插件数据导入 -->
+   <servlet-mapping>
+    <servlet-name>CJSJInfoImportServlet</servlet-name>
+    <url-pattern>/servlet/CJSJInfoImportServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
     <servlet-name>DjxnInfoImportServlet</servlet-name>
     <servlet-class>net.chinanets.servlet.DJXNInfoImportServlet</servlet-class>
   </servlet>

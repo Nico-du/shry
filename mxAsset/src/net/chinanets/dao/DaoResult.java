@@ -4,7 +4,7 @@ import java.util.Hashtable;
 
 /**
  * 基础的数据结果集
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class DaoResult{

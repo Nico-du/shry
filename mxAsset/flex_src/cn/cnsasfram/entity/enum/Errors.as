@@ -1,7 +1,7 @@
 package cn.cnsasfram.entity.enum{
 	/**
 	 * 系统错误信息
-	 * @author RLiuyong
+	 * @author dzj
 	 *
 	 */
 	public class Errors{

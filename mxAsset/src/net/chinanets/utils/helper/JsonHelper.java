@@ -18,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * JSON帮助类
- * @author RLiuyong
+ * @author dzj
  *
  */
 public class JsonHelper {

@@ -2,7 +2,7 @@ package net.chinanets.dao;
 
 /**
  * 物资管理DAO层
- * @author RLiuyong
+ * @author dzj
  *
  */
 public interface GamManagerDAO extends CommonDao {

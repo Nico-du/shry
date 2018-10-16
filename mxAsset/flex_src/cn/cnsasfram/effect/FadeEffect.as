@@ -5,7 +5,7 @@ package cn.cnsasfram.effect{
 	
 	/**
 	 *淡入淡出效果
-	 *@author RLiuyong
+	 *@author dzj
 	 */
 	public class FadeEffect{
 		
