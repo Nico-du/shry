@@ -971,6 +971,20 @@ public class CommonDaoImp extends HibernateDaoSupport implements CommonDao,Seria
 		 return list;
 	}
 	
+	/**
+	 * 读取数据字典值
+	 * @param type 主类型
+	 * @param key 子类型
+	 * @return
+	 */
+	public String getDictValue(String type,String key){
+		String val = null;
+		List<Object> queryList  = this.getObjectBySql("select attribute1 from cnst_codelist_data where codetype='"+type+"' and codebs='"+key+"' limit 1");
+		if(queryList != null && !queryList.isEmpty()){ val = queryList.get(0)+""; }
+		return val;
+	}
+	
+	
 	   /**
 	    * 总成性能导入，查询是否存在重复记录
 	    * param:   试验单号 +试验性质+试验日期

@@ -187,6 +187,16 @@ public interface CommonDao {
 	public List getInfoByHql(String sql);
 	
 	/**
+	 * 读取数据字典值
+	 * @param type 主类型
+	 * @param key 子类型
+	 * @return
+	 */
+	public String getDictValue(String type,String key);
+	
+	
+	
+	/**
 	 * 风叶性能导入，查询是否存在重复记录
 	 * param：试验单号 + 风叶id 
 	 */

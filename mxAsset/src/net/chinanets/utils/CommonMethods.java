@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.math.NumberUtils;
+
 import flex.messaging.MessageBroker;
 import flex.messaging.messages.AsyncMessage;
 import flex.messaging.util.UUIDUtils;
@@ -145,6 +147,25 @@ public class CommonMethods {
     } 
 	
     /**
+     * 转换为double二维数组
+     * @param ary
+     * @return
+     */
+    public static  double[][] toDoubleAry(String[][] ary) {
+    	double[][] dAry = new double[ary.length][30];
+    	for(int i=0;i<ary.length;i++){
+    		for(int j=0;j<30;j++){
+    			dAry[i][j] = -0.123456;
+    		}
+    	}
+    	for(int i=0;i<ary.length;i++){
+    		for(int j=0;j<ary[i].length;j++){
+    			dAry[i][j] = NumberUtils.toDouble(ary[i][j]);
+    		}
+    	}
+    	return dAry;
+    }
+    /**
 	 * 转换为double数组
 	 * @param ary
 	 * @return
@@ -152,7 +173,7 @@ public class CommonMethods {
     public static  double[] toDoubleAry(String[] ary) {
     	double[] dAry = new double[ary.length];
     	for(int i=0;i<ary.length;i++){
-    		dAry[i] = Double.parseDouble(ary[i]);
+    		dAry[i] = NumberUtils.toDouble(ary[i]);
     	}
     	return dAry;
     }

@@ -242,16 +242,16 @@
 					Alert.show(errorMsg,CommonXMLData.Alert_Title);
 					return false;
 				}
-				if(ASStringHelper.isNullOrEmpty(this.gl.text)){
-					errorMsg="[功率]不允许为空";
-					Alert.show(errorMsg,CommonXMLData.Alert_Title);
-					return false;
-				}
-				if(ASStringHelper.isNullOrEmpty(this.zs.text)){
-					errorMsg="[噪声]不允许为空";
-					Alert.show(errorMsg,CommonXMLData.Alert_Title);
-					return false;
-				}
+//				if(ASStringHelper.isNullOrEmpty(this.gl.text)){
+//					errorMsg="[功率]不允许为空";
+//					Alert.show(errorMsg,CommonXMLData.Alert_Title);
+//					return false;
+//				}
+//				if(ASStringHelper.isNullOrEmpty(this.zs.text)){
+//					errorMsg="[噪声]不允许为空";
+//					Alert.show(errorMsg,CommonXMLData.Alert_Title);
+//					return false;
+//				}
 				
 				return true;
 			}
@@ -390,7 +390,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-												<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+												<!--<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>-->
 												<mx:Label text="功率(W):" fontWeight="bold" height="{aboutheight}"/>
 												</mx:HBox>
 									</mx:GridItem>
@@ -404,7 +404,7 @@
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
 											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-												<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
+												<!--<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>-->
 												<mx:Label fontWeight="bold" height="{aboutheight}"  text="噪声(dB):"/>
 												</mx:HBox>
 										</mx:HBox>

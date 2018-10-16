@@ -461,6 +461,32 @@
 				lineChartBox.removeAllChildren();
 				lineChartBox.addChild(lineChart4);
 			}
+			
+			private function srotFuncJyl(obj1:Object, obj2:Object):int{
+				return srotFunc(obj1,obj2,"jyl");
+			}
+			private function srotFuncLl(obj1:Object, obj2:Object):int{
+				return srotFunc(obj1,obj2,"ll");
+			}
+			private function srotFuncZzs(obj1:Object, obj2:Object):int{
+				return srotFunc(obj1,obj2,"zzs");
+			}
+			private function srotFuncZgl(obj1:Object, obj2:Object):int{
+				return srotFunc(obj1,obj2,"zgl");
+			}
+			private function srotFuncXl(obj1:Object, obj2:Object):int{
+				return srotFunc(obj1,obj2,"xl");
+			}
+			private function srotFuncNj(obj1:Object, obj2:Object):int{
+				return srotFunc(obj1,obj2,"nj");
+			}
+			private function srotFunc(obj1:Object, obj2:Object,dataLabel:String):int{
+				if(Number(obj1[dataLabel])  > Number(obj2[dataLabel])){
+					return 1;
+				}else{
+					return -1;
+				}
+			}
 		]]>
 	</mx:Script>
 	<mx:HBox id="XXDataBox" width="100%" height="{aboutheight*2}" verticalGap="0"  horizontalAlign="center" paddingTop="0" verticalAlign="middle" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
@@ -471,29 +497,7 @@
 	</mx:HBox>
 			<mx:VDividedBox width="100%" height="100%" verticalAlign="middle"  horizontalAlign="center" horizontalGap="0">
 				<!--性能数据-->
-				<mx:VBox id="lineChartBox" width="100%" height="70%" verticalGap="2" borderStyle="none">
-					<!--<shryChart:LinueChartModel modelTitle="总成流量—静压曲线图" height="{this.height - 140}" id="lineChart05" />-->
-					<!--<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#99CCFF" horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
-						<mx:Label text="性能数据" textIndent="10" width="100%" height="20" fontWeight="normal" fontSize="13"/>
-					</mx:HBox>
-					<mx:DataGrid id="cns_dg01" dataProvider="{dataArray}" itemClick="gridItemDataClick(event)" 
-								 itemDoubleClick="gridItemDataDoubleClick(event)" doubleClickEnabled="true" width="100%" height="100%">
-						<mx:columns>
-							<mx:DataGridColumn headerText="联系单号" width="120" dataField="lxdh" sortable="true"/>
-							<mx:DataGridColumn headerText="风叶型号" width="120" dataField="fyxh" sortable="true"/>
-							<mx:DataGridColumn headerText="流量(m^3/h)" width="120" dataField="ll" sortable="true"/>
-							<mx:DataGridColumn headerText="静压(Pa)" width="80" dataField="jyl" sortable="true"/>
-							<mx:DataGridColumn headerText="主风扇转速(rpm)" width="130" dataField="zzs" sortable="true"/>
-							<mx:DataGridColumn headerText="辅风扇转速(rpm)" width="130" dataField="fzs" sortable="true"/>
-							<mx:DataGridColumn headerText="噪声(dB)" width="80" dataField="fszs" sortable="true"/>
-							<mx:DataGridColumn headerText="扭矩(N.M)" width="80" dataField="nj" sortable="true"/>				
-							<mx:DataGridColumn headerText="轴功率(W)" width="100" dataField="zgl" sortable="true"/>				
-							<mx:DataGridColumn headerText="效率(%)" width="80" dataField="xl" sortable="true"/>
-							<mx:DataGridColumn headerText="更新人" width="100" dataField="updateusername" sortable="true"/>
-							<mx:DataGridColumn headerText="更新时间" width="155" dataField="updatedate" sortable="true"/>
-							<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
-						</mx:columns>
-					</mx:DataGrid>-->
+				<mx:VBox id="lineChartBox" width="100%" height="70%" verticalGap="2" borderStyle="none" visible="false" includeInLayout="false">
 				</mx:VBox>
 				
 				<!--匹配到的风叶列表数据  #B14C6B-->
@@ -501,9 +505,6 @@
 				<mx:HBox width="100%" height="20" borderStyle="none" backgroundColor="#B14C6B" 
 						 horizontalAlign="left" horizontalGap="0" verticalAlign="middle" verticalGap="0">
 					<mx:Label text="选型结果" textIndent="10" width="200" height="20" fontWeight="bold" fontSize="13" />
-					<!--<mx:RadioButtonGroup id="showType" />
-					<mx:RadioButton label="性能数据显示" groupName="showType" />
-					<mx:RadioButton label="曲线图显示" groupName="showType" />-->
 				</mx:HBox>
 			<!--工具栏-->
 			<mx:HBox id="toolBar" width="100%" visible="false" includeInLayout="false" height="{aboutheight}" horizontalGap="0" horizontalAlign="left" paddingLeft="0" verticalAlign="middle" borderStyle="none" backgroundColor="#99CCFF">
@@ -530,7 +531,7 @@
 			<mx:VBox width="100%" height="100%" verticalGap="2" borderStyle="none">
 				<!--itemClick="gridItemDataClick(event)" -->
 				<mx:DataGrid id="cns_dg" dataProvider="{dataArray}" rowHeight="{aboutheight}"
-							 itemClick="reInitLineChart(event)" doubleClickEnabled="false" width="100%" height="100%">
+							 itemClick="return;reInitLineChart(event)" doubleClickEnabled="false" width="100%" height="100%">
 					<mx:columns>
 						<mx:DataGridColumn headerText="" minWidth="43" width="43" draggable="false" sortable="false" labelFunction="getColumnIndex" textAlign="center">
 							<mx:itemRenderer>
@@ -540,17 +541,15 @@
 							</mx:itemRenderer> 
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="型号" width="120" dataField="xh" sortable="true"/>
-						<mx:DataGridColumn headerText="叶片数目" width="80" dataField="ypsm" sortable="true"/>
-						<mx:DataGridColumn headerText="直径(毫米)" width="80" dataField="zj" sortable="true"/>
-						<mx:DataGridColumn headerText="翻边直径(毫米)" width="110" dataField="fbzj" sortable="true"/>
-						<mx:DataGridColumn headerText="导流环直径(毫米)" width="110" dataField="dlhzj" sortable="true"/>
-						<mx:DataGridColumn headerText="轮毂直径(毫米)" width="110" dataField="lgzj" sortable="true"/>
-						<mx:DataGridColumn headerText="重量(克)" width="80" dataField="zl" sortable="true"/>
-						<mx:DataGridColumn headerText="叶片分布" width="80" dataField="ypfb" sortable="true"/>				
-						<mx:DataGridColumn headerText="状态" width="80" dataField="syzt" sortable="true"/>	
-						<mx:DataGridColumn headerText="选型所取转速" width="100" dataField="stdzs" sortable="true"/>			
-						<mx:DataGridColumn headerText="功率" width="100" dataField="stdgl" sortable="true"/>
-						<mx:DataGridColumn headerText="数据更新时间" width="155" dataField="updatedate" sortable="true"/>
+						<!--<mx:DataGridColumn headerText="直径(mm)" width="80" dataField="zj" sortable="true"/>-->
+						<mx:DataGridColumn headerText="翻边直径(mm)" width="110" dataField="fbzj" sortable="true"/>
+						<mx:DataGridColumn headerText="导流环直径(mm)" width="110" dataField="dlhzj" sortable="true"/>
+						<mx:DataGridColumn headerText="流量(m3/h)" width="100" dataField="ll" sortable="true" sortCompareFunction="srotFuncLl"/>
+						<mx:DataGridColumn headerText="静压(Pa)" width="100" dataField="jyl" sortable="true" sortCompareFunction="srotFuncJyl"/>
+						<mx:DataGridColumn headerText="转速(rpm)" width="100" dataField="zzs" sortable="true" sortCompareFunction="srotFuncZzs"/>			
+						<mx:DataGridColumn headerText="扭矩(N.M)" width="80" dataField="nj" sortable="true" sortCompareFunction="srotFuncNj"/>
+						<mx:DataGridColumn headerText="轴功率(W)" width="100" dataField="zgl" sortable="true" sortCompareFunction="srotFuncZgl"/>
+						<mx:DataGridColumn headerText="效率(%)" width="100" dataField="xl" sortable="true" sortCompareFunction="srotFuncXl"/>
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
 					</mx:columns>
 				</mx:DataGrid>
