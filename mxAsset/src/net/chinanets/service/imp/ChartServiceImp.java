@@ -533,29 +533,34 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 	 * @return
 	 * @throws Exception 
 	 */
-	public Map<String,List<ShryFyxnData>> getFYXNInsertChartList(String sSql,String fyid,Double hszsbl,Double hsdlhzj) throws Exception{
+	public Map<String,List<ShryFyxnData>> getFYXNInsertChartList(String sSql,String fyid,Double hszsbl,Double hsdlhzj){
 		logger.info("风叶性能数据图 换算 参数:sSql="+sSql+",fyid="+fyid+",hszsbl="+hszsbl+",hsdlhzj="+hsdlhzj);
 		Map<String,List<ShryFyxnData>> outMap = new HashMap<String, List<ShryFyxnData>>();
 		List<ShryFyxnData> insertList = new ArrayList<ShryFyxnData>();
-		List<ShryFyxnData> convertList= this.getFYXNChartList(sSql, fyid, hszsbl, hsdlhzj);
+		List<ShryFyxnData> convertList =  new ArrayList<ShryFyxnData>();
 		//是否进行插值计算
 		boolean isInsert = "是".equals(super.getDictionaryByKey("INTERP1_PARAMS", "IS_FY_INSERT"));
 		String insertAValue = null;
-		if(isInsert && convertList != null &&  convertList.size() > 1){
-			//风叶插值指定点,分隔符为,
-			insertAValue = super.getDictionaryByKey("INTERP1_PARAMS", "FY_INSERT_VALUE");
-			if(StringUtils.isBlank(insertAValue)){ throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-未配置!");}
-			String[] insertAry = insertAValue.split(",");
-			if(!CommonMethods.isDoubleAry(insertAry)){	throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-格式错误/非数字!");	}
-			
-			insertList = convertFYXNInsertChartList(convertList,insertAry);
-		}else{
-			insertList = convertList;
+		try{
+			convertList= this.getFYXNChartList(sSql, fyid, hszsbl, hsdlhzj);
+			if(isInsert && convertList != null &&  convertList.size() > 1){
+				//风叶插值指定点,分隔符为,
+				insertAValue = super.getDictionaryByKey("INTERP1_PARAMS", "FY_INSERT_VALUE");
+				if(StringUtils.isBlank(insertAValue)){ throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-未配置!");}
+				String[] insertAry = insertAValue.split(",");
+				if(!CommonMethods.isDoubleAry(insertAry)){	throw new Exception("数据字典(插值指定点)INTERP1_PARAMS.ZC_INSERT_VALUE配置错误-格式错误/非数字!");	}
+
+				insertList = convertFYXNInsertChartList(convertList,insertAry);
+			}else{
+				insertList = convertList;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 		logger.info("fyid="+fyid+",是否进行插值计算："+isInsert+",风叶插值指定点："+insertAValue);
 		outMap.put("insertList", insertList);
 		outMap.put("convertList", convertList);
-		
+
 		return outMap;
 	}
 	/**
@@ -590,7 +595,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 		Double[] yVNjAry = MatlabInterp1Util.InterpOneX(xAry, yNjAry, aAry);
 		
 		//拟合四个值
-		for(int i=0;i<insertAry.length;i++){
+		for(int i=0;i<aAry.length;i++){
 			ShryFyxnData ch = new ShryFyxnData();
 			ch.setJyl(new Double(aAry[i]).toString());
 			
@@ -598,8 +603,8 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 			ch.setZgl(new Double(yVZglAry[i]).toString());
 			ch.setXl(new Double(yVXlAry[i]).toString());
 			ch.setNj(new Double(yVNjAry[i]).toString());
-			ch.setZzs(convertList.get(i).getZzs());
-			ch.setFzs(convertList.get(i).getFzs());
+			ch.setZzs(convertList.get(0).getZzs());
+			ch.setFzs(convertList.get(0).getFzs());
 			outList.add(ch);
 		}
 		return outList;
