@@ -1,10 +1,9 @@
 package net.chinanets.pojos;
 
-import java.lang.Long;
 import java.util.Date;
 
 /**
- * ShrySydData entity. @author dzj
+ * ShrySydData entity. @author MyEclipse Persistence Tools
  */
 
 public class ShrySydData implements java.io.Serializable {
@@ -15,8 +14,8 @@ public class ShrySydData implements java.io.Serializable {
 	private Long zcid;
 	private Long fyid;
 	private Long djid;
-	private String sydx;
 	private Date syrq;
+	private String sydx;
 	private String lxdh;
 	private String fjxs;
 	private String syfd;
@@ -33,6 +32,8 @@ public class ShrySydData implements java.io.Serializable {
 	private String xdsd;
 	private String syry;
 	private String skqbz;
+	private String xm;
+	private String yhcx;
 	private String memo;
 	private String syzt;
 	private Date inputdate;
@@ -47,14 +48,18 @@ public class ShrySydData implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public ShrySydData(Long zcid, Date syrq, String lxdh,
-			String fjxs, String syfd, String ckmj, String syfs, String fyzj,
-			String zcxh, String yps, String fyxh, String dqy, String symd,
-			String kqwd, String sply, String xdsd, String syry, String skqbz,
+	public ShrySydData(Long zcid, Long fyid, Long djid,
+			Date syrq, String sydx, String lxdh, String fjxs, String syfd,
+			String ckmj, String syfs, String fyzj, String zcxh, String yps,
+			String fyxh, String dqy, String symd, String kqwd, String sply,
+			String xdsd, String syry, String skqbz, String xm, String yhcx,
 			String memo, String syzt, Date inputdate, String inputuser,
 			Date updatedate, String updateuser) {
 		this.zcid = zcid;
+		this.fyid = fyid;
+		this.djid = djid;
 		this.syrq = syrq;
+		this.sydx = sydx;
 		this.lxdh = lxdh;
 		this.fjxs = fjxs;
 		this.syfd = syfd;
@@ -71,6 +76,8 @@ public class ShrySydData implements java.io.Serializable {
 		this.xdsd = xdsd;
 		this.syry = syry;
 		this.skqbz = skqbz;
+		this.xm = xm;
+		this.yhcx = yhcx;
 		this.memo = memo;
 		this.syzt = syzt;
 		this.inputdate = inputdate;
@@ -98,7 +105,7 @@ public class ShrySydData implements java.io.Serializable {
 	}
 
 	public Long getFyid() {
-		return fyid;
+		return this.fyid;
 	}
 
 	public void setFyid(Long fyid) {
@@ -106,19 +113,11 @@ public class ShrySydData implements java.io.Serializable {
 	}
 
 	public Long getDjid() {
-		return djid;
+		return this.djid;
 	}
 
 	public void setDjid(Long djid) {
 		this.djid = djid;
-	}
-
-	public String getSydx() {
-		return sydx;
-	}
-
-	public void setSydx(String sydx) {
-		this.sydx = sydx;
 	}
 
 	public Date getSyrq() {
@@ -127,6 +126,14 @@ public class ShrySydData implements java.io.Serializable {
 
 	public void setSyrq(Date syrq) {
 		this.syrq = syrq;
+	}
+
+	public String getSydx() {
+		return this.sydx;
+	}
+
+	public void setSydx(String sydx) {
+		this.sydx = sydx;
 	}
 
 	public String getLxdh() {
@@ -176,6 +183,15 @@ public class ShrySydData implements java.io.Serializable {
 	public void setFyzj(String fyzj) {
 		this.fyzj = fyzj;
 	}
+
+	public String getZcxh() {
+		return this.zcxh;
+	}
+
+	public void setZcxh(String zcxh) {
+		this.zcxh = zcxh;
+	}
+
 	public String getYps() {
 		return this.yps;
 	}
@@ -184,16 +200,8 @@ public class ShrySydData implements java.io.Serializable {
 		this.yps = yps;
 	}
 
-	public String getZcxh() {
-		return zcxh;
-	}
-
-	public void setZcxh(String zcxh) {
-		this.zcxh = zcxh;
-	}
-
 	public String getFyxh() {
-		return fyxh;
+		return this.fyxh;
 	}
 
 	public void setFyxh(String fyxh) {
@@ -256,9 +264,24 @@ public class ShrySydData implements java.io.Serializable {
 		this.skqbz = skqbz;
 	}
 
+	public String getXm() {
+		return this.xm;
+	}
+
+	public void setXm(String xm) {
+		this.xm = xm;
+	}
+
+	public String getYhcx() {
+		return this.yhcx;
+	}
+
+	public void setYhcx(String yhcx) {
+		this.yhcx = yhcx;
+	}
 
 	public String getMemo() {
-		return memo;
+		return this.memo;
 	}
 
 	public void setMemo(String memo) {
@@ -266,7 +289,7 @@ public class ShrySydData implements java.io.Serializable {
 	}
 
 	public String getSyzt() {
-		return syzt;
+		return this.syzt;
 	}
 
 	public void setSyzt(String syzt) {

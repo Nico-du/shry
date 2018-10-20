@@ -233,16 +233,16 @@ public class CJSJInfoImportServlet extends HttpServlet {
 			data.setXm       (getSheetCell(st, 3 ,i));
 			data.setCjcl     (getSheetCell(st, 4 ,i));
 			data.setCpcl     (getSheetCell(st, 5 ,i));
-			data.setCpdc     (getSheetCell(st, 0 ,i));
-			data.setXj       (getSheetCell(st, 1 ,i));
-			data.setPinj     (getSheetCell(st, 6 ,i));
-			data.setDwj      (getSheetCell(st, 7 ,i));
-			data.setDl       (getSheetCell(st, 8 ,i));
-			data.setZddj     (getSheetCell(st, 9 ,i));
-			data.setFhdj     (getSheetCell(st, 10,i));
-			data.setHjgk     (getSheetCell(st, 11,i));
-			data.setCbl      (getSheetCell(st, 12,i));
-			data.setDw       (getSheetCell(st, 13,i));
+			data.setCpdc     (getSheetCell(st, 6 ,i));
+			data.setXj       (getSheetCell(st, 7 ,i));
+			data.setPinj     (getSheetCell(st, 8 ,i));
+			data.setDwj      (getSheetCell(st, 9 ,i));
+			data.setDl       (getSheetCell(st, 10 ,i));
+			data.setZddj     (getSheetCell(st, 11,i));
+			data.setFhdj     (getSheetCell(st, 12,i));
+			data.setHjgk     (getSheetCell(st, 13,i));
+			data.setCbl      (getSheetCell(st, 14,i));
+			data.setDw       (getSheetCell(st, 15,i));
 //			data.setSyzt      (getSheetCell(st, 2,i));
 //			data.setMemo      (getSheetCell(st, 22,i));
 		}

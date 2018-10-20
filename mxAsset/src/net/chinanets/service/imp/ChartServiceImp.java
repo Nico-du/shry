@@ -360,7 +360,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 					chZsListIdx++;
 			}
 		}
-		//批量插值计算
+		//批量插值计算 当前只有一个插值点,即 目标静压
 		List<ShryFyxnData>[] insertXnRstAry = null;
 		try {
 			insertXnRstAry = this.convertFYXNInsertChartList(fyxnListAry, aArray);
@@ -374,9 +374,9 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 			transListMap = transZsListMap.get(chKey);
 			eachUseMap = new HashMap<String,ShryFyxnData>();
 			for(String chZsKey:transListMap.keySet()){
-				//准备数据,批量进行插值,速度较快
 				//插值拟合到指定静压dJyl时的流量大于dLl即符合条件
 				try {
+					//当前只有一个插值点,即 目标静压
 					insertXnData = insertXnRstAry[zsIndexMap.get(chKey+"_"+chZsKey)].get(0);
 				} catch (Exception e) {
 					logger.error("获取插值结果报错,跳过当前数据!chKey="+chKey+"chZsKey="+chZsKey, e);
@@ -390,12 +390,47 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 					eachUseMap.put(chZsKey, insertXnData);
 				}
 			}
+			//按效率排序取前N个
+			eachUseMap = getFirstNXLData(eachUseMap);
+			
+			
 			//{风叶ID:{转速:性能}}
 			if(!eachUseMap.isEmpty()){ rstMap.put(chKey, eachUseMap);}
 		}
 		
+		
+		
+		
 		return rstMap;
 	}
+
+
+    //按效率排序取前N个
+	private Map<String, ShryFyxnData> getFirstNXLData(Map<String, ShryFyxnData> eachUseMap) {
+		Map<String, ShryFyxnData> rstMap = new HashMap<String, ShryFyxnData>();
+		int arg_xxjg_xl = NumberUtils.toInt(commonDao.getDictValue(CODETYPE, "FYXX_XXJG_XL"));
+		arg_xxjg_xl = arg_xxjg_xl < 1 ? 1 : arg_xxjg_xl;
+		Map<Double,String> xlMap = new HashMap<Double,String>();
+		for(String ch:eachUseMap.keySet()){
+			if(StringUtils.isBlank(ch) || eachUseMap.get(ch)==null){ continue;}
+			xlMap.put(NumberUtils.toDouble(eachUseMap.get(ch).getXl()), ch);
+		}
+		Object[] keyAry = xlMap.keySet().toArray();
+		Arrays.sort(keyAry);
+		keyAry = Arrays.asList(keyAry).subList(keyAry.length-arg_xxjg_xl, keyAry.length).toArray();
+//		keyAry = Arrays.copyOfRange(keyAry, keyAry.length-arg_xxjg_xl, keyAry.length);
+		for(Object ch:keyAry){
+			rstMap.put(xlMap.get(ch), eachUseMap.get(xlMap.get(ch)));
+		}
+		
+		return rstMap;
+	}
+
+
+
+
+
+
 
 
 	private void setDefaultA(String[][] aArray) {

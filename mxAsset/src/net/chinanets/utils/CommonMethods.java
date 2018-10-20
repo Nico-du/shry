@@ -206,13 +206,13 @@ public class CommonMethods {
 	 */
 	public static  boolean isDouble(String str) 
 	{ 
-	try 
-	{ 
-	Double.parseDouble(str); 
-	return true; 
-	} 
-	catch(Exception ex){} 
-	return false; 
+		return NumberUtils.isNumber(str);
+//	try 
+//	{ 
+//	Double.parseDouble(str); 
+//	return true; 
+//	}catch(Throwable ex){} 
+//	return false; 
 	}
 	
 	/**

@@ -333,7 +333,7 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 									String clbz = st.getCell(12,i).getContents().trim(); // 材料标注
 									String qj = st.getCell(13,i).getContents().trim(); // 嵌件
 									
-									/*总成对象数据*/
+									/*总成对象数据*/ 
 									String zcxh = st.getCell(0, i).getContents().trim(); //总成型号
 									String zccc = st.getCell(2, i).getContents().trim();//外形尺寸
 									String sycx = st.getCell(15, i).getContents().trim();//适用车型
@@ -343,26 +343,26 @@ public class ParamDataExcelUploadServlet extends HttpServlet {
 									String whkc_kzfs = st.getCell(16, i).getContents().trim();// 控制方式
 									String whkc_zkb1 = st.getCell(17, i).getContents().trim();//占空比1（%）  
 									String whkc_zs1  = st.getCell(18, i).getContents().trim();//转速1（rpm)   
-									String whkc_dl1  = st.getCell(18, i).getContents().trim();//电流1(A)      
-									String whkc_zkb2 = st.getCell(19, i).getContents().trim();//占空比2（%）  
-									String whkc_zs2  = st.getCell(20, i).getContents().trim();//转速2（rpm)   
-									String whkc_dl2  = st.getCell(21, i).getContents().trim();//电流2(A)      
-									String whkc_zkb3 = st.getCell(22, i).getContents().trim();//占空比3（%）  
-									String whkc_zs3  = st.getCell(23, i).getContents().trim();//转速3（rpm)   
-									String whkc_dl3  = st.getCell(24, i).getContents().trim();//电流3(A)      
-									String gzd_jy1   = st.getCell(25, i).getContents().trim();//静压1（Pa)    
-									String gzd_ll1   = st.getCell(26, i).getContents().trim();//流量1（m3/h)  
-									String gzd_jy2   = st.getCell(27, i).getContents().trim();//静压2（Pa)    
-									String gzd_ll2   = st.getCell(28, i).getContents().trim();//流量2（m3/h)  
-									String gzd_jy3   = st.getCell(29, i).getContents().trim();//静压3（Pa)    
-									String gzd_ll3   = st.getCell(30, i).getContents().trim();//流量3（m3/h)  
-									String zs_zt     = st.getCell(31, i).getContents().trim();//状态          
-									String zs_gs_ed  = st.getCell(32, i).getContents().trim();//额定（dB）    
-									String zs_gs_sc  = st.getCell(33, i).getContents().trim();//实测（dB）    
-									String zs_ds_ed  = st.getCell(34, i).getContents().trim();//额定（dB）    
-									String zs_ds_sc  = st.getCell(35, i).getContents().trim();//实测（dB）    
-									String ph_jph    = st.getCell(36, i).getContents().trim();//静平衡（g.mm) 
-									String ph_dph    = st.getCell(37, i).getContents().trim();//动平衡（g.mm)  
+									String whkc_dl1  = st.getCell(19, i).getContents().trim();//电流1(A)      
+									String whkc_zkb2 = st.getCell(20, i).getContents().trim();//占空比2（%）  
+									String whkc_zs2  = st.getCell(21, i).getContents().trim();//转速2（rpm)   
+									String whkc_dl2  = st.getCell(22, i).getContents().trim();//电流2(A)      
+									String whkc_zkb3 = st.getCell(23, i).getContents().trim();//占空比3（%）  
+									String whkc_zs3  = st.getCell(24, i).getContents().trim();//转速3（rpm)   
+									String whkc_dl3  = st.getCell(25, i).getContents().trim();//电流3(A)      
+									String gzd_jy1   = st.getCell(26, i).getContents().trim();//静压1（Pa)    
+									String gzd_ll1   = st.getCell(27, i).getContents().trim();//流量1（m3/h)  
+									String gzd_jy2   = st.getCell(28, i).getContents().trim();//静压2（Pa)    
+									String gzd_ll2   = st.getCell(29, i).getContents().trim();//流量2（m3/h)  
+									String gzd_jy3   = st.getCell(30, i).getContents().trim();//静压3（Pa)    
+									String gzd_ll3   = st.getCell(31, i).getContents().trim();//流量3（m3/h)  
+									String zs_zt     = st.getCell(32, i).getContents().trim();//状态          
+									String zs_gs_ed  = st.getCell(33, i).getContents().trim();//额定（dB）    
+									String zs_gs_sc  = st.getCell(34, i).getContents().trim();//实测（dB）    
+									String zs_ds_ed  = st.getCell(35, i).getContents().trim();//额定（dB）    
+									String zs_ds_sc  = st.getCell(36, i).getContents().trim();//实测（dB）    
+									String ph_jph    = st.getCell(37, i).getContents().trim();//静平衡（g.mm) 
+									String ph_dph    = st.getCell(38, i).getContents().trim();//动平衡（g.mm)  
 									
 									
 									if(CommonMethods.isBlank(xh) ){

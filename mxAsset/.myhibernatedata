@@ -1,5 +1,5 @@
 #MyEclipse Hibernate Properties
-#Tue Oct 16 11:08:22 CST 2018
+#Sat Oct 20 13:54:20 CST 2018
 sessionFactoryName=net.chinanets.pojos.HibernateSessionFactory
 genBasicCompId=false
 profile=
