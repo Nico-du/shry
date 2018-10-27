@@ -420,7 +420,7 @@
 				if(item.isysdj == "N"){
 					return "无刷";
 				}
-				return "";
+				return item.isysdj;
 			}
 		]]>
 	</mx:Script>

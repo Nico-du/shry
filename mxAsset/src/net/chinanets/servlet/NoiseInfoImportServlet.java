@@ -37,13 +37,13 @@ public class NoiseInfoImportServlet extends HttpServlet {
 	 * @date:2016-6-17下午10:24:33
 	 */
 	private static final long serialVersionUID = 1L;
-	public String str ="";
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	public void doGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
                this.doPost(request, response);
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String str ="导入成功";
 		response.setContentType("text/html;charset=utf-8");
 		PrintWriter out = response.getWriter();
 		try {
@@ -71,15 +71,15 @@ public class NoiseInfoImportServlet extends HttpServlet {
 						ServletContext servletContext = request.getSession().getServletContext();
 						ApplicationContext app = org.springframework.web.context.support.WebApplicationContextUtils.getWebApplicationContext(servletContext);
 						CommonService comService = (CommonService) app.getBean("commonService");
+						//根据风叶型号查询风叶数据表。判断该风叶型号是已经存在,如果不存在则给出提示，
+						String hql = "From ShryFyData where xh='"+listVo.getFyList().get(0).getXh().trim()+"'";
+						List<ShryFyData> fys = comService.getAllObjectByHql(hql);
+						if(fys == null || fys.size()<1){
+							str ="该型号对应的风叶数据不存在，请检查型号为：'"+listVo.getFyList().get(0).getXh().trim()+"'的数据";
+							listVo.setResult(str);
+							break;
+						}
 						for (int i = 0; i <listVo.getZsList().size(); i++) {
-							//根据风叶型号查询风叶数据表。判断该风叶型号是已经存在,如果不存在则给出提示，
-							String hql = "From ShryFyData where xh="+listVo.getFyList().get(0).getXh();
-							List<ShryFyData> fys = comService.getAllObjectByHql(hql);
-							   if(fys.size()<1){
-								   str ="该型号对应的风叶数据不存在，请检查型号为："+listVo.getFyList().get(i).getXh()+"的数据";
-								   listVo.setResult(str);
-								   break;
-							   }
 							   //保存噪声表
 							   listVo.getZsList().get(i).setInputdate(new Date());
 							   listVo.getZsList().get(i).setFyid(fys.get(0).getFyid());
@@ -98,7 +98,7 @@ public class NoiseInfoImportServlet extends HttpServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{
-			out.write(str.getBytes("utf-8").toString());
+			out.write(str);
 		}
 	}
 
@@ -135,14 +135,21 @@ public class NoiseInfoImportServlet extends HttpServlet {
 							vo.setResult("参数模版格式不正确！请检查参数导入模版(检查方式：1.只支持2003.xls格式版本,2.下载模版对比表头)");
 							return vo;
 						}
+						String fyxhVal = st.getCell(1, 0).getContents().trim(); //风叶型号
+						String cebzVal = st.getCell(1, 1).getContents().trim(); //测试标准
+						String csztVal = st.getCell(1, 2).getContents().trim(); //测试状态
+						if( StringUtils.isBlank(fyxhVal) || StringUtils.isBlank(csztVal)){
+							vo.setResult("风叶型号、测试状态不能为空！");
+							return vo;
+						}
 						//保存风叶对象数据
 						fyData = new ShryFyData();
-						fyData.setXh(fyxhName);
+						fyData.setXh(fyxhVal);
 						fyList.add(fyData);
 						
 						for (int i = 4; i < rows; i++) {
 								//过滤掉为空的行
-							 if(StringUtils.isNotBlank(st.getCell(3,i).getContents())){
+							 if(StringUtils.isNotBlank(st.getCell(1,i).getContents())){
 								zsData = new ShryFyZsData();
 								
 								/*噪声对象数据*/
@@ -159,8 +166,9 @@ public class NoiseInfoImportServlet extends HttpServlet {
 								}
 									
 								zsData.setSpeed(zs);
-								zsData.setCsbz(cebzName);
+								zsData.setCsbz(cebzVal);
 								zsData.setNoise(voise);
+								zsData.setCszt(csztVal);
 								zsList.add(zsData);
 								}
 							}

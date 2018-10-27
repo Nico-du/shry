@@ -213,14 +213,6 @@
 				PopUpManager.addPopUp(upw,this.parentApplication as DisplayObject,true);
 				PopUpManager.centerPopUp(upw);
 			}
-			//噪声数据导入
-			protected function importActionClick():void{
-				var upw:UploadWindow= new UploadWindow();
-				upw.url="/mxAsset/servlet/NoiseInfoImportServlet";
-				upw.parentPage = this;
-				PopUpManager.addPopUp(upw,this.parentApplication as DisplayObject,true);
-				PopUpManager.centerPopUp(upw);
-			}
 			
 			//其他操作
 			protected function otherAction_clickHandler(event:Event):void
@@ -530,11 +522,10 @@
 				<mx:LinkButton id="editAction" click="editActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="编辑" toolTip="编辑" icon="@Embed(source='images/edit.gif')"/>
 				<mx:LinkButton id="removeAction" click="removeActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="删除" toolTip="删除" icon="@Embed(source='images/delete.gif')"/>
 				<mx:LinkButton id="importAction" click="importDataActionClick()" enabled="true" height="{aboutheight}" label="导入" toolTip="导入" icon="@Embed(source='images/export.gif')"/>
-				<mx:LinkButton id="importsAction" click="importActionClick()" enabled="true" height="{aboutheight}" label="噪音导入" toolTip="噪音导入" icon="@Embed(source='images/import.gif')"/>
 				<mx:LinkButton id="exportAction" click="exportActionClick()" enabled="{dataIsSelected}" height="{aboutheight}" label="导出" toolTip="导出" icon="@Embed(source='images/export.gif')"/>
 				<mx:LinkButton id="refreshAction" click="searchClickAction()" height="{aboutheight}" label="刷新" toolTip="刷新" icon="@Embed(source='images/icon_refresh.png')"/>
 				<mx:ComboBox id="otherAction" change="otherAction_clickHandler(event)" cornerRadius="2" editable="false" width="90" height="{aboutheight}" blendMode="overlay">
-					<mx:Array id="cbotherchoose">
+					<mx:Array id="cbotherchoose"> 
 						<mx:Object label="其它操作" value="unknow"/>
 						<mx:Object label="导出模板" value="exportModelAction"/>
 						<mx:Object label="导入数据" value="inportDataAction"/>
