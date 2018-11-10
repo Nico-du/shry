@@ -31,6 +31,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
 import org.mortbay.log.Log;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationContext;
 
 
@@ -101,6 +102,16 @@ public class DJInfoImportServlet extends HttpServlet {
 							}else{
 								djList.get(i).setZcid(zcs.get(0).getZcid());
 							}
+							hql = "From ShryDjData where djxh='"+djList.get(i).getDjxh()+"'";
+							List<ShryDjData> djs = comService.getAllObjectByHql(hql);
+							if(djs != null && djs.size()>0 && (StringUtils.isNotBlank(djs.get(0).getDy()) || StringUtils.isNotBlank(djs.get(0).getDl()))){
+								str ="请检查型号为："+djList.get(i).getDjxh()+"的数据，该电机型号数据已存在，请确认数据库中为无效数据后清空[电压]、[电流]字段保存，即可导入。";
+								listVo.setResult(str);
+								return;
+							}else if(djs != null && djs.size()>0){
+								djList.get(i).setDjid(djs.get(0).getDjid());
+							}
+							
 							if(djxhSet.contains(djList.get(i).getDjxh())){
 								str ="该Excel中电机型号存在重复值,请检查型号:"+djList.get(i).getDjxh();
 								listVo.setResult(str);
@@ -109,17 +120,24 @@ public class DJInfoImportServlet extends HttpServlet {
 							djxhSet.add(djList.get(i).getDjxh());
 						}
 						
-						
 						//保存
 						for (int i = 0; i <listVo.getDjList().size(); i++) {
-							   listVo.getDjList().get(i).setInputdate(new Date());
-							   listVo.getDjList().get(i).setInputuser(importuser);
-							   listVo.getDjList().get(i).setUpdatedate(new Date());
-							   listVo.getDjList().get(i).setUpdateuser(importuser);
-							   
-							   comService.saveObject(listVo.getDjList().get(i));
-							   
-							   }
+							if(listVo.getDjList().get(i).getDjid() != null && listVo.getDjList().get(i).getDjid()>0L){
+								String hql = "From ShryDjData where djid='"+listVo.getDjList().get(i).getDjid()+"'";
+								List<ShryDjData> djs = comService.getAllObjectByHql(hql);
+								BeanUtils.copyProperties(listVo.getDjList().get(i),djs.get(0));
+								djs.get(0).setUpdatedate(new Date());
+								djs.get(0).setUpdateuser(importuser);
+								comService.updateObject(djs.get(0));
+							}else{
+								listVo.getDjList().get(i).setInputdate(new Date());
+								listVo.getDjList().get(i).setInputuser(importuser);
+								listVo.getDjList().get(i).setUpdatedate(new Date());
+								listVo.getDjList().get(i).setUpdateuser(importuser);
+
+								comService.saveObject(listVo.getDjList().get(i));
+							}
+						}
 					}else{
 						str=listVo.getResult(); 
 					}

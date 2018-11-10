@@ -78,7 +78,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			sFw = commonDao.getDictValue(CODETYPE, "DLHZJ_FW");
 			dValMin = NumberUtils.toDouble(sDlhzj) - 0.0001 - NumberUtils.toDouble(sFw);
 			dValMax = NumberUtils.toDouble(sDlhzj) + NumberUtils.toDouble(sFw);
-			strSQL += "where fyxn.fyid in ( select fy.fyid from shry_fy_data fy where fy.dlhzj between "+dValMin+" and "+dValMax+" )  )  ";
+			strSQL += "where fyxn.fyid in ( select fy.fyid from shry_fy_data fy where fy.dlhzj between "+dValMin+" and "+dValMax+" )    ";
 		}else if(StringUtils.isBlank(sDlhzj) && StringUtils.isBlank(sDlhzj) && !StringUtils.isBlank(sFzid) ){//分组ID
 			strSQL += "where fyxn.fyid in ( select fz.glid from shry_xxfz_data fz where fz.fzid='"+sFzid+"' )  ";
 		}
@@ -89,7 +89,7 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 		
 		String tempClassPath = "net.chinanets.pojos.ShryFyxnData";
 		List<ShryFyxnData> fyxnList =	(List<ShryFyxnData>) commonDao.RunSelectClassBySql(strSQL, tempClassPath);
-		System.out.println("搜索范围："+fyxnList.size() +" 条数据！");
+		System.out.println("搜索范围："+(fyxnList == null ? 0 :fyxnList.size()) +" 条数据！");
 		
 		Double dFbzj = StringUtils.isBlank(sFbzj) ? null : NumberUtils.toDouble(sFbzj);
 		Double dDlhzj = StringUtils.isBlank(sDlhzj) ? null : NumberUtils.toDouble(sDlhzj);
@@ -744,6 +744,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 				insertI = i;
 			}
 		}
+		if(insertI == 0){ insertI = insertAry.length-1;}
 		if( maxInsert ==0d){ maxInsert = NumberUtils.toDouble(insertAry[insertAry.length-1]);}
 		insertAry = (String[]) ArrayUtils.subarray(insertAry, 0, insertI+1);
 		insertAry[insertAry.length-1] = maxInsert+"";
@@ -917,6 +918,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 				insertI = i;
 			}
 		}
+		if(insertI == 0){ insertI = insertAry.length-1;}
 		if( maxInsert ==0d){ maxInsert = NumberUtils.toDouble(insertAry[insertAry.length-1]);}
 		insertAry = (String[]) ArrayUtils.subarray(insertAry, 0, insertI+1);
 		insertAry[insertAry.length-1] = maxInsert+"";
@@ -1051,6 +1053,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 				insertI = i;
 			}
 		}
+		if(insertI == 0){ insertI = insertAry.length-1;}
 		if( maxInsert ==0d){ maxInsert = NumberUtils.toDouble(insertAry[insertAry.length-1]);}
 		insertAry = (String[]) ArrayUtils.subarray(insertAry, 0, insertI+1);
 		insertAry[insertAry.length-1] = maxInsert+"";

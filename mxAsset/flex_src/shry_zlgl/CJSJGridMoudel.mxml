@@ -466,7 +466,7 @@
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="车型:" height="{aboutheight}"/>
+								<mx:Label text="客户图号:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
@@ -474,7 +474,7 @@
 								</mx:FormItem>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="right" width="10%">
-								<mx:Label text="项目:" height="{aboutheight}"/>
+								<mx:Label text="车型项目:" height="{aboutheight}"/>
 							</mx:GridItem>
 							<mx:GridItem horizontalAlign="left" width="15%">
 								<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
@@ -561,8 +561,8 @@
 						</mx:DataGridColumn>
 						<mx:DataGridColumn headerText="图号" width="120" dataField="th" sortable="true"/>
 						<mx:DataGridColumn headerText="总成型号" width="80" dataField="zcxh" sortable="true"/>
-						<mx:DataGridColumn headerText="车型" width="80" dataField="cx" sortable="true"/>
-						<mx:DataGridColumn headerText="项目" width="80" dataField="xm" sortable="true"/>
+						<mx:DataGridColumn headerText="客户图号" width="80" dataField="cx" sortable="true"/>
+						<mx:DataGridColumn headerText="车型项目" width="80" dataField="xm" sortable="true"/>
 						<mx:DataGridColumn headerText="插件材料" width="80" dataField="cjcl" sortable="true"/>
 						<mx:DataGridColumn headerText="插片材料" width="80" dataField="cpcl" sortable="true"/>
 						<mx:DataGridColumn headerText="插片镀层" width="110" dataField="cpdc" sortable="true"/>

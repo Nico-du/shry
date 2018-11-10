@@ -46,7 +46,9 @@
 			<mycoms:ImageCanvas id="zlgl_zcsj" txt="总成查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_wx_img.gif"/>
 			<mycoms:ImageCanvas id="zlgl_djsj" txt="电机查询"  click="buttonSelectClick(event)" width="100" height="100" imgname="sy_tk_img.gif"/>
 			<mycoms:ImageCanvas id="xncs_sydsj" txt="试验单查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_bf_img.gif"/>
-			<!--添加图例，也就是说明图形的某个线条的颜色和作用的实例-->
+			<mycoms:ImageCanvas id="zlgl_zssj" txt="风叶噪声查询" click="buttonSelectClick(event)" width="100" height="100" imgname="p2_lt.png"/>
+			<mycoms:ImageCanvas id="zlgl_cjsj" txt="插件查询" click="buttonSelectClick(event)" width="100" height="100" imgname="p3_lt.png"/>
+			<!--添加图例，也就是说明图形的某个线条的颜色和作用的实例--> 
 		</mx:Tile>
 	</mx:VBox>
 </mx:Module>

@@ -175,7 +175,7 @@ public class CJSJInfoImportServlet extends HttpServlet {
 						String name14 = st1.getCell(14, 1).getContents().trim()+""; 
 						String name15 = st1.getCell(15, 1).getContents().trim()+""; 
 						
-						if( !"图号".equals(name0) || !"总成型号".equals(name1)|| !"车型".equals(name2) || !"项目".equals(name3)
+						if( !"图号".equals(name0) || !"总成型号".equals(name1)|| !"客户图号".equals(name2) || !"车型项目".equals(name3)
 								|| !name13.contains("环境工况") || !name14.contains("插拔力") || !name15.contains("档位")){
 							vo.setResult("Sheet1插件数据模版格式不正确！请检查参数导入模版(检查方式：1.只支持2003.xls格式版本,2.下载模版对比表头)");
 							return vo;

@@ -53,7 +53,7 @@ private function loadPicturesBack(result:Object):void{
 public function loadOriginPictures():void{
 	if(this.hasOwnProperty("originPicPanel")){
 		var sydid:String = null;
-		if(this.hasOwnProperty("hsCbx")){
+		if(this.hasOwnProperty("hsCbx") && this["hsCbx"].selectedItem!=null){
 			sydid = this["hsCbx"].selectedItem.lxdid;
 		}
 	   CommonMethod.loadTablePictures(this.tempObjBeanName,idColumnName,dataId,"2",this,loadOriginPicturesBack,sydid);

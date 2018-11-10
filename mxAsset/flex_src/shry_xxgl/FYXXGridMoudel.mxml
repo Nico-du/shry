@@ -268,6 +268,7 @@
 				if(items==null){
 					return;
 				}
+				//List赋值
 				this.dg_pg_datacount=parseInt(itemtotal as String);
 				this.dg_pg_othermsg=othermsg==null?"":othermsg.toString();
 				this.dataArray=ASCommonHelper.addArraySelectedPro(new ArrayCollection(items as Array));
@@ -439,7 +440,7 @@
 			private function resultBack(event:ResultEvent):void {
 				chartService.removeEventListener(ResultEvent.RESULT,resultBack);
 				if(event.result == null)return;
-				/* var tempSelectItem:Object=this.cns_dg.selectedItem;
+				 var tempSelectItem:Object=this.cns_dg.selectedItem;
 				chartService.translateData(JSON.encode(event.result.list.source),JSON.encode(tempSelectItem),"JL");
 				chartService.addEventListener(ResultEvent.RESULT,resultBack1);
 			}
@@ -447,7 +448,7 @@
 				chartService.removeEventListener(ResultEvent.RESULT,resultBack1);
 				if(event.result == null)return;
 				//添加多曲线
-				var objList:ArrayCollection = new ArrayCollection(event.result as Array); */
+				var objList:ArrayCollection = new ArrayCollection(event.result as Array); 
 				var objList:ArrayCollection = event.result as ArrayCollection;
 				
 				var lineChart4:LinueChartModel = new LinueChartModel();
@@ -550,6 +551,7 @@
 						<mx:DataGridColumn headerText="扭矩(N.M)" width="80" dataField="nj" sortable="true" sortCompareFunction="srotFuncNj"/>
 						<mx:DataGridColumn headerText="轴功率(W)" width="100" dataField="zgl" sortable="true" sortCompareFunction="srotFuncZgl"/>
 						<mx:DataGridColumn headerText="效率(%)" width="100" dataField="xl" sortable="true" sortCompareFunction="srotFuncXl"/>
+						<mx:DataGridColumn headerText="联系单号" width="100" dataField="lxdh" sortable="true" />
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
 					</mx:columns>
 				</mx:DataGrid>

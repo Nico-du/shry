@@ -553,7 +553,7 @@
 						<mx:DataGridColumn headerText="型号" width="120" dataField="djxh" sortable="true"/>
 						<mx:DataGridColumn headerText="总成型号" width="80" dataField="zcxh" sortable="true"/>
 						<mx:DataGridColumn headerText="风叶型号" width="80" dataField="fyxh" sortable="true"/>
-						<mx:DataGridColumn headerText="电机类型" width="80" dataField="isysdj" labelFunction="getDjxlStr" sortable="true"/>
+						<mx:DataGridColumn headerText="电机类型" width="80" dataField="isysdjcn" labelFunction="getDjxlStr" sortable="true"/>
 						<mx:DataGridColumn headerText="转速(r/min)" width="80" dataField="zs" sortable="true"/>
 						<mx:DataGridColumn headerText="转矩(N·m)" width="80" dataField="zj" sortable="true"/>
 						<mx:DataGridColumn headerText="输入功率(W)" width="110" dataField="srgl" sortable="true"/>

@@ -282,7 +282,7 @@
 				var errorMsg:String="";
 				var isCheckSuccess:Boolean=true;
 				if(ASStringHelper.isNullOrEmpty(this.cx.text) ){
-					errorMsg="[车型]不允许为空";
+					errorMsg="[客户图号]不允许为空";
 					showCheckErrors(errorMsg);
 					isCheckSuccess=false;
 				}
@@ -502,7 +502,7 @@
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
 											<mx:Label text="*" color="red" paddingTop="2" width="10" height="{aboutheight}"/>
-											<mx:Label text="车型:" height="{aboutheight}" fontWeight="bold"/>
+											<mx:Label text="客户图号:" height="{aboutheight}" fontWeight="bold"/>
 										</mx:HBox>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">
@@ -512,7 +512,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
 										<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="right" verticalAlign="middle">
-											<mx:Label text="项目:" height="{aboutheight}"/>
+											<mx:Label text="车型项目:" height="{aboutheight}"/>
 										</mx:HBox>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="24%">

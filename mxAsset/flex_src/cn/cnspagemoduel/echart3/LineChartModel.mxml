@@ -374,6 +374,24 @@
 				//onSendParamToHtml(1);
 			}
 			
+			////生成单个能图
+			public function initChartSingle():void
+			{
+				iframeChart.callIFrameFunction("refreshCwd");
+				
+				flash.utils.setTimeout(initChartSingleLater,waitRefeshTime);
+			}
+			
+			public function initChartSingleLater():void
+			{
+/* 				this.modelTitle="风叶流量-静压曲线图"; 
+				this.xToolTipTiltle = this.xAxisTitle= "流量";this.yToolTipTiltle= this.yAxisTitle= "静压";
+				this.xAxisUnit = "m^3/h"; this.yAxisUnit = "Pa";
+				this._xField = "ll"; this._yField = "jyl"; */
+				this.refeshCallback(1);
+				//onSendParamToHtml(1);
+			}
+			
 			public var chartType:String = "ZC";
 			public function creationCompleteHandler():void
 			{
@@ -383,6 +401,8 @@
 					callLater(initChartFY);
 				}else if("DJ" == chartType){
 					callLater(initChartDJ);
+				}else{
+					callLater(initChartSingle);
 				}
 			}
 			
