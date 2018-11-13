@@ -25,6 +25,10 @@ public class ShryFyxnData implements java.io.Serializable {
 	private String zgl;
 	private String xl;
 	private String memo;
+	private String dlhzj;
+	private String fbzj;
+	private Long baseLxdid;
+	private String baseZzs;
 	private Date inputdate;
 	private String inputuser;
 	private Date updatedate;
@@ -37,11 +41,13 @@ public class ShryFyxnData implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public ShryFyxnData(Long fyid, Long lxdid, String zzs,
+	public ShryFyxnData(Long fyxnid, Long fyid, Long lxdid, String zzs,
 			String fzs, String zy, String ll, String jyl, String fszs,
 			String nj, String yxgl, String zgl, String xl, String memo,
-			Date inputdate, String inputuser, Date updatedate,
-			String updateuser) {
+			String dlhzj, String fbzj, Long baseLxdid, String baseZzs,
+			Date inputdate, String inputuser, Date updatedate, String updateuser) {
+		super();
+		this.fyxnid = fyxnid;
 		this.fyid = fyid;
 		this.lxdid = lxdid;
 		this.zzs = zzs;
@@ -55,6 +61,10 @@ public class ShryFyxnData implements java.io.Serializable {
 		this.zgl = zgl;
 		this.xl = xl;
 		this.memo = memo;
+		this.dlhzj = dlhzj;
+		this.fbzj = fbzj;
+		this.baseLxdid = baseLxdid;
+		this.baseZzs = baseZzs;
 		this.inputdate = inputdate;
 		this.inputuser = inputuser;
 		this.updatedate = updatedate;
@@ -207,4 +217,36 @@ public class ShryFyxnData implements java.io.Serializable {
 		this.updateuser = updateuser;
 	}
 
+	public String getDlhzj() {
+		return dlhzj;
+	}
+
+	public void setDlhzj(String dlhzj) {
+		this.dlhzj = dlhzj;
+	}
+
+	public String getFbzj() {
+		return fbzj;
+	}
+
+	public void setFbzj(String fbzj) {
+		this.fbzj = fbzj;
+	}
+
+	public Long getBaseLxdid() {
+		return baseLxdid;
+	}
+
+	public void setBaseLxdid(Long baseLxdid) {
+		this.baseLxdid = baseLxdid;
+	}
+
+	public String getBaseZzs() {
+		return baseZzs;
+	}
+
+	public void setBaseZzs(String baseZzs) {
+		this.baseZzs = baseZzs;
+	}
+	
 }

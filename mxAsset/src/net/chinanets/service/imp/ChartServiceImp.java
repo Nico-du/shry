@@ -14,21 +14,20 @@ import net.chinanets.data.DataEntity;
 import net.chinanets.pojos.ShryDjData;
 import net.chinanets.pojos.ShryDjxnData;
 import net.chinanets.pojos.ShryFyData;
-import net.chinanets.pojos.ShryFyZsData;
 import net.chinanets.pojos.ShryFyxnData;
+import net.chinanets.pojos.ShrySydData;
 import net.chinanets.pojos.ShryZcData;
 import net.chinanets.pojos.ShryZcxnData;
 import net.chinanets.service.ChartService;
 import net.chinanets.utils.Arith;
 import net.chinanets.utils.CommonMethods;
-import net.chinanets.utils.Guass;
 import net.chinanets.utils.MatlabInterp1Util;
 import net.chinanets.utils.common.DoResult;
 import net.chinanets.utils.common.Errors;
 import net.chinanets.vo.UserVo;
-import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -138,16 +137,20 @@ public class ChartServiceImp extends CommonServiceImp implements ChartService {
 			logger.error("数据查询异常",new Exception("数据查询异常,数据量不匹配"));
 			return new JSONArray();
 		}
-		JSONObject chNewObj ;
+		
+		JSONObject chNewObj ; ShrySydData chSyd;
 		for(int i=0;i<xxjgObjList.size();i++){
 			JSONObject chObj =  xxjgObjList.getJSONObject(i);
 			Map<String, ShryFyxnData> tmpMap = xxjgListMap.get(chObj.get("fyid")+"");
 			if(tmpMap == null || tmpMap.isEmpty()){ logger.info("数据异常,数据匹配.fyid="+chObj.get("fyid")); continue;}
-
+			JsonConfig config = new JsonConfig(); 
 			for(String chZsKey:tmpMap.keySet()){
+				chSyd = (ShrySydData) commonDao.RunSelectClassBySql("select *  from shry_syd_data where lxdid='"+tmpMap.get(chZsKey).getLxdid()+"'", "net.chinanets.pojos.ShrySydData").get(0);
 				chNewObj = new JSONObject();
 				chNewObj.putAll(chObj);
-				chNewObj.putAll(JSONObject.fromObject(tmpMap.get(chZsKey)));
+//				chNewObj.putAll(JSONObject.fromObject(tmpMap.get(chZsKey)));
+				CommonMethods.putAllWithoutEmpty(chNewObj, JSONObject.fromObject(tmpMap.get(chZsKey)));
+				chNewObj.put("baseLxdh",chSyd.getLxdh());
 				rstJsonArray.add(chNewObj);
 			}
 		}
@@ -210,7 +213,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 			   zsAll = 0L; 
 				curfyid = fyxnList.get(0).getFyid(); curLxdid = fyxnList.get(0).getLxdid();
 				eachFyxnList = new ArrayList<ShryFyxnData>();
-				for(int idx=0;idx<fyxnList.size();idx++){
+				for(int idx=0;idx<fyxnList.size();idx++){//丢失数据的问题？？？
 						eachFyxn = fyxnList.get(idx);
 						if(eachFyxn.getLxdid() == curLxdid){
 							zsAll += NumberUtils.toLong(eachFyxn.getZzs());
@@ -248,19 +251,24 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 				if(StringUtils.isBlank(eachJy) || StringUtils.isBlank(eachLl) || StringUtils.isBlank(eachGl) || StringUtils.isBlank(eachZs) ){
 					String fyxh = (String) commonDao.getObjectBySql("SELECT fy.XH FROM shry_fy_data fy WHERE fy.FYID ='"+each.getFyid()+"' ").get(0);
 					String lxdh = (String) commonDao.getObjectBySql("select lxd.lxdh from shry_syd_data lxd where lxd.lxdid ='"+each.getLxdid()+"' ").get(0);
-					missDataList.add("联系单号为"+lxdh+"的风叶性能数据中的部分数据缺失,选型忽略该联系单下的风叶"+fyxh);
-					logger.info("联系单号为"+lxdh+"的风叶性能数据中的部分数据缺失,选型忽略该联系单下的风叶"+fyxh);
+					missDataList.add("fyid_zzs="+chKey+",联系单号为"+lxdh+"的风叶性能数据中的部分数据缺失,选型忽略该联系单下的风叶"+fyxh);
+					logger.info("fyid_zzs="+chKey+"联系单号为"+lxdh+"的风叶性能数据中的部分数据缺失,选型忽略该联系单下的风叶"+fyxh);
 					xnListMap.remove(chKey);
 					break;
 				}
-				if(NumberUtils.toDouble(eachJy) < 0 || NumberUtils.toDouble(eachLl) < 0 || NumberUtils.toDouble(eachGl) < 0 || NumberUtils.toDouble(eachZs) < 0){
-					String fyxh = (String) commonDao.getObjectBySql("SELECT fy.XH FROM shry_fy_data fy WHERE fy.FYID ='"+each.getFyid()+"' ").get(0);
-					String lxdh = (String) commonDao.getObjectBySql("select lxd.lxdh from shry_syd_data lxd where lxd.lxdid ='"+each.getLxdid()+"' ").get(0);
-					missDataList.add("联系单号为"+lxdh+"的风叶性能数据中的部分数据异常(小于0的数据),选型忽略该联系单下的风叶"+fyxh);
-					logger.info("联系单号为"+lxdh+"的风叶性能数据中的部分数据缺失,选型忽略该联系单下的风叶"+fyxh);
-					xnListMap.remove(chKey);
-					break;
-				}
+				each.setJyl(CommonMethods.replaceMinusToZero(each.getJyl())); 
+				each.setLl(CommonMethods.replaceMinusToZero(each.getLl())); 
+				each.setZgl(CommonMethods.replaceMinusToZero(each.getZgl())); 
+				each.setZzs(CommonMethods.replaceMinusToZero(each.getZzs())); 
+				
+//				if(NumberUtils.toDouble(eachJy) < 0 || NumberUtils.toDouble(eachLl) < 0 || NumberUtils.toDouble(eachGl) < 0 || NumberUtils.toDouble(eachZs) < 0){
+//					String fyxh = (String) commonDao.getObjectBySql("SELECT fy.XH FROM shry_fy_data fy WHERE fy.FYID ='"+each.getFyid()+"' ").get(0);
+//					String lxdh = (String) commonDao.getObjectBySql("select lxd.lxdh from shry_syd_data lxd where lxd.lxdid ='"+each.getLxdid()+"' ").get(0);
+//					missDataList.add("fyid_zzs="+chKey+",联系单号为"+lxdh+"的风叶性能数据中的部分数据异常(小于0的数据),选型忽略该联系单下的风叶"+fyxh);
+//					logger.info("fyid_zzs="+chKey+",联系单号为"+lxdh+"的风叶性能数据中的部分数据异常(小于0的数据),选型忽略该联系单下的风叶"+fyxh);
+//					xnListMap.remove(chKey);
+//					break;
+//				}
 			}
 		}
 		
@@ -301,12 +309,17 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 			}
 		}
 		
-		//{风叶ID:{转速:[性能]}}
+		/** {风叶ID:{转速:[性能]}}  需要进行插值的ListMap //不会导致多个风叶换算后得到一样的数据 */
 		Map<String,Map<String,List<ShryFyxnData>>> transZsListMap = new HashMap<String,Map<String,List<ShryFyxnData>>>();
 		//{转速:[性能]}
-		Map<String,List<ShryFyxnData>> transListMap = new HashMap<String, List<ShryFyxnData>>(); 
+		Map<String,List<ShryFyxnData>> transListMap = null; 
+		///基准转速,后面所有的拟合插值都基于这个数据
+		Map<String,String> baseZsMap = new HashMap<String, String>();
+		///基准性能列表,后面所有的拟合插值都基于这个数据
+		Map<String,List<ShryFyxnData>> baseZsListMap = new HashMap<String, List<ShryFyxnData>>();
 		//chKey:风叶ID
 		for(String chKey : fyListMap.keySet()){
+			transListMap = new HashMap<String, List<ShryFyxnData>>();
 			if(fyListMap.get(chKey).isEmpty()){continue;}
 			//只有一个转速,直接换算所有Dit
 			if(fyListMap.get(chKey).size() == 1){
@@ -331,10 +344,14 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 					Long eachZsDit = zsDitList.get(i);//目标点Dit
 					//获取最接近Dit点的样本点
 					Long sampZsStr = getNearestZs(eachZsDit,zsStrList);
+					baseZsMap.put(chKey+"_"+eachZsDit, sampZsStr+"");
+					baseZsListMap.put(chKey+"_"+eachZsDit, xnListMap.get(chKey+"_"+sampZsStr));
 					//使用样本点进行数据换算
 					Map<String,List<ShryFyxnData>> transListMapPt = this.getFYXNTransList(xnListMap.get(chKey+"_"+sampZsStr), new Long[]{eachZsDit},chKey);
 					transListMap.putAll(transListMapPt);
 				}
+//				Object tmpObj = transListMap.get("2200");
+//				System.out.println(tmpObj);
 				transZsListMap.put(chKey, transListMap);
 			}
 		}
@@ -349,6 +366,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 		setDefaultA(aArray);
 		int chZsListIdx = 0; 
 		Map<String,Integer> zsIndexMap = new HashMap<String,Integer>();//风叶ID_转速对应insertXnRstAry的Index
+		//将transZsListMap二维Map转换为fyxnListAry一维数组 //
 		for(String chKey:transZsListMap.keySet()){
 			transListMap = transZsListMap.get(chKey);
 			for(String chZsKey:transListMap.keySet()){
@@ -378,6 +396,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 				try {
 					//当前只有一个插值点,即 目标静压
 					insertXnData = insertXnRstAry[zsIndexMap.get(chKey+"_"+chZsKey)].get(0);
+					logger.info("目标静压-插值结果：fyid_zs="+chKey+"_"+chZsKey+",index="+zsIndexMap.get(chKey+"_"+chZsKey)+","+JSONObject.fromObject(insertXnData));
 				} catch (Exception e) {
 					logger.error("获取插值结果报错,跳过当前数据!chKey="+chKey+"chZsKey="+chZsKey, e);
 					continue;
@@ -386,8 +405,14 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 					logger.info("插值数据有误,跳过当前数据!chKey="+chKey+"chZsKey="+chZsKey);
 					continue;
 				}
+				//设值基准数据
+				if(baseZsListMap.get(chKey+"_"+chZsKey) != null && !baseZsListMap.get(chKey+"_"+chZsKey).isEmpty() && baseZsListMap.get(chKey+"_"+chZsKey).get(0) != null){
+				insertXnData.setBaseLxdid(baseZsListMap.get(chKey+"_"+chZsKey).get(0).getLxdid());
+				insertXnData.setBaseZzs(baseZsListMap.get(chKey+"_"+chZsKey).get(0).getZzs());
+				}
 				if(NumberUtils.toDouble(insertXnData.getLl()) >= dLl){
 					eachUseMap.put(chZsKey, insertXnData);
+					logger.info("找到符合数据：fyid_zs="+chKey+"_"+chZsKey+",基准转速="+baseZsMap.get(chKey+"_"+chZsKey)+",index="+zsIndexMap.get(chKey+"_"+chZsKey)+",目标流量="+dLl+",当前流量="+insertXnData.getLl());
 				}
 			}
 			//按效率排序取前N个
@@ -397,9 +422,6 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 			//{风叶ID:{转速:性能}}
 			if(!eachUseMap.isEmpty()){ rstMap.put(chKey, eachUseMap);}
 		}
-		
-		
-		
 		
 		return rstMap;
 	}
@@ -458,7 +480,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 	private Long getNearestZs(Long zsDit, List<Long> zsStrList) {
 		Long minLgth = 10000L; //跨距
 		Long rstZs = 0L;//转速
-		for(int j=0;j<zsStrList.size()-1;j++){
+		for(int j=0;j<zsStrList.size();j++){
 			if(Math.abs(zsStrList.get(j) - zsDit) < minLgth){
 				minLgth = Math.abs(zsStrList.get(j) - zsDit);
 				rstZs = zsStrList.get(j);
@@ -485,18 +507,28 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 	 * @param hsdlhzj 导流环直径 换算值
 	 * @return {转速:[性能]}
 	 */
+	/**
+	 *  风叶性能数据换算
+	 * 等比利换算
+	 * 根据转速变换 取其他性能参数
+	 * @param sampList 样本点性能
+	 * @param hszsAry  需要换算的转速数组
+	 * @param fyid  风叶id
+	 * @return {转速:[性能]}
+	 */
 	public Map<String,List<ShryFyxnData>> getFYXNTransList(List<ShryFyxnData> sampList,Long[] hszsAry,String fyid){
 		Map<String,List<ShryFyxnData>> listOutMap = new HashMap<String,List<ShryFyxnData>>();
 		if(sampList == null || sampList.isEmpty()){
 			logger.info("getFYXNTransList---sampList为空异常退出,fyid="+fyid);
 			return listOutMap;
 		}
+		logger.info("getFYXNTransList---风叶性能数据换算：基于sampList转速："+sampList.get(0).getZzs()+",hszsAry："+Arrays.toString(hszsAry)+",fyid："+fyid);
 		for(Long chHszs : hszsAry){
 			String djy,dll,dzs,dgl,dnj,dxl;
 			djy = dll = dzs = dgl = "";
 			dzs = chHszs+"";
 //			List<ShryFyxnData> chSampList = new ArrayList<ShryFyxnData>();
-//			Collections.copy(chSampList, sampList);//TODO 复制失败？？？？
+//			Collections.copy(chSampList, sampList);
 			List<ShryFyxnData> listEach = new ArrayList<ShryFyxnData>();
 			for(ShryFyxnData srcEach : sampList){
 				ShryFyxnData each = new ShryFyxnData();
@@ -525,7 +557,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 
 				listEach.add(each);
 			}
-			listOutMap.put(chHszs+"", listEach);//TODO 复制失败？？？？
+			listOutMap.put(chHszs+"", listEach);
 		}
 		return listOutMap;
 	}
@@ -657,6 +689,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 			return null;
 		}
 		List<ShryFyxnData>[] outList =  new ArrayList[convertList.length];
+		//isShowInterpLog末位两位可能为空
 		int convertListLg = 0;
 		for(int i=0;i<convertList.length;i++){
 			if(convertList[i] == null){continue;}
@@ -666,12 +699,13 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 		insertAry = Arrays.copyOfRange(insertAry, 0, convertListLg);
 		
 		insertAry = convertFyMaxValue(convertList,insertAry);
+		
 		//流量、扭矩、轴功率、效率
 		double[][] xAry,aAry,yLlAry,yZglAry,yXlAry,yZzsAry,yFzsAry,yNjAry;
 		int cLg = insertAry.length;
 		xAry = new double[cLg][30];  aAry = CommonMethods.toDoubleAry(insertAry); yLlAry = new double[cLg][30]; 
 		yZglAry = new double[cLg][30]; yXlAry = new double[cLg][30]; yNjAry = new double[cLg][30];
-		yZzsAry = new double[cLg][1]; yFzsAry = new double[cLg][1]; 
+		yZzsAry = new double[cLg][1]; yFzsAry = new double[cLg][1];
 		for(int i=0;i<convertList.length;i++){
 			Double zzsAll,fzsAll; zzsAll = fzsAll = 0D;
 			List<ShryFyxnData> tempList = convertList[i];
@@ -717,6 +751,11 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 				ch.setNj(CommonMethods.formateDouble(yVNjAry[i][j],2));
 				ch.setZzs(CommonMethods.formateDouble(yZzsAry[i][0],2));
 				ch.setFzs(CommonMethods.formateDouble(yFzsAry[i][0],2));
+				if(convertList.length > i && convertList[i] != null && !convertList[i].isEmpty()){
+					ShryFyxnData tmpFyxn = convertList[i].get(0);
+					ch.setLxdid(tmpFyxn.getLxdid());
+					ch.setFyid(tmpFyxn.getFyid());
+				}
 				fyxnList.add(ch);
 			}
 			outList[i] = fyxnList;
@@ -1126,8 +1165,10 @@ public String translateData(String jsonArrayStrIn,String jsonObjectIn,String typ
 	JSONObject jsonObjIn = JSONObject.fromObject(jsonObjectIn);
 	JSONArray jsonAryOut = new JSONArray();
 	JSONObject eachJson;
+	//调用
+	
 	String stdzs,zzs;//对比标准转速
-	stdzs = jsonObjIn.getString("stdzs");
+	stdzs = jsonObjIn.getString("stdzs");//stdzs不存在
 	if("JL".equals(type)){
 		for(int i=0;i<jsonAryIn.size();i++){
 			eachJson = jsonAryIn.getJSONObject(i);

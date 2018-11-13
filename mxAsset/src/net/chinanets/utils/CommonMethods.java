@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import flex.messaging.MessageBroker;
@@ -84,7 +85,16 @@ public class CommonMethods {
 		if(objin == null){return "";}
 		return objin.toString();
 	}
-	
+	/**
+	 * 替换负数为0
+	 * @param objin
+	 * @return
+	 */
+	public static String replaceMinusToZero(Object objin){
+		if(objin == null){return "0";}
+		if(NumberUtils.toDouble(objin.toString()) < 0){ return "0";}
+		return NumberUtils.toDouble(objin.toString())+"";
+	}
 	public static String formateLongData(Object objin){
 		if(objin == null){return "";}
 		Date curDate = null;
@@ -237,5 +247,23 @@ public class CommonMethods {
 		}
 		return false;
 	}
+	/**
+	 * 向srcMap中putAll addMap,过滤空值
+	 * @param srcMap
+	 * @param addMap
+	 */
+	public static void putAllWithoutEmpty(Map srcMap,Map addMap){
+		if(srcMap == null){ srcMap = new HashMap();}
+		if(addMap == null || addMap.isEmpty()){
+			return ;
+		}
+		//排除为空
+		for(Object chKey:addMap.keySet()){
+			if(addMap.get(chKey) == null || StringUtils.isBlank(addMap.get(chKey)+"")){ continue;}
+			srcMap.put(chKey, addMap.get(chKey));
+		}
+	}
+	
+	
 	
 }

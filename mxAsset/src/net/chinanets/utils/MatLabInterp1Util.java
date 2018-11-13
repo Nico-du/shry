@@ -1,6 +1,7 @@
 package net.chinanets.utils;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -17,6 +18,7 @@ import com.mathworks.toolbox.javabuilder.MWNumericArray;
 
 public class MatlabInterp1Util {
 
+	private final static boolean isShowInterpLog = false;
 	/**
 	 * @param args
 	 */
@@ -215,7 +217,6 @@ public class MatlabInterp1Util {
 			System.out.println("MatlabInterp1Util.InterpOneX-参数错误,调用失败...");
 			throw new Exception("MatlabInterp1Util.InterpOneX-参数错误,调用失败...");
 		}
-		
 		final int sonAryLgth = 30;//默认子数组长度,为空填充0
 		int aryLgth = xArray.length;//父数组长度
 		if(xArray[aryLgth-1]==null){ aryLgth--;} if(xArray[aryLgth-1]==null){ aryLgth--;}
@@ -307,6 +308,10 @@ When run, the example displays this output:
 			MWArray.disposeArray(a);
 			if (thePlot != null)
 				thePlot.dispose();
+		}
+		if(isShowInterpLog){
+		System.out.println("InterpMultiX---参数：xArray="+JSONArray.fromObject(xArray)+",yArray="+JSONArray.fromObject(yArray)+",aList="+JSONArray.fromObject(aList)
+				+"\r\n执行结果：dResult="+JSONArray.fromObject(dResult));
 		}
 		return dResult;
 	}

@@ -15,6 +15,7 @@
 			import cn.cnsasfram.helper.ASJsonHelper;
 			import cn.cnsasfram.helper.ASStringHelper;
 			import cn.cnspagemoduel.chartline.LinueChartModel;
+			import cn.cnspagemoduel.echart3.LineChartModel;
 			
 			import com.adobe.serialization.json.JSON;
 			import com.benstucki.utilities.IconUtility;
@@ -281,33 +282,9 @@
 			protected function getDataSeacrchCondition():String{
 				var condition:Object=new Object();
 				/* if(!searchFormIsOpen){
-					var xh:String=this.xh.text;
-					var ypsm:String=this.ypsm.text;
-					var zj:String=this.zj.text;
-					var fbzj:String=this.fbzj.text;
-					var dlhzj:String=this.dlhzj.text;
-					var zl:String=this.zl.text;
 					var qj:String=this.qj.text;
 					if(!ASStringHelper.isNullOrEmpty(xh)){
 						condition.s_xh_string_like=xh;
-					}
-					if(!ASStringHelper.isNullOrEmpty(ypsm)){
-						condition.s_ypsm_string_like=ypsm;
-					}
-					if(!ASStringHelper.isNullOrEmpty(zj)){
-						condition.s_zj_string_like=zj;
-					}
-					if(!ASStringHelper.isNullOrEmpty(fbzj)){
-						condition.s_fbzj_string_like=fbzj;
-					}
-					if(!ASStringHelper.isNullOrEmpty(dlhzj)){
-						condition.s_dlhzj_string_like=dlhzj;
-					}
-					if(!ASStringHelper.isNullOrEmpty(zl)){
-						condition.s_zl_string_like=zl;
-					}
-					if(!ASStringHelper.isNullOrEmpty(qj)){
-						condition.s_qj_string_like=qj;
 					}
 				}else{
 					var quklytext:String=this.qukilySearchTxt.text;
@@ -418,45 +395,64 @@
 			public var tgY:String = "-1";
 			[Bindable]
 			public var xxtextData:String = "";
+			var tempSelectItemCur:Object = null;
 			public function reInitLineChart(event:Event){
-				
 				var tempSelectItem:Object=this.cns_dg.selectedItem;
-				/* for each(var dataobj:Object in this.dataArray){
-					if(dataobj.selected){
-						tempSelectItem=dataobj;
-						break;
-					}
-				} */
 				if(tempSelectItem==null){
 					return;
 				}
+				tempSelectItemCur = tempSelectItem;
+				//获取风叶实体数据
+				var sLxdid:String = tempSelectItem.lxdid;
+				var condition:Object=new Object();
+				condition.s_lxdid_string_eq=sLxdid;
+				var strcondition:String=JSON.encode(condition);
+				if(ASStringHelper.isNullOrEmpty(strcondition)){
+					Alert.show("风叶ID为空!");
+					return;
+				}
+				this.AllAssetServiceRmt.GetAllAsset("SHRY_FYXN_VIEW",20,1,strcondition);
+				this.AllAssetServiceRmt.addEventListener(ResultEvent.RESULT,getFyDataBack);
+			}
+			//加载相关信息回调方法
+			protected function getFyDataBack(rmtResult:ResultEvent):void{
+				this.AllAssetServiceRmt.removeEventListener(ResultEvent.RESULT,dataSearchActionBack);
+				var objResult:Object=rmtResult.result;
+				var strresult:String=objResult.toString();
+				var jsonObj:Object=JSON.decode(strresult,true);
+				var itemtotal:Object=jsonObj.itemtotal;
+				var othermsg:Object=jsonObj.othermsg;
+				var items:Object=jsonObj.items;
+				if(items==null){
+					Alert.show("未请求到相关数据!");
+					return;
+				}
+//				this.dataArray=new ArrayCollection(items as Array);
+				var tempObj:Object=new ArrayCollection(items as Array).getItemAt(0);
+				//调用数据转换,进行插值
+				var sLxdid:String = tempSelectItemCur.lxdid;
+				var curfyid:String = tempSelectItemCur.fyid;
+				var curZzs:String = tempSelectItemCur.zzs;
+				var dtZzs:String = tempObj.zzs;
+				var dtDlhzj:String = tempObj.dlhzj;
+				var sSql:String = "select * from SHRY_FYXN_DATA where fyid = '"+curfyid+"' and lxdid='"+sLxdid+"' order by (ll+0) asc";
 				
-				var sFyid:String = tempSelectItem.fyid;
-				var sSql:String = "select * from SHRY_FYXN_DATA where fyid = '"+sFyid+"' order by (ll+0) asc";
-				
-				chartService.getXXJGChartList(sSql,JSON.encode(tempSelectItem));
+				var hszsbl:Number = Number(curZzs)/Number(dtZzs) * 100;
+				chartService.getFYXNInsertChartList(sSql,curfyid,hszsbl,dtDlhzj);
 				chartService.addEventListener(ResultEvent.RESULT,resultBack);
 			}
+			
 			private function resultBack(event:ResultEvent):void {
 				chartService.removeEventListener(ResultEvent.RESULT,resultBack);
 				if(event.result == null)return;
-				 var tempSelectItem:Object=this.cns_dg.selectedItem;
-				chartService.translateData(JSON.encode(event.result.list.source),JSON.encode(tempSelectItem),"JL");
-				chartService.addEventListener(ResultEvent.RESULT,resultBack1);
-			}
-			private function resultBack1(event:ResultEvent):void {
-				chartService.removeEventListener(ResultEvent.RESULT,resultBack1);
-				if(event.result == null)return;
 				//添加多曲线
-				var objList:ArrayCollection = new ArrayCollection(event.result as Array); 
-				var objList:ArrayCollection = event.result as ArrayCollection;
+				var objList:ArrayCollection = event.result.insertList as ArrayCollection; 
 				
 				var lineChart4:LinueChartModel = new LinueChartModel();
-				lineChart4.modelTitle="风叶流量—静压曲线图"; lineChart4.height=this.height - 140;
+				lineChart4.modelTitle="风叶流量—静压曲线图"; lineChart4.height=lineChartBox.height - 5;
 				lineChart4.xToolTipTiltle = lineChart4.xAxisTitle= "流量";lineChart4.yToolTipTiltle= lineChart4.yAxisTitle= "静压";
 				lineChart4._xField = "ll"; lineChart4._yField = "jyl";
-				lineChart4.dpArray = objList;
-				lineChart4.percentHeight = 100;
+				lineChart4.dpArray = objList; 
 				lineChart4.tgX = this.tgX;
 				lineChart4.tgY = this.tgY;
 				lineChartBox.removeAllChildren();
@@ -498,7 +494,7 @@
 	</mx:HBox>
 			<mx:VDividedBox width="100%" height="100%" verticalAlign="middle"  horizontalAlign="center" horizontalGap="0">
 				<!--性能数据-->
-				<mx:VBox id="lineChartBox" width="100%" height="70%" verticalGap="2" borderStyle="none" visible="false" includeInLayout="false">
+				<mx:VBox id="lineChartBox" width="100%" height="70%" verticalGap="2" borderStyle="none" visible="true" includeInLayout="true">
 				</mx:VBox>
 				
 				<!--匹配到的风叶列表数据  #B14C6B-->
@@ -532,7 +528,7 @@
 			<mx:VBox width="100%" height="100%" verticalGap="2" borderStyle="none">
 				<!--itemClick="gridItemDataClick(event)" -->
 				<mx:DataGrid id="cns_dg" dataProvider="{dataArray}" rowHeight="{aboutheight}"
-							 itemClick="return;reInitLineChart(event)" doubleClickEnabled="false" width="100%" height="100%">
+							 itemClick="reInitLineChart(event)" doubleClickEnabled="false" width="100%" height="100%">
 					<mx:columns>
 						<mx:DataGridColumn headerText="" minWidth="43" width="43" draggable="false" sortable="false" labelFunction="getColumnIndex" textAlign="center">
 							<mx:itemRenderer>
@@ -551,7 +547,9 @@
 						<mx:DataGridColumn headerText="扭矩(N.M)" width="80" dataField="nj" sortable="true" sortCompareFunction="srotFuncNj"/>
 						<mx:DataGridColumn headerText="轴功率(W)" width="100" dataField="zgl" sortable="true" sortCompareFunction="srotFuncZgl"/>
 						<mx:DataGridColumn headerText="效率(%)" width="100" dataField="xl" sortable="true" sortCompareFunction="srotFuncXl"/>
-						<mx:DataGridColumn headerText="联系单号" width="100" dataField="lxdh" sortable="true" />
+						<mx:DataGridColumn headerText="基准联系单号" width="100" dataField="baseLxdh" sortable="true" />
+						<mx:DataGridColumn headerText="基准联系单ID" width="80" dataField="baseLxdid" sortable="true" />
+						<mx:DataGridColumn headerText="基准转速" width="100" dataField="baseZzs" sortable="true" />
 						<mx:DataGridColumn headerText="" dataField="" sortable="false"/>
 					</mx:columns>
 				</mx:DataGrid>
