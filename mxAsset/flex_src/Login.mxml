@@ -315,10 +315,10 @@
 				<mx:Grid id="loginGridUserName" width="100%" height="60" borderStyle="none">
 					<mx:GridRow width="100%" height="100%" id="gridRow">
 						<mx:GridItem height="100%" id="userNameItem" verticalAlign="bottom" paddingLeft="11" paddingBottom="2" paddingRight="1">
-							<mx:TextInput id="userName" height="46"  text="admin" paddingTop="6" styleName="inputStyle01" width="208" />
+							<mx:TextInput id="userName" height="46"  text="" paddingTop="6" styleName="inputStyle01" width="208" />
 						</mx:GridItem>
 						<mx:GridItem height="100%" verticalAlign="bottom" paddingBottom="2">
-							<mx:TextInput id="userPwd" displayAsPassword="true" height="46" text="admin" width="208" styleName="inputStyle01" />
+							<mx:TextInput id="userPwd" displayAsPassword="true" height="46" text="" width="208" styleName="inputStyle01" />
 						</mx:GridItem>
 						<mx:GridItem height="100%" verticalAlign="bottom" paddingBottom="2">
 							<mx:Button label="登录" cornerRadius="3" click="checkUserLogin()" width="76" height="46" 
