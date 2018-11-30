@@ -65,28 +65,28 @@
 				gamarray.removeAll();
 				var objrst:Object = event.result;
 				var objItem:Object = new Object();
-				objItem.buycount = objrst.tsda;
+				objItem.buycount = objrst.zcsj;
 				objItem.gamtype = "总成数据";
 				gamarray.addItem(objItem);
 				
 				objItem = new Object();
-				objItem.buycount = objrst.jjyj;
+				objItem.buycount = objrst.fysj;
 				objItem.gamtype = "风叶数据";
 				gamarray.addItem(objItem);
 				
 				objItem = new Object();
-				objItem.buycount = objrst.ryhc;
+				objItem.buycount = objrst.djsj;
 				objItem.gamtype = "电机数据";
 				gamarray.addItem(objItem);
 				
 				objItem = new Object();
-				objItem.buycount = objrst.wwclp;
-				objItem.gamtype = "风叶型号";
+				objItem.buycount = objrst.zssj;
+				objItem.gamtype = "噪声数据";
 				gamarray.addItem(objItem);
 				
 				objItem = new Object();
-				objItem.buycount = objrst.xxsb;
-				objItem.gamtype = "电机型号";
+				objItem.buycount = objrst.cjsj;
+				objItem.gamtype = "插件数据";
 				gamarray.addItem(objItem);
 				
 			}

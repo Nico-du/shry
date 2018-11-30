@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--固定资产废弃情况,展示近10年-->
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()"
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initPage()" creationComplete="afterInitPage()"
 		   width="100%" height="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="12">
 	<mx:RemoteObject id="ChartService" destination="chartService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
@@ -36,28 +36,28 @@
 				strokeffect=new SolidColorStroke();
 				strokeffect.color=0xFFFFFF;
 				strokeffect.weight=1;
-				
+			}
+			
+			//初始化页面之后调用
+			public function afterInitPage():void{
 				ChartService.getXXSBInfo();
 				ChartService.addEventListener(ResultEvent.RESULT,resultBack);
 			}
+			
 			private function resultBack(event:ResultEvent):void {
 				ChartService.removeEventListener(ResultEvent.RESULT,resultBack);
 				if(event.result == null)return;
 				var objList:ArrayCollection = event.result as ArrayCollection;
 				var objCell:Object;
-				gamarray.removeAll();
+				var rstAry:ArrayCollection = new ArrayCollection();
 				for(var i:int=0;i<objList.length;i++){
 					objCell = objList.getItemAt(i);
 					var arrItem:Object = new Object();
 					arrItem.year = objCell[0];
 					arrItem.buycount = objCell[1];
-					gamarray.addItem(arrItem);
+					rstAry.addItem(arrItem);
 				}
-			}
-			
-			//初始化页面之后调用
-			public function afterInitPage():void{
-				
+				gamarray = rstAry;
 			}
 		]]>
 	</mx:Script>
@@ -86,7 +86,7 @@
 					</mx:verticalAxisRenderers>
 					<mx:series>
 						<!--其纵坐标的数据是根据yFiled中的数据动态生成的-->
-						<mx:LineSeries yField="buycount" displayName="日用耗材" form="segment" itemRenderer="mx.charts.renderers.CircleItemRenderer" lineStroke="{strokeffect}"/>
+						<mx:LineSeries yField="buycount" displayName="风叶性能数据" form="segment" itemRenderer="mx.charts.renderers.CircleItemRenderer" lineStroke="{strokeffect}"/>
 					</mx:series>
 				</mx:LineChart>
 			</mx:Canvas>

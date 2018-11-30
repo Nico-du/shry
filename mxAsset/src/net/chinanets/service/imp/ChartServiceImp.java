@@ -1348,48 +1348,29 @@ public String translateData(String jsonArrayStrIn,String jsonObjectIn,String typ
 	 */
 	public Map getAssetBuyInfo(int yearStr){
 		Map countMap = new HashMap();
-	/*	if((yearStr+"").length() != 4)return null;
-		String xxsbSql = "SELECT count(0) FROM (" +
-				"SELECT GZRQ FROM ASSET_CABLE" +
-				" UNION ALL" +
-				" SELECT GZRQ  FROM  ASSET_COMPUTER" +
-				"  UNION ALL" +
-				" SELECT GZRQ  FROM  ASSET_JZ" +
-				"  UNION ALL" +
-				" SELECT GZRQ   FROM  ASSET_MODULE" +
-				"  UNION ALL" +
-				" SELECT  GZRQ  FROM  ASSET_NET" +
-				"  UNION ALL" +
-				" SELECT  GZRQ  FROM  ASSET_SERVER" +
-				"  UNION ALL" +
-				" SELECT GZRQ   FROM  ASSET_STORAGE" +
-				"  UNION ALL" +
-				" SELECT GZRQ   FROM  ASSET_UPS" +
-				"  UNION ALL" +
-				" SELECT GZRQ   FROM  ASSET_VIDEO" +
-				"  UNION ALL" +
-				" SELECT  GZRQ  FROM  ASSET_WSSB ) WHERE instr(GZRQ,'"+yearStr+"')>0 ";
-		String wwclpSql = "SELECT count(0) FROM TB_HERITAGE WHERE instr(TO_CHAR(GZRQ,'YYYY-MM-DD'),'"+yearStr+"')>0 ";
-		String ryhcSql = "SELECT count(0) FROM CNST_RYHCMX_DATA WHERE instr(TO_CHAR(CTIME,'YYYY-MM-DD'),'"+yearStr+"')>0 ";
-		String jjyjSql = "SELECT count(0) FROM T_FURNITURE WHERE instr(TO_CHAR(GZRQ,'YYYY-MM-DD'),'"+yearStr+"')>0 ";
-		String tsdaSql = "SELECT count(0) FROM T_BOOK WHERE instr(TO_CHAR(GZRQ,'YYYY-MM-DD'),'"+yearStr+"')>0 ";
+		if((yearStr+"").length() != 4)return null;
+		String xxsbSql = "SELECT count(0) FROM  SHRY_ZC_DATA WHERE instr(TO_CHAR(inputdate,'YYYY-MM-DD'),'"+yearStr+"')>0 ";
+		String wwclpSql = "SELECT count(0) FROM SHRY_FY_DATA WHERE instr(TO_CHAR(inputdate,'YYYY-MM-DD'),'"+yearStr+"')>0 ";
+		String ryhcSql = "SELECT count(0) FROM SHRY_DJ_DATA WHERE instr(TO_CHAR(inputdate,'YYYY-MM-DD'),'"+yearStr+"')>0 ";
+		String jjyjSql = "SELECT count(0) FROM shry_fy_zs_data WHERE instr(TO_CHAR(inputdate,'YYYY-MM-DD'),'"+yearStr+"')>0 ";
+		String tsdaSql = "SELECT count(0) FROM SHRY_CJSJ_DATA WHERE instr(TO_CHAR(inputdate,'YYYY-MM-DD'),'"+yearStr+"')>0 ";
 		
 	
 		List rstList = super.getObjectBySql(xxsbSql);
-		countMap.put("xxsb", rstList.get(0));
+		countMap.put("zcsj", rstList.get(0));
 		
 		rstList = super.getObjectBySql(wwclpSql);
-		countMap.put("wwclp", rstList.get(0));
+		countMap.put("fysj", rstList.get(0));
 		
 		rstList = super.getObjectBySql(ryhcSql);
-		countMap.put("ryhc", rstList.get(0));
+		countMap.put("djsj", rstList.get(0));
 		
 		rstList = super.getObjectBySql(jjyjSql);
-		countMap.put("jjyj", rstList.get(0));
+		countMap.put("zssj", rstList.get(0));
 		
 		rstList = super.getObjectBySql(tsdaSql);
-		countMap.put("tsda", rstList.get(0));
-	*/
+		countMap.put("cjsj", rstList.get(0));
+	
 		return countMap;
 	}
 	/**
@@ -1399,9 +1380,9 @@ public String translateData(String jsonArrayStrIn,String jsonObjectIn,String typ
 		int curYear = (new Date()).getYear()+1900;
 		String ryhcSql = "";
 		int year;
-		for(int i=2008;i<=curYear;i++){
+		for(int i=2016;i<=curYear;i++){
 			year = i;
-			ryhcSql += "SELECT "+year+",count(0) count FROM CNST_RYHCMX_DATA WHERE instr(TO_CHAR(CTIME,'YYYY-MM-DD'),'"+year+"')>0 ";
+			ryhcSql += "SELECT "+year+",count(0) count FROM shry_syd_data where sydx='风叶' and instr(TO_CHAR(inputdate,'YYYY-MM-DD'),'"+year+"')>0 ";
 			if(i<curYear){
 				ryhcSql += " UNION ALL ";
 			}
