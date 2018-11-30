@@ -1015,7 +1015,8 @@ package flex.util
 			if(currentPwd.hasOwnProperty("removeAction")){ currentPwd["removeAction"].visible = (anthObj.sfDelete=="是");currentPwd["removeAction"].includeInLayout = (anthObj.sfDelete=="是");}
 			if(currentPwd.hasOwnProperty("editAction")){ currentPwd["editAction"].visible = (anthObj.sfModify=="是");currentPwd["editAction"].includeInLayout = (anthObj.sfModify=="是");}
 			if(currentPwd.hasOwnProperty("exportAction")){ currentPwd["exportAction"].visible = (anthObj.sfExport=="是");currentPwd["exportAction"].includeInLayout = (anthObj.sfExport=="是");}
-			if(currentPwd.hasOwnProperty("otherAction")){ currentPwd["otherAction"].visible =false;/* (anthObj.sfOther=="是");*/currentPwd["otherAction"].includeInLayout =false;/* (anthObj.sfOther=="是");*/	}		
+			if(currentPwd.hasOwnProperty("otherAction")){ currentPwd["otherAction"].visible = (anthObj.sfOther=="是");currentPwd["otherAction"].includeInLayout = (anthObj.sfOther=="是");	}
+			if(currentPwd.hasOwnProperty("importAction")){ currentPwd["importAction"].visible = (anthObj.sfOther=="是");currentPwd["importAction"].includeInLayout =(anthObj.sfOther=="是");	}
 			
 			//流程页面控制权限
 			if(currentPwd.hasOwnProperty("isAddUsable")){ currentPwd["isAddUsable"] =  (anthObj.sfAdd=="是");}

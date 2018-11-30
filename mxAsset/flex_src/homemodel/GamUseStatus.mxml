@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--所有物资使用情况统计,饼状图-->
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" initialize="initializeHandler(event)"
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initializeHandler(event)"
 		   width="100%" height="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="12" xmlns:local="*" xmlns:asset="com.asset.*" xmlns:mycoms="com.mycoms.*">
 	<mx:RemoteObject id="ChartService" destination="chartService" endpoint="/mxAsset/messagebroker/amf" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
+			import flex.util.CommonMethod;
+			
 			import mx.core.Application;
 			import mx.core.FlexGlobals;
 			import mx.events.FlexEvent;
@@ -32,6 +34,13 @@
 				if(ruleId=="42" || ruleId=="43" || ruleId=="45" ){
 				//	mainTile.removeChild(smzq_rkdj);
 				}
+				var cAry:Array = mainTile.getChildren();
+				for(var i:Number=0;i<cAry.length;i++){
+					var chDo:DisplayObject = cAry[i];
+					var dataDBId:String = chDo["dataDBId"];
+					var xmlList:XMLList = Application.application.userAutorityXML.node.(@id==dataDBId);
+				    if(xmlList.length() < 1){   mainTile.removeChild(chDo); }
+				}
 			}
 
 		]]>
@@ -41,13 +50,13 @@
 			<mx:Label text="快捷菜单" textIndent="10" width="100%" height="20" fontWeight="bold" fontSize="13"/>
 		</mx:HBox> 
 		<mx:Tile id="mainTile" width="100%" height="100%" paddingTop="20" paddingLeft="20" borderStyle="none" horizontalAlign="center" horizontalGap="10" verticalAlign="top" verticalGap="0">
-			<mycoms:ImageCanvas id="xxcz_fyxx" txt="风叶选型" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_rk_img.gif"/>
-			<mycoms:ImageCanvas id="zlgl_fysj" txt="风叶查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_ly_img.gif"/>
-			<mycoms:ImageCanvas id="zlgl_zcsj" txt="总成查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_wx_img.gif"/>
-			<mycoms:ImageCanvas id="zlgl_djsj" txt="电机查询"  click="buttonSelectClick(event)" width="100" height="100" imgname="sy_tk_img.gif"/>
-			<mycoms:ImageCanvas id="xncs_sydsj" txt="试验单查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_bf_img.gif"/>
-			<mycoms:ImageCanvas id="zlgl_zssj" txt="风叶噪声查询" click="buttonSelectClick(event)" width="100" height="100" imgname="p2_lt.png"/>
-			<mycoms:ImageCanvas id="zlgl_cjsj" txt="插件查询" click="buttonSelectClick(event)" width="100" height="100" imgname="p3_lt.png"/>
+			<mycoms:ImageCanvas id="xxcz_fyxx" dataDBId="1101"  txt="风叶选型" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_rk_img.gif"/>
+			<mycoms:ImageCanvas id="zlgl_fysj" dataDBId="202" txt="风叶查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_ly_img.gif"/>
+			<mycoms:ImageCanvas id="zlgl_zcsj" dataDBId="201" txt="总成查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_wx_img.gif"/>
+			<mycoms:ImageCanvas id="zlgl_djsj" dataDBId="204" txt="电机查询"  click="buttonSelectClick(event)" width="100" height="100" imgname="sy_tk_img.gif"/>
+			<mycoms:ImageCanvas id="xncs_sydsj" dataDBId="301" txt="试验单查询" click="buttonSelectClick(event)" width="100" height="100" imgname="sy_bf_img.gif"/>
+			<mycoms:ImageCanvas id="zlgl_zssj"  dataDBId="203" txt="风叶噪声查询" click="buttonSelectClick(event)" width="100" height="100" imgname="p2_lt.png"/>
+			<mycoms:ImageCanvas id="zlgl_cjsj" dataDBId="205" txt="插件查询" click="buttonSelectClick(event)" width="100" height="100" imgname="p3_lt.png"/>
 			<!--添加图例，也就是说明图形的某个线条的颜色和作用的实例--> 
 		</mx:Tile>
 	</mx:VBox>

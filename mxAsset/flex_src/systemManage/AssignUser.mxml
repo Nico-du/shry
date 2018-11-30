@@ -349,7 +349,7 @@ private function onEditBeginning(event:AdvancedDataGridEvent):void {
 			<mx:Canvas id="canvasSelectedMenu" width="100%" height="100%" >
 				<mx:VBox width="100%" height="100%">
 					<mx:HBox width="100%">
-						<mx:Label text="注: ' '表示不可见，'是'表示可用，'否'表示不可用。" color="red"/>
+						<mx:Label text="注: ' '表示不可见，'是'表示可用，'否'表示不可用。普通用户只能操作自己创建的数据。" color="red"/>
 					</mx:HBox>
 					<mx:RadioButtonGroup id="radSf"/>
 					<systemManage:MyAdvancedDataGrid width="100%" itemEditBeginning="onEditBeginning(event)" id="advanceDg" height="100%" editable="true" displayItemsExpanded="true">

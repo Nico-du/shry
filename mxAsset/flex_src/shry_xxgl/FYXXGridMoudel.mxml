@@ -434,7 +434,8 @@
 				var curfyid:String = tempSelectItemCur.fyid;
 				var curZzs:String = tempSelectItemCur.zzs;
 				var dtZzs:String = tempObj.zzs;
-				var dtDlhzj:String = tempObj.dlhzj;
+				var dtDlhzj:Number =Number(String(tempObj.dlhzj));
+				if( dtDlhzj < 1){	dtDlhzj = 0;}
 				var sSql:String = "select * from SHRY_FYXN_DATA where fyid = '"+curfyid+"' and lxdid='"+sLxdid+"' order by (ll+0) asc";
 				
 				var hszsbl:Number = Number(curZzs)/Number(dtZzs) * 100;

@@ -524,6 +524,7 @@
 				}else{
 				    hszsbl = hszsbl/Number(hsCbx.selectedItem.zzs+"") * 100;
 				}
+				if(hsdlhzj < 1){ hsdlhzj = 0;}
 				isInit = true;
 				chartService.getFYXNInsertChartList(sSql,dataId,hszsbl,hsdlhzj);
 				chartService.addEventListener(ResultEvent.RESULT,resultBack);

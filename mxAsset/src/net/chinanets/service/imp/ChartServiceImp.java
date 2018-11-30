@@ -818,6 +818,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 		
 		double dhsbl = hszsbl/100;
 		if(dhsbl == 1 && dlhzj == hsdlhzj){return rstList;}
+		if(dlhzj == hsdlhzj && dlhzj == 0.0){ dlhzj = hsdlhzj = 1D; fyObj.setDlhzj("1");}
 		String djy,dll,dzs,dgl,dnj,dxl;
 		djy = dll = dzs = dgl = "";
 		for(ShryFyxnData each : rstList){
@@ -1121,6 +1122,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 		
 		double dhsbl = hszsbl/100;
 		if(dhsbl == 1 && dlhzj == hsdlhzj){return rstList;}
+		if(dlhzj == hsdlhzj && dlhzj == 0.0){ dlhzj = hsdlhzj = 1D; fyObj.setDlhzj("1");}
 		String djy,dll,dzs,dgl,dxl;
 		djy = dll = dzs = dgl = "";
 		for(ShryZcxnData each : rstList){

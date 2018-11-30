@@ -5,6 +5,7 @@
 		 mouseOver="vbox1_mouseOverHandler()" mouseOut="vbox1_mouseOutHandler()" >
 <mx:Script>
 	<![CDATA[
+		[Bindable] public var dataDBId:String;//数据库中的菜单ID，用来判断是否要显示这个快捷菜单
 		[Bindable] public var imgname:String;
 		[Bindable] public var txt:String;
 		[Bindable] public var isbuttonMode:Boolean = true;
