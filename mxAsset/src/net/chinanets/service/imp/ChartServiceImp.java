@@ -25,6 +25,7 @@ import net.chinanets.utils.MatlabInterp1Util;
 import net.chinanets.utils.common.DoResult;
 import net.chinanets.utils.common.Errors;
 import net.chinanets.vo.UserVo;
+import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -204,7 +205,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 		Map<String,Map<String,ShryFyxnData>> rstMap = new HashMap<String,Map<String,ShryFyxnData>>();
 		if(fyxnList == null || fyxnList.isEmpty()){ return rstMap; }
 		
-		//Step1 分组:按风叶ID+LXDID分组,key:风叶ID_该组平均转速
+		//Step1 分组:按风叶ID+LXDID分组,key:风叶ID_该组平均转速 //check?
 		Map<String,List<ShryFyxnData>> xnListMap = new HashMap<String,List<ShryFyxnData>>();
 		Long zsAll;	List<ShryFyxnData> eachFyxnList;
 		Long curfyid = null; Long curLxdid = null; 
@@ -215,7 +216,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 				eachFyxnList = new ArrayList<ShryFyxnData>();
 				for(int idx=0;idx<fyxnList.size();idx++){//丢失数据的问题？？？
 						eachFyxn = fyxnList.get(idx);
-						if(eachFyxn.getLxdid() == curLxdid){
+						if(eachFyxn.getLxdid().longValue() == curLxdid.longValue()){
 							zsAll += NumberUtils.toLong(eachFyxn.getZzs());
 							eachFyxnList.add(eachFyxn);
 							fyxnList.remove(idx);
@@ -415,7 +416,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 					logger.info("找到符合数据：fyid_zs="+chKey+"_"+chZsKey+",基准转速="+baseZsMap.get(chKey+"_"+chZsKey)+",index="+zsIndexMap.get(chKey+"_"+chZsKey)+",目标流量="+dLl+",当前流量="+insertXnData.getLl());
 				}
 			}
-			//按效率排序取前N个
+			//按流量差值排序取前N个(取最接近目标流量的数据)
 			eachUseMap = getFirstNXLData(eachUseMap);
 			
 			
@@ -427,19 +428,20 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 	}
 
 
-    //按效率排序取前N个
+    //按流量差值排序取前N个(取最接近目标流量的数据)
 	private Map<String, ShryFyxnData> getFirstNXLData(Map<String, ShryFyxnData> eachUseMap) {
 		Map<String, ShryFyxnData> rstMap = new HashMap<String, ShryFyxnData>();
-		int arg_xxjg_xl = NumberUtils.toInt(commonDao.getDictValue(CODETYPE, "FYXX_XXJG_XL"));
+		int arg_xxjg_xl = NumberUtils.toInt(commonDao.getDictValue(CODETYPE, "FYXX_XXJG_LL"));
 		arg_xxjg_xl = arg_xxjg_xl < 1 ? 1 : arg_xxjg_xl;
 		Map<Double,String> xlMap = new HashMap<Double,String>();
 		for(String ch:eachUseMap.keySet()){
 			if(StringUtils.isBlank(ch) || eachUseMap.get(ch)==null){ continue;}
-			xlMap.put(NumberUtils.toDouble(eachUseMap.get(ch).getXl()), ch);
+			xlMap.put(NumberUtils.toDouble(eachUseMap.get(ch).getLl()), ch);
 		}
+		arg_xxjg_xl = arg_xxjg_xl > xlMap.keySet().size() ? xlMap.keySet().size() : arg_xxjg_xl;
 		Object[] keyAry = xlMap.keySet().toArray();
 		Arrays.sort(keyAry);
-		keyAry = Arrays.asList(keyAry).subList(keyAry.length-arg_xxjg_xl, keyAry.length).toArray();
+		keyAry = Arrays.asList(keyAry).subList(0,arg_xxjg_xl).toArray();
 //		keyAry = Arrays.copyOfRange(keyAry, keyAry.length-arg_xxjg_xl, keyAry.length);
 		for(Object ch:keyAry){
 			rstMap.put(xlMap.get(ch), eachUseMap.get(xlMap.get(ch)));
@@ -678,7 +680,7 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 	}
 	/**
 	 * 风叶性能数据插值--多条批量
-	 * @param convertList
+	 * @param convertList List<ShryFyxnData>[]：按顺序排列,一个List内有多个性能数据，按顺序进行插值计算。List<ShryFyxnData>[0]代表一组需要插值的数据.
 	 * @param insertAry
 	 * @return
 	 * @throws Exception 
@@ -695,11 +697,13 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 			if(convertList[i] == null){continue;}
 			convertListLg++;
 		}
+		logger.info("convertList="+JSONArray.fromObject(convertList));
 		convertList = Arrays.copyOfRange(convertList, 0, convertListLg);
 		insertAry = Arrays.copyOfRange(insertAry, 0, convertListLg);
 		
 		insertAry = convertFyMaxValue(convertList,insertAry);
 		
+		logger.info("insertAry="+JSONArray.fromObject(insertAry));
 		//流量、扭矩、轴功率、效率
 		double[][] xAry,aAry,yLlAry,yZglAry,yXlAry,yZzsAry,yFzsAry,yNjAry;
 		int cLg = insertAry.length;
@@ -732,6 +736,8 @@ S2:假设该风叶有多组性能数据：S2_1:以n_each/n_min/n_max为参数,�
 				}
 			}
 		}
+		logger.info("xAry="+JSONArray.fromObject(xAry));
+		
 		logger.info("--------------开始调用MatlabInterp1Util.InterpMultipX进行风叶插值计算----------------");
 		Double[][] yVLlAry = MatlabInterp1Util.InterpMultiX(xAry, yLlAry, aAry);
 		Double[][] yVZglAry = MatlabInterp1Util.InterpMultiX(xAry, yZglAry, aAry);

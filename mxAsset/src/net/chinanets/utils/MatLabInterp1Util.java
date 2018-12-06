@@ -1,5 +1,6 @@
 package net.chinanets.utils;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -212,11 +213,24 @@ public class MatlabInterp1Util {
 	 */
 	public static Double[][] InterpMultiX(double [][]xArray,double [][]yArray,double [][]aList) throws Exception {
 		long startTime = System.currentTimeMillis();
-		if(xArray == null || yArray==null || xArray[0].length <2 || xArray.length <1 || xArray[0].length != yArray[0].length 
-				|| xArray.length != yArray.length || aList == null || aList.length < 1 || aList[0].length < 1 || xArray.length != aList.length){
+		if(xArray == null || yArray==null || xArray[0].length <2 || xArray.length <1 || aList == null || aList.length < 1 || aList[0].length < 1){
 			System.out.println("MatlabInterp1Util.InterpOneX-参数错误,调用失败...");
+			System.out.println("参数如下：xArray="+JSONArray.fromObject(xArray)+",yArray="+JSONArray.fromObject(yArray)+",aList="+JSONArray.fromObject(aList));
 			throw new Exception("MatlabInterp1Util.InterpOneX-参数错误,调用失败...");
 		}
+		if(xArray[0].length != yArray[0].length || xArray.length != yArray.length){
+			System.out.println("xArray与yArray长度不一致");
+			System.out.println("xArray.length="+xArray.length+",yArray="+yArray.length);
+			System.out.println("参数如下：xArray="+JSONArray.fromObject(xArray[0])+",yArray="+JSONArray.fromObject(yArray[0]));
+			throw new Exception("MatlabInterp1Util.InterpOneX-参数错误：xArray与yArray长度不一致,调用失败...");
+		}
+		if(xArray.length != aList.length){
+			System.out.println("xArray与aList长度不一致");
+			System.out.println("xArray.length="+xArray.length+",aList="+aList.length);
+			System.out.println("参数如下：xArray="+JSONArray.fromObject(xArray)+",aList="+JSONArray.fromObject(aList));
+			throw new Exception("MatlabInterp1Util.InterpOneX-参数错误：xArray与aList长度不一致,调用失败...");
+		}
+		
 		final int sonAryLgth = 30;//默认子数组长度,为空填充0
 		int aryLgth = xArray.length;//父数组长度
 		if(xArray[aryLgth-1]==null){ aryLgth--;} if(xArray[aryLgth-1]==null){ aryLgth--;}
