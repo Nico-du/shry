@@ -166,6 +166,10 @@ package flex.util
 		//上传图片 文件上传的公共方法
 		public static function modifyUploadFile(parentWd:DisplayObject,tablename:String,columnname:String,dataid:String,isDetailPage:Boolean=false,datatype:String="1",sydid:String=null):void
 		{
+			if(CommonMethod.isNullOrWhitespace(dataid)){
+			   Alert.show("请先保存数据，再添加附件！");
+			   return;
+			}
 			var editDoc:Object;
 			if(isDetailPage){
 				editDoc = new DetailDocument();

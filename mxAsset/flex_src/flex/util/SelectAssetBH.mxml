@@ -72,7 +72,7 @@
 						vsb1 = false; vsb2 = false; vsb3 = false;vsb4 = true; vsb5 = false;
 						break;
 					case "DJLXD": 
-						pageTitle = "选择总成联系单号";
+						pageTitle = "选择电机联系单号";
 						vsb1 = false; vsb2 = false; vsb3 = false;vsb4 = false; vsb5 = true;
 						break;
 				}
@@ -213,7 +213,7 @@
 					}
 				}else if(chooseType == "DJ"){
 					mcInput.text = selectData[xhColumnName];  mcInput.data = selectData[idColumnName]; 
-					motorType.selectedIndex = CommonMethod.getCbxItemIndex(selectData["isysdj"],motorType,null,"itemno");
+					if(motorType != null){	motorType.selectedIndex = CommonMethod.getCbxItemIndex(selectData["isysdj"],motorType,null,"itemno");}
 				}else{
 	             if(mcInput != null){
 					if(chooseType == "ZC" && xhInput != null){

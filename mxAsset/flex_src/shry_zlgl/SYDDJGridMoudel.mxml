@@ -296,7 +296,7 @@
 				}else{
 					var quklytext:String=this.qukilySearchTxt.text;
 					if(!ASStringHelper.isNullOrEmpty(quklytext)){
-						condition.s_lxdh_string_like=quklytext;
+						condition.s_project_string_like=quklytext;
 					}
 				}
 		//		condition.s_bfdid_string_eq=bfdid;

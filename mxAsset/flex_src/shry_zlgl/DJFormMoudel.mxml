@@ -785,7 +785,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<mx:TextInput width="100%" height="{aboutheight}" id="fyxh" editable="false"/>
+											<mx:TextInput width="80%" height="{aboutheight}" id="fyxh" editable="false"/>
 											<mx:LinkButton id="CHFYXH" click="if(!this.saveAction.visible)return;CommonMethod.getAssetBH(this,'FY',fyxh);" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
 										</mx:FormItem>
 									</mx:GridItem>
@@ -805,7 +805,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="dl" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="dl" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -845,7 +845,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="ysXl" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="ysXl" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -884,7 +884,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="ysZc" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="ysZc" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -925,7 +925,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="wsKzlx" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="wsKzlx" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -964,7 +964,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="wsLjqdy" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="wsLjqdy" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -1003,7 +1003,7 @@
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-											<numberInput:NumberTextInput id="wsTxcpWj" width="100%" height="{aboutheight}"/>
+											<mx:TextInput id="wsTxcpWj" width="100%" height="{aboutheight}"/>
 										</mx:FormItem>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="right" verticalAlign="middle" width="10%">
@@ -1125,7 +1125,7 @@
 										<mx:HBox id="fyts" width="100%" height="{aboutheight*5}" borderStyle="none" verticalAlign="middle" horizontalAlign="left">
 											<!--<mx:Image id="image1" source="{imgFileNameT}"   height="{aboutheight*5}" width="{aboutheight*5}"/>
 											<mx:Image id="image2" source="{imgFileNameB}"    height="{aboutheight*5}" width="{aboutheight*5}"/>-->
-											<mx:Button label="添加文件" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,this.idColumnName,this.dataId)"/>
+											<mx:Button label="附    件" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,this.idColumnName,this.dataId)"/>
 										</mx:HBox>
 									</mx:GridItem>
 								</mx:GridRow>

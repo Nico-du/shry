@@ -267,8 +267,8 @@
 				
 				this.fyxh.text=tempObj["fyxh"];
 				this.fyxh.data=tempObj["fyid"];
-				this.djxh.text=tempObj["djid"];
-		//		this.djxh.data=tempObj["djid"];
+				this.djxh.text=tempObj["djxh"];
+				this.djxh.data=tempObj["djid"];
 				
 				this.jqfs.text=tempObj["jqfs"];
 				this.wxcc.text=tempObj["wxcc"];
@@ -284,7 +284,7 @@
 				this.jsyqid = tempObj["jsyqid"];
 					
 				//this.whkckzfs.text=tempObj["whkckzfs"];
-				this.whkckzfs.setText(tempObj["whkckzfs"]);
+				this.whkckzfs.setValue(tempObj["whkckzfs"]);
 				this.whkczkb1.text=tempObj["whkczkb1"];
 				this.whkczs1.text=tempObj["whkczs1"];
 				this.whkcdl1.text=tempObj["whkcdl1"];
@@ -877,8 +877,8 @@
 									<mx:GridItem horizontalAlign="left" verticalAlign="middle" width="23%">
 										<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
 											<mx:HBox width="100%" height="{aboutheight}" borderStyle="none" horizontalGap="0" verticalGap="0" horizontalAlign="left" verticalAlign="middle">
-												<mx:TextInput  id="djxh" width="100%" height="{aboutheight}"/>
-												<!--<mx:LinkButton id="CHDJXH" click="if(!this.saveAction.visible)return;CommonMethod.getAssetBH(this,'ZC',djxh);" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>-->
+												<mx:TextInput  id="djxh" width="100%" height="{aboutheight}" editable="false"/>
+												<mx:LinkButton id="CHDJXH" click="if(!this.saveAction.visible)return;CommonMethod.getAssetBH(this,'DJ',djxh);" fontWeight="normal" width="20" height="{aboutheight}" toolTip="选择数据" icon="@Embed(source='images/icon_choosedate.gif')"/>
 											</mx:HBox>
 										</mx:FormItem>
 									</mx:GridItem>
@@ -992,7 +992,7 @@
 										<mx:HBox id="fyts" width="100%" height="{aboutheight*5}" borderStyle="none" verticalAlign="middle" horizontalAlign="left">
 											<!--<mx:Image id="image1" source="{imgFileNameT}"   height="{aboutheight*5}" width="{aboutheight*5}"/>
 											<mx:Image id="image2" source="{imgFileNameB}"    height="{aboutheight*5}" width="{aboutheight*5}"/>-->
-											<mx:Button  label="添加文件" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,this.idColumnName,this.dataId)"/>
+											<mx:Button  label="附    件" click="CommonMethod.modifyUploadFile(this,tempObjBeanName,this.idColumnName,this.dataId)"/>
 										</mx:HBox>
 									</mx:GridItem>
 								</mx:GridRow>
@@ -1054,13 +1054,13 @@
 										<mx:Label text="1."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkczkb1" width="70%" height="{aboutheight}"/>
+										<mx:TextInput  id="whkczkb1" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkczs1" width="70%" height="{aboutheight}"/>
+										<mx:TextInput  id="whkczs1" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkcdl1" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="whkcdl1" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								
@@ -1069,13 +1069,13 @@
 										<mx:Label text="2."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkczkb2" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="whkczkb2" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkczs2" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="whkczs2" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkcdl2" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="whkcdl2" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								
@@ -1084,13 +1084,13 @@
 										<mx:Label text="3."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkczkb3" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="whkczkb3" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkczs3" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="whkczs3" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="33%">
-											<numberInput:NumberTextInput  id="whkcdl3" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="whkcdl3" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								
@@ -1142,10 +1142,10 @@
 										<mx:Label text="1."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzdjy1" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="gzdjy1" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzdll1" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="gzdll1" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								
@@ -1154,10 +1154,10 @@
 										<mx:Label text="2."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzdjy2" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="gzdjy2" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzdll2" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="gzdll2" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 								
@@ -1166,10 +1166,10 @@
 										<mx:Label text="3."  fontWeight="normal" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzdjy3" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="gzdjy3" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 									<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
-											<numberInput:NumberTextInput  id="gzdll3" width="70%" height="{aboutheight}"/>
+											<mx:TextInput  id="gzdll3" width="70%" height="{aboutheight}"/>
 									</mx:GridItem>
 								</mx:GridRow>
 							</mx:Grid>
@@ -1213,7 +1213,7 @@
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
 											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<numberInput:NumberTextInput  id="zsgsed" width="80%" height="{aboutheight}"/>
+												<mx:TextInput  id="zsgsed" width="80%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
 										
@@ -1222,7 +1222,7 @@
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
 											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<numberInput:NumberTextInput  id="zsdsed" width="80%" height="{aboutheight}"/>
+												<mx:TextInput  id="zsdsed" width="80%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
 									</mx:GridRow>
@@ -1239,7 +1239,7 @@
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
 											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<numberInput:NumberTextInput  id="zsgssc" width="80%" height="{aboutheight}"/>
+												<mx:TextInput  id="zsgssc" width="80%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
 										
@@ -1248,7 +1248,7 @@
 										</mx:GridItem>
 										<mx:GridItem horizontalAlign="center" verticalAlign="middle" width="30%">
 											<mx:FormItem direction="horizontal" horizontalGap="0" width="100%" height="{aboutheight}">
-												<numberInput:NumberTextInput  id="zsdssc" width="80%" height="{aboutheight}"/>
+												<mx:TextInput  id="zsdssc" width="80%" height="{aboutheight}"/>
 											</mx:FormItem>
 										</mx:GridItem>
 									</mx:GridRow>
